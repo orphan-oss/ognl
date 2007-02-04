@@ -1,0 +1,75 @@
+<?xml version='1.0'?>
+
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                version='1.0'
+                xmlns="http://www.w3.org/TR/xhtml1/transitional"
+                exclude-result-prefixes="#default">
+
+    <xsl:import href="fo/@format@.xsl"/>
+
+    <xsl:param name="draft.mode" select="'no'"/>
+
+    <xsl:attribute-set name="monospace.verbatim.properties" use-attribute-sets="verbatim.properties">
+        <xsl:attribute name="font-family">
+            <xsl:value-of select="$monospace.font.family"/>
+        </xsl:attribute>
+        <xsl:attribute name="font-size">
+            <xsl:value-of select="$body.font.master * 0.50"/>
+            <xsl:text>pt</xsl:text>
+        </xsl:attribute>
+        <xsl:attribute name="start-indent">0.25in</xsl:attribute>
+        <xsl:attribute name="border-color">#CCCCCC</xsl:attribute>
+        <xsl:attribute name="border-style">solid</xsl:attribute>
+        <xsl:attribute name="border-width">0.25pt</xsl:attribute>
+        <xsl:attribute name="background-color">#EEEEEE</xsl:attribute>
+    </xsl:attribute-set>
+
+    <xsl:attribute-set name="verbatim.properties">
+        <xsl:attribute name="padding-left">2pt</xsl:attribute>
+        <xsl:attribute name="padding-top">2pt</xsl:attribute>
+        <xsl:attribute name="padding-right">2pt</xsl:attribute>
+        <xsl:attribute name="padding-bottom">2pt</xsl:attribute>
+        <xsl:attribute name="space-before.minimum">0.8em</xsl:attribute>
+        <xsl:attribute name="space-before.optimum">1em</xsl:attribute>
+        <xsl:attribute name="space-before.maximum">1.2em</xsl:attribute>
+        <xsl:attribute name="text-align">start</xsl:attribute>
+    </xsl:attribute-set>
+
+    <xsl:param name="navig.graphics" select="1"/>
+    <xsl:param name="navig.graphics.path">common-images/</xsl:param>
+    <xsl:param name="navig.showtitles">1</xsl:param>
+    <xsl:param name="navig.graphics.extension" select="'.gif'"/>
+
+    <xsl:param name="admon.graphics" select="1"/>
+    <xsl:param name="admon.graphics.path">common-images/</xsl:param>
+    <xsl:param name="admon.graphics.extension" select="'.gif'"/>
+    <xsl:param name="admon.graphic.width" select="24"/>
+
+    <xsl:attribute-set name="admonition.properties">
+        <xsl:attribute name="font-size">
+            <xsl:value-of select="$body.font.master * 0.65"/>
+            <xsl:text>pt</xsl:text>
+        </xsl:attribute>
+    </xsl:attribute-set>
+
+    <xsl:attribute-set name="admonition.title.properties">
+        <xsl:attribute name="font-size">
+            <xsl:value-of select="$body.font.master * 0.65"/>
+            <xsl:text>pt</xsl:text>
+        </xsl:attribute>
+      <xsl:attribute name="font-weight">bold</xsl:attribute>
+      <xsl:attribute name="hyphenate">false</xsl:attribute>
+      <xsl:attribute name="keep-with-next.within-column">always</xsl:attribute>
+    </xsl:attribute-set>
+
+    <xsl:param name="callout.graphics" select="1"/>
+    <xsl:param name="callout.graphics.path">standard-images/callouts/</xsl:param>
+    <xsl:param name="callout.graphics.extension" select="'.gif'"/>
+    <xsl:param name="callout.unicode" select="1"/>
+
+    <xsl:param name="variablelist.as.blocks" select="1"/>
+    <xsl:param name="ulink.show" select="0"/>
+
+    <xsl:param name="fop.extensions" select="1"/>
+</xsl:stylesheet>
+
