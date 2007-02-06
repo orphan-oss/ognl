@@ -512,7 +512,7 @@ public abstract class OgnlRuntime extends Object
         return result;
     }
 
-    public static Object invokeMethod( Object target, Method method, Object[] argsArray ) throws InvocationTargetException, IllegalAccessException
+    public static synchronized Object invokeMethod( Object target, Method method, Object[] argsArray ) throws InvocationTargetException, IllegalAccessException
     {
         Object      result;
         boolean     wasAccessible = true;
