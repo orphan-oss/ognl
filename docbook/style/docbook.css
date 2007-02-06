@@ -1,0 +1,157 @@
+body {
+    background-color: #FFFFFF;
+    font-family: Verdana, Helvetica, sans-serif;
+    font-size: 80%;
+}
+
+A {
+    color: #003399;
+}
+
+A:active {
+    color: #003399;
+}
+
+A:visited {
+    color: #888888;
+}
+
+.table table {
+    border-color: #000000;
+    border-width: 1px;
+    border-collapse: collapse;
+    margin-left: 20px;
+    margin-right: 0px;
+}
+
+.note table {
+    border-width: 0px;
+    border-collapse: collapse;
+}
+
+td, th, span {
+    font-family: Verdana, Helvetica, sans-serif;
+    font-size: 80%;
+}
+
+td, th {
+    padding-top: 1px;
+    padding-left: 3px;
+    padding-bottom: 1px;
+    padding-right: 5px;
+    border-color: #000000;
+    border-width: 1px;
+}
+
+thead th {
+    background-color: #666699;
+    color: #ffffff;
+}
+
+img {
+    border: 0;
+}
+
+p, ol, ul, li, dl, dt, dd, blockquote {
+    color: #000000;
+}
+
+blockquote {
+    margin-right: 0px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight:500;
+    margin-top:10px;
+    padding-top:15px;
+}
+
+h1 {
+    font-size: 180%;
+}
+
+h2 {
+    font-size: 160%;
+}
+
+h3 {
+    font-size: 130%;
+    font-weight: bold;
+}
+
+h4 {
+    font-size: 110%;
+    font-weight: bold;
+}
+
+h5 {
+    font-size: 100%;
+    font-style: italic;
+}
+
+h6 {
+    font-size: 100%;
+    font-style: italic;
+}
+
+tt {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 120%;
+}
+
+pre {
+    padding: 5px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #CCCCCC;
+    background-color: #F4F4F4;
+}
+
+ul, ol, li {
+    list-style: disc;
+}
+
+hr  {
+    width: 100%;
+    height: 1px;
+    background-color: #CCCCCC;
+    border-width: 0px;
+    padding: 0px;
+    color: #CCCCCC;
+}
+
+.table .title {
+    margin-left: 20px;
+    margin-right: 0px;
+}
+
+.variablelist {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.itemizedlist, UL {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.term {
+    font-weight:bold;
+    font-size: 85%;
+}
+
+.programlisting {
+    margin-left: 20px;
+    margin-right: 0px;
+}
+
+.sidebar {
+    border-style:       solid;
+    border-width:       1px;
+    border-color:       #cccccc;
+    background-color:   #eeeeee;
+    padding-top:        5px;
+    padding-left:       5px;
+    padding-bottom:     5px;
+    padding-right:      5px;
+}

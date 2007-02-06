@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<book>
+    <bookinfo>
+        <title>OGNL Developer Guide</title>
+
+        <author>
+            <firstname>Drew</firstname>
+
+            <surname>Davidson</surname>
+        </author>
+
+        <affiliation>
+            <address><email>drew@ognl.org</email></address>
+        </affiliation>
+
+        <copyright>
+            <year>2004</year>
+
+            <holder>OGNL Technology, Inc.</holder>
+        </copyright>
+    </bookinfo>
+
+    <chapter id="introduction">
+        <title>Introduction</title>
+
+        <para><acronym>OGNL</acronym> as a language allows for the navigation of Java objects through a concise syntax that allows for specifying, where possible, symmetrically settable and gettable values. The language specifies a syntax that
+        attempts to provide as high a level of abstraction as possible for navigating object graphs; this usually means specifying paths through and to JavaBeans properties, collection indices, etc. rather than directly accessing property getters and
+        setters (collectively know as <emphasis>accessors</emphasis>).</para>
+
+        <para>The normal usage of OGNL is to embed the language inside of other constructs to provide a place for flexible binding of values from one place to another. An example of this is a web application where values need to be bound from a model
+        of some sort to data transfer objects that are operated on by a view. Another example is an XML configuration file wherein values are generated via expressions which are then bound to configured objects.</para>
+
+        <section id="embeddingOGNL">
+            <title id="embeddingOGNL">Embedding OGNL</title>
+
+            <para>The <classname>ognl.Ognl</classname> class contains convenience methods for evaluating <acronym>OGNL</acronym> expressions. You can do this in two stages, parsing an expression into an internal form and then using that internal form
+            to either set or get the value of a property; or you can do it in a single stage, and get or set a property using the String form of the expression directly. It is more efficient to pre-compile the expression to it&#39;s parsed form,
+            however, and this is the recommended usage.</para>
+
+            <para>OGNL expressions can be evaluated without any external context, or they can be provided with an execution environment that sets up custom extensions to modify the way that expressions are evaluated.</para>
+
+            <para>The following example illustrates how to encapsulate the parsing of an OGNL expression within an object so that execution will be more efficient. The class then takes an <classname>OgnlContext</classname> and a root object to
+            evaluate against.</para>
+
+            <example>
+                <title>Expression Class</title>
+
+                <programlisting>import ognl.Ognl;
+import ognl.OgnlContext;
+
+public class OgnlExpression
+{
+    private Object       expression;
+
+    public OgnlExpression(String expressionString) throws OgnlException
+    {
+        super();
+        expression = Ognl.parseExpression(expressionString);
+    }
+
+    public Object getExpression()
+    {
+        return expression;
+    }
+
+    public Object getValue(OgnlContext context, Object rootObject) throws OgnlException
+    {
+        return Ognl.getValue(getExpression(), context, rootObject);
+    }
+
+    public void setValue(OgnlContext context, Object rootObject, Object value) throws OgnlException
+    {
+        Ognl.setValue(getExpression(), context, rootObject, value);
+    }
+}</programlisting>
+            </example>
+        </section>
+
+        <section id="extendingOGNL">
+            <title id="extendingOGNL">Extending OGNL</title>
+
+            <para>OGNL expressions are not evaluated in a static environment, as Java programs are. Expressions are not compiled to bytecode at the expression level based on static class reachability. The same expression can have multiple paths
+            through an object graph depending upon the root object specified and the dynamic results of the navigation. Objects that are delegated to handle all of the access to properties of objects, elements of collections, methods of objects,
+            resolution of class names to classes and converting between types are collectively known as <emphasis>OGNL extensions</emphasis>. The following chapters delve more deeply into these extensions and provide a roadmap as to how they are used
+            within OGNL to customize the dynamic runtime environment to suit the needs of the embedding program.</para>
+        </section>
+    </chapter>
+
+    <chapter id="propertyAccessors">
+        <title>Property Accessors</title>
+
+        <para>When navigating an <acronym>OGNL</acronym> expression many of the elements that are found are properties. Properties can be many things depending on the object being accessed. Most of the time these property names resolve to JavaBeans
+        properties that conform to the set/get pattern. Other objects (such as <classname>Map</classname>) access properties as keyed values. Regardless of access methodology the OGNL syntax remains the same. Under the hood, however, there are
+        <classname>PropertyAccessor</classname> objects that handle the conversion of property name to an actual access to an objects&#39; properties.</para>
+
+        <programlisting xml:space="preserve">public interface PropertyAccessor
+{
+    Object getProperty( Map context, Object target, Object name ) throws OgnlException;
+    void setProperty( Map context, Object target, Object name, Object value ) throws OgnlException;
+}</programlisting>
+
+        <para>You can set a property accessor on a class-by-class basis using <methodname>OgnlRuntime.setPropertyAccessor()</methodname>. There are default property accessors for <classname>Object</classname> (which uses JavaBeans patterns to extract
+        properties) and <classname>Map</classname> (which uses the property name as a key).</para>
+    </chapter>
+
+    <chapter id="methodAccessors">
+        <title>Method Accessors</title>
+
+        <para>Method calls are another area where OGNL needs to do lookups for methods based on dynamic information. The MethodAccessor interface provides a hook into how OGNL calls a method. When a static or instance method is requested the
+        implementor of this interface is called to actually execute the method.</para>
+
+        <programlisting xml:space="preserve">public interface MethodAccessor
+{
+    Object callStaticMethod( Map context, Class targetClass, String methodName, List args ) throws MethodFailedException;
+    Object callMethod( Map context, Object target, String methodName, List args ) throws MethodFailedException;
+}</programlisting>
+
+        <para>You can set a method accessor on a class-by-class basis using <methodname>OgnlRuntime.setMethodAccessor()</methodname>. The is a default method accessor for <classname>Object</classname> (which simply finds an appropriate method based
+        on method name and argument types and uses reflection to call the method).</para>
+    </chapter>
+
+    <chapter id="elementsAccessors">
+        <title>Elements Accessors</title>
+
+        <para>Since iteration is a built-in function of OGNL and many objects support the idea of iterating over the contents of an object (i.e. the <methodname>object.{ ... }</methodname> syntax) OGNL provides a hook into how iteration is done. The
+        <classname>ElementsAccessor</classname> interface defines how iteration is done based on a source object. Simple examples could be a <classname>Collection</classname> elements accessor, which would simply</para>
+
+        <programlisting xml:space="preserve">public interface ElementsAccessor
+{
+    public Enumeration getElements( Object target ) throws OgnlException;
+}</programlisting>
+
+        <para>You can set a method accessor on a class-by-class basis using <methodname>OgnlRuntime.setElementsAccessor()</methodname>. There are default elements accessors for <classname>Object</classname> (which returns an <classname>Enumeration</classname>
+        of itself as the only object), <classname>Map</classname> (which iterates over the values in the <classname>Map</classname>), and Collection (which uses the collection&#39;s <methodname>iterator()</methodname>). One clever use of
+        <classname>ElementsAccessor</classname>s is the <classname>NumberElementsAccessor</classname> class which allows for generating numeric sequences from 0 to the target value. For example the expression <literal>(100).{ #this }</literal> will
+        generate a list of 100 integers ranged 0..99.</para>
+    </chapter>
+
+    <chapter id="classReferences">
+        <title>Class References</title>
+
+        <para>In the sections on accessing static field and static methods it stated that classes must be full-specified in between the class reference specifier (<constant>@</constant><classname>&#60;classname&#62;</classname><constant>@</constant><property>&#60;field|method&#62;</property><constant>@</constant>).
+        This is not entirely true; the default <classname>ClassResolver</classname> simply looks up the name of the class and assumes that it is fully specified. The <classname>ClassResolver</classname> interface is included in the
+        <acronym>OGNL</acronym> context to perform lookup of classes when an expression is evaluated. This makes it possible to specify, for example, a list of imports that are specific to a particular <function>setValue()</function> or
+        <function>getValue()</function> context in order to look up classes. It also makes class references agreeably short because you don&#39;t have to full specify a class name.</para>
+
+        <programlisting xml:space="preserve">public interface ClassResolver
+{
+    public Class classForName(Map context, String className) throws ClassNotFoundException;
+}</programlisting>
+
+        <para>You can set a class resolver on a context basis using the <classname>Ognl</classname> methods <methodname>addDefaultContext()</methodname> and <methodname>createDefaultContext()</methodname>.</para>
+    </chapter>
+
+    <chapter id="typeConversion">
+        <title>Type Conversion</title>
+
+        <para>When performing set operations on properties or calling methods it is often the case that the values you want to set have a different type from the expected type of the class. <acronym>OGNL</acronym> supports a context variable (set by
+        <function>OgnlRuntime.setTypeConverter(Map context, TypeConverter typeConverter)</function>) that will allow types to be converted from one to another. The default type converter that is uses is the <classname>ognl.DefaultTypeConverter</classname>,
+        which will convert among numeric types <classname>(Integer</classname>, <classname>Long</classname>, <classname>Short</classname>, <classname>Double</classname>, <classname>Float</classname>, <classname>BigInteger</classname>,
+        <classname>BigDecimal</classname>, and their primitive equivalents), string types (<classname>String</classname>, <classname>Character</classname>) and <classname>Boolean</classname>. Should you need specialized type conversion (one popular
+        example is in Servlets where you have a <classname>String[]</classname> from an <function>HttpServletRequest.getParameters()</function> and you want to set values with it in other objects; a custom type converter can be written (most likely
+        subclassing <classname>ognl.DefaultTypeConverter</classname>) to convert <classname>String[]</classname> to whatever is necessary.</para>
+
+        <programlisting xml:space="preserve">public interface TypeConverter
+{
+    public Object convertValue(Map context,
+                                Object target,
+                                Member member,
+                                String propertyName,
+                                Object value,
+                                Class toType);
+}</programlisting>
+
+        <para>Note that <classname>ognl.DefaultTypeConverter</classname> is much easier to subclass; it implements <classname>TypeConverter</classname> and calls it&#39;s own <function>convertValue(Map context, Object value, Class toType)</function>
+        method and already provides the numeric conversions. For example, the above converter (i.e. converting <classname>String[]</classname> to <classname>int[]</classname> for a list of identifier parameters in a request) implemented as a subclass
+        of <classname>ognl.DefaultTypeConverter</classname>: <programlisting xml:space="preserve">HttpServletRequest request;
+Map context = Ognl.createDefaultContext(this);
+
+/* Create an anonymous inner class to handle special conversion */
+Ognl.setTypeConverter(context, new ognl.DefaultTypeConverter() {
+    public Object convertValue(Map context, Object value, Class toType)
+    {
+        Object  result = null;
+
+        if ((toType == int[].class) &#38;&#38; (value instanceof String[].class)) {
+            String  sa = (String[])value;
+            int[]   ia = new int[sa.length];
+
+            for (int i = 0; i &#60; sa.length; i++) {
+                Integer     cv;
+
+                cv = (Integer)super.convertValue(context,
+                                                    sa[i],
+                                                    Integer.class);
+                ia[i] = cv.intValue();
+            }
+            result = ia;
+        } else {
+            result = super.convertValue(context, value, toType);
+        }
+        return result;
+    }
+});
+/* Setting values within this OGNL context will use the above-defined TypeConverter */
+Ognl.setValue(&#34;identifiers&#34;,
+                context,
+                this,
+                request.getParameterValues(&#34;identifier&#34;));</programlisting></para>
+    </chapter>
+
+    <chapter id="memberAccessManager">
+        <title>Member Access</title>
+
+        <para>Normally in Java the only members of a class (fields, methods) that can be accessed are the ones defined with public access. <acronym>OGNL</acronym> includes an interface that you can set globally (using <function>OgnlContext.setMemberAccessManager()</function>)
+        that allows you to modify the runtime in Java 2 to allow access to private, protected and package protected fields and methods. Included in the <acronym>OGNL</acronym> package is the <classname>DefaultMemberAccess</classname> class. It
+        contains a constructor that allows you to selectively lower the protection on any private, protected or package protected members<classname> using the AccessibleObject</classname> interface in Java2. The default class can be subclasses to
+        select different objects for which accessibility is allowed.</para>
+
+        <programlisting xml:space="preserve">public interface MemberAccess
+{
+    public Object setup( Member member );
+    public void restore( Member member, Object state );
+    public boolean isAccessible( Member member );
+}</programlisting>
+    </chapter>
+
+    <chapter id="nullHandler">
+        <title>Null Handler</title>
+
+        <para>When navigating a chain sometimes properties or methods will evaluate to null, causing subsequent properties or method calls to fail with <classname>NullPointerException</classname>s. Most of the time this behaviour is correct (as it is
+        with Java), but sometimes you want to be able to dynamically substitute another object in place of <constant>null</constant>. The <classname>NullHandler</classname> interface allows you to specify on a class-by-class basis how nulls are
+        handled within OGNL expressions. Implementing this interface allows you to intercept when methods return <constant>null</constant> and properties evaluate to <constant>null</constant> and allow you to substitute a new value. Since you are
+        given the source of the method or property a really clever implementor might write the property back to the object so that subsequent invocations do not return or evaluate to <constant>null</constant>.</para>
+
+        <programlisting xml:space="preserve">public interface NullHandler
+{
+    public Object nullMethodResult(Map context, Object target, String methodName, List args);
+    public Object nullPropertyValue(Map context, Object target, Object property);
+}</programlisting>
+
+        <para><classname>NullHandler</classname> implementors are registered with <acronym>OGNL</acronym> using the <function>OgnlRuntime.setNullHandler()</function> method.</para>
+    </chapter>
+
+    <chapter id="evaluation">
+        <title>Other API features</title>
+
+        <section>
+            <title>Tracing Evaluations</title>
+
+            <para>As of OGNL 2.5.0 the <classname>OgnlContext</classname> object can automatically tracks evaluations of expressions. This tracking is kept in the <classname>OgnlContext</classname> as <property>currentEvaluation</property> during the
+            evaluation. After execution you can access the last evaluation through the <property>lastEvaluation</property> property of <classname>OgnlContext</classname>.</para>
+
+            <note>
+                <para>The tracing feature is turned off by default. If you wish to turn it on there is a <function>setTraceEvaluations()</function> method on <classname>OgnlContext</classname> that you can call.</para>
+            </note>
+
+            <para>Any <link linkend="methodAccessors">method accessor</link>, <link linkend="elementsAccessors">elements accessor</link>, <link linkend="typeConversion">type converter</link>, <link linkend="propertyAccessors">property accessor</link>
+            or <link linkend="nullHandler">null handler</link> may find this useful to give context to the operation being performed. The <classname>Evaluation</classname> object is itself a tree and can be traversed up, down and left and right
+            through siblings to determine the exact circumstances of an evaluation. In addition the <classname>Evaluation</classname> object tracks the node that was performing the operation, the source object on which that operation was being
+            performed and the result of the operation. If an exception is thrown during execution the user can get the last evaluation&#39;s last descendent to find out exactly which subexpression caused the error. The execption is also tracked in
+            the <classname>Evaluation</classname>.</para>
+        </section>
+    </chapter>
+</book>

@@ -1,0 +1,974 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<book>
+    <bookinfo>
+        <title>OGNL Language Guide</title>
+
+        <author>
+            <firstname>Drew</firstname>
+
+            <surname>Davidson</surname>
+        </author>
+
+        <affiliation>
+            <address><email>drew@ognl.org</email></address>
+        </affiliation>
+
+        <copyright>
+            <year>2004</year>
+
+            <holder>OGNL Technology, Inc.</holder>
+        </copyright>
+    </bookinfo>
+
+    <chapter id="introduction">
+        <title>Introduction</title>
+
+        <para><acronym>OGNL</acronym> stands for <emphasis role="bold">O</emphasis>bject <emphasis role="bold">G</emphasis>raph <emphasis role="bold">N</emphasis>avigation <emphasis role="bold">L</emphasis>anguage. It is an expression and binding
+        language for getting and setting properties of Java objects. Normally the same expression is used for both getting and setting the value of a property.</para>
+
+        <para>We pronounce <acronym>OGNL</acronym> as a word, like the last syllables of a drunken pronunciation of &#34;orthogonal.&#34;</para>
+
+        <para>Many people have asked exactly what <acronym>OGNL</acronym> is good for. Several of the uses to which <acronym>OGNL</acronym> has been applied are:</para>
+
+        <itemizedlist>
+            <listitem>
+                <para>A binding language between GUI elements (textfield, combobox, etc.) to model objects. Transformations are made easier by <acronym>OGNL</acronym>&#39;s TypeConverter mechanism to convert values from one type to another (String to
+                numeric types, for example).</para>
+            </listitem>
+
+            <listitem>
+                <para>A data source language to map between table columns and a Swing TableModel.</para>
+            </listitem>
+
+            <listitem>
+                <para>A binding language between web components and the underlying model objects (<ulink url="http://www.ognl.org">WebOGNL</ulink>, <ulink url="http://jakarta.apache.org/tapestry/index.html">Tapestry</ulink>, <ulink
+                url="http://sourceforge.net/projects/opensymphony">WebWork</ulink>, <ulink url="http://wonder.sourceforge.net/index.html">WebObjects</ulink>).</para>
+            </listitem>
+
+            <listitem>
+                <para>A more expressive replacement for the property-getting language used by the Jakarata Commons BeanUtils package or JSTL&#39;s EL (which only allow simple property navigation and rudimentary indexed properties).</para>
+            </listitem>
+        </itemizedlist>
+
+        <para>Most of what you can do in Java is possible in <acronym>OGNL</acronym>, plus other extras such as list <glossterm><link linkend="projection">projection</link></glossterm> and <glossterm><link linkend="selection">selection</link></glossterm>
+        and <glossterm><link linkend="lambdaExpressions">lambda expressions</link></glossterm>.</para>
+    </chapter>
+
+    <chapter id="history">
+        <title>History</title>
+
+        <para><acronym>OGNL</acronym> started out as a way to set up associations between UI components and controllers using property names. As the desire for more complicated associations grew, Drew Davidson created what he called
+        <acronym>KVCL</acronym>, for Key-Value Coding Language, egged on by Luke Blanshard. Luke then reimplemented the language using ANTLR, came up with the new name, and, egged on by Drew, filled it out to its current state. Later on Luke again
+        reimplemented the language using <ulink url="http://www.webgain.com/products/java_cc/">JavaCC</ulink>. Further maintenance on all the code is done by Drew (with spiritual guidance from Luke).</para>
+    </chapter>
+
+    <chapter id="basicSyntax">
+        <title>Syntax</title>
+
+        <para>Simple <acronym>OGNL</acronym> expressions are very simple. The language has become quite rich with features, but you don&#39;t generally need to worry about the more complicated parts of the language: the simple cases have remained
+        that way. For example, to get at the name property of an object, the <acronym>OGNL</acronym> expression is simply <property>name</property>. To get at the <property>text</property> property of the object returned by the headline property, the
+        <acronym>OGNL</acronym> expression is <property>headline.text</property>.</para>
+
+        <para>What is a property? Roughly, an <acronym>OGNL</acronym> property is the same as a bean property, which means that a pair of get/set methods, or alternatively a field, defines a property (the full story is a bit more complicated, since
+        properties differ for different kinds of objects; see below for a full explanation).</para>
+
+        <para>The fundamental unit of an <acronym>OGNL</acronym> expression is the navigation chain, usually just called &#34;chain.&#34; The simplest chains consist of the following parts:</para>
+
+        <table frame="all">
+            <title><acronym>OGNL</acronym> Expression Parts</title>
+
+            <tgroup cols="2">
+                <colspec colname="elementPart" />
+
+                <colspec colname="example" />
+
+                <thead>
+                    <row>
+                        <entry valign="top">Expression Element Part</entry>
+
+                        <entry valign="top">Example</entry>
+                    </row>
+                </thead>
+
+                <tbody>
+                    <row>
+                        <entry valign="top">Property names</entry>
+
+                        <entry valign="top">like the <property>name</property> and <property>headline.text</property> examples above</entry>
+                    </row>
+
+                    <row>
+                        <entry valign="top">Method Calls</entry>
+
+                        <entry valign="top"><property>hashCode()</property> to return the current object&#39;s hash code</entry>
+                    </row>
+
+                    <row>
+                        <entry valign="top">Array Indices</entry>
+
+                        <entry valign="top"><property>listeners[0]</property> to return the first of the current object&#39;s list of listeners</entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </table>
+
+        <para>All <acronym>OGNL</acronym> expressions are evaluated in the context of a current object, and a chain simply uses the result of the previous link in the chain as the current object for the next one. You can extend a chain as long as you
+        like. For example, this chain:</para>
+
+        <programlisting>name.toCharArray()[0].numericValue.toString()</programlisting>
+
+        <para>This expression follows these steps to evaluate:</para>
+
+        <itemizedlist>
+            <listitem>
+                <para>extracts the <property>name</property> property of the initial, or root, object (which the user provides to <acronym>OGNL</acronym> through the <glossterm><acronym>OGNL</acronym> context</glossterm>)</para>
+            </listitem>
+
+            <listitem>
+                <para>calls the <property>toCharArray()</property> method on the resulting <classname>String</classname></para>
+            </listitem>
+
+            <listitem>
+                <para>extracts the first character (the one at index 0) from the resulting array</para>
+            </listitem>
+
+            <listitem>
+                <para>gets the <property>numericValue</property> property from that character (the character is represented as a <classname>Character</classname> object, and the <classname>Character</classname> class has a method called
+                <property>getNumericValue()</property>).</para>
+            </listitem>
+
+            <listitem>
+                <para>calls <property>toString()</property> on the resulting <classname>Integer</classname> object. The final result of this expression is the <classname>String</classname> returned by the last <property>toString()</property> call.</para>
+            </listitem>
+        </itemizedlist>
+
+        <para>Note that this example can only be used to get a value from an object, not to set a value. Passing the above expression to the <property>Ognl.setValue()</property> method would cause an <classname>InappropriateExpressionException</classname>
+        to be thrown, because the last link in the chain is neither a property name nor an array index.</para>
+
+        <para>This is enough syntax to do the vast majority of what you ever need to do.</para>
+    </chapter>
+
+    <chapter id="basicExpressions">
+        <title>Expressions</title>
+
+        <para>This section outlines the details the elements of <acronym>OGNL</acronym>&#39;s expressions.</para>
+
+        <section id="constants">
+            <title>Constants</title>
+
+            <para><acronym>OGNL</acronym> has the following kinds of constants:</para>
+
+            <itemizedlist>
+                <listitem>
+                    <para>String literals, as in Java (with the addition of single quotes): delimited by single- or double-quotes, with the full set of character escapes.</para>
+                </listitem>
+
+                <listitem>
+                    <para>Character literals, also as in Java: delimited by single-quotes, also with the full set of escapes.</para>
+                </listitem>
+
+                <listitem>
+                    <para>Numeric literals, with a few more kinds than Java. In addition to Java&#39;s ints, longs, floats and doubles, <acronym>OGNL</acronym> lets you specify BigDecimals with a &#34;b&#34; or &#34;B&#34; suffix, and BigIntegers
+                    with an &#34;h&#34; or &#34;H&#34; suffix (think &#34;huge&#34;---we chose &#34;h&#34; for BigIntegers because it does not interfere with hexadecimal digits).</para>
+                </listitem>
+
+                <listitem>
+                    <para>Boolean <constant>(true</constant> and <constant>false</constant>) literals.</para>
+                </listitem>
+
+                <listitem>
+                    <para>The <constant>null</constant> literal.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+
+        <section id="properties">
+            <title>Referring to Properties</title>
+
+            <para><acronym>OGNL</acronym> treats different kinds of objects differently in its handling of property references. Maps treat all property references as element lookups or storage, with the property name as the key. Lists and arrays
+            treat numeric properties similarly, with the property name as the index, but string properties the same way ordinary objects do. Ordinary objects (that is, all other kinds) only can handle string properties and do so by using
+            &#34;get&#34; and &#34;set&#34; methods (or &#34;is&#34; and &#34;set&#34;), if the object has them, or a field with the given name otherwise.</para>
+
+            <para>Note the new terminology here. Property &#34;names&#34; can be of any type, not just Strings. But to refer to non-String properties, you must use what we have been calling the &#34;index&#34; notation. For example, to get the length
+            of an array, you can use this expression:</para>
+
+            <programlisting>array.length</programlisting>
+
+            <para>But to get at element 0 of the array, you must use an expression like this:</para>
+
+            <programlisting>array[0]</programlisting>
+
+            <para>Note that Java collections have some special properties associated with them. See <xref linkend="specialCollectionsProperties" />for these properties.</para>
+        </section>
+
+        <section id="indexing">
+            <title>Indexing</title>
+
+            <para>As discussed above, the &#34;indexing&#34; notation is actually just property reference, though a computed form of property reference rather than a constant one.</para>
+
+            <para>For example, <acronym>OGNL</acronym> internally treats the &#34;array.length&#34; expression exactly the same as this expression:</para>
+
+            <programlisting>array[&#34;length&#34;]</programlisting>
+
+            <para>And this expression would have the same result (though not the same internal form):</para>
+
+            <programlisting>array[&#34;len&#34; + &#34;gth&#34;]</programlisting>
+
+            <section>
+                <title>Array and List Indexing</title>
+
+                <para>For Java arrays and Lists indexing is fairly simple, just like in Java. An integer index is given and that element is the referrent. If the index is out of bounds of the array or List and IndexOutOfBoundsException is thrown,
+                just as in Java.</para>
+            </section>
+
+            <section>
+                <title>JavaBeans Indexed Properties</title>
+
+                <para>JavaBeans supports the concept of Indexed properties. Specifically this means that an object has a set of methods that follow the following pattern:</para>
+
+                <itemizedlist>
+                    <listitem>
+                        <para>public <replaceable>PropertyType</replaceable>[] get<replaceable>PropertyName</replaceable>()</para>
+                    </listitem>
+
+                    <listitem>
+                        <para>public void set<replaceable>PropertyName</replaceable>(<replaceable>PropertyType</replaceable>[] anArray)</para>
+                    </listitem>
+
+                    <listitem>
+                        <para>public <replaceable>PropertyType</replaceable> get<replaceable>PropertyName</replaceable>(int index)</para>
+                    </listitem>
+
+                    <listitem>
+                        <para>public void set<replaceable>PropertyName</replaceable>(int index, <replaceable>PropertyType</replaceable> value)</para>
+                    </listitem>
+                </itemizedlist>
+
+                <para>OGNL can interpret this and provide seamless access to the property through the indexing notation. References such as</para>
+
+                <programlisting>someProperty[2]</programlisting>
+
+                <para>are automatically routed through the correct indexed property accessor (in the above case through <function>getSomeProperty(2)</function> or <function>setSomeProperty(2, value)</function>). If there is no indexed property
+                accessor a property is found with the name <varname>someProperty</varname> and the index is applied to that.</para>
+            </section>
+
+            <section>
+                <title>OGNL Object Indexed Properties</title>
+
+                <para>OGNL extends the concept of indexed properties to include indexing with arbitrary objects, not just integers as with JavaBeans Indexed Properties. When finding properties as candidates for object indexing, OGNL looks for
+                patterns of methods with the following signature:</para>
+
+                <itemizedlist>
+                    <listitem>
+                        <para>public <replaceable>PropertyType</replaceable> get<replaceable>PropertyName</replaceable>(<replaceable>IndexType</replaceable> index)</para>
+                    </listitem>
+
+                    <listitem>
+                        <para>public void set<replaceable>PropertyName</replaceable>(<replaceable>IndexType</replaceable> index, <replaceable>PropertyType</replaceable> value)</para>
+                    </listitem>
+                </itemizedlist>
+
+                <para>The <replaceable>PropertyType</replaceable> and <replaceable>IndexType</replaceable> must match each other in the corresponding set and get methods. An actual example of using Object Indexed Properties is with the Servlet API:
+                the Session object has two methods for getting and setting arbitrary attributes:</para>
+
+                <programlisting>public Object getAttribute(String name) public void setAttribute(String name, Object value)</programlisting>
+
+                <para>An OGNL expression that can both get and set one of these attributes is</para>
+
+                <programlisting>session.attribute[&#34;foo&#34;]</programlisting>
+            </section>
+        </section>
+
+        <section id="methods">
+            <title>Calling Methods</title>
+
+            <para><acronym>OGNL</acronym> calls methods a little differently from the way Java does, because <acronym>OGNL</acronym> is interpreted and must choose the right method at run time, with no extra type information aside from the actual
+            arguments supplied. <acronym>OGNL</acronym> always chooses the most specific method it can find whose types match the supplied arguments; if there are two or more methods that are equally specific and match the given arguments, one of
+            them will be chosen arbitrarily.</para>
+
+            <para>In particular, a null argument matches all non-primitive types, and so is most likely to result in an unexpected method being called.</para>
+
+            <para>Note that the arguments to a method are separated by commas, and so the comma operator cannot be used unless it is enclosed in parentheses. For example,</para>
+
+            <programlisting>method( ensureLoaded(), name )</programlisting>
+
+            <para>is a call to a 2-argument method, while</para>
+
+            <programlisting>method( (ensureLoaded(), name) )</programlisting>
+
+            <para>is a call to a 1-argument method.</para>
+        </section>
+
+        <section id="varref">
+            <title>Variable References</title>
+
+            <para><acronym>OGNL</acronym> has a simple variable scheme, which lets you store intermediate results and use them again, or just name things to make an expression easier to understand. All variables in <acronym>OGNL</acronym> are global
+            to the entire expression. You refer to a variable using a number sign in front of its name, like this:</para>
+
+            <programlisting>#var</programlisting>
+
+            <para><acronym>OGNL</acronym> also stores the current object at every point in the evaluation of an expression in the this variable, where it can be referred to like any other variable. For example, the following expression operates on
+            the number of listeners, returning twice the number if it is more than 100, or 20 more than the number otherwise:</para>
+
+            <programlisting>listeners.size().(#this &#62; 100? 2*#this : 20+#this)</programlisting>
+
+            <para><acronym>OGNL</acronym> can be invoked with a map that defines initial values for variables. The standard way of invoking <acronym>OGNL</acronym> defines the variables <varname>root</varname> (which holds the initial, or root,
+            object), and <varname>context</varname> (which holds the <classname>Map</classname> of variables itself).</para>
+
+            <para>To assign a value to a variable explicitly, simply write an assignment statement with a variable reference on the left-hand side:</para>
+
+            <programlisting>#var = 99</programlisting>
+        </section>
+
+        <section id="paren">
+            <title>Parenthetical Expressions</title>
+
+            <para>As you would expect, an expression enclosed in parentheses is evaluated as a unit, separately from any surrounding operators. This can be used to force an evaluation order different from the one that would be implied by
+            <acronym>OGNL</acronym> operator precedences. It is also the only way to use the comma operator in a method argument.</para>
+        </section>
+
+        <section id="chainedSubexpressions">
+            <title>Chained Subexpressions</title>
+
+            <para>If you use a parenthetical expression after a dot, the object that is current at the dot is used as the current object throughout the parenthetical expression. For example,</para>
+
+            <programlisting>headline.parent.(ensureLoaded(), name)</programlisting>
+
+            <para>traverses through the <property>headline</property> and <property>parent</property> properties, ensures that the <property>parent</property> is loaded and then returns (or sets) the parent&#39;s <property>name</property>.</para>
+
+            <para>Top-level expressions can also be chained in this way. The result of the expression is the right-most expression element.</para>
+
+            <programlisting>ensureLoaded(), name</programlisting>
+
+            <para>This will call <function>ensureLoaded()</function> on the root object, then get the <property>name</property> property of the root object as the result of the expression.</para>
+        </section>
+
+        <section id="collectionConstruction">
+            <title>Collection Construction</title>
+
+            <section id="listConstruction">
+                <title>Lists</title>
+
+                <para>To create a list of objects, enclose a list of expressions in curly braces. As with method arguments, these expressions cannot use the comma operator unless it is enclosed in parentheses. Here is an example:</para>
+
+                <programlisting>name in { null,&#34;Untitled&#34; }</programlisting>
+
+                <para>This tests whether the <varname>name</varname> property is <constant>null</constant> or equal to <constant>&#34;Untitled&#34;</constant>.</para>
+
+                <para>The syntax described above will create a instanceof the <classname>List</classname> interface. The exact subclass is not defined.</para>
+            </section>
+
+            <section id="nativeArrayConstruction">
+                <title>Native Arrays</title>
+
+                <para>Sometimes you want to create Java native arrays, such as <type>int[]</type> or <type>Integer[]</type>. <acronym>OGNL</acronym> supports the creation of these similarly to the way that constructors are normally called, but allows
+                initialization of the native array from either an existing list or a given size of the array.</para>
+
+                <programlisting>new int[] { 1, 2, 3 }</programlisting>
+
+                <para>This creates a new <type>int</type> array consisting of three integers 1, 2 and 3.</para>
+
+                <para>To create an array with all <constant>null</constant> or <constant>0</constant> elements, use the alternative size constructor</para>
+
+                <programlisting>new int[5]</programlisting>
+
+                <para>This creates an <type>int</type> array with 5 slots, all initialized to zero.</para>
+            </section>
+
+            <section id="mapConstruction">
+                <title>Maps</title>
+
+                <para>Maps can also be created using a special syntax.</para>
+
+                <programlisting>#{ &#34;foo&#34; : &#34;foo value&#34;, &#34;bar&#34; : &#34;bar value&#34; }</programlisting>
+
+                <para>This creates a Map initialized with mappings for <literal>&#34;foo&#34;</literal> and <literal>&#34;bar&#34;</literal>.</para>
+
+                <para>Advanced users who wish to select the specific Map class can specify that class before the opening curly brace</para>
+
+                <programlisting>#@java.util.LinkedHashMap@{ &#34;foo&#34; : &#34;foo value&#34;, &#34;bar&#34; : &#34;bar value&#34; }</programlisting>
+
+                <para>The above example will create an instance of the JDK 1.4 class <classname>LinkedHashMap</classname>, ensuring the the insertion order of the elements is preserved.</para>
+            </section>
+        </section>
+
+        <section id="projection">
+            <title>Projecting Across Collections</title>
+
+            <para><acronym>OGNL</acronym> provides a simple way to call the same method or extract the same property from each element in a collection and store the results in a new collection. We call this &#34;projection,&#34; from the database
+            term for choosing a subset of columns from a table. For example, this expression:</para>
+
+            <programlisting>listeners.{delegate}</programlisting>
+
+            <para>returns a list of all the listeners&#39; delegates. See the coercion section for how <acronym>OGNL</acronym> treats various kinds of objects as collections.</para>
+
+            <para>During a projection the <varname>#this</varname> variable refers to the current element of the iteration.</para>
+
+            <programlisting>objects.{ #this instanceof String ? #this : #this.toString()}</programlisting>
+
+            <para>The above would produce a new list of elements from the objects list as string values.</para>
+        </section>
+
+        <section id="selection">
+            <title>Selecting From Collections</title>
+
+            <para><acronym>OGNL</acronym> provides a simple way to use an expression to choose some elements from a collection and save the results in a new collection. We call this &#34;selection,&#34; from the database term for choosing a subset of
+            rows from a table. For example, this expression:</para>
+
+            <programlisting>listeners.{? #this instanceof ActionListener}</programlisting>
+
+            <para>returns a list of all those listeners that are instances of the <classname>ActionListener</classname> class. See the <ulink url="???"><link linkend="coercion">coercion section</link></ulink> for how <acronym>OGNL</acronym> treats
+            various kinds of objects as collections.</para>
+
+            <section>
+                <title>Selecting First Match</title>
+
+                <para>In order to get the first match from a list of matches, you could use indexing such as <literal>listeners.{? true }[0]</literal>. However, this is cumbersome because if the match does not return any results (or if the result
+                list is empty) you will get an <classname>ArrayIndexOutOfBoundsException</classname>.</para>
+
+                <para>The selection syntax is also available to select only the first match and return it as a list. If the match does not succeed for any elements an empty list is the result.</para>
+
+                <programlisting>objects.{^ #this instanceof String }</programlisting>
+
+                <para>Will return the first element contained in objects that is an instance of the <classname>String</classname> class.</para>
+            </section>
+
+            <section>
+                <title>Selecting Last Match</title>
+
+                <para>Similar to getting the first match, sometimes you want to get the last element that matched.</para>
+
+                <programlisting>objects.{$ #this instanceof String }</programlisting>
+
+                <para>This will return the last element contained in objects that is an instanceof the <classname>String</classname> class</para>
+            </section>
+        </section>
+
+        <section id="constructors">
+            <title>Calling Constructors</title>
+
+            <para>You can create new objects as in Java, with the <function>new</function> operator. One difference is that you must specify the fully qualified class name for classes other than those in the java.lang package.<footnoteref
+            linkend="classresolver" /><footnote><para>This is only true with the default ClassResolver in place. With a custom class resolver packages can be mapped in such a way that more Java-like references to classes can be made. Refer to the
+            OGNL Developer&#39;s Guide for details on using <classname>ClassResolver</classname> class.</para></footnote> (for example, <function>new java.util.ArrayList()</function>, rather than simply <function>new ArrayList()</function>).</para>
+
+            <para><acronym>OGNL</acronym> chooses the right constructor to call using the same procedure it uses for overloaded method calls.</para>
+        </section>
+
+        <section id="staticMethods">
+            <title>Calling Static Methods</title>
+
+            <para>You can call a static method using the syntax <constant>@</constant><varname>class</varname><constant>@</constant><function>method(args)</function>. If you leave out class, it defaults to <classname>java.lang.Math</classname>, to
+            make it easier to call <function>min</function> and <function>max</function> methods. If you specify the class, you must give the fully qualified name.</para>
+
+            <para>If you have an instance of a class whose static method you wish to call, you can call the method through the object as if it was an instance method.</para>
+
+            <para>If the method name is overloaded, <acronym>OGNL</acronym> chooses the right static method to call using the same procedure it uses for overloaded instance methods.</para>
+        </section>
+
+        <section id="staticFields">
+            <title>Getting Static Fields</title>
+
+            <para>You can refer to a static field using the syntax <constant>@</constant><classname>class</classname><constant>@</constant><varname>field</varname>. The class must be fully qualified.</para>
+        </section>
+
+        <section id="expressionEvaluation">
+            <title>Expression Evaluation</title>
+
+            <para>If you follow an <acronym>OGNL</acronym> expression with a parenthesized expression, without a dot in front of the parentheses, <acronym>OGNL</acronym> will try to treat the result of the first expression as another expression to
+            evaluate, and will use the result of the parenthesized expression as the root object for that evaluation. The result of the first expression may be any object; if it is an AST, <acronym>OGNL</acronym> assumes it is the parsed form of an
+            expression and simply interprets it; otherwise, <acronym>OGNL</acronym> takes the string value of the object and parses that string to get the AST to interpret.</para>
+
+            <para>For example, this expression</para>
+
+            <programlisting>#fact(30H)</programlisting>
+
+            <para>looks up the <property>fact</property> variable, and interprets the value of that variable as an <acronym>OGNL</acronym> expression using the <classname>BigInteger</classname> representation of <constant>30</constant> as the
+            <property>root</property> object. See below for an example of setting the <varname>fact</varname> variable with an expression that returns the factorial of its argument. Note that there is an ambiguity in <acronym>OGNL</acronym>&#39;s
+            syntax between this double evaluation operator and a method call. <acronym>OGNL</acronym> resolves this ambiguity by calling anything that looks like a method call, a method call. For example, if the current object had a fact property
+            that held an <acronym>OGNL</acronym> factorial expression, you could not use this approach to call it</para>
+
+            <programlisting>fact(30H)</programlisting>
+
+            <para>because <acronym>OGNL</acronym> would interpret this as a call to the <property>fact</property> method. You could force the interpretation you want by surrounding the property reference by parentheses:</para>
+
+            <programlisting>(fact)(30H)</programlisting>
+        </section>
+
+        <section id="lambdaExpressions">
+            <title>Pseudo-Lambda Expressions</title>
+
+            <para><acronym>OGNL</acronym> has a simplified lambda-expression syntax, which lets you write simple functions. It is not a full-blown lambda calculus, because there are no closures---all variables in <acronym>OGNL</acronym> have global
+            scope and extent.</para>
+
+            <para>For example, here is an <acronym>OGNL</acronym> expression that declares a recursive factorial function, and then calls it:</para>
+
+            <programlisting>#fact = :[#this&#60;=1? 1 : #this*#fact(#this-1)], #fact(30H)</programlisting>
+
+            <para>The lambda expression is everything inside the brackets. The <property>#this</property> variable holds the argument to the expression, which is initially <constant>30H</constant>, and is then one less for each successive call to the
+            expression.</para>
+
+            <para><acronym>OGNL</acronym> treats lambda expressions as constants. The value of a lambda expression is the <glossterm>AST</glossterm> that <acronym>OGNL</acronym> uses as the parsed form of the contained expression.</para>
+        </section>
+
+        <section id="specialCollectionsProperties">
+            <title>Pseudo-Properties for Collections</title>
+
+            <para>There are some special properties of collections that <acronym>OGNL</acronym> makes available. The reason for this is that the collections do not follow JavaBeans patterns for method naming; therefore the <function>size()</function>,
+            <function>length()</function>, etc. methods must be called instead of more intuitively referring to these as properties. <acronym>OGNL</acronym> corrects this by exposing certain pseudo-properties as if they were built-in.</para>
+
+            <table frame="all">
+                <title>Special Collections Pseudo-Properties</title>
+
+                <tgroup cols="2">
+                    <colspec colwidth="100" />
+
+                    <colspec />
+
+                    <thead role="italic">
+                        <row>
+                            <entry valign="top">Collection</entry>
+
+                            <entry valign="top">Special Properties</entry>
+                        </row>
+                    </thead>
+
+                    <tbody>
+                        <row>
+                            <entry valign="top"><classname>Collection</classname> (inherited by <classname>Map</classname>, <classname>List</classname> &#38; <classname>Set</classname>)</entry>
+
+                            <entry valign="top"><variablelist><varlistentry><term><literal>size</literal></term><listitem><para>The size of the collection</para></listitem></varlistentry><varlistentry><term><literal>isEmpty</literal></term><listitem><para>Evaluates
+                            to <constant>true</constant> if the collection is empty</para></listitem></varlistentry></variablelist></entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top">List</entry>
+
+                            <entry valign="top"><variablelist><varlistentry><term><literal>iterator</literal></term><listitem><para>Evalutes to an <classname>Iterator</classname> over the <classname>List</classname>.</para></listitem></varlistentry></variablelist></entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><classname>Map</classname></entry>
+
+                            <entry valign="top"><variablelist><varlistentry><term><literal>keys</literal></term><listitem><para>Evalutes to a <classname>Set</classname> of all keys in the <classname>Map</classname>.</para></listitem></varlistentry><varlistentry><term><literal>values</literal></term><listitem><para>Evaluates
+                            to a <classname>Collection</classname> of all values in the <classname>Map</classname>.</para></listitem></varlistentry></variablelist><note><para>These properties, plus <literal>size</literal> and <literal>isEmpty</literal>,
+                            are different than the indexed form of access for <classname>Map</classname>s (i.e. <literal>someMap[&#34;size&#34;]</literal> gets the <literal>&#34;size&#34;</literal> key from the map, whereas <literal>someMap.size</literal>
+                            gets the size of the <classname>Map</classname>.</para></note></entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><classname>Set</classname></entry>
+
+                            <entry valign="top"><variablelist><varlistentry><term><literal>iterator</literal></term><listitem><para>Evalutes to an <classname>Iterator</classname> over the <classname>Set</classname>.</para></listitem></varlistentry></variablelist></entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><classname>Iterator</classname></entry>
+
+                            <entry valign="top"><variablelist><varlistentry><term><literal>next</literal></term><listitem><para>Evalutes to the next object from the <classname>Iterator</classname>.</para></listitem></varlistentry><varlistentry><term><literal>hasNext</literal></term><listitem><para>Evaluates
+                            to <constant>true</constant> if there is a next object available from the <classname>Iterator</classname>.</para></listitem></varlistentry></variablelist></entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><classname>Enumeration</classname></entry>
+
+                            <entry valign="top"><variablelist><varlistentry><term id="Enumeration.next"><literal>next</literal></term><listitem><para>Evalutes to the next object from the <classname>Enumeration</classname>.</para></listitem></varlistentry><varlistentry><term
+                            id="Enumeration.hasNext"><literal>hasNext</literal></term><listitem><para>Evaluates to <constant>true</constant> if there is a next object available from the <classname>Enumeration</classname>.</para></listitem></varlistentry><varlistentry><term><literal>nextElement</literal></term><listitem><para>Synonym
+                            for <literal><link linkend="Enumeration.next">next</link></literal>.</para></listitem></varlistentry><varlistentry><term><literal>hasMoreElements</literal></term><listitem><para>Synonym for <literal><link
+                            linkend="Enumeration.hasNext">hasNext</link></literal>.</para></listitem></varlistentry></variablelist></entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </section>
+
+        <section id="differences">
+            <title>Operators that differ from Java&#39;s operators</title>
+
+            <para>For the most part, <acronym>OGNL</acronym>&#39;s operators are borrowed from Java and work similarly to Java&#39;s operators. See the <acronym>OGNL</acronym> Reference for a complete discussion. Here we describe <acronym>OGNL</acronym>
+            operators that are not in Java, or that are different from Java.</para>
+
+            <itemizedlist>
+                <listitem>
+                    <para>The comma (,) or sequence operator. This operator is borrowed from C. The comma is used to separate two independent expressions. The value of the second of these expressions is the value of the comma expression. Here is an
+                    example:</para>
+
+                    <programlisting>ensureLoaded(), name</programlisting>
+
+                    <para>When this expression is evaluated, the ensureLoaded method is called (presumably to make sure that all parts of the object are in memory), then the name property is retrieved (if getting the value) or replaced (if setting).</para>
+                </listitem>
+
+                <listitem>
+                    <para>List construction with curly braces ({}). You can create a list in-line by enclosing the values in curly braces, as in this example:</para>
+
+                    <programlisting>{ null, true, false }</programlisting>
+                </listitem>
+
+                <listitem>
+                    <para>The <function>in</function> operator (and <function>not in</function>, its negation). This is a containment test, to see if a value is in a collection. For example,</para>
+
+                    <programlisting>name in {null,&#34;Untitled&#34;} || name</programlisting>
+                </listitem>
+
+                <listitem>
+                    <para>See the <acronym>OGNL</acronym> reference for a full list of operations</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+
+        <section id="settingVersusGetting">
+            <title>Setting values versus getting values</title>
+
+            <para>As stated before, some values that are gettable are not also settable because of the nature of the expression. For example,</para>
+
+            <programlisting>names[0].location</programlisting>
+
+            <para>is a settable expression - the final component of the expression resolves to a settable property.</para>
+
+            <para>However, some expressions, such as</para>
+
+            <programlisting>names[0].length + 1</programlisting>
+
+            <para>are not settable because they do not resolve to a settable property in an object. It is simply a computed value. If you try to evaluate this expression using any of the <function>Ognl.setValue()</function> methods it will fail with
+            an <classname>InappropriateExpressionException</classname>.</para>
+
+            <para>It is also possible to set variables using get expressions that include the &#39;<constant>=</constant>&#39; operator. This is useful when a get expression needs to set a variable as a side effect of execution.</para>
+        </section>
+    </chapter>
+
+    <chapter id="coercion">
+        <title>Coercing Objects to Types</title>
+
+        <para>Here we describe how <acronym>OGNL</acronym> interprets objects as various types. See below for how <acronym>OGNL</acronym> coerces objects to booleans, numbers, integers, and collections.</para>
+
+        <section id="coerceBoolean">
+            <title>Interpreting Objects as Booleans</title>
+
+            <para>Any object can be used where a boolean is required. <acronym>OGNL</acronym> interprets objects as booleans like this:</para>
+
+            <itemizedlist>
+                <listitem>
+                    <para>If the object is a <classname>Boolean</classname>, its value is extracted and returned</para>
+                </listitem>
+
+                <listitem>
+                    <para>If the object is a <classname>Number</classname>, its double-precision floating-point value is compared with zero; non-zero is treated as <constant>true</constant>, zero as <constant>false</constant>.</para>
+                </listitem>
+
+                <listitem>
+                    <para>If the object is a <classname>Character</classname>, its boolean value is <constant>true</constant> if and only if its char value is non-zero.</para>
+                </listitem>
+
+                <listitem>
+                    <para>Otherwise, its boolean value is <constant>true</constant> if and only if it is non-<constant>null</constant>.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+
+        <section id="coerceNumber">
+            <title>Interpreting Objects as Numbers</title>
+
+            <para>Numerical operators try to treat their arguments as numbers. The basic primitive-type wrapper classes (Integer, Double, and so on, including Character and Boolean, which are treated as integers), and the &#34;big&#34; numeric
+            classes from the java.math package (BigInteger and BigDecimal), are recognized as special numeric types. Given an object of some other class, <acronym>OGNL</acronym> tries to parse the object&#39;s string value as a number.</para>
+
+            <para>Numerical operators that take two arguments use the following algorithm to decide what type the result should be. The type of the actual result may be wider, if the result does not fit in the given type.</para>
+
+            <itemizedlist>
+                <listitem>
+                    <para>If both arguments are of the same type, the result will be of the same type if possible.</para>
+                </listitem>
+
+                <listitem>
+                    <para>If either argument is not of a recognized numeric class, it will be treated as if it was a <classname>Double</classname> for the rest of this algorithm.</para>
+                </listitem>
+
+                <listitem>
+                    <para>If both arguments are approximations to real numbers <classname>(Float</classname>, <classname>Double</classname>, or <classname>BigDecimal</classname>), the result will be the wider type.</para>
+                </listitem>
+
+                <listitem>
+                    <para>If both arguments are integers <classname>(Boolean</classname>, <classname>Byte</classname>, <classname>Character</classname>, <classname>Short</classname>, <classname>Integer</classname>, <classname>Long</classname>, or
+                    <classname>BigInteger</classname>), the result will be the wider type.</para>
+                </listitem>
+
+                <listitem>
+                    <para>If one argument is a real type and the other an integer type, the result will be the real type if the integer is narrower than &#34;int&#34;; <classname>BigDecimal</classname> if the integer is <classname>BigInteger</classname>;
+                    or the wider of the real type and <classname>Double</classname> otherwise.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+
+        <section id="coerceInteger">
+            <title>Interpreting Objects as Integers</title>
+
+            <para>Operators that work only on integers, like the bit-shifting operators, treat their arguments as numbers, except that <classname>BigDecimal</classname>s and <classname>BigInteger</classname>s are operated on as
+            <classname>BigInteger</classname>s and all other kinds of numbers are operated on as Longs. For the <classname>BigInteger</classname> case, the result of these operators remains a <classname>BigInteger</classname>; for the
+            <classname>Long</classname> case, the result is expressed as the same type of the arguments, if it fits, or as a <classname>Long</classname> otherwise.</para>
+        </section>
+
+        <section id="coerceCollection">
+            <title>Interpreting Objects as Collections</title>
+
+            <para>The projection and selection operators (<function>e1.{e2}</function> and <function>e1.{?e2}</function>), and the <function>in</function> operator, all treat one of their arguments as a collection and walk it. This is done
+            differently depending on the class of the argument:</para>
+
+            <itemizedlist>
+                <listitem>
+                    <para>Java arrays are walked from front to back</para>
+                </listitem>
+
+                <listitem>
+                    <para>Members of <classname>java.util.Collection</classname> are walked by walking their iterators</para>
+                </listitem>
+
+                <listitem>
+                    <para>Members of <classname>java.util.Map</classname> are walked by walking iterators over their values</para>
+                </listitem>
+
+                <listitem>
+                    <para>Members of <classname>java.util.Iterator</classname> and <classname>java.util.Enumeration</classname> are walked by iterating them</para>
+                </listitem>
+
+                <listitem>
+                    <para>Members of <classname>java.lang.Number</classname> are &#34;walked&#34; by returning integers less than the given number starting with zero</para>
+                </listitem>
+
+                <listitem>
+                    <para>All other objects are treated as singleton collections containing only themselves</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+    </chapter>
+
+    <appendix>
+        <title><acronym>OGNL</acronym> Language Reference</title>
+
+        <para>This section has a fairly detailed treatment of <acronym>OGNL</acronym>&#39;s syntax and implementation. See below for a complete table of <acronym>OGNL</acronym>&#39;s operators, a section on how <acronym>OGNL</acronym> coerces objects
+        to various types, and a detailed description of <acronym>OGNL</acronym>&#39;s basic expressions.</para>
+
+        <section id="operators">
+            <title>Operators</title>
+
+            <para><acronym>OGNL</acronym> borrows most of Java&#39;s operators, and adds a few new ones. For the most part, <acronym>OGNL</acronym>&#39;s treatment of a given operator is the same as Java&#39;s, with the important caveat that
+            <acronym>OGNL</acronym> is essentially a typeless language. What that means is that every value in <acronym>OGNL</acronym> is a Java object, and <acronym>OGNL</acronym> attempts to coerce from each object a meaning appropriate to the
+            situation it is used in (see the section on <link linkend="coercion">coercion</link>).</para>
+
+            <para>The following table lists <acronym>OGNL</acronym> operators in reverse precedence order. When more than one operator is listed in the same box, these operators have the same precedence and are evaluated in left-to-right order.</para>
+
+            <table frame="all">
+                <title><acronym>OGNL</acronym> Operators</title>
+
+                <tgroup cols="3">
+                    <colspec colname="operator" />
+
+                    <colspec colname="getValueNotes" />
+
+                    <colspec colname="setValueNotes" />
+
+                    <spanspec nameend="setValueNotes" namest="operator" spanname="allColumns" />
+
+                    <thead>
+                        <row>
+                            <entry valign="top">Operator</entry>
+
+                            <entry valign="top"><function>getValue()</function> Notes</entry>
+
+                            <entry valign="top"><function>setValue()</function> Notes</entry>
+                        </row>
+                    </thead>
+
+                    <tbody>
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><replaceable>e1</replaceable><literal>,</literal> <replaceable>e2</replaceable></term><listitem><para>Sequence operator</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top">Both <varname>e1</varname> and <varname>e2</varname> are evaluated with the same source object, and the result of <varname>e2</varname> is returned.</entry>
+
+                            <entry valign="top"><function>getValue</function> is called on <varname>e1</varname>, and then <function>setValue</function> is called on <varname>e2</varname>.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><replaceable>e1</replaceable> <literal>=</literal> <replaceable>e2</replaceable></term><listitem><para>Assignment operator</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top"><function>getValue</function> is called on <varname>e2</varname>, and then <function>setValue</function> is called on <varname>e1</varname> with the result of <varname>e2</varname> as the target object.</entry>
+
+                            <entry valign="top">Cannot be the top-level expression for <function>setValue</function>.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><replaceable>e1</replaceable> <literal>?</literal> <replaceable>e2</replaceable> <literal>:</literal> <replaceable>e3</replaceable></term><listitem><para>Conditional
+                            operator</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top"><function>getValue</function> is called on <varname>e1</varname> and the result is <link linkend="coerceBoolean">interpreted as a boolean</link>. <function>getValue</function> is then called on either
+                            <varname>e2</varname> or <varname>e3</varname>, depending on whether the result of <varname>e1</varname> was <constant>true</constant> or <constant>false</constant> respectively, and the result is returned.</entry>
+
+                            <entry valign="top"><function>getValue</function> is called on <varname>e1</varname>, and then <function>setValue</function> is called on either <varname>e2</varname> or <varname>e3</varname>.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><replaceable>e1</replaceable> <literal>||</literal> <replaceable>e2</replaceable></term><term>e1 <literal> or </literal><replaceable>e2</replaceable></term><listitem><para>Logical
+                            <keycode>or</keycode> operator</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top"><function>getValue</function> is called on <varname>e1</varname> and the result is <link linkend="coerceBoolean">interpreted as a boolean</link>. If <constant>true</constant>, that result is returned;
+                            if <constant>false</constant>, <function>getValue</function> is called on <varname>e2</varname> and its value is returned.</entry>
+
+                            <entry valign="top"><function>getValue</function> is called on <varname>e1</varname>; if <constant>false</constant>, <function>setValue</function> is called on <varname>e2</varname>. Note that <varname>e1</varname> being
+                            <constant>true</constant> prevents any further setting from taking place.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><replaceable>e1</replaceable> <literal>&#38;&#38;</literal> <replaceable>e2</replaceable></term><term><replaceable>e1</replaceable><literal> and </literal><replaceable>e2</replaceable></term><listitem><para>Logical
+                            <keycode>and</keycode> operator</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top"><function>getValue</function> is called on <varname>e1</varname> and the result is <link linkend="coerceBoolean">interpreted as a boolean</link>. If <constant>false</constant>, that result is returned;
+                            if true, <function>getValue</function> is called on e2 and its value is returned.</entry>
+
+                            <entry valign="top"><function>getValue</function> is called on <varname>e1</varname>; if <constant>true</constant>, <function>setValue</function> is called on <varname>e2</varname>. Note that <varname>e1</varname> being
+                            <constant>false</constant> prevents any further setting from taking place.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><replaceable>e1</replaceable> <literal>|</literal> <replaceable>e2</replaceable></term><term><replaceable>e1</replaceable><literal> bor </literal><replaceable>e2</replaceable></term><listitem><para>Bitwise
+                            <keycode>or</keycode> operator</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top"><varname>e1</varname> and <varname>e2</varname> are <link linkend="coerceInteger">interpreted as integers</link> and the result is an <type>integer</type>.</entry>
+
+                            <entry valign="top">Cannot be the top-level expression passed to <function>setValue</function>.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><replaceable>e1</replaceable> <literal>^</literal> <replaceable>e2</replaceable></term><term><replaceable>e1</replaceable><literal> xor </literal><replaceable>e2</replaceable></term><listitem><para>Bitwise
+                            exclusive-or operator</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top"><varname>e1</varname> and <varname>e2</varname> are <link linkend="coerceInteger">interpreted as integers</link> and the result is an <type>integer</type>.</entry>
+
+                            <entry valign="top">Cannot be the top-level expression passed to <function>setValue</function>.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><replaceable>e1</replaceable> <literal>&#38;</literal> <replaceable>e2</replaceable></term><term><replaceable>e1</replaceable><literal> band </literal><replaceable>e2</replaceable></term><listitem><para>Bitwise
+                            and operator</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top"><varname>e1</varname> and <varname>e2</varname> are <link linkend="coerceInteger">interpreted as integers</link> and the result is an <type>integer</type>.</entry>
+
+                            <entry valign="top">Cannot be the top-level expression passed to <function>setValue</function>.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><replaceable>e1</replaceable> <literal>==</literal> <replaceable>e2</replaceable></term><term><replaceable>e1</replaceable><literal> eq </literal><replaceable>e2</replaceable></term><listitem><para>Equality
+                            test</para></listitem></varlistentry><varlistentry><term><replaceable>e1</replaceable> <literal>!=</literal> <replaceable>e2</replaceable></term><term><replaceable>e1</replaceable><literal> neq </literal><replaceable>e2</replaceable></term><listitem><para>Inequality
+                            test</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top">Equality is tested for as follows. If either value is <constant>null</constant>, they are equal if and only if both are <constant>null</constant>. If they are the same object or the
+                            <function>equals()</function> method says they are equal, they are equal. If they are both <classname>Number</classname>s, they are equal if their values as double-precision floating point numbers are equal. Otherwise,
+                            they are not equal. These rules make numbers compare equal more readily than they would normally, if just using the equals method.</entry>
+
+                            <entry valign="top">Cannot be the top-level expression passed to <function>setValue</function>.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><replaceable>e1</replaceable> <literal>&#60;</literal> <replaceable>e2</replaceable></term><term><replaceable>e1</replaceable><literal> lt </literal><replaceable>e2</replaceable></term><listitem><para>Less
+                            than comparison</para></listitem></varlistentry><varlistentry><term><replaceable>e1</replaceable> <literal>&#60;=</literal> <replaceable>e2</replaceable></term><term><replaceable>e1</replaceable><literal> lte </literal><replaceable>e2</replaceable></term><listitem><para>Less
+                            than or equals comparison</para></listitem></varlistentry><varlistentry><term><replaceable>e1</replaceable> <literal>&#62; </literal><replaceable>e2</replaceable></term><term><replaceable>e1</replaceable><literal> gt
+                            </literal><replaceable>e2</replaceable></term><listitem><para>Greater than comparison</para></listitem></varlistentry><varlistentry><term><replaceable>e1</replaceable> <literal>&#62;=</literal> <replaceable>e2</replaceable></term><term><replaceable>e1</replaceable><literal>
+                            gte </literal><replaceable>e2</replaceable></term><listitem><para>Greater than or equals comparison</para></listitem></varlistentry><varlistentry><term><replaceable>e1</replaceable><literal> in</literal>
+                            <replaceable>e2</replaceable></term><listitem><para>List membership comparison</para></listitem></varlistentry><varlistentry><term><replaceable>e1</replaceable> <literal>not in</literal> <replaceable>e2</replaceable></term><listitem><para>List
+                            non-membership comparison</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top">The ordering operators compare with <function>compareTo()</function> if their arguments are non-numeric and implement <classname>Comparable</classname>; otherwise, the arguments are interpreted as
+                            numbers and compared numerically. The in operator is not from Java; it tests for inclusion of e1 in e2, where e2 is interpreted as a collection. This test is not efficient: it iterates the collection. However, it uses the
+                            standard <acronym>OGNL</acronym> equality test.</entry>
+
+                            <entry valign="top">Cannot be the top-level expression passed to <function>setValue</function>.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><replaceable>e1</replaceable> <literal>&#60;&#60;</literal> <replaceable>e2</replaceable></term><term><replaceable>e1</replaceable><literal> shl </literal><replaceable>e2</replaceable></term><listitem><para>Bit
+                            shift left</para></listitem></varlistentry><varlistentry><term><replaceable>e1</replaceable> <literal>&#62;&#62;</literal> <replaceable>e2</replaceable></term><term><replaceable>e1</replaceable><literal> shr </literal><replaceable>e2</replaceable></term><listitem><para>Bit
+                            shift right</para></listitem></varlistentry><varlistentry><term><replaceable>e1</replaceable> <literal>&#62;&#62;&#62;</literal> <replaceable>e2</replaceable></term><term><replaceable>e1</replaceable><literal> ushr
+                            </literal><replaceable>e2</replaceable></term><listitem><para>Logical shift right</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top"><varname>e1</varname> and <varname>e2</varname> are <link linkend="coerceInteger">interpreted as integers</link> and the result is an <type>integer</type>.</entry>
+
+                            <entry valign="top">Cannot be the top-level expression passed to <function>setValue</function>.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><replaceable>e1 </replaceable><literal>+</literal> <replaceable>e2</replaceable></term><listitem><para>Addition</para></listitem></varlistentry><varlistentry><term><replaceable>e1</replaceable>
+                            <literal>-</literal> <replaceable>e2</replaceable></term><listitem><para>Subtraction</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top">The plus operator concatenates strings if its arguments are non-numeric; otherwise it <link linkend="coerceNumber">interprets its arguments as numbers</link> and adds them. The minus operator always
+                            works on numbers.</entry>
+
+                            <entry valign="top">Cannot be the top-level expression passed to <function>setValue</function>.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><replaceable>e1</replaceable><literal>* </literal><replaceable>e2</replaceable></term><listitem><para>Multiplication</para></listitem></varlistentry><varlistentry><term><replaceable>e1</replaceable>
+                            <literal>/</literal> <replaceable>e2</replaceable></term><listitem><para>Division</para></listitem></varlistentry><varlistentry><term><replaceable>e1</replaceable> <literal>%</literal> <replaceable>e2</replaceable></term><listitem><para>Remainder</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top">Multiplication, division, which <link linkend="coerceNumber">interpret their arguments as numbers</link>, and remainder, which <link linkend="coerceInteger">interprets its arguments as integers</link>.</entry>
+
+                            <entry valign="top">Cannot be the top-level expression passed to <function>setValue</function>.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><literal>+ </literal><replaceable>e</replaceable></term><listitem><para>Unary plus</para></listitem></varlistentry><varlistentry><term><literal>-</literal>
+                            <replaceable>e</replaceable></term><listitem><para>Unary minus</para></listitem></varlistentry><varlistentry><term><literal>!</literal> <replaceable>e</replaceable></term><term><literal>not </literal><replaceable>e</replaceable></term><listitem><para>Logical
+                            not</para></listitem></varlistentry><varlistentry><term><literal>~</literal> <replaceable>e</replaceable></term><listitem><para>Bitwise not</para></listitem></varlistentry><varlistentry><term><replaceable>e</replaceable>
+                            <literal>instanceof</literal> <replaceable>class</replaceable></term><listitem><para>Class membership</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top">Unary plus is a no-op, it simply returns the value of its argument. Unary minus <link linkend="coerceNumber">interprets its argument as a number</link>. Logical not <link linkend="coerceBoolean">interprets
+                            its argument as a boolean</link>. Bitwise not <link linkend="coerceInteger">interprets its argument as an integer</link>. The <replaceable>class</replaceable> argument to instanceof is the fully qualified name of a Java
+                            class.</entry>
+
+                            <entry valign="top">Cannot be the top-level expression passed to <function>setValue</function>.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><link linkend="methods"><replaceable>e</replaceable><literal>.</literal><replaceable>method</replaceable><literal>(</literal><replaceable>args</replaceable><literal>)</literal></link></term><listitem><para>Method
+                            call</para></listitem></varlistentry><varlistentry><term><link linkend="properties"><replaceable>e</replaceable><literal>.</literal><replaceable>property</replaceable></link></term><listitem><para>Property</para></listitem></varlistentry><varlistentry><term><link
+                            linkend="indexing"><replaceable>e1</replaceable><literal>[</literal> <replaceable>e2</replaceable> <literal>]</literal></link></term><listitem><para>Index</para></listitem></varlistentry><varlistentry><term><link
+                            linkend="projection"><replaceable>e1</replaceable><literal>.{ </literal><replaceable>e2</replaceable> <literal>}</literal></link></term><listitem><para>Projection</para></listitem></varlistentry><varlistentry><term><link
+                            linkend="selection"><replaceable>e1</replaceable><literal>.{?</literal> <replaceable>e2 </replaceable><literal>}</literal></link></term><listitem><para>Selection</para></listitem></varlistentry><varlistentry><term><link
+                            linkend="chainedSubexpressions"><replaceable>e1</replaceable><literal>.(</literal><replaceable>e2</replaceable><literal>)</literal></link></term><listitem><para>Subexpression evaluation</para></listitem></varlistentry><varlistentry><term><link
+                            linkend="expressionEvaluation"><replaceable>e1</replaceable><literal>(</literal><replaceable>e2</replaceable><literal>)</literal></link></term><listitem><para>Expression evaluation</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top">Generally speaking, navigation chains are evaluated by evaluating the first expression, then evaluating the second one with the result of the first as the source object.</entry>
+
+                            <entry valign="top">Some of these forms can be passed as top-level expressions to <function>setValue</function> and others cannot. Only those chains that end in property references (e.property), indexes (<function>e1[e2]</function>),
+                            and subexpressions (<function>e1.(e2)</function>) can be; and expression evaluations can be as well. For the chains, <function>getValue</function> is called on the left-hand expression (<varname>e</varname> or
+                            <varname>e1</varname>), and then <function>setValue</function> is called on the rest with the result as the target object.</entry>
+                        </row>
+
+                        <row>
+                            <entry valign="top"><variablelist><varlistentry><term><link linkend="constants"><replaceable>constant</replaceable></link></term><listitem><para>Constant</para></listitem></varlistentry><varlistentry><term><link
+                            linkend="paren"><literal>(</literal> <replaceable>e</replaceable> <literal>)</literal></link></term><listitem><para>Parenthesized expression</para></listitem></varlistentry><varlistentry><term><link linkend="methods"><replaceable>method</replaceable><literal>(</literal><replaceable>args</replaceable><literal>)</literal></link></term><listitem><para>Method
+                            call</para></listitem></varlistentry><varlistentry><term><link linkend="properties"><replaceable>property</replaceable></link></term><listitem><para>Property reference</para></listitem></varlistentry><varlistentry><term><link
+                            linkend="indexing"><literal>[</literal> <replaceable>e</replaceable> <literal>]</literal></link></term><listitem><para>Index reference</para></listitem></varlistentry><varlistentry><term><link linkend="listConstruction"><literal>{
+                            </literal><replaceable>e</replaceable><literal>,</literal> ... <literal>}</literal></link></term><listitem><para>List creation</para></listitem></varlistentry><varlistentry><term><link linkend="varref"><literal>#</literal><replaceable>variable</replaceable></link></term><listitem><para>Context
+                            variable reference</para></listitem></varlistentry><varlistentry><term><link linkend="staticMethods"><literal>@</literal><replaceable>class</replaceable><literal>@</literal><replaceable>method</replaceable><literal>(</literal><replaceable>args</replaceable><literal>)</literal></link></term><listitem><para>Static
+                            method reference</para></listitem></varlistentry><varlistentry><term><link linkend="staticFields"><literal>@</literal><replaceable>class</replaceable><literal>@</literal><replaceable>field</replaceable></link></term><listitem><para>Static
+                            field reference</para></listitem></varlistentry><varlistentry><term><link linkend="constructors"><literal>new</literal> <replaceable>class</replaceable><literal>(</literal><replaceable>args</replaceable><literal>)</literal></link></term><listitem><para>Constructor
+                            call</para></listitem></varlistentry><varlistentry><term><link linkend="nativeArrayConstruction"><literal>new </literal><replaceable>array-component-class</replaceable><literal>[] {</literal> <replaceable>e</replaceable><literal>,</literal>
+                            ... <literal>}</literal></link></term><listitem><para>Array creation</para></listitem></varlistentry><varlistentry><term><link linkend="mapConstruction"><literal>#{</literal> <replaceable>e1</replaceable>
+                            <literal>:</literal> <replaceable>e2</replaceable><literal>,</literal> ... <literal>}</literal></link></term><listitem><para>Map creation</para></listitem></varlistentry><varlistentry><term><link linkend="mapConstruction"><literal>#@</literal><replaceable>classname</replaceable><literal>@{
+                            </literal><replaceable>e1</replaceable> <literal>:</literal> <replaceable>e2</replaceable><literal>,</literal> ... <literal>}</literal></link></term><listitem><para>Map creation with specific subclass</para></listitem></varlistentry><varlistentry><term><link
+                            linkend="lambdaExpressions"><literal>:[</literal> <replaceable>e</replaceable> <literal>]</literal></link></term><listitem><para>Lambda expression definition</para></listitem></varlistentry></variablelist></entry>
+
+                            <entry valign="top">Basic expressions</entry>
+
+                            <entry valign="top">Only property references (<varname>property</varname>), indexes (<varname>[e]</varname>), and variable references (<varname>#variable</varname>) can be passed as top-level expressions to
+                            <function>setValue</function>. For indexes, <function>getValue</function> is called on <varname>e</varname>, and then the result is used as the property &#34;name&#34; (which might be a <classname>String</classname> or any
+                            other kind of object) to set in the current target object. Variable and property references are set more directly.</entry>
+                        </row>
+
+                        <row>
+                            <entry spanname="allColumns"><note><para>These operators are listed in reverse precedence order</para></note></entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </section>
+    </appendix>
+</book>
