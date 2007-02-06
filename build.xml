@@ -1,0 +1,87 @@
+<project name="ognl" default="jar" basedir=".">
+
+    <import file="osbuild.xml"/>
+
+    <path id="junit.cp">
+        <pathelement location="${build.test}"/>
+        <pathelement location="${build.java-test}"/>
+        <pathelement location="${test}/classLoadingTestFiles"/>
+        <pathelement location="${test}/etc"/>
+        <path refid="cp"/>
+    </path>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${build}"/>
+
+        <mkdir dir="${build.java}/META-INF"/>
+
+        <jar basedir="${build.java}" jarfile="${build}/${name}-${version}.jar">
+            <manifest>
+                <attribute name="Implementation-Title" value="${fullname}"/>
+                <attribute name="Implementation-Version" value="${version}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="dist" depends="jar, docs">
+        <copy file="${build}/${name}-${version}.jar" todir="${dist}"/>
+        <copy todir="${dist}/src">
+            <fileset dir="${src}"/>
+        </copy>
+
+        <mkdir dir="${dist}/lib"/>
+        <copy todir="${dist}/lib">
+            <fileset dir="${lib}"/>
+        </copy>
+
+        <copy todir="${dist}">
+            <fileset dir="${basedir}">
+                <include name="build.*"/>
+            </fileset>
+        </copy>
+
+        <!-- copy README -->
+        <tstamp/>
+        <copy filtering="on" todir="${dist}">
+            <fileset dir=".">
+                <include name="*.html"/>
+            </fileset>
+            <filterset>
+                <filter token="version" value="${version}"/>
+                <filter token="builddate" value="${TODAY}"/>
+            </filterset>
+        </copy>
+
+        <zip zipfile="${build}/${name}-${version}.zip" basedir="${dist}">
+            <exclude name="docs/clover/**/*"/>
+            <exclude name="docs/junit/**/*"/>
+        </zip>
+    </target>
+
+    <target name="javacc-generate">
+        <java classname="org.javacc.jjtree.Main" classpathref="cp" fork="true">
+            <arg value="-OUTPUT_DIRECTORY=${src.java}/ognl"/>
+            <arg value="${src.java}/ognl/ognl.jjt"/>
+        </java>
+
+        <java classname="org.javacc.parser.Main" classpathref="cp" fork="true">
+            <arg value="-OUTPUT_DIRECTORY=${src.java}/ognl"/>
+            <arg value="${src.java}/ognl/ognl.jj"/>
+        </java>
+    </target>
+
+    <target name="docs.impl">
+        <ant antfile="docbook.xml" target="doc-docbook"/>
+
+        <copy todir="${dist}/docs">
+            <fileset dir="${docs}"/>
+        </copy>
+
+        <copy todir="${dist}/docs">
+            <fileset dir="${build}/docbook">
+                <include name="html/**/*"/>
+                <include name="pdf/**/*"/>
+            </fileset>
+        </copy>
+    </target>
+</project>
