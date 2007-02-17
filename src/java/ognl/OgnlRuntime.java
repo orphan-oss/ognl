@@ -34,27 +34,11 @@ import java.beans.IndexedPropertyDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Permission;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This is an abstract class with static methods that define runtime
@@ -524,14 +508,16 @@ public abstract class OgnlRuntime extends Object
                 throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
             }
         }
-        if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-            if (!(wasAccessible = ((AccessibleObject)method).isAccessible())) {
-                ((AccessibleObject)method).setAccessible(true);
+        synchronized (method) {
+            if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
+                if (!(wasAccessible = ((AccessibleObject)method).isAccessible())) {
+                    ((AccessibleObject)method).setAccessible(true);
+                }
             }
-        }
-        result = method.invoke( target, argsArray );
-        if (!wasAccessible) {
-            ((AccessibleObject)method).setAccessible(false);
+            result = method.invoke( target, argsArray );
+            if (!wasAccessible) {
+                ((AccessibleObject)method).setAccessible(false);
+            }
         }
         return result;
     }

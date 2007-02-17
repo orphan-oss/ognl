@@ -78,6 +78,12 @@
     <option name="OUTPUT_DIRECTORY" />
   </component>
   <component name="GUI Designer component loader factory" />
+  <component name="HandyEdit.TapestrySupport" tapestryProject="false" askEnableTapestry="false">
+    <locations pageRoot="" componentRoot="" applicationFile="" pagePropertiesRoot="" />
+    <packages page="" component="" />
+    <completion properties="true" methods="false" htmlAttributes="true" />
+    <ext extensionComponentSpec="jwc" extensionPageSpec="page" extensionScript="script" />
+  </component>
   <component name="InspectionProjectProfileManager">
     <option name="PROJECT_PROFILE" value="Project Default" />
     <option name="USE_PROJECT_LEVEL_SETTINGS" value="false" />
