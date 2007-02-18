@@ -17,13 +17,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.properties" afterPath="$PROJECT_DIR$/build.properties" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iml" afterPath="$PROJECT_DIR$/OGNL.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iws" afterPath="$PROJECT_DIR$/OGNL.iws" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.ipr" afterPath="$PROJECT_DIR$/OGNL.ipr" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" afterPath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" />
     </list>
   </component>
+  <component name="ChangeListSynchronizer" />
   <component name="ChangesViewManager" flattened_view="true" />
   <component name="CheckinPanelState" />
   <component name="Commander">
@@ -144,7 +143,26 @@
     </subPane>
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="pom.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="18" column="0" selection-start="635" selection-end="635" vertical-scroll-proportion="0.22268042">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.properties" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/build.properties">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="5" column="0" selection-start="82" selection-end="82" vertical-scroll-proportion="0.06185567">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -155,6 +173,11 @@
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
     <option name="SORT_ALPHABETICALLY" value="false" />
     <option name="HIDE_CLASSES_WHERE_METHOD_NOT_IMPLEMENTED" value="false" />
+  </component>
+  <component name="ImportEclipseWorkspace">
+    <Eclipse-Importer new-module-in-eclipse-proj="false" check-eclipse-changes="false">
+      <path-vars />
+    </Eclipse-Importer>
   </component>
   <component name="InspectionManager">
     <option name="AUTOSCROLL_TO_SOURCE" value="false" />
@@ -167,6 +190,16 @@
     <option name="CUSTOM_SCOPE_NAME" value="" />
     <option name="SHOW_ONLY_DIFF" value="false" />
     <option name="myCurrentProfileName" value="Default" />
+  </component>
+  <component name="IntelliTail">
+    <property name="buffer-wrap" value="false" />
+    <property name="buffer-size" value="50" />
+    <property name="external-editor" value="/usr/bin/emacs" />
+    <property name="recent-files" value="" />
+    <property name="poll-interval" value="500" />
+    <property name="external-in-idea" value="true" />
+    <property name="tooltip-delay" value="500" />
+    <property name="stamp-format" value="'Line read:' yyyy-MM-dd HH:mm:ss" />
   </component>
   <component name="J2EEProjectPane" />
   <component name="JspContextManager" />
@@ -189,6 +222,32 @@
       </PATH>
     </subPane>
   </component>
+  <component name="PerforceChangeBrowserSettings">
+    <option name="USE_CLIENT_FILTER" value="true" />
+    <option name="CLIENT" value="" />
+  </component>
+  <component name="PerforceDirect.Settings">
+    <option name="useP4CONFIG" value="true" />
+    <option name="port" value="&lt;perforce_server&gt;:1666" />
+    <option name="client" value="" />
+    <option name="user" value="" />
+    <option name="passwd" value="" />
+    <option name="showCmds" value="false" />
+    <option name="useNativeApi" value="false" />
+    <option name="pathToExec" value="p4" />
+    <option name="useCustomPathToExec" value="false" />
+    <option name="SYNC_FORCE" value="false" />
+    <option name="SYNC_RUN_RESOLVE" value="true" />
+    <option name="REVERT_UNCHANGED_FILES" value="true" />
+    <option name="CHARSET" value="none" />
+    <option name="SHOW_BRANCHES_HISTORY" value="true" />
+    <option name="ENABLED" value="true" />
+    <option name="USE_LOGIN" value="false" />
+    <option name="LOGIN_SILENTLY" value="false" />
+    <option name="INTEGRATE_RUN_RESOLVE" value="true" />
+    <option name="INTEGRATE_REVERT_UNCHANGED" value="true" />
+    <option name="SERVER_TIMEOUT" value="20000" />
+  </component>
   <component name="ProjectLevelVcsManager">
     <OptionsSetting value="true" id="Add" />
     <OptionsSetting value="true" id="Remove" />
@@ -197,6 +256,9 @@
     <OptionsSetting value="true" id="Update" />
     <OptionsSetting value="true" id="Status" />
     <OptionsSetting value="true" id="Edit" />
+    <OptionsSetting value="true" id="Undo Check Out" />
+    <OptionsSetting value="true" id="Compare with SourceSafe Version" />
+    <OptionsSetting value="true" id="Get Latest Version" />
     <ConfirmationsSetting value="0" id="Add" />
     <ConfirmationsSetting value="0" id="Remove" />
   </component>
@@ -229,7 +291,7 @@
     </subPane>
   </component>
   <component name="ProjectReloadState">
-    <option name="STATE" value="0" />
+    <option name="STATE" value="2" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="0.16666667" version="1" splitterProportion="0.5">
@@ -239,42 +301,53 @@
       <showLibraryContents />
       <hideEmptyPackages />
       <abbreviatePackageNames />
-      <showStructure PackagesPane="false" ProjectPane="false" Scope="false" Favorites="false" />
+      <showStructure ProjectPane="false" PackagesPane="false" Scope="false" Favorites="false" />
       <autoscrollToSource />
       <autoscrollFromSource />
       <sortByType />
     </navigator>
   </component>
   <component name="PropertiesComponent">
-    <property name="GoToFile.includeJavaFiles" value="false" />
-    <property name="cvs_file_history_treeOrder2" value="2" />
-    <property name="cvs_file_history_treeOrder1" value="1" />
-    <property name="cvs_file_history_treeOrder3" value="3" />
-    <property name="MemberChooser.sorted" value="false" />
-    <property name="cvs_file_history_flatOrder2" value="2" />
-    <property name="cvs_file_history_flatOrder3" value="3" />
-    <property name="cvs_file_history_flatOrder0" value="0" />
-    <property name="cvs_file_history_flatOrder1" value="1" />
     <property name="MemberChooser.copyJavadoc" value="false" />
-    <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="cvs_file_history_treeWidth0" value="464" />
-    <property name="cvs_file_history_treeWidth1" value="464" />
-    <property name="cvs_file_history_treeWidth2" value="464" />
-    <property name="cvs_file_history_treeWidth3" value="464" />
     <property name="cvs_file_history_flatWidth2" value="464" />
-    <property name="cvs_file_history_treeOrder0" value="0" />
-    <property name="MemberChooser.showClasses" value="true" />
-    <property name="cvs_file_history_flatWidth3" value="464" />
-    <property name="cvs_file_history_flatWidth0" value="464" />
-    <property name="GoToClass.includeLibraries" value="false" />
+    <property name="MemberChooser.sorted" value="false" />
+    <property name="cvs_file_history_treeOrder1" value="1" />
+    <property name="cvs_file_history_flatOrder0" value="0" />
+    <property name="cvs_file_history_treeOrder3" value="3" />
+    <property name="GoToFile.includeJavaFiles" value="false" />
+    <property name="cvs_file_history_flatOrder1" value="1" />
     <property name="cvs_file_history_flatWidth1" value="464" />
+    <property name="cvs_file_history_treeWidth1" value="464" />
+    <property name="cvs_file_history_treeOrder2" value="2" />
+    <property name="cvs_file_history_treeWidth3" value="464" />
+    <property name="GoToClass.includeLibraries" value="false" />
+    <property name="cvs_file_history_flatOrder2" value="2" />
+    <property name="MemberChooser.showClasses" value="true" />
+    <property name="cvs_file_history_flatWidth0" value="464" />
+    <property name="cvs_file_history_flatWidth3" value="464" />
+    <property name="cvs_file_history_treeWidth2" value="464" />
+    <property name="cvs_file_history_flatOrder3" value="3" />
+    <property name="GoToClass.toSaveIncludeLibraries" value="false" />
+    <property name="cvs_file_history_treeOrder0" value="0" />
   </component>
   <component name="ReadonlyStatusHandler">
     <option name="SHOW_DIALOG" value="true" />
   </component>
   <component name="RecentsManager" />
+  <component name="Regex">
+    <option name="pos1" value="218" />
+    <option name="pos2" value="218" />
+    <option name="pos3" value="162" />
+    <option name="pos4" value="444" />
+    <option name="pos5" value="162" />
+    <option name="autoUpdate" value="true" />
+    <option name="referenceOn" value="false" />
+    <option name="referencePos" value="0" />
+    <option name="showLabels" value="true" />
+  </component>
   <component name="RestoreUpdateTree">
-    <UpdateInfo date="2/17/07 1:16 PM" ActionInfo="_Update">
+    <UpdateInfo date="18.02.07 14:38" ActionInfo="_Update">
       <UpdatedFiles>
         <FILE-GROUP>
           <option name="myUpdateName" value="Updated from server" />
@@ -288,11 +361,6 @@
             <option name="mySupportsDeletion" value="false" />
             <option name="myCanBeAbsent" value="false" />
             <option name="myId" value="UPDATED" />
-            <PATH>$PROJECT_DIR$/pom.xml</PATH>
-            <PATH>$PROJECT_DIR$/src/java/ognl/ognl.jj</PATH>
-            <PATH>$PROJECT_DIR$/src/java/ognl/OgnlParser.java</PATH>
-            <PATH>$PROJECT_DIR$/src/java/ognl/OgnlParserTreeConstants.java</PATH>
-            <PATH>$PROJECT_DIR$/build.properties</PATH>
           </FILE-GROUP>
           <FILE-GROUP>
             <option name="myUpdateName" value="Created" />
@@ -322,6 +390,7 @@
           <option name="mySupportsDeletion" value="false" />
           <option name="myCanBeAbsent" value="false" />
           <option name="myId" value="MODIFIED" />
+          <PATH>$PROJECT_DIR$/OGNL.iml</PATH>
           <PATH>$PROJECT_DIR$/OGNL.ipr</PATH>
           <PATH>$PROJECT_DIR$/OGNL.iws</PATH>
         </FILE-GROUP>
@@ -352,7 +421,6 @@
           <option name="mySupportsDeletion" value="true" />
           <option name="myCanBeAbsent" value="false" />
           <option name="myId" value="UNKNOWN" />
-          <PATH>$PROJECT_DIR$/target</PATH>
         </FILE-GROUP>
         <FILE-GROUP>
           <option name="myUpdateName" value="Locally added" />
@@ -382,6 +450,18 @@
       <option name="ENABLE_SWING_INSPECTOR" value="false" />
       <module name="" />
     </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+    </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <module name="" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -400,18 +480,6 @@
       <method>
         <option name="Make" value="true" />
       </method>
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
     </configuration>
     <configuration default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
@@ -453,6 +521,21 @@
     <option name="AUTOSCROLL_FROM_SOURCE" value="false" />
     <option name="ACTIVE_ACTIONS" value="" />
   </component>
+  <component name="Struts Assistant">
+    <option name="showInputs" value="true" />
+    <option name="resources">
+      <value>
+        <option name="strutsPath" />
+        <option name="strutsHelp" />
+      </value>
+    </option>
+    <option name="selectedTaglibs" />
+    <option name="selectedTaglibs" />
+    <option name="myStrutsValidationEnabled" value="true" />
+    <option name="myTilesValidationEnabled" value="true" />
+    <option name="myValidatorValidationEnabled" value="true" />
+    <option name="myReportErrorsAsWarnings" value="true" />
+  </component>
   <component name="SvnChangesBrowserSettings">
     <option name="USE_AUTHOR_FIELD" value="true" />
     <option name="AUTHOR" value="" />
@@ -468,9 +551,28 @@
     <option name="UPDATE_RUN_STATUS" value="true" />
     <option name="UPDATE_RECURSIVELY" value="true" />
     <option name="MERGE_DRY_RUN" value="false" />
-    <configuration useDefault="true">$USERPROFILE$/.subversion</configuration>
+    <configuration useDefault="true">/Users/rainer/.subversion</configuration>
     <checkoutURL>http://svn.opensymphony.com/svn/ognl/trunk</checkoutURL>
     <upgradeMode>none</upgradeMode>
+  </component>
+  <component name="Talios.JiraConfigurationComponent" enableIssueTracking="false" autoRefresh="false" useExternalBrowser="false" refreshTimeout="0" annotateissues="false">
+    <servers />
+    <columns>
+      <column id="created" position="0" width="-1" />
+      <column id="key" position="1" width="-1" />
+      <column id="component" position="2" width="-1" />
+      <column id="title" position="3" width="-1" />
+      <column id="type" position="4" width="-1" />
+      <column id="priority" position="5" width="-1" />
+      <column id="status" position="6" width="-1" />
+      <column id="resolution" position="7" width="-1" />
+      <column id="assignee" position="8" width="-1" />
+      <column id="reporter" position="9" width="-1" />
+      <column id="updated" position="10" width="-1" />
+      <column id="dueDate" position="11" width="-1" />
+      <column id="version" position="12" width="-1" />
+      <column id="fixVersion" position="13" width="-1" />
+    </columns>
   </component>
   <component name="TodoView" selected-index="0">
     <todo-panel id="selected-file">
@@ -487,32 +589,46 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="102" y="189" width="1955" height="1336" extended-state="0" />
+    <frame x="0" y="22" width="1920" height="1118" extended-state="6" />
     <editor active="false" />
     <layout>
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="Maven-2 Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
+      <window_info id="SoapUI Navigator" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
+      <window_info id="Regex" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="7" />
+      <window_info id="TestDox" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="1" />
+      <window_info id="Hibero" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="IntelliTail" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="SoapUI Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="3" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.27457628" order="8" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32994062" order="8" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="7" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="0" />
+      <window_info id="DBHelper" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
+      <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.27450982" order="8" />
+      <window_info id="DBOutput" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
-      <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
-      <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18344755" order="0" />
-      <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32994652" order="0" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="1" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="6" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32994062" order="8" />
+      <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
+      <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="WebServices" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="EclipseImporter" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="2" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="5" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
+      <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="0" />
+      <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="0" />
       <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
       <window_info id="EJB" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="4" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="5" />
     </layout>
   </component>
   <component name="VCS.FileViewConfiguration">
@@ -546,6 +662,49 @@
     <MESSAGE value="Removed eclipse cruft." />
     <MESSAGE value="Applied Race condition bugfix patch from Tim to fix OGNL-8 . &#10;&#10;Updated project files to reflect new target version of 2.6.11." />
   </component>
+  <component name="VssConfiguration">
+    <option name="CLIENT_PATH" value="" />
+    <option name="SRCSAFEINI_PATH" value="" />
+    <option name="USER_NAME" value="" />
+    <option name="PWD" value="" />
+    <option name="VSS_IS_INITIALIZED" value="true" />
+    <CheckoutOptions>
+      <option name="COMMENT" value="" />
+      <option name="DO_NOT_GET_LATEST_VERSION" value="false" />
+      <option name="REPLACE_WRITABLE" value="false" />
+      <option name="RECURSIVE" value="false" />
+    </CheckoutOptions>
+    <CheckinOptions>
+      <option name="COMMENT" value="" />
+      <option name="KEEP_CHECKED_OUT" value="false" />
+      <option name="RECURSIVE" value="false" />
+    </CheckinOptions>
+    <AddOptions>
+      <option name="COMMENT" value="" />
+      <option name="STORE_ONLY_LATEST_VERSION" value="false" />
+      <option name="CHECK_OUT_IMMEDIATELY" value="false" />
+      <option name="FILE_TYPE" value="0" />
+    </AddOptions>
+    <UndocheckoutOptions>
+      <option name="MAKE_WRITABLE" value="false" />
+      <option name="REPLACE_LOCAL_COPY" value="0" />
+      <option name="RECURSIVE" value="false" />
+    </UndocheckoutOptions>
+    <GetOptions>
+      <option name="REPLACE_WRITABLE" value="0" />
+      <option name="MAKE_WRITABLE" value="false" />
+      <option name="ANSWER_NEGATIVELY" value="false" />
+      <option name="ANSWER_POSITIVELY" value="false" />
+      <option name="RECURSIVE" value="false" />
+      <option name="VERSION" />
+    </GetOptions>
+    <VssConfigurableExcludedFilesTag />
+  </component>
+  <component name="XPathView.XPathProjectComponent">
+    <history />
+    <find-history />
+  </component>
+  <component name="XSLT-Support.FileAssociationsSettings" />
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
     <option name="FILTER_TARGETS" value="false" />
@@ -612,13 +771,13 @@
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/www/index.html">
-      <provider editor-type-id="HtmlPreview">
-        <state />
-      </provider>
       <provider selected="true" editor-type-id="text-editor">
         <state line="32" column="21" selection-start="1563" selection-end="1563" vertical-scroll-proportion="0.4359673">
           <folding />
         </state>
+      </provider>
+      <provider editor-type-id="HtmlPreview">
+        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTBitNegate.java">
@@ -628,18 +787,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="0" selection-start="82" selection-end="82" vertical-scroll-proportion="0.06533101">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/ognl.jj">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="9" selection-start="2374" selection-end="2374" vertical-scroll-proportion="0.28745645">
-          <folding />
-        </state>
+        <state line="43" column="9" selection-start="2374" selection-end="2374" vertical-scroll-proportion="0.28745645" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java">
@@ -651,7 +801,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="0" selection-start="635" selection-end="635" vertical-scroll-proportion="0.23519164">
+        <state line="18" column="0" selection-start="635" selection-end="635" vertical-scroll-proportion="0.22268042">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="5" column="0" selection-start="82" selection-end="82" vertical-scroll-proportion="0.06185567">
           <folding />
         </state>
       </provider>

@@ -53,5 +53,25 @@
     </orderEntry>
     <orderEntryProperties />
   </component>
+  <component name="RetrotranslatorModuleSettings">
+    <setting name="enabled" value="false" />
+    <setting name="retroTests" value="false" />
+    <setting name="stripSign" value="false" />
+    <setting name="verbose" value="false" />
+    <setting name="lazy" value="false" />
+    <setting name="verify" value="false" />
+    <setting name="targetJdk" value="" />
+  </component>
+  <component name="RetroweaverPlugin">
+    <setting name="active" value="false" />
+    <setting name="verbose" value="false" />
+    <setting name="verifyrefs" value="false" />
+    <setting name="targetJDK" value="" />
+  </component>
+  <component name="copyright">
+    <Base>
+      <setting name="state" value="2" />
+    </Base>
+  </component>
 </module>
 
