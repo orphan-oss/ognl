@@ -156,7 +156,7 @@ public class ASTProperty extends SimpleNode implements NodeType
         
         try {
            //System.out.println("astproperty is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
-            //        + " target: " + target.getClass().getName() + " current object: " + context.getCurrentObject().getClass().getName());
+             //       + " target: " + target.getClass().getName() + " current object: " + context.getCurrentObject().getClass().getName());
             
             if (isIndexedAccess()) {
                 

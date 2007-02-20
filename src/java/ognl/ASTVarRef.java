@@ -107,7 +107,7 @@ public class ASTVarRef extends SimpleNode implements NodeType
         
         if (context.getCurrentObject() == null)
             throw new UnsupportedCompilationException("Current context object is null, can't compile var reference.");
-        
+
         return "((" + OgnlRuntime.getCompiler().getClassName(context.getCurrentObject().getClass()) + ")$1.get(\"" + _name + "\"))";
     }
     

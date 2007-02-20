@@ -155,7 +155,10 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
     {
         String rootExpr = "";
         
-        if ((!ASTList.class.isInstance(expression) && !ASTStaticMethod.class.isInstance(expression) && !ASTStaticField.class.isInstance(expression)
+        if ((!ASTList.class.isInstance(expression)
+                && !ASTVarRef.class.isInstance(expression)
+                && !ASTStaticMethod.class.isInstance(expression)
+                && !ASTStaticField.class.isInstance(expression)
                 && !ASTConst.class.isInstance(expression)
                 && !ExpressionNode.class.isInstance(expression) 
                 && !ASTCtor.class.isInstance(expression)
@@ -190,7 +193,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
     public void compileExpression(OgnlContext context, Node expression, Object root)
     throws Exception
     {
-        System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
+        //System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
         
         if (expression.getAccessor() != null)
             return;
@@ -375,7 +378,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
         
         body = body.replaceAll("\\.\\.", ".");
         
-        System.out.println("Getter Body: ===================================\n"+body);
+        // System.out.println("Getter Body: ===================================\n"+body);
         valueGetter.setBody(body);
 
         newClass.addMethod(valueGetter);
@@ -418,7 +421,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
         
         body = body.replaceAll("\\.\\.", ".");
         
-        System.out.println("Setter Body: ===================================\n"+body);
+        //System.out.println("Setter Body: ===================================\n"+body);
         valueSetter.setBody(body);
         
         newClass.addMethod(valueSetter);
