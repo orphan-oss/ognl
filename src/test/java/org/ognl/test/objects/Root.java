@@ -30,8 +30,9 @@
 //--------------------------------------------------------------------------
 package org.ognl.test.objects;
 
-import java.util.*;
 import ognl.DynamicSubscript;
+
+import java.util.*;
 
 public class Root extends Object
 {
@@ -54,7 +55,13 @@ public class Root extends Object
     public String                   anotherStringValue = "foo";
     public int                      anotherIntValue = 123;
     public int                      six = 6;
-
+    private boolean _disabled;
+    private Locale _selected = Locale.getDefault();
+    
+    private int verbosity = 87;
+    
+    private BeanProvider _beanProvider = new BeanProviderImpl();
+    
 	/*===================================================================
 		Public static methods
 	  ===================================================================*/
@@ -80,6 +87,7 @@ public class Root extends Object
         map.put( "list", list );
         map.put( "size", new Integer(5000) );
         map.put( DynamicSubscript.first, new Integer(99) );
+        map.put( "baz", array);
 
         /* make myMap identical */
         myMap.putAll( map );
@@ -188,9 +196,59 @@ public class Root extends Object
     {
         stringValue = value;
     }
-
+    
+    public String getIndexedStringValue()
+    {
+        return "array";
+    }
+    
     public Object getNullObject()
     {
         return null;
+    }
+    
+    public Object getProperty()
+    {
+        return new Bean2();
+    }
+    
+    public Object getIndexedProperty(String name)
+    {
+        return myMap.get(name);
+    }
+    
+    public BeanProvider getBeans()
+    {
+        return _beanProvider;
+    }
+    
+    public boolean getDisabled()
+    {
+        return _disabled;
+    }
+    
+    public void setDisabled(boolean disabled)
+    {
+        _disabled = disabled;
+    }
+    
+    public Locale getSelected()
+    {
+        return _selected;
+    }
+    
+    public void setSelected(Locale locale)
+    {
+        _selected = locale;
+    }
+    
+    public Locale getCurrLocale()
+    {
+        return Locale.getDefault();
+    }
+    
+    public int getCurrentLocaleVerbosity()
+    {
+        return verbosity;
     }
 }

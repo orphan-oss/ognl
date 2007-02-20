@@ -30,8 +30,9 @@
 //--------------------------------------------------------------------------
 package org.ognl.test;
 
-import java.util.Map;
 import ognl.NullHandler;
+
+import java.util.Map;
 
 public class CorrectedObjectNullHandler extends Object implements NullHandler
 {

@@ -30,6 +30,8 @@
 //--------------------------------------------------------------------------
 package ognl;
 
+import ognl.enhance.ExpressionAccessor;
+
 /**
    JJTree interface for AST nodes, as modified to handle the OGNL operations getValue and
    setValue.  JJTree's original comment:
@@ -41,7 +43,7 @@ package ognl;
    @author Luke Blanshard (blanshlu@netscape.net)
    @author Drew Davidson (drew@ognl.org)
 */
-public interface Node
+public interface Node extends JavaSource
 {
 
     /** This method is called after the node has been made the current
@@ -70,7 +72,7 @@ public interface Node
 
 
 // OGNL additions to Node:
-
+    
     /**
      * Extracts the value from the given source object that is appropriate for this node
      * within the given context.
@@ -82,4 +84,18 @@ public interface Node
      * given context.
      */
     public void setValue( OgnlContext context, Object target, Object value ) throws OgnlException;
+    
+    /**
+     * Gets the compiled bytecode enhanced expression accessor for getting/setting values.
+     * 
+     * @return The accessor for this node, or null if none has been compiled for it.
+     */
+    ExpressionAccessor getAccessor();
+    
+    /**
+     * Sets a new compiled accessor for this node expression.
+     * 
+     * @param accessor The compiled representation of this node.
+     */
+    void setAccessor(ExpressionAccessor accessor);
 }

@@ -30,11 +30,13 @@
 //--------------------------------------------------------------------------
 package ognl;
 
+import ognl.enhance.UnsupportedCompilationException;
+
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTIn extends SimpleNode
+class ASTIn extends SimpleNode implements NodeType
 {
     public ASTIn(int id) {
         super(id);
@@ -44,15 +46,55 @@ class ASTIn extends SimpleNode
         super(p, id);
     }
 
-    protected Object getValueBody( OgnlContext context, Object source ) throws OgnlException
+    protected Object getValueBody( OgnlContext context, Object source ) 
+    throws OgnlException
     {
-        Object v1 = children[0].getValue( context, source );
-        Object v2 = children[1].getValue( context, source );
+        Object v1 = _children[0].getValue( context, source );
+        Object v2 = _children[1].getValue( context, source );
         return OgnlOps.in( v1, v2 )? Boolean.TRUE : Boolean.FALSE;
     }
 
     public String toString()
     {
-        return children[0] + " in " + children[1];
+        return _children[0] + " in " + _children[1];
+    }
+    
+    public Class getGetterClass()
+    {
+        return Boolean.TYPE;
+    }
+    
+    public Class getSetterClass()
+    {
+        return null;
+    }
+    
+    public String toGetSourceString(OgnlContext context, Object target)
+    {
+        try {
+            String result = "ognl.OgnlOps.in(";
+            
+            result += OgnlRuntime.getChildSource(context, target, _children[0]) + ", " + OgnlRuntime.getChildSource(context, target, _children[1]);
+            
+            result += ")";
+            
+            return result;
+        } catch (NullPointerException e) {
+            
+            // expected to happen in some instances
+            e.printStackTrace();
+            
+            throw new UnsupportedCompilationException("evaluation resulted in null expression.");
+        } catch (Throwable t) {
+            if (UnsupportedCompilationException.class.isInstance(t))
+                throw (UnsupportedCompilationException)t;
+            else
+                throw new RuntimeException(t);
+        }
+    }
+    
+    public String toSetSourceString(OgnlContext context, Object target)
+    {
+        throw new UnsupportedCompilationException("Map expressions not supported as native java yet.");
     }
 }

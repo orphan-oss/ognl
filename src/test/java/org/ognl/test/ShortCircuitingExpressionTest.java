@@ -31,21 +31,21 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import ognl.OgnlException;
 import ognl.NoSuchPropertyException;
+import ognl.OgnlException;
 
 public class ShortCircuitingExpressionTest extends OgnlTestCase
 {
     private static Object[][]       TESTS = {
-                                        { "#root ? someProperty : 99", new Integer(99) },
-                                        { "#root ? 99 : someProperty", OgnlException.class },
-                                        { "(#x=99)? #x.someProperty : #x", NoSuchPropertyException.class },
-                                        { "#xyzzy.doubleValue()", NullPointerException.class },
-                                        { "#xyzzy && #xyzzy.doubleValue()", null },
-                                        { "(#x=99) && #x.doubleValue()", new Double(99) },
-                                        { "#xyzzy || 101", new Integer(101) },
-                                        { "99 || 101", new Integer(99) },
-                                    };
+        { "#root ? someProperty : 99", new Integer(99) },
+        { "#root ? 99 : someProperty", OgnlException.class },
+        { "(#x=99)? #x.someProperty : #x", NoSuchPropertyException.class },
+        { "#xyzzy.doubleValue()", NullPointerException.class },
+        { "#xyzzy && #xyzzy.doubleValue()", null },
+        { "(#x=99) && #x.doubleValue()", new Double(99) },
+        { "#xyzzy || 101", new Integer(101) },
+        { "99 || 101", new Integer(99) },
+    };
 
 	/*===================================================================
 		Public static methods

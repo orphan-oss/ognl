@@ -30,12 +30,13 @@
 //--------------------------------------------------------------------------
 package org.ognl.test;
 
-import java.util.Map;
 import junit.framework.TestSuite;
 import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.OgnlRuntime;
 import ognl.PropertyAccessor;
+
+import java.util.Map;
 
 public class PropertyNotFoundTest extends OgnlTestCase
 {
@@ -82,6 +83,21 @@ public class PropertyNotFoundTest extends OgnlTestCase
                 return OgnlRuntime.getProperty((OgnlContext)context, target, name);
             }
             return null;
+        }
+        
+        public Class getPropertyClass(OgnlContext context, Object target, Object index)
+        {
+            return null;
+        }
+        
+        public String getSourceAccessor(OgnlContext context, Object target, Object index)
+        {
+            return index.toString();
+        }
+        
+        public String getSourceSetter(OgnlContext context, Object target, Object index)
+        {
+            return index.toString();
         }
     }
     /*===================================================================

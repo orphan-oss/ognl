@@ -30,10 +30,12 @@
 //--------------------------------------------------------------------------
 package org.ognl.test;
 
-import java.math.*;
 import junit.framework.TestSuite;
 import ognl.OgnlException;
 import org.ognl.test.objects.Simple;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class NumberFormatExceptionTest extends OgnlTestCase
 {
@@ -41,24 +43,25 @@ public class NumberFormatExceptionTest extends OgnlTestCase
 
     private static Object[][]       TESTS = {
                                         // NumberFormatException handling (default is to throw NumberFormatException on bad string conversions)
-                                        { SIMPLE, "floatValue", new Float(0f), new Float(10f), new Float(10f) },    /* set float to 10.0f */
-                                        { SIMPLE, "floatValue", new Float(10f), "x10x", OgnlException.class },      /* set float to invalid format string, should yield OgnlException */
+                                        { SIMPLE, "floatValue", new Float(0f), new Float(10f), new Float(10f) },   
+                                        { SIMPLE, "floatValue", new Float(10f), "x10x", OgnlException.class },      
 
-                                        { SIMPLE, "intValue", new Integer(0), new Integer(34), new Integer(34) },   /* set int to 34 */
-                                        { SIMPLE, "intValue", new Integer(34), "foobar", OgnlException.class },     /* set int to invalid format string, should yield OgnlException */
-                                        { SIMPLE, "intValue", new Integer(34), "", OgnlException.class },           /* set int to empty string, should yield 0gnlException */
-                                        { SIMPLE, "intValue", new Integer(34), "       \t", OgnlException.class },  /* set int to whitespace-only string, should yield 0gnlException */
-                                        { SIMPLE, "intValue", new Integer(34), "       \t1234\t\t", new Integer(1234) },    /* set int to whitespace-laden valid string, should yield 1234 */
+                                        { SIMPLE, "intValue", new Integer(0), new Integer(34), new Integer(34) },   
+                                        { SIMPLE, "intValue", new Integer(34), "foobar", OgnlException.class },    
+                                        { SIMPLE, "intValue", new Integer(34), "", OgnlException.class },          
+                                        { SIMPLE, "intValue", new Integer(34), "       \t", OgnlException.class }, 
+                                        { SIMPLE, "intValue", new Integer(34), "       \t1234\t\t", new Integer(1234) },
+                                        
+                                        { SIMPLE, "bigIntValue", BigInteger.valueOf(0), BigInteger.valueOf(34), BigInteger.valueOf(34) },
+                                        { SIMPLE, "bigIntValue", BigInteger.valueOf(34), null, null },
+                                        { SIMPLE, "bigIntValue", null, "", OgnlException.class },    
+                                        { SIMPLE, "bigIntValue", null, "foobar", OgnlException.class },      
 
-                                        { SIMPLE, "bigIntValue", BigInteger.valueOf(0), BigInteger.valueOf(34), BigInteger.valueOf(34) },   /* set bigint to 34 */
-                                        { SIMPLE, "bigIntValue", BigInteger.valueOf(34), null, null },              /* set bigint to null string, should yield 0 */
-                                        { SIMPLE, "bigIntValue", null, "", OgnlException.class },                   /* set bigint to empty string, should yield 0gnlException */
-                                        { SIMPLE, "bigIntValue", null, "foobar", OgnlException.class },             /* set bigint to invalid format string, should yield OgnlException */
-
-                                        { SIMPLE, "bigDecValue", new BigDecimal(0.0), new BigDecimal(34.55), new BigDecimal(34.55) },   /* set bigdec to 34.55 */
-                                        { SIMPLE, "bigDecValue", new BigDecimal(34.55), null, null },               /* set bigdec to null string, should yield 0.0 */
-                                        { SIMPLE, "bigDecValue", null, "", OgnlException.class },                   /* set bigdec to empty string, should yield 0gnlException */
-                                        { SIMPLE, "bigDecValue", null, "foobar", OgnlException.class },             /* set bigdec to invalid format string, should yield OgnlException */
+                                        { SIMPLE, "bigDecValue", new BigDecimal(0.0), new BigDecimal(34.55), new BigDecimal(34.55) },   
+                                        { SIMPLE, "bigDecValue", new BigDecimal(34.55), null, null },           
+                                        { SIMPLE, "bigDecValue", null, "", OgnlException.class },              
+                                        { SIMPLE, "bigDecValue", null, "foobar", OgnlException.class }
+                                        
                                     };
 
 	/*===================================================================

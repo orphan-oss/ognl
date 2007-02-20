@@ -88,6 +88,6 @@ public class SimpleNavigationChainTreeTest extends OgnlTestCase
 	  ===================================================================*/
     protected void runTest() throws Exception
     {
-        assertTrue(Ognl.isSimpleNavigationChain(getExpression(), context) == ((Boolean)getExpectedResult()).booleanValue());
+        assertTrue(Ognl.isSimpleNavigationChain(getExpression(), _context) == ((Boolean)getExpectedResult()).booleanValue());
     }
 }

@@ -92,6 +92,6 @@ public class SimplePropertyTreeTest extends OgnlTestCase
 	  ===================================================================*/
     protected void runTest() throws Exception
     {
-        assertTrue(Ognl.isSimpleProperty(getExpression(), context) == ((Boolean)getExpectedResult()).booleanValue());
+        assertTrue(Ognl.isSimpleProperty(getExpression(), _context) == ((Boolean)getExpectedResult()).booleanValue());
     }
 }

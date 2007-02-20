@@ -32,7 +32,7 @@ package org.ognl.test.objects;
 
 public class Indexed extends Object
 {
-    private String[]        values = new String[] { "foo", "bar", "baz" };
+    private String[] values = new String[] { "foo", "bar", "baz" };
 
     public Indexed()
     {
@@ -44,13 +44,13 @@ public class Indexed extends Object
         super();
         this.values = values;
     }
-
+    
     /* Indexed property "values" */
     public String[] getValues()
     {
         return values;
     }
-
+    
     public void setValues(String[] value)
     {
         values = value;
@@ -64,7 +64,7 @@ public class Indexed extends Object
     {
         return values[index] + "xxx";
     }
-
+    
     public void setValues(int index, String value)
     {
         if (value.endsWith("xxx")) {

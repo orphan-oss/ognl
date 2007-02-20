@@ -30,12 +30,13 @@
 //--------------------------------------------------------------------------
 package ognl;
 
+
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTLessEq extends ExpressionNode
-{
+class ASTLessEq extends ComparisonExpression
+{   
     public ASTLessEq(int id) {
         super(id);
     }
@@ -46,13 +47,19 @@ class ASTLessEq extends ExpressionNode
 
     protected Object getValueBody( OgnlContext context, Object source ) throws OgnlException
     {
-        Object v1 = children[0].getValue( context, source );
-        Object v2 = children[1].getValue( context, source );
+        Object v1 = _children[0].getValue( context, source );
+        Object v2 = _children[1].getValue( context, source );
         return OgnlOps.greater( v1, v2 )? Boolean.FALSE : Boolean.TRUE;
     }
-
+    
     public String getExpressionOperator(int index)
     {
         return "<=";
     }
+    
+    public String getComparisonFunction()
+    {
+        return "!ognl.OgnlOps.greater";
+    }
+    
 }

@@ -30,11 +30,13 @@
 //--------------------------------------------------------------------------
 package ognl;
 
+import ognl.enhance.UnsupportedCompilationException;
+
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTNot extends ExpressionNode
+class ASTNot extends BooleanExpression
 {
     public ASTNot(int id) {
         super(id);
@@ -46,11 +48,40 @@ class ASTNot extends ExpressionNode
 
     protected Object getValueBody( OgnlContext context, Object source ) throws OgnlException
     {
-        return OgnlOps.booleanValue( children[0].getValue(context, source) )? Boolean.FALSE : Boolean.TRUE;
+        return OgnlOps.booleanValue( _children[0].getValue(context, source) )? Boolean.FALSE : Boolean.TRUE;
     }
 
     public String getExpressionOperator(int index)
     {
         return "!";
+    }
+    
+    public String toGetSourceString(OgnlContext context, Object target)
+    {
+        try {
+            
+            Object value = getValueBody(context, target);
+            
+            if (value != null && Boolean.class.isAssignableFrom(value.getClass()))
+                _getterClass = Boolean.TYPE;
+            else if (value != null)
+                _getterClass = value.getClass();
+            
+            String srcString = super.toGetSourceString(context, target);
+            
+            if (srcString == null || srcString.trim().length() < 1)
+                srcString = "null";
+            
+            if (context.getCurrentType() != null && context.getCurrentType() == Boolean.TYPE)
+                return "!" + srcString;
+            else
+                return "!ognl.OgnlOps.booleanValue(" + srcString + ")";
+            
+        } catch (Throwable t) {
+            if (UnsupportedCompilationException.class.isInstance(t))
+                throw (UnsupportedCompilationException)t;
+            else
+                throw new RuntimeException(t);
+        }
     }
 }

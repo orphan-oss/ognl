@@ -46,12 +46,12 @@ class ASTKeyValue extends SimpleNode
 
     protected Node getKey()
     {
-        return children[0];
+        return _children[0];
     }
 
     protected Node getValue()
     {
-        return (jjtGetNumChildren() > 1) ? children[1] : null;
+        return (jjtGetNumChildren() > 1) ? _children[1] : null;
     }
 
     /**

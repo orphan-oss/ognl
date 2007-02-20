@@ -34,7 +34,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTUnsignedShiftRight extends ExpressionNode
+class ASTUnsignedShiftRight extends NumericExpression
 {
     public ASTUnsignedShiftRight(int id) {
         super(id);
@@ -46,8 +46,8 @@ class ASTUnsignedShiftRight extends ExpressionNode
 
     protected Object getValueBody( OgnlContext context, Object source ) throws OgnlException
     {
-        Object v1 = children[0].getValue( context, source );
-        Object v2 = children[1].getValue( context, source );
+        Object v1 = _children[0].getValue( context, source );
+        Object v2 = _children[1].getValue( context, source );
         return OgnlOps.unsignedShiftRight( v1, v2 );
     }
 

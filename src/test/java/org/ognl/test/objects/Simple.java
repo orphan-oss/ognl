@@ -30,18 +30,22 @@
 //--------------------------------------------------------------------------
 package org.ognl.test.objects;
 
-import java.math.*;
 import org.ognl.test.OgnlTestCase;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class Simple extends Object
 {
-    private String          stringValue;
+    private String          stringValue = "test";
     private float           floatValue;
     private int             intValue;
     private boolean         booleanValue;
     private BigInteger      bigIntValue = BigInteger.valueOf(0);
     private BigDecimal      bigDecValue = new BigDecimal(0.0);
 
+    private Root root = new Root();
+    
     public Simple()
     {
         super();
@@ -127,6 +131,11 @@ public class Simple extends Object
         bigDecValue = value;
     }
 
+    public Root getRootValue()
+    {
+        return root;
+    }
+    
     public boolean equals(Object other)
     {
         boolean     result = false;

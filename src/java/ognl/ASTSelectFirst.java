@@ -30,7 +30,11 @@
 //--------------------------------------------------------------------------
 package ognl;
 
-import java.util.*;
+import ognl.enhance.UnsupportedCompilationException;
+
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
@@ -48,7 +52,7 @@ class ASTSelectFirst extends SimpleNode
 
     protected Object getValueBody( OgnlContext context, Object source ) throws OgnlException
     {
-        Node                expr = children[0];
+        Node                expr = _children[0];
         List                answer = new ArrayList();
         ElementsAccessor    elementsAccessor = OgnlRuntime.getElementsAccessor( OgnlRuntime.getTargetClass(source) );
 
@@ -65,6 +69,16 @@ class ASTSelectFirst extends SimpleNode
 
     public String toString()
     {
-        return "{^ " + children[0] + " }";
+        return "{^ " + _children[0] + " }";
+    }
+    
+    public String toGetSourceString(OgnlContext context, Object target)
+    {
+        throw new UnsupportedCompilationException("Eval expressions not supported as native java yet.");
+    }
+    
+    public String toSetSourceString(OgnlContext context, Object target)
+    {
+        throw new UnsupportedCompilationException("Eval expressions not supported as native java yet.");
     }
 }

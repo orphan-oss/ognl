@@ -34,7 +34,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTBitAnd extends ExpressionNode
+class ASTBitAnd extends NumericExpression
 {
     public ASTBitAnd(int id) {
         super(id);
@@ -50,9 +50,9 @@ class ASTBitAnd extends ExpressionNode
 
     protected Object getValueBody( OgnlContext context, Object source ) throws OgnlException
     {
-        Object result = children[0].getValue( context, source );
-        for ( int i=1; i < children.length; ++i )
-            result = OgnlOps.binaryAnd( result, children[i].getValue(context, source) );
+        Object result = _children[0].getValue( context, source );
+        for ( int i=1; i < _children.length; ++i )
+            result = OgnlOps.binaryAnd( result, _children[i].getValue(context, source) );
         return result;
     }
 

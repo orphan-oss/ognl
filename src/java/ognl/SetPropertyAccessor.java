@@ -30,7 +30,8 @@
 //--------------------------------------------------------------------------
 package ognl;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementation of PropertyAccessor that uses numbers and dynamic subscripts as
@@ -47,7 +48,7 @@ public class SetPropertyAccessor extends ObjectPropertyAccessor
 
         if ( name instanceof String ) {
             Object      result;
-
+            
             if (name.equals("size")) {
                 result = new Integer(set.size());
             } else {
@@ -66,4 +67,6 @@ public class SetPropertyAccessor extends ObjectPropertyAccessor
 
         throw new NoSuchPropertyException( target, name );
     }
+    
+    
 }

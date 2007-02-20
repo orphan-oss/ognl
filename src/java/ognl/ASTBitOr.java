@@ -34,7 +34,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTBitOr extends ExpressionNode
+class ASTBitOr extends NumericExpression
 {
     public ASTBitOr(int id) {
         super(id);
@@ -50,9 +50,9 @@ class ASTBitOr extends ExpressionNode
 
     protected Object getValueBody( OgnlContext context, Object source ) throws OgnlException
     {
-        Object result = children[0].getValue( context, source );
-        for ( int i=1; i < children.length; ++i )
-            result = OgnlOps.binaryOr( result, children[i].getValue(context, source) );
+        Object result = _children[0].getValue( context, source );
+        for ( int i=1; i < _children.length; ++i )
+            result = OgnlOps.binaryOr( result, _children[i].getValue(context, source) );
         return result;
     }
 

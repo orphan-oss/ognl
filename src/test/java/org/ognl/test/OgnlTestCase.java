@@ -30,21 +30,23 @@
 //--------------------------------------------------------------------------
 package org.ognl.test;
 
-import java.io.*;
-import java.lang.reflect.*;
 import junit.framework.TestCase;
 import ognl.Ognl;
 import ognl.OgnlContext;
-import ognl.OgnlException;
 import ognl.SimpleNode;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.reflect.Array;
 
 public class OgnlTestCase extends TestCase
 {
-    protected OgnlContext               context;
-    private String                      expressionString;
-    private SimpleNode                  expression;
-    private Object                      expectedResult;
-    private Object                      root;
+    protected OgnlContext               _context;
+    private String                      _expressionString;
+    private SimpleNode                  _expression;
+    private Object                      _expectedResult;
+    private Object                      _root;
+    protected boolean _compileExpressions = true;
     private boolean                     hasSetValue;
     private Object                      setValue;
     private boolean                     hasExpectedAfterSetResult;
@@ -60,7 +62,7 @@ public class OgnlTestCase extends TestCase
 	 */
 	public static boolean isEqual(Object object1, Object object2)
 	{
-        boolean     result = false;
+        boolean result = false;
 
       	if (object1 == object2) {
       	    result = true;
@@ -111,9 +113,9 @@ public class OgnlTestCase extends TestCase
     public OgnlTestCase(String name, Object root, String expressionString, Object expectedResult)
     {
         this(name);
-        this.root = root;
-        this.expressionString = expressionString;
-        this.expectedResult = expectedResult;
+        this._root = root;
+        this._expressionString = expressionString;
+        this._expectedResult = expectedResult;
     }
 
 	/*===================================================================
@@ -121,65 +123,103 @@ public class OgnlTestCase extends TestCase
 	  ===================================================================*/
 	public String getExpressionDump(SimpleNode node)
 	{
-	    StringWriter        writer = new StringWriter();
-
+	    StringWriter writer = new StringWriter();
+	    
         node.dump(new PrintWriter(writer), "   ");
 	    return writer.toString();
 	}
 
 	public String getExpressionString()
 	{
-	    return expressionString;
+	    return _expressionString;
 	}
 
-	public SimpleNode getExpression() throws OgnlException
+	public SimpleNode getExpression() 
+    throws Exception
 	{
-	    if (expression == null) {
-	        expression = (SimpleNode)Ognl.parseExpression(expressionString);
+	    if (_expression == null) {
+	        _expression = (SimpleNode)Ognl.parseExpression(_expressionString);
 	    }
-	    return expression;
+        
+        if (_compileExpressions) {
+            _expression = (SimpleNode)Ognl.compileExpression(_context, _root, _expressionString);
+        }
+        
+	    return _expression;
 	}
-
+    
 	public Object getExpectedResult()
 	{
-	    return expectedResult;
+	    return _expectedResult;
 	}
-
+	
+    public static void assertEquals(Object expected, Object actual)
+    {
+        if (expected != null && expected.getClass().isArray()
+                && actual != null && actual.getClass().isArray()) {
+            
+            TestCase.assertEquals(Array.getLength(expected), Array.getLength(actual));
+            
+            int length = Array.getLength(expected);
+            
+            for (int i=0; i < length; i++) {
+                Object aexpected = Array.get(expected, i);
+                Object aactual = Array.get(actual, i);
+                
+                if (aexpected != null && aactual != null && Boolean.class.isAssignableFrom(aexpected.getClass())) {
+                    TestCase.assertEquals(aexpected.toString(), aactual.toString());
+                } else
+                    OgnlTestCase.assertEquals(aexpected, aactual);
+            }
+        } else if (expected != null && actual != null 
+                && Character.class.isInstance(expected) 
+                && Character.class.isInstance(actual)) {
+            
+            TestCase.assertEquals(((Character)expected).charValue(), ((Character)actual).charValue());
+        } else
+            TestCase.assertEquals(expected, actual);
+    }
+    
 	/*===================================================================
 		Overridden methods
 	  ===================================================================*/
     protected void runTest() throws Exception
     {
-        Object          testedResult = null;
-
+        Object testedResult = null;
+        
         try {
             SimpleNode  expr;
-
-            testedResult = expectedResult;
+            
+            testedResult = _expectedResult;
             expr = getExpression();
-            /*
-            PrintWriter writer = new PrintWriter(System.err);
-            System.err.println(expr.toString());
-            expr.dump(writer, "");
-            writer.flush();
-            */
-            assertTrue(isEqual(Ognl.getValue(expr, context, root), expectedResult));
+            
+            assertEquals(_expectedResult, Ognl.getValue(expr, _context, _root));
+            
             if (hasSetValue) {
+                
                 testedResult = hasExpectedAfterSetResult ? expectedAfterSetResult : setValue;
-                Ognl.setValue(expr, context, root, setValue);
-                assertTrue(isEqual(Ognl.getValue(expr, context, root), testedResult));
+                Ognl.setValue(expr, _context, _root, setValue);
+                
+                assertEquals(testedResult, Ognl.getValue(expr, _context, _root));
             }
+            
         } catch (Exception ex) {
+            if (NullPointerException.class.isInstance(ex))
+                ex.printStackTrace();
+            
+            if (RuntimeException.class.isInstance(ex) && ((RuntimeException)ex).getCause() != null
+                    && Exception.class.isAssignableFrom(((RuntimeException)ex).getCause().getClass()))
+                ex = (Exception)((RuntimeException)ex).getCause();
+            
             if (testedResult instanceof Class) {
-                assertTrue(((Class)testedResult).isAssignableFrom(ex.getClass()));
-            } else {
+                assertTrue(Exception.class.isAssignableFrom((Class)testedResult));
+            } else
                 throw ex;
-            }
         }
     }
 
     protected void setUp()
     {
-        context = (OgnlContext)Ognl.createDefaultContext(null);
+        _context = (OgnlContext)Ognl.createDefaultContext(null);
     }
 }

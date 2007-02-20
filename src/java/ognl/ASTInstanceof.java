@@ -30,11 +30,13 @@
 //--------------------------------------------------------------------------
 package ognl;
 
+import ognl.enhance.UnsupportedCompilationException;
+
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTInstanceof extends SimpleNode
+public class ASTInstanceof extends SimpleNode implements NodeType
 {
     private String targetType;
 
@@ -52,12 +54,44 @@ class ASTInstanceof extends SimpleNode
 
     protected Object getValueBody( OgnlContext context, Object source ) throws OgnlException
     {
-        Object value = children[0].getValue( context, source );
-        return OgnlRuntime.isInstance(context, value, targetType)? Boolean.TRUE : Boolean.FALSE;
+        Object value = _children[0].getValue( context, source );
+        return OgnlRuntime.isInstance(context, value, targetType) ? Boolean.TRUE : Boolean.FALSE;
     }
 
     public String toString()
     {
-        return children[0] + " instanceof " + targetType;
+        return _children[0] + " instanceof " + targetType;
+    }
+    
+    public Class getGetterClass()
+    {
+        return boolean.class;
+    }
+    
+    public Class getSetterClass()
+    {
+        return null;
+    }
+    
+    public String toGetSourceString(OgnlContext context, Object target)
+    {
+        try {
+            
+            if (ASTConst.class.isInstance(_children[0]))
+                return ((Boolean)getValueBody(context, target)).toString();
+            else
+                return _children[0].toGetSourceString(context, target) + " instanceof " + targetType;
+            
+        } catch (Throwable t) { 
+            if (UnsupportedCompilationException.class.isInstance(t))
+                throw (UnsupportedCompilationException)t;
+            else
+                throw new RuntimeException(t);
+        }
+    }
+    
+    public String toSetSourceString(OgnlContext context, Object target)
+    {
+        return toGetSourceString(context, target);
     }
 }

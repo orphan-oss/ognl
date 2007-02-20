@@ -34,8 +34,9 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTMultiply extends ExpressionNode
+class ASTMultiply extends NumericExpression
 {
+    
     public ASTMultiply(int id) {
         super(id);
     }
@@ -50,9 +51,9 @@ class ASTMultiply extends ExpressionNode
 
     protected Object getValueBody( OgnlContext context, Object source ) throws OgnlException
     {
-        Object result = children[0].getValue( context, source );
-        for ( int i=1; i < children.length; ++i )
-            result = OgnlOps.multiply( result, children[i].getValue(context, source) );
+        Object result = _children[0].getValue( context, source );
+        for ( int i=1; i < _children.length; ++i )
+            result = OgnlOps.multiply( result, _children[i].getValue(context, source) );
         return result;
     }
 

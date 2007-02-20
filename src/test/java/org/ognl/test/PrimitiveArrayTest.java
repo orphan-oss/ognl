@@ -38,22 +38,23 @@ public class PrimitiveArrayTest extends OgnlTestCase
     private static Root             ROOT = new Root();
 
     private static Object[][]       TESTS = {
-                                          // Primitive array creation
-                                        { ROOT, "new boolean[5]",                   new boolean[5] },
-                                        { ROOT, "new boolean[] { true, false }",    new boolean[] { true, false } },
-                                        { ROOT, "new boolean[] { 0, 1, 5.5 }",      new boolean[] { false, true, true } },
-                                        { ROOT, "new char[] { 'a', 'b' }",          new char[] { 'a', 'b' } },
-                                        { ROOT, "new char[] { 10, 11 }",            new char[] { (char)10, (char)11 } },
-                                        { ROOT, "new byte[] { 1, 2 }",              new byte[] { 1, 2 } },
-                                        { ROOT, "new short[] { 1, 2 }",             new short[] { 1, 2 } },
-                                        { ROOT, "new int[six]",                     new int[ROOT.six] },
-                                        { ROOT, "new int[#root.six]",               new int[ROOT.six] },
-                                        { ROOT, "new int[6]",                       new int[6] },
-                                        { ROOT, "new int[] { 1, 2 }",               new int[] { 1, 2 } },
-                                        { ROOT, "new long[] { 1, 2 }",              new long[] { 1, 2 } },
-                                        { ROOT, "new float[] { 1, 2 }",             new float[] { 1, 2 } },
-                                        { ROOT, "new double[] { 1, 2 }",            new double[] { 1, 2 } },
-                                    };
+        // Primitive array creation
+        { ROOT, "new boolean[5]",                   new boolean[5] },
+        { ROOT, "new boolean[] { true, false }",    new boolean[] { true, false } }, 
+        { ROOT, "new boolean[] { 0, 1, 5.5 }",      new boolean[] { false, true, true } },
+        { ROOT, "new char[] { 'a', 'b' }",          new char[] { 'a', 'b' } },
+        { ROOT, "new char[] { 10, 11 }",            new char[] { (char)10, (char)11 } },
+        { ROOT, "new byte[] { 1, 2 }",              new byte[] { 1, 2 } },
+        { ROOT, "new short[] { 1, 2 }",             new short[] { 1, 2 } }, 
+        { ROOT, "new int[six]",                     new int[ROOT.six] },
+        { ROOT, "new int[#root.six]",               new int[ROOT.six] },
+        { ROOT, "new int[6]",                       new int[6] }, 
+        { ROOT, "new int[] { 1, 2 }",               new int[] { 1, 2 } },
+        { ROOT, "new long[] { 1, 2 }",              new long[] { 1, 2 } },
+        { ROOT, "new float[] { 1, 2 }",             new float[] { 1, 2 } },
+        { ROOT, "new double[] { 1, 2 }",            new double[] { 1, 2 } },
+
+    };
 
 	/*===================================================================
 		Public static methods

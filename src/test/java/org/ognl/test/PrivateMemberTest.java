@@ -71,11 +71,6 @@ public class PrivateMemberTest extends TestCase
         return _privateProperty;
     }
 
-    private void setPrivateProperty(String value)
-    {
-        _privateProperty = value;
-    }
-
     public void testPrivateAccessor() throws OgnlException
     {
         assertEquals(Ognl.getValue("privateProperty", context, this), getPrivateProperty());
