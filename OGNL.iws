@@ -17,10 +17,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTProperty.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTProperty.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTVarRef.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTVarRef.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" afterPath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iws" afterPath="$PROJECT_DIR$/OGNL.iws" />
     </list>
   </component>
@@ -144,17 +141,7 @@
     </subPane>
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/pom.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="7" column="25" selection-start="377" selection-end="377" vertical-scroll-proportion="-0.13675958">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -464,7 +451,7 @@
     <option name="PERFORM_COMMIT_IN_BACKGROUND" value="false" />
     <option name="PUT_FOCUS_INTO_COMMENT" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="-) Set new version of 2.7&#10;-) Updated pom to generate javadoc jar.&#10;-) Fixed a couple unit tests." />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated pom with a temporary distribution site until something else is found." />
     <option name="SAVE_LAST_COMMIT_MESSAGE" value="true" />
     <option name="CHECKIN_DIALOG_SPLITTER_PROPORTION" value="0.8" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
@@ -483,6 +470,7 @@
     <MESSAGE value="Merged performance branch into trunk." />
     <MESSAGE value="Optimized imports, slight tweaks on formatting / etc." />
     <MESSAGE value="-) Set new version of 2.7&#10;-) Updated pom to generate javadoc jar.&#10;-) Fixed a couple unit tests." />
+    <MESSAGE value="Updated pom with a temporary distribution site until something else is found." />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
@@ -649,7 +637,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="25" selection-start="377" selection-end="377" vertical-scroll-proportion="-0.13675958">
+        <state line="95" column="0" selection-start="3186" selection-end="3186" vertical-scroll-proportion="1.2412893">
           <folding />
         </state>
       </provider>

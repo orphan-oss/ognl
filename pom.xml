@@ -83,6 +83,24 @@
                 </executions>
             </plugin>
         </plugins>
+
+        <extensions>
+            <!-- Needed to support FTP deployment. -->
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ftp</artifactId>
+                <version>1.0-beta-1</version>
+            </extension>
+        </extensions>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <!-- The "maven" login id, specified in settings.xml, ensures that the Maven
+                repository (i.e. http://howardlewisship.com/repository) is accessed. -->
+            <id>howardlewisship.com</id>
+            <url>ftp://howardlewisship.com/repository</url>
+        </repository>
+    </distributionManagement>
 
 </project>
