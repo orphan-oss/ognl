@@ -90,6 +90,7 @@ public class Root extends Object
         map.put( "size", new Integer(5000) );
         map.put( DynamicSubscript.first, new Integer(99) );
         map.put( "baz", array);
+        map.put("value", new Bean2());
 
         /* make myMap identical */
         myMap.putAll( map );

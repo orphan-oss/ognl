@@ -40,6 +40,8 @@ public class PropertyTest extends OgnlTestCase
 {
     private static Root             ROOT = new Root();
 
+    /* { ROOT, "map.(array[2] + size()).doubleValue()", new Double(ROOT.getArray()[2] + ROOT.getMap().size()) }, */
+
     private static Object[][]       TESTS = {
             { ROOT, "false", Boolean.FALSE},
             { ROOT, "map", ROOT.getMap() },
@@ -58,7 +60,6 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "[\"map\"]", ROOT.getMap() },
             { ROOT.getArray(), "length", new Integer(ROOT.getArray().length) },
             { ROOT, "getMap().list[|]", ROOT.getList().get(ROOT.getList().size()/2) },
-            /* { ROOT, "map.(array[2] + size()).doubleValue()", new Double(ROOT.getArray()[2] + ROOT.getMap().size()) }, */
             { ROOT, "map.(array[2] + size())", new Integer(ROOT.getArray()[2] + ROOT.getMap().size()) },
             { ROOT, "map.(#this)", ROOT.getMap() },
             { ROOT, "map.(#this != null ? #this['size'] : null)", ROOT.getMap().get(Root.SIZE_STRING) },
@@ -82,7 +83,10 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "format('key', array)", "formatted" },
             { ROOT, "format('key', intValue)", "formatted" },
             { ROOT, "'disableButton(this,\"' + map.get('button-testing') + '\");clearElement(&quot;testFtpMessage&quot;)'",
-                    "disableButton(this,'null');clearElement('testFtpMessage')" }
+                    "disableButton(this,'null');clearElement('testFtpMessage')" },
+            { ROOT.getMap(), "!disableWarning", Boolean.TRUE},
+            { ROOT.getMap(), "get('value').bean3.value", new Integer(((Bean2)ROOT.getMap().get("value")).getBean3().getValue())}
+            
     };
 
     /*===================================================================

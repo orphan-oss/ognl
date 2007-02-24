@@ -1968,7 +1968,8 @@ public abstract class OgnlRuntime extends Object
                         return methods[i].getMethod();
                 }
             }
-            
+
+            /*
             for (int i=0; i < methods.length; i++) {
                 //System.out.println("checking for write method " + name + " in " + methods[i].getName());
                 if (methods[i].getName().toLowerCase().endsWith(name.toLowerCase())
@@ -1979,7 +1980,7 @@ public abstract class OgnlRuntime extends Object
                     else if (numParms < 0)
                         return methods[i].getMethod();
                 }
-            }
+            }*/
             
             // try one last time adding a set to beginning
             
