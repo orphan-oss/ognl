@@ -198,9 +198,13 @@ class ASTAdd extends NumericExpression
                             && !ASTChain.class.isInstance(_children[i])
                             && !NumericExpression.class.isAssignableFrom(_children[i].getClass())) {
                         
-                        if (lastType != null && String.class.isAssignableFrom(lastType.getGetterClass())
-                                && !expr.startsWith("\"")) 
+                        if (lastType != null && String.class.isAssignableFrom(lastType.getGetterClass()))  {
+                            //System.out.println("Input expr >>" + expr + "<<");
+                            expr = expr.replaceAll("&quot;", "\"");
+                            expr = expr.replaceAll("\"", "'");
                             expr = "\"" + expr + "\"";
+                            //System.out.println("Expr now >>" + expr + "<<");
+                        }
                     }
                     
                     result += expr;

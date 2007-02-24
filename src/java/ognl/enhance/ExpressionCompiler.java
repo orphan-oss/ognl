@@ -55,6 +55,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
                 || ASTStaticField.class.isInstance(expression)
                 || (OrderedReturn.class.isInstance(expression) && ((OrderedReturn)expression).getLastExpression() != null))
             return body;
+
         /*
         System.out.println("castExpression() with expression " + expression + " currentType is: " + context.getCurrentType() 
                 + " previousType: " + context.getPreviousType()
@@ -378,7 +379,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
         
         body = body.replaceAll("\\.\\.", ".");
         
-        // System.out.println("Getter Body: ===================================\n"+body);
+        //System.out.println("Getter Body: ===================================\n"+body);
         valueGetter.setBody(body);
 
         newClass.addMethod(valueGetter);
@@ -407,7 +408,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
         
         if (root == null)
             throw new UnsupportedCompilationException("Can't compile setters with a null root object.");
-        
+
         String pre = getRootExpression(expression, root, false);
         
         String noRoot = (String)context.remove("_noRoot");
@@ -422,6 +423,10 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
         body = body.replaceAll("\\.\\.", ".");
         
         //System.out.println("Setter Body: ===================================\n"+body);
+        
+        if (setterCode.indexOf("$3") < 0)
+            setterCode = "";
+
         valueSetter.setBody(body);
         
         newClass.addMethod(valueSetter);

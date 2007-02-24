@@ -41,12 +41,12 @@ public class MethodWithConversionTest extends OgnlTestCase
     private static Object[][] TESTS = {
             // Method call with conversion
             { SIMPLE, "setValues(new Integer(10), \"10.56\", new Double(34.225))", null },
-            { SIMPLE, "stringValue", "10" }, 
+            { SIMPLE, "stringValue", "10" },
             { SIMPLE, "stringValue", "10", new Character('x'), "x" },
             { SIMPLE, "setStringValue('x')", null }, // set by calling setStringValue() directly 
-            { SIMPLE, "floatValue", new Float(10.56) }, 
-            
-            };
+            { SIMPLE, "floatValue", new Float(10.56) },
+            { SIMPLE, "getValueIsTrue(rootValue)", Boolean.TRUE}
+    };
 
     /*
      * =================================================================== Public static methods
@@ -92,13 +92,13 @@ public class MethodWithConversionTest extends OgnlTestCase
     }
 
     public MethodWithConversionTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue, Object expectedAfterSetResult)
+                                    Object setValue, Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
     public MethodWithConversionTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue)
+                                    Object setValue)
     {
         super(name, root, expressionString, expectedResult, setValue);
     }

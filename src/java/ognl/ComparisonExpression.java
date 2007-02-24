@@ -24,6 +24,9 @@ public abstract class ComparisonExpression extends BooleanExpression
     
     public String toGetSourceString(OgnlContext context, Object target)
     {
+        if (target == null)
+            throw new UnsupportedCompilationException("Current target is null, can't compile.");
+        
         try {
             
             Object value = getValueBody(context, target);

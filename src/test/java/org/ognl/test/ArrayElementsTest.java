@@ -37,6 +37,7 @@ import org.ognl.test.objects.Root;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Member;
+import java.util.Arrays;
 import java.util.Map;
 
 public class ArrayElementsTest extends OgnlTestCase
@@ -54,7 +55,10 @@ public class ArrayElementsTest extends OgnlTestCase
             { INT_ARRAY, "#root[1]", new Integer(20), "50", new Integer(50) },
             { INT_ARRAY, "#root[1]", new Integer(50), new String[] { "50", "100" }, new Integer(50) },
             { ROOT, "intValue", new Integer(0), new String[] { "50", "100" }, new Integer(50) },
-            { ROOT, "array", ROOT.getArray(), new String[] { "50", "100" }, new int[] { 50, 100 } }
+            { ROOT, "array", ROOT.getArray(), new String[] { "50", "100" }, new int[] { 50, 100 } },
+            {null, "\"{Hello}\".toCharArray()[6]", new Character('}')},
+            {null, "\"Tapestry\".toCharArray()[2]", new Character('p')},
+            {null, "{'1','2','3'}", Arrays.asList(new Object[] {"1", "2", "3"})}
     };
 
     /*

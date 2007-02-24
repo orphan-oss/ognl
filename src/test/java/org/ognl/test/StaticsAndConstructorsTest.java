@@ -32,31 +32,34 @@ package org.ognl.test;
 
 import junit.framework.TestSuite;
 import org.ognl.test.objects.Root;
+import org.ognl.test.objects.Simple;
 
 public class StaticsAndConstructorsTest extends OgnlTestCase
 {
     private static Root             ROOT = new Root();
 
     private static Object[][]       TESTS = {
-        { "@java.lang.Class@forName(\"java.lang.Object\")", Object.class },
-        { "@java.lang.Integer@MAX_VALUE", new Integer(Integer.MAX_VALUE) },
-        { "@@max(3,4)", new Integer(4) },
-        { "new java.lang.StringBuffer().append(55).toString()", "55" },
-        { "class", ROOT.getClass() },
-        { "@org.ognl.test.objects.Root@class", ROOT.getClass() },
-        { "class.getName()", ROOT.getClass().getName() }, 
-        { "@org.ognl.test.objects.Root@class.getName()", ROOT.getClass().getName() },
-        { "@org.ognl.test.objects.Root@class.name", ROOT.getClass().getName() },
-        { "class.getSuperclass()", ROOT.getClass().getSuperclass() },
-        { "class.superclass", ROOT.getClass().getSuperclass() },
-        { "class.name", ROOT.getClass().getName() },
-        { "getStaticInt()", new Integer(Root.getStaticInt()) },
-        { "@org.ognl.test.objects.Root@getStaticInt()", new Integer(Root.getStaticInt()) }
+            { "@java.lang.Class@forName(\"java.lang.Object\")", Object.class },
+            { "@java.lang.Integer@MAX_VALUE", new Integer(Integer.MAX_VALUE) },
+            { "@@max(3,4)", new Integer(4) },
+            { "new java.lang.StringBuffer().append(55).toString()", "55" },
+            { "class", ROOT.getClass() },
+            { "@org.ognl.test.objects.Root@class", ROOT.getClass() },
+            { "class.getName()", ROOT.getClass().getName() },
+            { "@org.ognl.test.objects.Root@class.getName()", ROOT.getClass().getName() },
+            { "@org.ognl.test.objects.Root@class.name", ROOT.getClass().getName() },
+            { "class.getSuperclass()", ROOT.getClass().getSuperclass() },
+            { "class.superclass", ROOT.getClass().getSuperclass() },
+            { "class.name", ROOT.getClass().getName() },
+            { "getStaticInt()", new Integer(Root.getStaticInt()) },
+            { "@org.ognl.test.objects.Root@getStaticInt()", new Integer(Root.getStaticInt()) },
+            { "new org.ognl.test.objects.Simple(property).getStringValue()", new Simple().getStringValue() },
+            { "new org.ognl.test.objects.Simple(map['test'].property).getStringValue()", new Simple().getStringValue() }
     };
 
-	/*===================================================================
-		Public static methods
-	  ===================================================================*/
+    /*===================================================================
+         Public static methods
+       ===================================================================*/
     public static TestSuite suite()
     {
         TestSuite       result = new TestSuite();
@@ -67,18 +70,18 @@ public class StaticsAndConstructorsTest extends OgnlTestCase
         return result;
     }
 
-	/*===================================================================
-		Constructors
-	  ===================================================================*/
-	public StaticsAndConstructorsTest()
-	{
-	    super();
-	}
+    /*===================================================================
+         Constructors
+       ===================================================================*/
+    public StaticsAndConstructorsTest()
+    {
+        super();
+    }
 
-	public StaticsAndConstructorsTest(String name)
-	{
-	    super(name);
-	}
+    public StaticsAndConstructorsTest(String name)
+    {
+        super(name);
+    }
 
     public StaticsAndConstructorsTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult)
     {

@@ -340,7 +340,7 @@ public class ASTProperty extends SimpleNode implements NodeType
         }
         
         context.setCurrentObject(target);
-        
+
         return result;
     }
     

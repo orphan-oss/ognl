@@ -61,8 +61,10 @@ public class Root extends Object
     private int verbosity = 87;
     
     private BeanProvider _beanProvider = new BeanProviderImpl();
-    
-	/*===================================================================
+
+    private boolean _render;
+
+    /*===================================================================
 		Public static methods
 	  ===================================================================*/
 	public static int getStaticInt()
@@ -78,7 +80,7 @@ public class Root extends Object
         super();
     }
 
-	/*===================================================================
+    /*===================================================================
 		Private methods
 	  ===================================================================*/
     {
@@ -150,6 +152,11 @@ public class Root extends Object
     public void setArray(int[] value)
     {
         array = value;
+    }
+
+    public String format(String key, Object[] value)
+    {
+        return "formatted";
     }
 
     public Map getMap()
@@ -250,5 +257,10 @@ public class Root extends Object
     public int getCurrentLocaleVerbosity()
     {
         return verbosity;
+    }
+
+    public boolean getRenderNavigation()
+    {
+        return _render;
     }
 }

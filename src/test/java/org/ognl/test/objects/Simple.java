@@ -45,10 +45,25 @@ public class Simple extends Object
     private BigDecimal      bigDecValue = new BigDecimal(0.0);
 
     private Root root = new Root();
-    
+
+    private Bean3 _bean;
+    private Bean2 _bean2;
+
+    private Object[] _array;
+
     public Simple()
     {
         super();
+    }
+
+    public Simple(Bean3 bean)
+    {
+        _bean = bean;
+    }
+
+    public Simple(Bean2 bean)
+    {
+        _bean2 = bean;
     }
 
     public Simple(Object[] values)
@@ -101,6 +116,11 @@ public class Simple extends Object
         intValue = value;
     }
 
+    public boolean getValueIsTrue(Object currValue)
+    {
+        return true;
+    }
+
     public boolean getBooleanValue()
     {
         return booleanValue;
@@ -114,6 +134,16 @@ public class Simple extends Object
     public BigInteger getBigIntValue()
     {
         return bigIntValue;
+    }
+
+    public void setArray(Object[] values)
+    {
+        _array = values;
+    }
+
+    public Object[] getArray()
+    {
+        return _array;
     }
 
     public void setBigIntValue(BigInteger value)

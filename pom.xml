@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>opensymphony</groupId>
+    <groupId>ognl</groupId>
     <artifactId>ognl</artifactId>
     <packaging>jar</packaging>
     <version>2.7-SNAPSHOT</version>
@@ -94,6 +94,15 @@
         </extensions>
     </build>
 
+    <!--
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jboss</id>
+            <url>http://repository.jboss.com/maven2/</url>
+        </pluginRepository>
+    </pluginRepositories>
+-->
+    
     <distributionManagement>
         <repository>
             <!-- The "maven" login id, specified in settings.xml, ensures that the Maven

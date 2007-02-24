@@ -35,18 +35,19 @@ import org.ognl.test.objects.Simple;
 
 public class MethodTest extends OgnlTestCase
 {
-    
+
     private static Simple ROOT = new Simple();
-    
-    private static Object[][] TESTS = { 
-        { "hashCode().doubleValue()", new Double(ROOT.hashCode()) } ,
-        { "getBooleanValue() ? \"here\" : \"\"", ""},
+
+    private static Object[][] TESTS = {
+            /* { "hashCode().doubleValue()", new Integer(ROOT.hashCode()) } , */
+            { "hashCode()", new Integer(ROOT.hashCode()) } ,
+            { "getBooleanValue() ? \"here\" : \"\"", ""}
     };
-    
+
     /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
+    * =================================================================== Public static methods
+    * ===================================================================
+    */
     public static TestSuite suite()
     {
         TestSuite result = new TestSuite();
@@ -73,7 +74,7 @@ public class MethodTest extends OgnlTestCase
     }
 
     public MethodTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-            Object expectedAfterSetResult)
+                      Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }

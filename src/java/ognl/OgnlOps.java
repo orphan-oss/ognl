@@ -113,9 +113,9 @@ public abstract class OgnlOps implements NumericTypes
      * Returns true if object1 is equal to object2 in either the sense that they are the same object
      * or, if both are non-null if they are equal in the <CODE>equals()</CODE> sense.
      * 
-     * @param v1
+     * @param object1
      *            First object to compare
-     * @param v2
+     * @param object2
      *            Second object to compare
      * @return true if v1 == v2
      */
@@ -337,6 +337,42 @@ public abstract class OgnlOps implements NumericTypes
         }
         return NONNUMERIC;
     }
+
+    public static Object toArray(char value, Class toType)
+    {
+        return toArray(new Character(value), toType);
+    }
+
+    public static Object toArray(byte value, Class toType)
+    {
+        return toArray(new Byte(value), toType);
+    }
+
+    public static Object toArray(int value, Class toType)
+    {
+        return toArray(new Integer(value), toType);
+    }
+
+    public static Object toArray(long value, Class toType)
+    {
+        return toArray(new Long(value), toType);
+    }
+
+    public static Object toArray(float value, Class toType)
+    {
+        return toArray(new Float(value), toType);
+    }
+
+    public static Object toArray(double value, Class toType)
+    {
+        return toArray(new Double(value), toType);
+    }
+
+    public static Object toArray(boolean value, Class toType)
+    {
+        return toArray(new Boolean(value), toType);
+    }
+
     
     public static Object convertValue(char value, Class toType)
     {
@@ -409,7 +445,46 @@ public abstract class OgnlOps implements NumericTypes
     {
         return convertValue(new Boolean(value), toType, preventNull);
     }
-    
+
+    /////////////////////////////////////////////////////////////////
+
+
+    public static Object toArray(char value, Class toType, boolean preventNull)
+    {
+        return toArray(new Character(value), toType, preventNull);
+    }
+
+    public static Object toArray(byte value, Class toType, boolean preventNull)
+    {
+        return toArray(new Byte(value), toType, preventNull);
+    }
+
+    public static Object toArray(int value, Class toType, boolean preventNull)
+    {
+        return toArray(new Integer(value), toType, preventNull);
+    }
+
+    public static Object toArray(long value, Class toType, boolean preventNull)
+    {
+        return toArray(new Long(value), toType, preventNull);
+    }
+
+    public static Object toArray(float value, Class toType, boolean preventNull)
+    {
+        return toArray(new Float(value), toType, preventNull);
+    }
+
+    public static Object toArray(double value, Class toType, boolean preventNull)
+    {
+        return toArray(new Double(value), toType, preventNull);
+    }
+
+    public static Object toArray(boolean value, Class toType, boolean preventNull)
+    {
+        return toArray(new Boolean(value), toType, preventNull);
+    }
+
+
     /**
      * Returns the value converted numerically to the given class type This method also detects when
      * arrays are being converted and converts the components of one array to the type of the other.
@@ -424,6 +499,43 @@ public abstract class OgnlOps implements NumericTypes
     public static Object convertValue(Object value, Class toType)
     {
         return convertValue(value, toType, false);
+    }
+
+    public static Object toArray(Object value, Class toType)
+    {
+        return toArray(value, toType, false);
+    }
+    
+    public static Object toArray(Object value, Class toType, boolean preventNulls)
+    {
+        if (value == null)
+            return null;
+        
+        Object result = null;
+        
+        if (value.getClass().isArray() && toType.isAssignableFrom(value.getClass().getComponentType()))
+            return value;
+
+        if (!value.getClass().isArray()) {
+            
+            if (toType == Character.TYPE)
+                return stringValue(value).toCharArray();
+            
+            Object arr =  Array.newInstance(toType, 1);
+            Array.set(arr, 0, convertValue(value, toType, preventNulls));
+
+            return arr;
+        }
+        
+        result = Array.newInstance(toType, Array.getLength(value));
+        for(int i = 0, icount = Array.getLength(value); i < icount; i++) {
+            Array.set(result, i, convertValue(Array.get(value, i), toType));
+        }
+        
+        if (result == null && preventNulls)
+            return value;
+
+        return result;
     }
 
     public static Object convertValue(Object value, Class toType, boolean preventNulls)
@@ -793,5 +905,71 @@ public abstract class OgnlOps implements NumericTypes
         default:
             return newInteger(type, ~longValue(value));
         }
+    }
+
+    public static String getEscapeString(String value)
+    {
+        StringBuffer result = new StringBuffer();
+
+        for(int i = 0, icount = value.length(); i < icount; i++) {
+            result.append(getEscapedChar(value.charAt(i)));
+        }
+        return new String(result);
+    }
+
+    public static String getEscapedChar(char ch)
+    {
+        String result;
+
+        switch(ch) {
+        case '\b':
+            result = "\b";
+            break;
+        case '\t':
+            result = "\\t";
+            break;
+        case '\n':
+            result = "\\n";
+            break;
+        case '\f':
+            result = "\\f";
+            break;
+        case '\r':
+            result = "\\r";
+            break;
+        case '\"':
+            result = "\\\"";
+            break;
+        case '\'':
+            result = "\\\'";
+            break;
+        case '\\':
+            result = "\\\\";
+            break;
+        default:
+            if (Character.isISOControl(ch) || (ch > 255)) {
+                String hc = Integer.toString((int) ch, 16);
+                int hcl = hc.length();
+
+                result = "\\u";
+                if (hcl < 4) {
+                    if (hcl == 3) {
+                        result = result + "0";
+                    } else {
+                        if (hcl == 2) {
+                            result = result + "00";
+                        } else {
+                            result = result + "000";
+                        }
+                    }
+                }
+
+                result = result + hc;
+            } else {
+                result = new String(ch + "");
+            }
+            break;
+        }
+        return result;
     }
 }

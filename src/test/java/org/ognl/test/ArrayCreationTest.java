@@ -51,12 +51,12 @@ public class ArrayCreationTest extends OgnlTestCase
             { ROOT, "new Object[4]", new Object[4] },
             { ROOT, "new Object[] { #root, #this }", new Object[] { ROOT, ROOT } },
             { ROOT,
-              "new org.ognl.test.objects.Simple[] { new org.ognl.test.objects.Simple(), new org.ognl.test.objects.Simple(\"foo\", 1.0f, 2) }",
-              new Simple[] { new Simple(), new Simple("foo", 1.0f, 2) } },
+                    "new org.ognl.test.objects.Simple[] { new org.ognl.test.objects.Simple(), new org.ognl.test.objects.Simple(\"foo\", 1.0f, 2) }",
+                    new Simple[] { new Simple(), new Simple("foo", 1.0f, 2) } },
             { ROOT, "new org.ognl.test.objects.Simple[5]", new Simple[5] },
             { ROOT, "new org.ognl.test.objects.Simple(new Object[5])", new Simple(new Object[5]) },
             { ROOT, "new org.ognl.test.objects.Simple(new String[5])", new Simple(new String[5]) },
-            };
+    };
 
     /*
      * =================================================================== Public static methods
@@ -102,7 +102,7 @@ public class ArrayCreationTest extends OgnlTestCase
     }
 
     public ArrayCreationTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-            Object expectedAfterSetResult)
+                             Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }

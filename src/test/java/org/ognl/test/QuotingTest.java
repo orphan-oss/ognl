@@ -34,17 +34,17 @@ import junit.framework.TestSuite;
 
 public class QuotingTest extends OgnlTestCase
 {
-    private static Object[][]       TESTS = {
-                                          // Quoting
-                                        { null, "`c`", new Character('c') },
-                                        { null, "'s'", new Character('s') },
-                                        { null, "'string'", "string" },
-                                        { null, "\"string\"", "string" },
-                                    };
+    private static Object[][] TESTS = {
+            // Quoting
+            { null, "`c`", new Character('c') },
+            { null, "'s'", new Character('s') },
+            { null, "'string'", "string" },
+            { null, "\"string\"", "string" },
+    };
 
-	/*===================================================================
-		Public static methods
-	  ===================================================================*/
+    /*===================================================================
+         Public static methods
+       ===================================================================*/
     public static TestSuite suite()
     {
         TestSuite       result = new TestSuite();
@@ -67,18 +67,18 @@ public class QuotingTest extends OgnlTestCase
         return result;
     }
 
-	/*===================================================================
-		Constructors
-	  ===================================================================*/
-	public QuotingTest()
-	{
-	    super();
-	}
+    /*===================================================================
+         Constructors
+       ===================================================================*/
+    public QuotingTest()
+    {
+        super();
+    }
 
-	public QuotingTest(String name)
-	{
-	    super(name);
-	}
+    public QuotingTest(String name)
+    {
+        super(name);
+    }
 
     public QuotingTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult)
     {

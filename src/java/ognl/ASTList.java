@@ -114,6 +114,8 @@ public class ASTList extends SimpleNode implements NodeType
             
             if (mainClass != null && String.class.isAssignableFrom(mainClass) && !value.startsWith("\"")) {
                 value = "\"" + value + "\"";
+            } else if (_getterClass == List.class && value.startsWith("'")) {
+                value = value.replaceAll("'", "\"");
             } else if ((ASTProperty.class.isInstance(_children[i]) || ASTMethod.class.isInstance(_children[i])
                     || ASTSequence.class.isInstance(_children[i]) || ASTChain.class.isInstance(_children[i]))
                     && value != null && value.trim().length() > 0) {

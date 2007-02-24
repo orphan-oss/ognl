@@ -90,72 +90,6 @@ public class ASTConst extends SimpleNode implements NodeType
         return null;
     }
     
-    public String getEscapedChar(char ch)
-    {
-        String result;
-        
-        switch(ch) {
-        case '\b':
-            result = "\b";
-            break;
-        case '\t':
-            result = "\\t";
-            break;
-        case '\n':
-            result = "\\n";
-            break;
-        case '\f':
-            result = "\\f";
-            break;
-        case '\r':
-            result = "\\r";
-            break;
-        case '\"':
-            result = "\\\"";
-            break;
-        case '\'':
-            result = "\\\'";
-            break;
-        case '\\':
-            result = "\\\\";
-            break;
-        default:
-            if (Character.isISOControl(ch) || (ch > 255)) {
-                String hc = Integer.toString((int) ch, 16);
-                int hcl = hc.length();
-
-                result = "\\u";
-                if (hcl < 4) {
-                    if (hcl == 3) {
-                        result = result + "0";
-                    } else {
-                        if (hcl == 2) {
-                            result = result + "00";
-                        } else {
-                            result = result + "000";
-                        }
-                    }
-                }
-
-                result = result + hc;
-            } else {
-                result = new String(ch + "");
-            }
-            break;
-        }
-        return result;
-    }
-
-    public String getEscapedString(String value)
-    {
-        StringBuffer result = new StringBuffer();
-
-        for(int i = 0, icount = value.length(); i < icount; i++) {
-            result.append(getEscapedChar(value.charAt(i)));
-        }
-        return new String(result);
-    }
-    
     public String toString()
     {
         String result;
@@ -164,10 +98,10 @@ public class ASTConst extends SimpleNode implements NodeType
             result = "null";
         } else {
             if (value instanceof String) {
-                result = '\"' + getEscapedString(value.toString()) + '\"';
+                result = '\"' + OgnlOps.getEscapeString(value.toString()) + '\"';
             } else {
                 if (value instanceof Character) {
-                    result = '\'' + getEscapedChar(((Character) value).charValue()) + '\'';
+                    result = '\'' + OgnlOps.getEscapedChar(((Character) value).charValue()) + '\'';
                 } else {
                     result = value.toString();
                     if (value instanceof Long) {
@@ -226,7 +160,7 @@ public class ASTConst extends SimpleNode implements NodeType
                 && NumericExpression.class.isAssignableFrom(_parent.getClass()))
                 && String.class.isAssignableFrom(value.getClass())) {
             
-            return '\"' + getEscapedString(value.toString()) + '\"';
+            return '\"' + OgnlOps.getEscapeString(value.toString()) + '\"';
         } else if (Character.class.isAssignableFrom(value.getClass())) {
             
             Character val = (Character)value;
@@ -234,7 +168,7 @@ public class ASTConst extends SimpleNode implements NodeType
             if (Character.isLetterOrDigit(val.charValue()))
                return "'" + ((Character) value).charValue() + "'";
             else
-                return "'" + getEscapedChar(((Character) value).charValue()) + "'";
+                return "'" + OgnlOps.getEscapedChar(((Character) value).charValue()) + "'";
         }
         
         if (Boolean.class.isAssignableFrom(value.getClass()))

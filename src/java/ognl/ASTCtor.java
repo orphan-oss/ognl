@@ -45,7 +45,7 @@ public class ASTCtor extends SimpleNode
 
     private String className;
     private boolean isArray;
-    
+
     public ASTCtor(int id)
     {
         super(id);
@@ -68,7 +68,7 @@ public class ASTCtor extends SimpleNode
     }
 
     protected Object getValueBody(OgnlContext context, Object source)
-        throws OgnlException
+            throws OgnlException
     {
         Object result, root = context.getRoot();
         int count = jjtGetNumChildren();
@@ -84,7 +84,7 @@ public class ASTCtor extends SimpleNode
                         Class componentClass = OgnlRuntime.classForName(context, className);
                         List sourceList = null;
                         int size;
-                        
+
                         if (args[0] instanceof List) {
                             sourceList = (List) args[0];
                             size = sourceList.size();
@@ -121,11 +121,11 @@ public class ASTCtor extends SimpleNode
             OgnlRuntime.getObjectArrayPool().recycle(args);
         }
     }
-    
+
     public String toString()
     {
         String result = "new " + className;
-        
+
         if (isArray) {
             if (_children[0] instanceof ASTConst) {
                 result = result + "[" + _children[0] + "]";
@@ -150,77 +150,100 @@ public class ASTCtor extends SimpleNode
     public String toGetSourceString(OgnlContext context, Object target)
     {
         String result = "new " + className;
-        
+
         Class clazz = null;
         try {
-            
+
             clazz = OgnlRuntime.classForName(context, className);
-            
+
             context.put("_ctorClass", clazz);
-            
+
             Object value = this.getValueBody(context, target);
             context.setCurrentObject(value);
-            
+
             if (clazz != null) {
-                
+
                 context.setCurrentType(clazz);
                 context.setCurrentAccessor(clazz);
             }
-            
+
         } catch (Throwable t) {
             if (UnsupportedCompilationException.class.isInstance(t))
                 throw (UnsupportedCompilationException)t;
             else
                 throw new RuntimeException(t);
         }
-        
-        if (isArray) {
-            if (_children[0] instanceof ASTConst) {
-                
-                result = result + "[" + _children[0].toGetSourceString(context, target) + "]";
-            } else if (ASTProperty.class.isInstance(_children[0])) {
-                
-                result = result + "[" 
-                + ExpressionCompiler.getRootExpression(_children[0], target, false) 
-                + _children[0].toGetSourceString(context, target) 
-                + "]";
-            } else if (ASTChain.class.isInstance(_children[0])) {
-                
-                result = result + "[" + _children[0].toGetSourceString(context, target) + "]";
-            } else {
-                
-                result = result + "[] "+ _children[0].toGetSourceString(context, target);
-            }
-            
-        } else {
-            result = result + "(";
-            if ((_children != null) && (_children.length > 0)) {
-                for(int i = 0; i < _children.length; i++) {
-                    if (i > 0) {
-                        result = result + ", ";
-                    }
-                    
-                    String value = _children[i].toGetSourceString(context, target);
-                    
-                    if (className.equals("String") && !value.startsWith("\""))
-                        value = "\"" + value + "\"";
-                    else if (NodeType.class.isInstance(_children[i])) {
-                        NodeType ctype = (NodeType)_children[i];
-                        
-                        if (ctype.getGetterClass() != null && String.class == ctype.getGetterClass() && !value.startsWith("\""))
-                            value = "\"" + value + "\"";
-                    }
-                    
-                    result += value;
+
+        try {
+
+            if (isArray) {
+                if (_children[0] instanceof ASTConst) {
+
+                    result = result + "[" + _children[0].toGetSourceString(context, target) + "]";
+                } else if (ASTProperty.class.isInstance(_children[0])) {
+
+                    result = result + "["
+                            + ExpressionCompiler.getRootExpression(_children[0], target, false)
+                            + _children[0].toGetSourceString(context, target)
+                            + "]";
+                } else if (ASTChain.class.isInstance(_children[0])) {
+
+                    result = result + "[" + _children[0].toGetSourceString(context, target) + "]";
+                } else {
+
+                    result = result + "[] "+ _children[0].toGetSourceString(context, target);
                 }
+
+            } else {
+                result = result + "(";
+
+                if ((_children != null) && (_children.length > 0)) {
+                    for(int i = 0; i < _children.length; i++) {
+                        if (i > 0) {
+                            result = result + ", ";
+                        }
+
+                        Object objValue = _children[i].getValue(context, context.getRoot());
+                        String value = _children[i].toGetSourceString(context, target);
+
+                        if (className.equals("String") && !value.startsWith("\""))
+                            value = "\"" + value + "\"";
+                        else if (NodeType.class.isInstance(_children[i])) {
+                            NodeType ctype = (NodeType)_children[i];
+
+                            if (ctype.getGetterClass() != null && String.class == ctype.getGetterClass() && !value.startsWith("\""))
+                                value = "\"" + value + "\"";
+                        }
+
+                        value = ExpressionCompiler.getRootExpression(_children[0], target, false) + value;
+
+                        if (context.get(ExpressionCompiler.PRE_CAST) != null) {
+                            value = context.remove(ExpressionCompiler.PRE_CAST) + value;
+                        }
+                        
+                        if (objValue != null && !objValue.getClass().isPrimitive() && !ASTConst.class.isInstance(_children[i])) {
+
+                            value = "(" + ExpressionCompiler.getCastString(objValue.getClass()) + ")" + value;
+                        }
+
+                        result += value;
+                    }
+                }
+                result = result + ")";
             }
-            result = result + ")";
+
+            context.remove("_ctorClass");
+
+            context.setCurrentType(clazz);
+
+            context.setCurrentObject(getValue(context, target));
+        }catch (Throwable t) {
+            if (UnsupportedCompilationException.class.isInstance(t))
+                throw (UnsupportedCompilationException)t;
+            else
+                throw new RuntimeException(t);
         }
-        
-        context.remove("_ctorClass");
-        
-        context.setCurrentType(clazz);
-        
+
         return result;
     }
 

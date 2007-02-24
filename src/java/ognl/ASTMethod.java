@@ -173,14 +173,16 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                 
                 return "";
             } else {
-                if (m.getReturnType() != void.class && m.getReturnType().isPrimitive() 
+                _getterClass = m.getReturnType();
+                /*
+                if (m.getReturnType() != void.class && m.getReturnType().isPrimitive()
                         && (_parent == null || !ASTTest.class.isInstance(_parent))) {
                     Class wrapper = OgnlRuntime.getPrimitiveWrapperClass(m.getReturnType());
                     
                     ExpressionCompiler.addCastString(context, "new " + wrapper.getName() + "(");
                     post = ")";
                     _getterClass = wrapper;
-                }
+                }*/
             }
             
             result = "." + m.getName() + "(";
@@ -214,8 +216,9 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                         if (parms[i].isArray()) {
                             
                             parmString = "(" + ExpressionCompiler.getCastString(parms[i])
-                            + ")ognl.OgnlOps.convertValue(" + parmString + ","
-                            + ExpressionCompiler.getCastString(parms[i]) + ".class, true)";
+                                    + ")ognl.OgnlOps.toArray(" + parmString + ", " + parms[i].getComponentType().getName()
+                                    + ".class, true)";
+                            
                         } else  if (parms[i].isPrimitive()) {
                             
                             Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(parms[i]);
@@ -315,8 +318,9 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                         if (parms[i].isArray()) {
                             
                             parmString = "(" + ExpressionCompiler.getCastString(parms[i])
-                            + ")ognl.OgnlOps.convertValue(" + parmString + ","
-                            + ExpressionCompiler.getCastString(parms[i]) + ".class)";
+                                    + ")ognl.OgnlOps.toArray(" + parmString + ", " + parms[i].getComponentType().getName()
+                                    + ".class)";
+                            
                         } else  if (parms[i].isPrimitive()) {
                             
                             Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(parms[i]);
