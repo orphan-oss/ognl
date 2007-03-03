@@ -178,7 +178,7 @@ public class ASTCtor extends SimpleNode
 
             if (isArray) {
                 if (_children[0] instanceof ASTConst) {
-
+                    
                     result = result + "[" + _children[0].toGetSourceString(context, target) + "]";
                 } else if (ASTProperty.class.isInstance(_children[0])) {
 
@@ -225,7 +225,12 @@ public class ASTCtor extends SimpleNode
 
                             value = "(" + ExpressionCompiler.getCastString(objValue.getClass()) + ")" + value;
                         }
-
+                        
+                        if (ASTConst.class.isInstance(_children[i]) &&  Number.class.isAssignableFrom(context.getCurrentType())) {
+                            
+                            value += OgnlRuntime.getNumericLiteral(context.getCurrentType());
+                        }
+                        
                         result += value;
                     }
                 }

@@ -40,11 +40,11 @@ public class IndexAccessTest extends OgnlTestCase
     private static Root ROOT = new Root();
 
     private static Object[][] TESTS = {
-        // indexed access of with navigation chain (should start back at root)
-        { ROOT, "list[index]", ROOT.getList().get(ROOT.getIndex()) },
-        { ROOT, "list[size() - 1]", MethodFailedException.class },
-        { ROOT, "(index == (array.length - 3)) ? 'toggle toggleSelected' : 'toggle'", "toggle toggleSelected"},
-        { ROOT, "\"return toggleDisplay('excdisplay\"+index+\"', this)\"", "return toggleDisplay('excdisplay1', this)"}
+            // indexed access of with navigation chain (should start back at root)
+            { ROOT, "list[index]", ROOT.getList().get(ROOT.getIndex()) },
+            { ROOT, "list[size() - 1]", MethodFailedException.class },
+            { ROOT, "(index == (array.length - 3)) ? 'toggle toggleSelected' : 'toggle'", "toggle toggleSelected"},
+            { ROOT, "\"return toggleDisplay('excdisplay\"+index+\"', this)\"", "return toggleDisplay('excdisplay1', this)"}
     };
 
     /*
@@ -54,17 +54,17 @@ public class IndexAccessTest extends OgnlTestCase
     public static TestSuite suite()
     {
         TestSuite result = new TestSuite();
-        
+
         for(int i = 0; i < TESTS.length; i++) {
             result.addTest(new IndexAccessTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
         }
         return result;
     }
-    
+
     /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
+    * =================================================================== Constructors
+    * ===================================================================
+    */
     public IndexAccessTest()
     {
         super();
@@ -76,7 +76,7 @@ public class IndexAccessTest extends OgnlTestCase
     }
 
     public IndexAccessTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-            Object expectedAfterSetResult)
+                           Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
@@ -90,7 +90,7 @@ public class IndexAccessTest extends OgnlTestCase
     {
         super(name, root, expressionString, expectedResult);
     }
-    
+
     public void setUp()
     {
         super.setUp();

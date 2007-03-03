@@ -316,6 +316,11 @@ public class OgnlContext extends Object implements Map
         return _previousType;
     }
     
+    public void setPreviousType(Class type)
+    {
+        _previousType = type;
+    }
+
     public void setCurrentNode(Node value)
     {
         _currentNode = value;

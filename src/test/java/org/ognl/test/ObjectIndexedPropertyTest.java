@@ -35,36 +35,35 @@ import ognl.OgnlException;
 import org.ognl.test.objects.Bean1;
 import org.ognl.test.objects.ObjectIndexed;
 
-public class ObjectIndexedPropertyTest extends OgnlTestCase
-{
+public class ObjectIndexedPropertyTest extends OgnlTestCase {
 
     private static ObjectIndexed OBJECT_INDEXED = new ObjectIndexed();
     private static Bean1 root = new Bean1();
     private static Object[][] TESTS = {
-    // Arbitrary indexed properties
-           { OBJECT_INDEXED, "attributes[\"bar\"]", "baz" }, // get non-indexed property through
-                                                                // attributes Map 
-            { OBJECT_INDEXED, "attribute[\"foo\"]", "bar" }, // get indexed property 
-           { OBJECT_INDEXED, "attribute[\"bar\"]", "baz", "newValue", "newValue" }, // set
-                                                                                        // indexed
-                                                                                        // property
-            { OBJECT_INDEXED, "attribute[\"bar\"]", "newValue" },// get indexed property back to
-                                                                    // confirm
-            { OBJECT_INDEXED, "attributes[\"bar\"]", "newValue" }, // get property back through Map
-                                                                    // to confirm 
-            { OBJECT_INDEXED, "attribute[\"other\"].attribute[\"bar\"]", "baz" }, // get indexed
-                                                                                    // property from
-                                                                                    // indexed, then
-                                                                                    // through other 
-            { OBJECT_INDEXED, "attribute[\"other\"].attributes[\"bar\"]", "baz" }, // get property
-                                                                                    // back through
-                                                                                    // Map to
-                                                                                    // confirm
-            { OBJECT_INDEXED, "attribute[$]", OgnlException.class }, // illegal DynamicSubscript
-                                                                        // access to object indexed
-                                                                        // property 
-            { root, "bean2.bean3.indexedValue[25]", null}
-          
+            // Arbitrary indexed properties
+            {OBJECT_INDEXED, "attributes[\"bar\"]", "baz"}, // get non-indexed property through
+            // attributes Map
+            {OBJECT_INDEXED, "attribute[\"foo\"]", "bar"}, // get indexed property
+            {OBJECT_INDEXED, "attribute[\"bar\"]", "baz", "newValue", "newValue"}, // set
+            // indexed
+            // property
+            {OBJECT_INDEXED, "attribute[\"bar\"]", "newValue"},// get indexed property back to
+            // confirm
+            {OBJECT_INDEXED, "attributes[\"bar\"]", "newValue"}, // get property back through Map
+            // to confirm
+            {OBJECT_INDEXED, "attribute[\"other\"].attribute[\"bar\"]", "baz"}, // get indexed
+            // property from
+            // indexed, then
+            // through other
+            {OBJECT_INDEXED, "attribute[\"other\"].attributes[\"bar\"]", "baz"}, // get property
+            // back through
+            // Map to
+            // confirm
+            {OBJECT_INDEXED, "attribute[$]", OgnlException.class}, // illegal DynamicSubscript
+            // access to object indexed
+            // property
+            {root, "bean2.bean3.indexedValue[25]", null}
+
     };
 
     /*
@@ -75,18 +74,18 @@ public class ObjectIndexedPropertyTest extends OgnlTestCase
     {
         TestSuite result = new TestSuite();
 
-        for(int i = 0; i < TESTS.length; i++) {
+        for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new ObjectIndexedPropertyTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
+                                                             TESTS[i][2]));
             } else {
                 if (TESTS[i].length == 4) {
                     result.addTest(new ObjectIndexedPropertyTest((String) TESTS[i][1], TESTS[i][0],
-                            (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
+                                                                 (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
                 } else {
                     if (TESTS[i].length == 5) {
                         result.addTest(new ObjectIndexedPropertyTest((String) TESTS[i][1], TESTS[i][0],
-                                (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
+                                                                     (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
                     } else {
                         throw new RuntimeException("don't understand TEST format");
                     }
@@ -111,13 +110,13 @@ public class ObjectIndexedPropertyTest extends OgnlTestCase
     }
 
     public ObjectIndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue, Object expectedAfterSetResult)
+                                     Object setValue, Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
     public ObjectIndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue)
+                                     Object setValue)
     {
         super(name, root, expressionString, expectedResult, setValue);
     }

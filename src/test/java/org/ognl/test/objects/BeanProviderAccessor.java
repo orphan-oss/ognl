@@ -43,7 +43,7 @@ public class BeanProviderAccessor extends ObjectPropertyAccessor implements Prop
     {
         BeanProvider provider = (BeanProvider)target;
         String beanName = ((String)name).replaceAll("\"", "");
-        
+
         if (provider.getBean(beanName) != null)
             return provider.getBean(beanName).getClass();
         else
@@ -56,9 +56,13 @@ public class BeanProviderAccessor extends ObjectPropertyAccessor implements Prop
         String beanName = ((String)name).replaceAll("\"", "");
         
         if (provider.getBean(beanName) != null) {
-            ExpressionCompiler.addCastString(context, "((" 
-                    + OgnlRuntime.getCompiler().getInterfaceClass(provider.getBean(beanName).getClass()).getName() + ")");
             
+            context.setCurrentAccessor(BeanProvider.class);
+            context.setCurrentType(provider.getBean(beanName).getClass());
+
+            ExpressionCompiler.addCastString(context, "(("
+                    + OgnlRuntime.getCompiler().getInterfaceClass(provider.getBean(beanName).getClass()).getName() + ")");
+
             return ".getBean(" + name + "))";
         }
         

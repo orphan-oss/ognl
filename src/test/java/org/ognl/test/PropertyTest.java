@@ -38,6 +38,9 @@ import java.util.Arrays;
 
 public class PropertyTest extends OgnlTestCase
 {
+
+    public static final String VALUE = "foo";
+    
     private static Root             ROOT = new Root();
 
     /* { ROOT, "map.(array[2] + size()).doubleValue()", new Double(ROOT.getArray()[2] + ROOT.getMap().size()) }, */
@@ -85,9 +88,18 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "'disableButton(this,\"' + map.get('button-testing') + '\");clearElement(&quot;testFtpMessage&quot;)'",
                     "disableButton(this,'null');clearElement('testFtpMessage')" },
             { ROOT.getMap(), "!disableWarning", Boolean.TRUE},
-            { ROOT.getMap(), "get('value').bean3.value", new Integer(((Bean2)ROOT.getMap().get("value")).getBean3().getValue())}
+            { ROOT.getMap(), "get('value').bean3.value", new Integer(((Bean2)ROOT.getMap().get("value")).getBean3().getValue())},
+            { ROOT.getMap(), "\"Tapestry\".toCharArray()[2]", new Character('p')},
+            { ROOT.getMap(), "nested.deep.last", Boolean.TRUE},
+            { ROOT, "'last ' + getCurrentClass(@org.ognl.test.PropertyTest@VALUE)", "last foo stop"},
+            { ROOT, "@org.ognl.test.PropertyTest@formatValue(property.millis, true, true)", formatValue((int)((Bean2)ROOT.getProperty()).getMillis(), true, true) }
             
     };
+
+    public static String formatValue(int millis, boolean b1, boolean b2)
+    {
+        return millis + "-formatted";
+    }
 
     /*===================================================================
          Public static methods

@@ -117,14 +117,16 @@ public class MapPropertyAccessor implements PropertyAccessor
             else if (key.equals("isEmpty"))
                 return boolean.class;
         }
-        
+
+        return Object.class;
+        /*
         if (Map.class.isAssignableFrom(target.getClass())) {
             Object result = ((Map)target).get(index);
             if (result != null)
                 return result.getClass();
-        }
+        }*/
         
-        return Object.class;
+        // return Object.class;
     }
 
     public String getSourceAccessor(OgnlContext context, Object target, Object index)

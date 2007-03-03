@@ -148,7 +148,9 @@ class ASTAdd extends NumericExpression
                 context.setCurrentType(currType);
                 context.setCurrentAccessor(currAccessor);
             }
-            
+
+
+
             // reset context since previous children loop would have changed it
             
             context.setCurrentObject(target);
@@ -174,13 +176,29 @@ class ASTAdd extends NumericExpression
                     } else if (ASTMethod.class.isInstance(_children[i])) {
                         
                         String chain = (String)context.get("_currentChain");
-                        expr = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false) 
-                        + (chain != null ? chain + "." : "") + expr;
+                        
+                        String rootExpr = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false);
+
+                        //System.out.println("astadd chains is >>" + chain + "<< and rootExpr is >>" + rootExpr + "<<");
+                        
+                        // dirty fix for overly aggressive casting dot operations
+                        if (rootExpr.endsWith(".") && chain != null && chain.startsWith(").")) {
+                            chain = chain.substring(1, chain.length());
+                        }
+
+                        expr = rootExpr + (chain != null ? chain + "." : "") + expr;
+                        
                         context.setCurrentAccessor(context.getRoot().getClass());
                         
                     } else if (_parent == null && ASTChain.class.isInstance(_children[i])) {
                         
-                        expr = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false) + expr;
+                        String rootExpr = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false);
+                        //System.out.println("astadd rootExpr " + rootExpr + " and expr: " + expr);
+                        
+                        if (!ASTProperty.class.isInstance(_children[i].jjtGetChild(0)) && rootExpr.endsWith(")") && expr.startsWith(")"))
+                            expr = expr.substring(1, expr.length());
+                        
+                        expr = rootExpr + expr;
                         context.setCurrentAccessor(context.getRoot().getClass());
                         
                         String cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
@@ -188,10 +206,9 @@ class ASTAdd extends NumericExpression
                             cast = "";
                         
                         expr = cast + expr;
-                        
                     }
-                    
-                    if (!ASTVarRef.class.isAssignableFrom(_children[i].getClass()) 
+
+                    if (!ASTVarRef.class.isAssignableFrom(_children[i].getClass())
                             && !ASTProperty.class.isInstance(_children[i])
                             && !ASTMethod.class.isInstance(_children[i])
                             && !ASTSequence.class.isInstance(_children[i])
@@ -206,7 +223,7 @@ class ASTAdd extends NumericExpression
                             //System.out.println("Expr now >>" + expr + "<<");
                         }
                     }
-                    
+
                     result += expr;
                     
                     if ((lastType == null || !String.class.isAssignableFrom(lastType.getGetterClass()))
@@ -230,6 +247,7 @@ class ASTAdd extends NumericExpression
             }
             
             if (lastType != null) {
+                
                 _getterClass = lastType.getGetterClass();
                 context.setCurrentType(_getterClass);
                 context.setCurrentAccessor(null);
@@ -237,9 +255,9 @@ class ASTAdd extends NumericExpression
             
             if (_parent == null || ASTSequence.class.isAssignableFrom(_parent.getClass())) {
                 
-                if (_getterClass != null && Number.class.isAssignableFrom(_getterClass))
-                    result = OgnlRuntime.getNumericCast(_getterClass) + "(" + result + ")";
-                else if (_getterClass != null && String.class.isAssignableFrom(_getterClass))
+                //if (_getterClass != null && Number.class.isAssignableFrom(_getterClass))
+                  //  result = OgnlRuntime.getNumericCast(_getterClass) + "(" + result + ")";
+                if (_getterClass != null && String.class.isAssignableFrom(_getterClass))
                     _getterClass = Object.class;
             }
 

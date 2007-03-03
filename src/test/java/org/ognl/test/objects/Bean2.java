@@ -38,4 +38,9 @@ public class Bean2 extends Object
     {
         return bean3;
     }
+
+    public long getMillis()
+    {
+        return 1000 * 60 * 2;
+    }
 }

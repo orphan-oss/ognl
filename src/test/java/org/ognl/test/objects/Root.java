@@ -92,6 +92,14 @@ public class Root extends Object
         map.put( "baz", array);
         map.put("value", new Bean2());
 
+        Map newMap = new HashMap();
+        Map chain = new HashMap();
+        newMap.put("deep", chain);
+        
+        chain.put("last", Boolean.TRUE);
+
+        map.put("nested", newMap);
+
         /* make myMap identical */
         myMap.putAll( map );
     }
@@ -158,6 +166,11 @@ public class Root extends Object
     public String format(String key, Object[] value)
     {
         return "formatted";
+    }
+
+    public String getCurrentClass(String value)
+    {
+        return value + " stop";
     }
 
     public Map getMap()

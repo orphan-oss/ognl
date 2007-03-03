@@ -4,7 +4,6 @@ import javassist.*;
 import ognl.*;
 
 import java.lang.reflect.Modifier;
-import java.math.BigInteger;
 import java.util.*;
 
 
@@ -41,9 +40,14 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
     
     public String castExpression(OgnlContext context, Node expression, String body)
     {
+        
         if (context.getCurrentAccessor() == null
-                || context.getPreviousType() == null 
+                || context.getPreviousType() == null
                 || context.getCurrentAccessor().isAssignableFrom(context.getPreviousType())
+                || (context.getCurrentType() != null
+                    && context.getCurrentObject() != null
+                    && context.getCurrentType().isAssignableFrom(context.getCurrentObject().getClass())
+                    && context.getCurrentAccessor().isAssignableFrom(context.getPreviousType()))
                 || body == null || body.trim().length() < 1
                 || (context.getCurrentType() != null && context.getCurrentType().isArray())
                 || ASTOr.class.isInstance(expression)
@@ -57,11 +61,13 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
             return body;
 
         /*
-        System.out.println("castExpression() with expression " + expression + " currentType is: " + context.getCurrentType() 
+        System.out.println("castExpression() with expression " + expression + " currentType is: " + context.getCurrentType()
                 + " previousType: " + context.getPreviousType()
-                + " current Accessor: " + context.getCurrentAccessor()
-                + " previous Accessor: " + context.getPreviousAccessor());
+                + "\n current Accessor: " + context.getCurrentAccessor()
+                + " previous Accessor: " + context.getPreviousAccessor()
+                + " current object " + context.getCurrentObject());
         */
+        
         String castClass = null;
         if (context.getCurrentType() != null && context.getCurrentType().isArray()) {
             
@@ -156,6 +162,10 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
     {
         String rootExpr = "";
         
+        if (ASTChain.class.isInstance(expression)
+                && ASTConst.class.isInstance(expression.jjtGetChild(0)))
+            return rootExpr;
+
         if ((!ASTList.class.isInstance(expression)
                 && !ASTVarRef.class.isInstance(expression)
                 && !ASTStaticMethod.class.isInstance(expression)
@@ -184,7 +194,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
                 rootExpr = "((" +  OgnlRuntime.getCompiler().getClassName(root.getClass()) + ")$2).";
             }
         }
-        
+
         return rootExpr;
     }
     
@@ -194,7 +204,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
     public void compileExpression(OgnlContext context, Node expression, Object root)
     throws Exception
     {
-        //System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
+        // System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
         
         if (expression.getAccessor() != null)
             return;
@@ -308,50 +318,28 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
         
         if (getterCode == null || getterCode.trim().length() <= 0 && !ASTVarRef.class.isAssignableFrom(expression.getClass()))
             getterCode = "null";
-        
+
+        Class returnType = null;
+
         if (NodeType.class.isInstance(expression)) {
             NodeType nType = (NodeType)expression;
-            Class clazz = nType.getGetterClass();
+            returnType = nType.getGetterClass();
             
-            if (clazz != null && clazz.isPrimitive()) {
+            if (returnType != null && !String.class.isAssignableFrom(returnType)) {
                 
-                if (clazz == Boolean.TYPE) {
-                    
-                    pre = "Boolean.valueOf((";
-                    post = "))";
-                } else {
-                    
-                    pre = "new " + OgnlRuntime.getPrimitiveWrapperClass(clazz).getName() + "(";
-                    post = ")";
-                }
-            } else if (clazz != null 
-                    && (Number.class.isAssignableFrom(clazz) 
-                            && (NumericExpression.class.isInstance(expression) 
-                                    || BooleanExpression.class.isInstance(expression)
-                                    || ASTSequence.class.isInstance(expression)))) {
-                
-                if (BigInteger.class.isAssignableFrom(clazz)) {
-                    
-                    pre = "java.math.BigInteger.valueOf((long)";
-                } else {
-
-                    pre = "new " + clazz.getName() + "(";
-                }
-                post = ")";
-            } else if (clazz != null && Boolean.class.isAssignableFrom(clazz)) {
-                
-                pre = "new " + clazz.getName() + "(";
-                post = ")";
-            } else if (clazz != null && Character.class.isAssignableFrom(clazz)) {
-                
-                pre = "new " + nType.getGetterClass().getName() + "(";
-                post = ")";
+                pre = pre + " ($w) (";
+                post = post + ")";
             }
         }
         
         String castExpression = (String)context.get(PRE_CAST);
-        
-        String rootExpr = (getterCode != null && !getterCode.equals("null")) ? getRootExpression(expression, root, false) : "";
+
+        if (returnType == null) {
+            pre = pre + " ($w) (";
+            post = post + ")";
+        }
+
+        String rootExpr = !getterCode.equals("null") ? getRootExpression(expression, root, false) : "";
         
         String noRoot = (String)context.remove("_noRoot");
         if (noRoot != null)
@@ -369,7 +357,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
             
         } else {
             
-            body = "{ return " + pre 
+            body = "{ return " + pre
             + (castExpression != null ? castExpression : "")
             + rootExpr
             + getterCode
@@ -426,7 +414,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
         
         if (setterCode.indexOf("$3") < 0)
             setterCode = "";
-
+        
         valueSetter.setBody(body);
         
         newClass.addMethod(valueSetter);

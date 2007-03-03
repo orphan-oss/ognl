@@ -32,10 +32,7 @@ package org.ognl.test;
 
 import junit.framework.TestSuite;
 import ognl.OgnlRuntime;
-import org.ognl.test.objects.Bean1;
-import org.ognl.test.objects.BeanProvider;
-import org.ognl.test.objects.BeanProviderAccessor;
-import org.ognl.test.objects.Root;
+import org.ognl.test.objects.*;
 
 public class InterfaceInheritanceTest extends OgnlTestCase
 {
@@ -43,6 +40,7 @@ public class InterfaceInheritanceTest extends OgnlTestCase
 
     static {
         ROOT.getBeans().setBean("testBean", new Bean1());
+        ROOT.getBeans().setBean("evenOdd",  new EvenOdd());
     }
     
     private static Object[][] TESTS = {
@@ -61,7 +59,8 @@ public class InterfaceInheritanceTest extends OgnlTestCase
         { ROOT, "myMap.(null,test)", ROOT },
         { ROOT, "myMap[null] = 25", new Integer(25)},
         { ROOT, "myMap[null]", new Integer(25), new Integer(50), new Integer(50) },
-        { ROOT, "beans.testBean", ROOT.getBeans().getBean("testBean")}
+        { ROOT, "beans.testBean", ROOT.getBeans().getBean("testBean")},
+        { ROOT, "beans.evenOdd.next", ((EvenOdd)ROOT.getBeans().getBean("evenOdd")).getNext()},
     };
 
     /*

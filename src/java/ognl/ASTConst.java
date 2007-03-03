@@ -55,7 +55,7 @@ public class ASTConst extends SimpleNode implements NodeType
     }
 
     /** Called from parser actions. */
-    void setValue(Object value)
+    public void setValue(Object value)
     {
         this.value = value;
     }
@@ -131,8 +131,10 @@ public class ASTConst extends SimpleNode implements NodeType
             return "";
         
         _getterClass = value.getClass();
+        context.setCurrentType(value.getClass());
+        context.setCurrentObject(value);
         
-        if (_parent != null && ComparisonExpression.class.isAssignableFrom(_parent.getClass()) 
+        if (_parent != null && ComparisonExpression.class.isAssignableFrom(_parent.getClass())
                 && value != null
                 && Number.class.isAssignableFrom(value.getClass())) {
             
@@ -141,7 +143,7 @@ public class ASTConst extends SimpleNode implements NodeType
         } else if (_parent == null || !ASTProperty.class.isInstance(_parent))
             context.setCurrentType(_getterClass);
         
-        if (_parent == null && Number.class.isAssignableFrom(value.getClass())) {
+        /* if (_parent == null && Number.class.isAssignableFrom(value.getClass())) {
             
             if (BigInteger.class.isInstance(value)) {
                 
@@ -153,15 +155,15 @@ public class ASTConst extends SimpleNode implements NodeType
                 clazz = OgnlRuntime.getPrimitiveWrapperClass(value.getClass());
             
             return "new " + clazz.getName() + "(" + OgnlRuntime.getNumericCast(value.getClass()) + value +")";
-        } else if (Number.class.isAssignableFrom(value.getClass()) && OgnlRuntime.getNumericLiteral(value.getClass()) != null) {
+        } else  if (Number.class.isAssignableFrom(value.getClass()) && OgnlRuntime.getNumericLiteral(value.getClass()) != null) {
             
             return value.toString() + OgnlRuntime.getNumericLiteral(value.getClass());
-        } else if (!(_parent != null 
+        } else */ if (!(_parent != null 
                 && NumericExpression.class.isAssignableFrom(_parent.getClass()))
                 && String.class.isAssignableFrom(value.getClass())) {
             
             return '\"' + OgnlOps.getEscapeString(value.toString()) + '\"';
-        } else if (Character.class.isAssignableFrom(value.getClass())) {
+        } else if (Character.class.isInstance(value)) {
             
             Character val = (Character)value;
             
@@ -174,6 +176,9 @@ public class ASTConst extends SimpleNode implements NodeType
         if (Boolean.class.isAssignableFrom(value.getClass()))
             _getterClass = Boolean.TYPE;
         
+        context.setCurrentType(value.getClass());
+        context.setCurrentObject(value);
+
         return value.toString();
     }
 }
