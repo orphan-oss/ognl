@@ -36,6 +36,8 @@ import org.ognl.test.objects.Simple;
 
 public class StaticsAndConstructorsTest extends OgnlTestCase
 {
+    public static final String KEY = "size";
+
     private static Root             ROOT = new Root();
 
     private static Object[][]       TESTS = {
@@ -54,7 +56,8 @@ public class StaticsAndConstructorsTest extends OgnlTestCase
             { "getStaticInt()", new Integer(Root.getStaticInt()) },
             { "@org.ognl.test.objects.Root@getStaticInt()", new Integer(Root.getStaticInt()) },
             { "new org.ognl.test.objects.Simple(property).getStringValue()", new Simple().getStringValue() },
-            { "new org.ognl.test.objects.Simple(map['test'].property).getStringValue()", new Simple().getStringValue() }
+            { "new org.ognl.test.objects.Simple(map['test'].property).getStringValue()", new Simple().getStringValue() },
+            { "map.get(@org.ognl.test.StaticsAndConstructorsTest@KEY) != null", Boolean.TRUE}
     };
 
     /*===================================================================
