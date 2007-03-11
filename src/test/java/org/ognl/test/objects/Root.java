@@ -163,6 +163,11 @@ public class Root extends Object
         array = value;
     }
 
+    public String format(String key, Object value)
+    {
+        return format(key, new Object[] { value });
+    }
+
     public String format(String key, Object[] value)
     {
         return "formatted";

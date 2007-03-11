@@ -23,17 +23,6 @@ public class ASTPropertyTest extends TestCase {
         pRef.setValue("nested");
         pRef.jjtSetParent(p);
         p.jjtAddChild(pRef, 0);
-        
-        /*
-        ASTProperty p2 = new ASTProperty(0);
-        ASTConst pRef2 = new ASTConst(0);
-        pRef2.setValue("deep");
-        p.jjtAddChild(pRef2, 0);
-
-        ASTChain chain = new ASTChain(0);
-        chain.jjtAddChild(p, 0);
-        chain.jjtAddChild(p2, 1);
-        */
 
         Map root = new Root().getMap();
         
@@ -50,16 +39,6 @@ public class ASTPropertyTest extends TestCase {
 
         assertEquals(null, context.getPreviousType());
         assertEquals(null, context.getPreviousAccessor());
-
-        /*
-        //assertEquals(context.getCurrentType(), Map.class);
-        assertEquals(context.getCurrentObject(), root.getMap());
-        assertEquals(context.getCurrentAccessor(), Root.class);
-        assertEquals(context.getPreviousType(), null);
-        
-        assert context.getPreviousAccessor() == null;
-        
-        assertEquals(OgnlRuntime.getCompiler().castExpression(context, p, ".getMap()"), ".getMap()");*/
     }
 
     public void test_Set_Source()

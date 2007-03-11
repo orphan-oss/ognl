@@ -235,11 +235,14 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                         } else if (parms[i] != Object.class) {
                             
                             parmString = "(" + parms[i].getName() + ")ognl.OgnlOps.convertValue(" + parmString + "," + parms[i].getName() + ".class)";
-                        } else if (NodeType.class.isInstance(_children[i])
+                        } else if ((NodeType.class.isInstance(_children[i])
                                 && ((NodeType)_children[i]).getGetterClass() != null 
-                                && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass())) {
+                                && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass()))
+                                || valueClass.isPrimitive()) {
 
-                            parmString = "new " + ((NodeType)_children[i]).getGetterClass().getName() + "(" + parmString + ")";
+                            parmString = " ($w) " + parmString;
+                        } else if (valueClass.isPrimitive()) {
+                            parmString = "($w) " + parmString;
                         }
                     }
                     
@@ -342,8 +345,19 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                             + ")ognl.OgnlOps.convertValue(" + parmString + "," 
                             + wrapClass.getName() + ".class, true))."
                             + OgnlRuntime.getNumericValueGetter(wrapClass);
-                        }  else 
+                        } else if (parms[i] != Object.class) {
+                            
                             parmString = "(" + parms[i].getName() + ")ognl.OgnlOps.convertValue(" + parmString + "," + parms[i].getName() + ".class)";
+                        } else if ((NodeType.class.isInstance(_children[i])
+                                && ((NodeType)_children[i]).getGetterClass() != null
+                                && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass()))
+                                || valueClass.isPrimitive()) {
+
+                            parmString = " ($w) " + parmString;
+                            
+                        } else if (valueClass.isPrimitive()) {
+                            parmString = "($w) " + parmString;
+                        }
                     }
                     
                     result += parmString;

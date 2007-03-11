@@ -85,6 +85,7 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "renderNavigation ? '' : 'noborder'", "noborder" },
             { ROOT, "format('key', array)", "formatted" },
             { ROOT, "format('key', intValue)", "formatted" },
+            { ROOT, "format('key', map.size)", "formatted" },
             { ROOT, "'disableButton(this,\"' + map.get('button-testing') + '\");clearElement(&quot;testFtpMessage&quot;)'",
                     "disableButton(this,'null');clearElement('testFtpMessage')" },
             { ROOT.getMap(), "!disableWarning", Boolean.TRUE},

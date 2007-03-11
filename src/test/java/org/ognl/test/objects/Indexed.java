@@ -30,30 +30,37 @@
 //--------------------------------------------------------------------------
 package org.ognl.test.objects;
 
-public class Indexed extends Object
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+public class Indexed
 {
-    private String[] values = new String[] { "foo", "bar", "baz" };
+    private String[] _values = new String[] { "foo", "bar", "baz" };
+
+    private List _list = new ArrayList();
 
     public Indexed()
     {
-        super();
+        _list.add(new Integer(1));
+        _list.add(new Integer(2));
+        _list.add(new Integer(3));
     }
 
     public Indexed(String[] values)
     {
-        super();
-        this.values = values;
+        _values = values;
     }
     
-    /* Indexed property "values" */
+    /* Indexed property "_values" */
     public String[] getValues()
     {
-        return values;
+        return _values;
     }
     
     public void setValues(String[] value)
     {
-        values = value;
+        _values = value;
     }
 
     /**
@@ -62,15 +69,25 @@ public class Indexed extends Object
      */
     public String getValues(int index)
     {
-        return values[index] + "xxx";
+        return _values[index] + "xxx";
     }
     
     public void setValues(int index, String value)
     {
         if (value.endsWith("xxx")) {
-            values[index] = value.substring(0, value.length() - 3);
+            _values[index] = value.substring(0, value.length() - 3);
         } else {
-            values[index] = value;
+            _values[index] = value;
         }
+    }
+
+    public Collection getList()
+    {
+        return _list;
+    }
+
+    public String getTitle(int count)
+    {
+        return "Title count " + count;
     }
 }
