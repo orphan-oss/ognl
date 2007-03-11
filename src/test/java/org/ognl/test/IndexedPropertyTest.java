@@ -33,35 +33,34 @@ package org.ognl.test;
 import junit.framework.TestSuite;
 import org.ognl.test.objects.Indexed;
 
-public class IndexedPropertyTest extends OgnlTestCase
-{
+public class IndexedPropertyTest extends OgnlTestCase {
 
     private static Indexed INDEXED = new Indexed();
-    
+
     private static Object[][] TESTS = {
             // Indexed properties
-          { INDEXED, "values", INDEXED.getValues() }, // gets String[] 
-            { INDEXED, "[\"values\"]", INDEXED.getValues() }, // String[] 
-           { INDEXED.getValues(), "[0]", INDEXED.getValues()[0] }, // "foo" 
-          { INDEXED, "getValues()[0]", INDEXED.getValues()[0] }, // "foo" directly from array 
-          { INDEXED, "values[0]", INDEXED.getValues(0) }, // "foo" + "xxx" 
-          { INDEXED, "values[^]", INDEXED.getValues(0) }, // "foo" + "xxx" 
-           { INDEXED, "values[|]", INDEXED.getValues(1) }, // "bar" + "xxx" 
-           { INDEXED, "values[$]", INDEXED.getValues(2) }, // "baz" + "xxx" 
-            { INDEXED, "values[1]", "bar" + "xxx", "xxxx" + "xxx", "xxxx" + "xxx" }, // set through setValues(int, String)
-           { INDEXED, "values[1]", "xxxx" + "xxx" }, // getValues(int) again to check if setValues(int, String) was called 
-            { INDEXED, "setValues(2, \"xxxx\")", null }, // was "baz" -> "xxxx" 
+            {INDEXED, "values", INDEXED.getValues()}, // gets String[]
+            {INDEXED, "[\"values\"]", INDEXED.getValues()}, // String[]
+            {INDEXED.getValues(), "[0]", INDEXED.getValues()[0]}, // "foo"
+            {INDEXED, "getValues()[0]", INDEXED.getValues()[0]}, // "foo" directly from array
+            {INDEXED, "values[0]", INDEXED.getValues(0)}, // "foo" + "xxx"
+            {INDEXED, "values[^]", INDEXED.getValues(0)}, // "foo" + "xxx"
+            {INDEXED, "values[|]", INDEXED.getValues(1)}, // "bar" + "xxx"
+            {INDEXED, "values[$]", INDEXED.getValues(2)}, // "baz" + "xxx"
+            {INDEXED, "values[1]", "bar" + "xxx", "xxxx" + "xxx", "xxxx" + "xxx"}, // set through setValues(int, String)
+            {INDEXED, "values[1]", "xxxx" + "xxx"}, // getValues(int) again to check if setValues(int, String) was called
+            {INDEXED, "setValues(2, \"xxxx\")", null}, // was "baz" -> "xxxx" 
+            {INDEXED, "getTitle(list.size)", "Title count 3"}
     };
 
     /*
      * =================================================================== Public static methods
      * ===================================================================
      */
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
-        for(int i = 0; i < TESTS.length; i++) {
+        for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new IndexedPropertyTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
                         TESTS[i][2]));
@@ -86,29 +85,24 @@ public class IndexedPropertyTest extends OgnlTestCase
      * =================================================================== Constructors
      * ===================================================================
      */
-    public IndexedPropertyTest()
-    {
+    public IndexedPropertyTest() {
         super();
     }
 
-    public IndexedPropertyTest(String name)
-    {
+    public IndexedPropertyTest(String name) {
         super(name);
     }
 
     public IndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue, Object expectedAfterSetResult)
-    {
+                               Object setValue, Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
-    public IndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult, Object setValue)
-    {
+    public IndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public IndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public IndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 }
