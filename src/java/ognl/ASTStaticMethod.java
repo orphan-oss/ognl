@@ -131,7 +131,7 @@ public class ASTStaticMethod extends SimpleNode implements NodeType
                     Class prevType = context.getCurrentType();
 
                     Object value = _children[i].getValue(context, context.getRoot());
-                    String parmString =  _children[i].toGetSourceString(context, target);
+                    String parmString =  _children[i].toGetSourceString(context, context.getRoot());
 
                     // to undo type setting of constants when used as method parameters
                     if (ASTConst.class.isInstance(_children[i])) {
@@ -171,16 +171,18 @@ public class ASTStaticMethod extends SimpleNode implements NodeType
                         } else if (parms[i] != Object.class) {
 
                             parmString = "(" + parms[i].getName() + ")ognl.OgnlOps.convertValue(" + parmString + "," + parms[i].getName() + ".class)";
-                        } else if (NodeType.class.isInstance(_children[i])
+                        } else if ((NodeType.class.isInstance(_children[i])
                                 && ((NodeType)_children[i]).getGetterClass() != null
-                                && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass())) {
+                                && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass()))
+                                || valueClass.isPrimitive()) {
 
-                            parmString = "new " + ((NodeType)_children[i]).getGetterClass().getName() + "(" + parmString + ")";
+                            parmString = " ($w) " + parmString;
+                        } else if (valueClass.isPrimitive()) {
+                            parmString = "($w) " + parmString;
                         }
                     }
 
                     result += parmString;
-
                 }
             }
             result += ")";

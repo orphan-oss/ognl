@@ -161,10 +161,16 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
     public static String getRootExpression(Node expression, Object root, boolean boolValue)
     {
         String rootExpr = "";
-        
-        if (ASTChain.class.isInstance(expression)
-                && ASTConst.class.isInstance(expression.jjtGetChild(0)))
-            return rootExpr;
+
+        if (ASTChain.class.isInstance(expression)) {
+
+            // constants and static references don't need root expressions
+
+            if (ASTConst.class.isInstance(expression.jjtGetChild(0))
+                || ASTStaticMethod.class.isInstance(expression.jjtGetChild(0))
+                    || ASTStaticField.class.isInstance(expression.jjtGetChild(0)))
+                return rootExpr;
+        }
 
         if ((!ASTList.class.isInstance(expression)
                 && !ASTVarRef.class.isInstance(expression)
@@ -367,7 +373,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
         
         body = body.replaceAll("\\.\\.", ".");
         
-        //System.out.println("Getter Body: ===================================\n"+body);
+        // System.out.println("Getter Body: ===================================\n"+body);
         valueGetter.setBody(body);
 
         newClass.addMethod(valueGetter);
