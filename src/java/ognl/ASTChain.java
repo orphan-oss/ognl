@@ -303,10 +303,10 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                         if (context.get(ExpressionCompiler.PRE_CAST) != null) {
                             _lastExpression = context.remove(ExpressionCompiler.PRE_CAST) + _lastExpression;
                         }
-                    } else if (ASTOr.class.isInstance(_children[i]) 
+                    } else if (ASTOr.class.isInstance(_children[i])
                             || ASTAnd.class.isInstance(_children[i])
                             || ASTCtor.class.isInstance(_children[i])
-                            || ASTStaticField.class.isInstance(_children[i])) {
+                            || (ASTStaticField.class.isInstance(_children[i]) && _parent == null)) {
                         context.put("_noRoot", "true");
                         result = value;
                     } else

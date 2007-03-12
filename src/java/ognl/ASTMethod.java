@@ -205,7 +205,6 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                     
                     parmString = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false) + parmString;
 
-
                     String cast = "";
                     if (ExpressionCompiler.shouldCast(_children[i])) {
 

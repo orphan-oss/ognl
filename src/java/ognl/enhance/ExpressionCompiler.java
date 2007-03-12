@@ -161,7 +161,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
     public static String getRootExpression(Node expression, Object root, boolean boolValue)
     {
         String rootExpr = "";
-
+        
         if (!shouldCast(expression))
             return rootExpr;
         
@@ -216,7 +216,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
     public void compileExpression(OgnlContext context, Node expression, Object root)
     throws Exception
     {
-        // System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
+        //System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
         
         if (expression.getAccessor() != null)
             return;
@@ -379,7 +379,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
         
         body = body.replaceAll("\\.\\.", ".");
         
-        // System.out.println("Getter Body: ===================================\n"+body);
+        //System.out.println("Getter Body: ===================================\n"+body);
         valueGetter.setBody(body);
 
         newClass.addMethod(valueGetter);
