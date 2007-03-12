@@ -162,16 +162,9 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
     {
         String rootExpr = "";
 
-        if (ASTChain.class.isInstance(expression)) {
-
-            // constants and static references don't need root expressions
-
-            if (ASTConst.class.isInstance(expression.jjtGetChild(0))
-                || ASTStaticMethod.class.isInstance(expression.jjtGetChild(0))
-                    || ASTStaticField.class.isInstance(expression.jjtGetChild(0)))
-                return rootExpr;
-        }
-
+        if (!shouldCast(expression))
+            return rootExpr;
+        
         if ((!ASTList.class.isInstance(expression)
                 && !ASTVarRef.class.isInstance(expression)
                 && !ASTStaticMethod.class.isInstance(expression)
@@ -203,14 +196,27 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
 
         return rootExpr;
     }
-    
+
+    public static boolean shouldCast(Node expression)
+    {
+        if (ASTChain.class.isInstance(expression)) {
+            
+            if (ASTConst.class.isInstance(expression.jjtGetChild(0))
+                || ASTStaticMethod.class.isInstance(expression.jjtGetChild(0))
+                    || ASTStaticField.class.isInstance(expression.jjtGetChild(0)))
+                return false;
+        }
+
+        return true;
+    }
+
     /* (non-Javadoc)
      * @see ognl.enhance.OgnlExpressionCompiler#compileExpression(ognl.OgnlContext, ognl.Node, java.lang.Object)
      */
     public void compileExpression(OgnlContext context, Node expression, Object root)
     throws Exception
     {
-        //System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
+        // System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
         
         if (expression.getAccessor() != null)
             return;

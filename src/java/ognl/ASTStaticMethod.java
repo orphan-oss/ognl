@@ -141,7 +141,11 @@ public class ASTStaticMethod extends SimpleNode implements NodeType
 
                     parmString = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false) + parmString;
 
-                    String cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
+                    String cast = "";
+                    if (ExpressionCompiler.shouldCast(_children[i])) {
+
+                        cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
+                    }
                     if (cast == null)
                         cast = "";
 

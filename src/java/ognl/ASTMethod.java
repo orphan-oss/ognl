@@ -196,7 +196,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
 
                     Object value = _children[i].getValue(context, context.getRoot());
                     String parmString = _children[i].toGetSourceString(context, context.getRoot());
-                    
+
                     // to undo type setting of constants when used as method parameters
                     if (ASTConst.class.isInstance(_children[i])) {
                         
@@ -204,8 +204,13 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                     }
                     
                     parmString = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false) + parmString;
-                    
-                    String cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
+
+
+                    String cast = "";
+                    if (ExpressionCompiler.shouldCast(_children[i])) {
+
+                        cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
+                    }
                     if (cast == null)
                         cast = "";
                     
@@ -319,7 +324,11 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
 
                     parmString = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false) + parmString;
                     
-                    String cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
+                    String cast = "";
+                    if (ExpressionCompiler.shouldCast(_children[i])) {
+
+                        cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
+                    }
                     if (cast == null)
                         cast = "";
                     
