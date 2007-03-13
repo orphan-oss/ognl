@@ -133,6 +133,9 @@ public class ASTStaticMethod extends SimpleNode implements NodeType
                     Object value = _children[i].getValue(context, context.getRoot());
                     String parmString =  _children[i].toGetSourceString(context, context.getRoot());
 
+                    if (parmString == null || parmString.trim().length() < 1)
+                        parmString = "null";
+
                     // to undo type setting of constants when used as method parameters
                     if (ASTConst.class.isInstance(_children[i])) {
 
