@@ -57,7 +57,9 @@ public class Root extends Object
     public int                      six = 6;
     private boolean _disabled;
     private Locale _selected = Locale.getDefault();
-    
+
+    private List _list;
+
     private int verbosity = 87;
     
     private BeanProvider _beanProvider = new BeanProviderImpl();
@@ -281,5 +283,15 @@ public class Root extends Object
     public boolean getRenderNavigation()
     {
         return _render;
+    }
+
+    public void setSelectedList(List selected)
+    {
+        _list = selected;
+    }
+
+    public List getSelectedList()
+    {
+        return _list;
     }
 }

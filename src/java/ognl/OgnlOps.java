@@ -592,7 +592,12 @@ public abstract class OgnlOps implements NumericTypes
         
         if (result == null && preventNulls)
             return value;
-        
+
+        if (value != null && result == null) {
+            
+            throw new IllegalArgumentException("Unable to convert type " + value.getClass().getName() + " of " + value + " to type of " + toType.getName());
+        }
+
         return result;
     }
     

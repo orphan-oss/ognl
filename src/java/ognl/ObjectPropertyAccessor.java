@@ -41,18 +41,17 @@ import java.util.Map;
 /**
  * Implementation of PropertyAccessor that uses reflection on the target object's class to find a
  * field or a pair of set/get methods with the given property name.
- * 
+ *
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-public class ObjectPropertyAccessor implements PropertyAccessor
-{
+public class ObjectPropertyAccessor implements PropertyAccessor {
 
     /**
      * Returns OgnlRuntime.NotFound if the property does not exist.
      */
     public Object getPossibleProperty(Map context, Object target, String name)
-        throws OgnlException
+            throws OgnlException
     {
         Object result;
         OgnlContext ognlContext = (OgnlContext) context;
@@ -75,7 +74,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor
      * Returns OgnlRuntime.NotFound if the property does not exist.
      */
     public Object setPossibleProperty(Map context, Object target, String name, Object value)
-        throws OgnlException
+            throws OgnlException
     {
         Object result = null;
         OgnlContext ognlContext = (OgnlContext) context;
@@ -95,7 +94,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor
     }
 
     public boolean hasGetProperty(OgnlContext context, Object target, Object oname)
-        throws OgnlException
+            throws OgnlException
     {
         try {
             return OgnlRuntime.hasGetProperty(context, target, oname);
@@ -105,13 +104,13 @@ public class ObjectPropertyAccessor implements PropertyAccessor
     }
 
     public boolean hasGetProperty(Map context, Object target, Object oname)
-        throws OgnlException
+            throws OgnlException
     {
         return hasGetProperty((OgnlContext) context, target, oname);
     }
 
     public boolean hasSetProperty(OgnlContext context, Object target, Object oname)
-        throws OgnlException
+            throws OgnlException
     {
         try {
             return OgnlRuntime.hasSetProperty(context, target, oname);
@@ -121,146 +120,149 @@ public class ObjectPropertyAccessor implements PropertyAccessor
     }
 
     public boolean hasSetProperty(Map context, Object target, Object oname)
-        throws OgnlException
+            throws OgnlException
     {
         return hasSetProperty((OgnlContext) context, target, oname);
     }
 
     public Object getProperty(Map context, Object target, Object oname)
-        throws OgnlException
+            throws OgnlException
     {
         Object result = null;
         String name = oname.toString();
-        
+
         result = getPossibleProperty(context, target, name);
-        
-        if (result == OgnlRuntime.NotFound) { 
-            throw new NoSuchPropertyException(target, name); 
+
+        if (result == OgnlRuntime.NotFound) {
+            throw new NoSuchPropertyException(target, name);
         }
         return result;
     }
-    
+
     public void setProperty(Map context, Object target, Object oname, Object value)
-        throws OgnlException
+            throws OgnlException
     {
         String name = oname.toString();
 
-        if (setPossibleProperty(context, target, name, value) == OgnlRuntime.NotFound) { throw new NoSuchPropertyException(
-                target, name); }
+        if (setPossibleProperty(context, target, name, value) == OgnlRuntime.NotFound) {
+            throw new NoSuchPropertyException(target, name);
+        }
     }
-    
+
     public Class getPropertyClass(OgnlContext context, Object target, Object index)
     {
         try {
             Method m = OgnlRuntime.getReadMethod(target.getClass(), index.toString());
-            
+
             if (m == null) {
-                
+
                 if (String.class.isAssignableFrom(index.getClass()) && !target.getClass().isArray()) {
-                    String key = ((String)index).replaceAll("\"", "");
+                    String key = ((String) index).replaceAll("\"", "");
                     try {
                         Field f = target.getClass().getField(key);
                         if (f != null) {
-                            
+
                             return f.getType();
                         }
                     } catch (NoSuchFieldException e) {
                         return null;
                     }
                 }
-                
+
                 return null;
             }
-            
+
             return m.getReturnType();
-            
-        } catch (Throwable t) { throw new RuntimeException(t); }
+
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
     }
-    
+
     public String getSourceAccessor(OgnlContext context, Object target, Object index)
     {
         try {
             Method m = OgnlRuntime.getReadMethod(target.getClass(), index.toString());
-            
+
             // try to get field if no method could be found 
-            
+
             if (m == null) {
-                
+
                 try {
                     if (String.class.isAssignableFrom(index.getClass()) && !target.getClass().isArray()) {
-                        String key = ((String)index).replaceAll("\"", "");
+                        String key = ((String) index).replaceAll("\"", "");
                         Field f = target.getClass().getField(key);
                         if (f != null) {
-                            
+
                             context.setCurrentType(f.getType());
                             context.setCurrentAccessor(f.getDeclaringClass());
-                            
+
                             return "." + f.getName();
                         }
                     }
                 } catch (NoSuchFieldException e) {
                     return "";
                 }
-                
-                
+
+
                 return "";
             }
-            
+
             context.setCurrentType(m.getReturnType());
             context.setCurrentAccessor(OgnlRuntime.getSuperOrInterfaceClass(m, m.getDeclaringClass()));
-            
+
             return "." + m.getName() + "()";
-            
-        } catch (Throwable t) { 
+
+        } catch (Throwable t) {
             if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
+                throw (UnsupportedCompilationException) t;
             else
                 throw new RuntimeException(t);
         }
     }
-    
+
     public String getSourceSetter(OgnlContext context, Object target, Object index)
     {
         try {
             Method m = OgnlRuntime.getWriteMethod(target.getClass(), index.toString());
-            
+
             if (m == null)
                 return "";
-            
+
             if (m.getParameterTypes() == null || m.getParameterTypes().length <= 0)
                 return "";
-            
+
             Class parm = m.getParameterTypes()[0];
             String conversion = null;
-            
+
             if (m.getParameterTypes().length > 1)
                 throw new UnsupportedCompilationException("Object property accessors can only support single parameter setters.");
-            
+
             if (parm.isPrimitive()) {
-                
+
                 Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(parm);
-                
+
                 conversion = "((" + wrapClass.getName() + ")ognl.OgnlOps.convertValue($3," + wrapClass.getName()
-                + ".class, true))." + OgnlRuntime.getNumericValueGetter(wrapClass);
+                             + ".class, true))." + OgnlRuntime.getNumericValueGetter(wrapClass);
             } else if (parm.isArray()) {
-                
+
                 conversion = "((" + ExpressionCompiler.getCastString(parm) + ")ognl.OgnlOps.convertValue($3,"
-                +  ExpressionCompiler.getCastString(parm) + ".class))";
+                             + ExpressionCompiler.getCastString(parm) + ".class))";
             } else {
-                
-                conversion = "((" +parm.getName() + ")ognl.OgnlOps.convertValue($3," 
-                + parm.getName()
-                + ".class))";
+
+                conversion = "((" + parm.getName() + ")ognl.OgnlOps.convertValue($3,"
+                             + parm.getName()
+                             + ".class))";
             }
-            
+
             context.setCurrentType(m.getReturnType());
             context.setCurrentAccessor(OgnlRuntime.getSuperOrInterfaceClass(m, m.getDeclaringClass()));
-            
+
             return "." + m.getName() + "(" + conversion + ")";
-            
-        } catch (Throwable t) { 
+
+        } catch (Throwable t) {
             if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
+                throw (UnsupportedCompilationException) t;
             else
                 throw new RuntimeException(t);
         }

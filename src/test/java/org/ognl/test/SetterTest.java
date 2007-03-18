@@ -36,10 +36,17 @@ import ognl.NoSuchPropertyException;
 import org.ognl.test.objects.Root;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SetterTest extends OgnlTestCase
 {
     private static Root             ROOT = new Root();
+
+    static Set _list = new HashSet();
+    static {
+        _list.add("Test1");
+    }
 
     private static Object[][]       TESTS = {
             // Setting values
@@ -62,7 +69,8 @@ public class SetterTest extends OgnlTestCase
             { ROOT, "map.(newValue && aKey)", null, new Integer(54321)},
             { ROOT, "map.(someMissingKey && newValue)", null, null }, // again, no setting
             { null, "0", new Integer(0), null, InappropriateExpressionException.class }, // illegal for setting, no property
-            { ROOT, "map[0]=\"map.newValue\", map[0](#this)", new Integer(666), new Integer(888) }
+            { ROOT, "map[0]=\"map.newValue\", map[0](#this)", new Integer(666), new Integer(888) },
+            { ROOT, "selectedList", null, _list, IllegalArgumentException.class}
     };
 
     /*===================================================================

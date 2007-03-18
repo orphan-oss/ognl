@@ -105,8 +105,8 @@ public class ASTProperty extends SimpleNode implements NodeType
         result = OgnlRuntime.getProperty(context, source, property);
         
         if (result == null) {
-            result = OgnlRuntime.getNullHandler(OgnlRuntime.getTargetClass(source)).nullPropertyValue(context, source,
-                    property);
+            
+            result = OgnlRuntime.getNullHandler(OgnlRuntime.getTargetClass(source)).nullPropertyValue(context, source, property);
         }
         
         return result;
@@ -367,8 +367,8 @@ public class ASTProperty extends SimpleNode implements NodeType
         if (context.getCurrentObject() == null)
             throw new UnsupportedCompilationException("Current target is null.");
         
-        //System.out.println("astproperty(setter) is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
-         //       + " target: " + target.getClass().getName());
+        // System.out.println("astproperty(setter) is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
+           //     + " target: " + target.getClass().getName());
         
         try {
             
@@ -411,9 +411,9 @@ public class ASTProperty extends SimpleNode implements NodeType
             
             String name = ((ASTConst) _children[0]).getValue().toString();
             
-            Object tmp = target; //context.getCurrentObject();
+            Object tmp = target;
             
-            //System.out.println(" astprop(setter) : trying to get " + name + " on object target " + context.getCurrentObject().getClass().getName());
+            //System.out.println(" astprop(setter) : trying to set " + name + " on object target " + context.getCurrentObject().getClass().getName());
             
             if (!Iterator.class.isAssignableFrom(context.getCurrentObject().getClass()) 
                     || (Iterator.class.isAssignableFrom(context.getCurrentObject().getClass()) &&  name.indexOf("next") < 0)) {
@@ -554,7 +554,7 @@ public class ASTProperty extends SimpleNode implements NodeType
             context.setCurrentType(m.getReturnType());
             context.setCurrentAccessor(OgnlRuntime.getSuperOrInterfaceClass(m, m.getDeclaringClass()));
         }
-        
+
         return result;
     }
 }
