@@ -936,7 +936,7 @@ public class OgnlRuntime {
         throw new MethodFailedException(source, methodName, reason);
     }
 
-    public static final Object callStaticMethod(OgnlContext context, String className, String methodName, Object[] args)
+    public static Object callStaticMethod(OgnlContext context, String className, String methodName, Object[] args)
             throws OgnlException, MethodFailedException
     {
         try {
@@ -949,23 +949,17 @@ public class OgnlRuntime {
         }
     }
 
-    public static final Object callMethod(OgnlContext context, Object target, String methodName, String propertyName,
-                                          Object[] args)
-            throws OgnlException, MethodFailedException
+    public static Object callMethod(OgnlContext context, Object target, String methodName,
+                                          String propertyName, Object[] args)
+            throws OgnlException
     {
-        Object result;
-
-        if (target != null) {
-            MethodAccessor ma = getMethodAccessor(target.getClass());
-
-            result = ma.callMethod(context, target, methodName, args);
-        } else {
+        if (target == null)
             throw new NullPointerException("target is null for method " + methodName);
-        }
-        return result;
+
+        return getMethodAccessor(target.getClass()).callMethod(context, target, methodName, args);
     }
 
-    public static final Object callConstructor(OgnlContext context, String className, Object[] args)
+    public static Object callConstructor(OgnlContext context, String className, Object[] args)
             throws OgnlException
     {
         Throwable reason = null;

@@ -34,6 +34,7 @@ package ognl;
 /**
  * Exception thrown if a property is attempted to be extracted from an object that does
  * not have such a property.
+ * 
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
@@ -42,16 +43,32 @@ public class NoSuchPropertyException extends OgnlException
 	private Object					target;
 	private Object					name;
 
+    public NoSuchPropertyException( Object target, Object name )
+    {
+        super( getReason(target, name) );
+    }
+
     public NoSuchPropertyException( Object target, Object name, Throwable reason )
     {
-    	super( ((target instanceof Class) ? target.toString() : target.getClass().getName()) + "." + name, reason );
+    	super( getReason(target, name), reason );
     	this.target = target;
     	this.name = name;
     }
 
-    public NoSuchPropertyException( Object target, Object name )
+    static String getReason(Object target, Object name)
     {
-        this( target, name, null );
+        String ret = null;
+
+        if (target == null)
+            ret = "null";
+        else if (target instanceof Class)
+            ret = ((Class)target).getName();
+        else
+            ret = target.getClass().getName();
+
+        ret += "." + name;
+
+        return ret;
     }
 
     public Object getTarget()

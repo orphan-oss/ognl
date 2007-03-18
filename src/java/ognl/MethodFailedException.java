@@ -32,12 +32,18 @@ package ognl;
 
 /**
  * Exception thrown if a method or constructor call fails.
+ * 
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
 public class MethodFailedException extends OgnlException
 {
-    public MethodFailedException( Object source, String name, Throwable reason )
+    public MethodFailedException( Object source, String name)
+    {
+        super( "Method \"" + name + "\" failed for object " + source);
+    }
+
+     public MethodFailedException( Object source, String name, Throwable reason )
     {
         super( "Method \"" + name + "\" failed for object " + source, reason );
     }

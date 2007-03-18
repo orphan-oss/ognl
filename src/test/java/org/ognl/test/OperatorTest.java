@@ -32,42 +32,41 @@ package org.ognl.test;
 
 import junit.framework.TestSuite;
 
-public class OperatorTest extends OgnlTestCase
-{
-    private static Object[][]       TESTS = {
-                                        { null, "\"one\" > \"two\"", Boolean.FALSE },
-                                        { null, "\"one\" >= \"two\"", Boolean.FALSE },
-                                        { null, "\"one\" < \"two\"", Boolean.TRUE },
-                                        { null, "\"one\" <= \"two\"", Boolean.TRUE },
-                                        { null, "\"one\" == \"two\"", Boolean.FALSE },
-                                        { null, "\"o\" > \"o\"", Boolean.FALSE },
-                                        { null, "\"o\" gt \"o\"", Boolean.FALSE },
-                                        { null, "\"o\" >= \"o\"", Boolean.TRUE },
-                                        { null, "\"o\" gte \"o\"", Boolean.TRUE },
-                                        { null, "\"o\" < \"o\"", Boolean.FALSE },
-                                        { null, "\"o\" lt \"o\"", Boolean.FALSE },
-                                        { null, "\"o\" <= \"o\"", Boolean.TRUE },
-                                        { null, "\"o\" lte \"o\"", Boolean.TRUE },
-                                        { null, "\"o\" == \"o\"", Boolean.TRUE },
-                                        { null, "\"o\" eq \"o\"", Boolean.TRUE },
-                                    };
+public class OperatorTest extends OgnlTestCase {
+    private static Object[][] TESTS = {
+            {null, "\"one\" > \"two\"", Boolean.FALSE},
+            {null, "\"one\" >= \"two\"", Boolean.FALSE},
+            {null, "\"one\" < \"two\"", Boolean.TRUE},
+            {null, "\"one\" <= \"two\"", Boolean.TRUE},
+            {null, "\"one\" == \"two\"", Boolean.FALSE},
+            {null, "\"o\" > \"o\"", Boolean.FALSE},
+            {null, "\"o\" gt \"o\"", Boolean.FALSE},
+            {null, "\"o\" >= \"o\"", Boolean.TRUE},
+            {null, "\"o\" gte \"o\"", Boolean.TRUE},
+            {null, "\"o\" < \"o\"", Boolean.FALSE},
+            {null, "\"o\" lt \"o\"", Boolean.FALSE},
+            {null, "\"o\" <= \"o\"", Boolean.TRUE},
+            {null, "\"o\" lte \"o\"", Boolean.TRUE},
+            {null, "\"o\" == \"o\"", Boolean.TRUE},
+            {null, "\"o\" eq \"o\"", Boolean.TRUE},
+    };
 
     /*===================================================================
         Public static methods
       ===================================================================*/
     public static TestSuite suite()
     {
-        TestSuite       result = new TestSuite();
+        TestSuite result = new TestSuite();
 
         for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
-                result.addTest(new OperatorTest((String)TESTS[i][1], TESTS[i][0], (String)TESTS[i][1], TESTS[i][2]));
+                result.addTest(new OperatorTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
             } else {
                 if (TESTS[i].length == 4) {
-                    result.addTest(new OperatorTest((String)TESTS[i][1], TESTS[i][0], (String)TESTS[i][1], TESTS[i][2], TESTS[i][3]));
+                    result.addTest(new OperatorTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
                 } else {
                     if (TESTS[i].length == 5) {
-                        result.addTest(new OperatorTest((String)TESTS[i][1], TESTS[i][0], (String)TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
+                        result.addTest(new OperatorTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
                     } else {
                         throw new RuntimeException("don't understand TEST format");
                     }

@@ -811,8 +811,11 @@ public abstract class OgnlOps implements NumericTypes
         case NONNUMERIC:
             int t1 = getNumericType(v1),
             t2 = getNumericType(v2);
+            
+            if (((t1 != NONNUMERIC) && (v2 == null)) || ((t2 != NONNUMERIC) && (v1 == null))) {
+                throw new NullPointerException("Can't add values " + v1 + " , " + v2);
+            }
 
-            if (((t1 != NONNUMERIC) && (v2 == null)) || ((t2 != NONNUMERIC) && (v1 == null))) { throw new NullPointerException(); }
             return stringValue(v1) + stringValue(v2);
         default:
             return newInteger(type, longValue(v1) + longValue(v2));
