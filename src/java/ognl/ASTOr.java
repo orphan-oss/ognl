@@ -97,14 +97,14 @@ public class ASTOr extends BooleanExpression
             
             String second = OgnlRuntime.getChildSource(context, target, _children[1]);
             
-            result += "(ognl.OgnlOps.booleanValue(" + first + ")";
+            result += "(ognl.OgnlOps.booleanValue( ($w) " + first + ")";
             
             result += " ? ";
             
-            result += first;
+            result += " ($w) " + first;
             result += " : ";
 
-            result += second;
+            result +=  " ($w) " + second;
             
             result += ")";
             

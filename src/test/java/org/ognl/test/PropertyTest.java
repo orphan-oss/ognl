@@ -41,7 +41,7 @@ public class PropertyTest extends OgnlTestCase
 
     public static final String VALUE = "foo";
     
-    private static Root             ROOT = new Root();
+    private static Root ROOT = new Root();
 
     /* { ROOT, "map.(array[2] + size()).doubleValue()", new Double(ROOT.getArray()[2] + ROOT.getMap().size()) }, */
 
@@ -79,6 +79,7 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "! disabled", new Boolean(true)},
             { ROOT, "disabled", new Boolean(false), new Boolean(true), new Boolean(true)},
             { ROOT, "! disabled", new Boolean(false)},
+            { ROOT, "disabled || readonly", Boolean.TRUE},
             { ROOT, "property.bean3.value != null", Boolean.TRUE},
             { ROOT, "\"background-color:blue; width:\" + (currentLocaleVerbosity / 2) + \"px\"", "background-color:blue; width:43px"},
             { ROOT, "property.bean3.value >= 24", Boolean.TRUE},
@@ -94,14 +95,13 @@ public class PropertyTest extends OgnlTestCase
             { ROOT.getMap(), "nested.deep.last", Boolean.TRUE},
             { ROOT, "'last ' + getCurrentClass(@org.ognl.test.PropertyTest@VALUE)", "last foo stop"},
             { ROOT, "@org.ognl.test.PropertyTest@formatValue(property.millis, true, true)", formatValue((int)((Bean2)ROOT.getProperty()).getMillis(), true, true) }
-            
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)
     {
         return millis + "-formatted";
     }
-
+    
     /*===================================================================
          Public static methods
        ===================================================================*/

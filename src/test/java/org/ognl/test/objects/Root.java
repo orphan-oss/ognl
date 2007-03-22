@@ -59,12 +59,10 @@ public class Root extends Object
     private Locale _selected = Locale.getDefault();
 
     private List _list;
-
     private int verbosity = 87;
-    
     private BeanProvider _beanProvider = new BeanProviderImpl();
-
     private boolean _render;
+    private Boolean _readOnly = Boolean.FALSE;
 
     /*===================================================================
 		Public static methods
@@ -293,5 +291,15 @@ public class Root extends Object
     public List getSelectedList()
     {
         return _list;
+    }
+
+    public Boolean getReadonly()
+    {
+        return _readOnly;
+    }
+
+    public void setReadonly(Boolean value)
+    {
+        _readOnly = value;
     }
 }
