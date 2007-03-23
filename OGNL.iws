@@ -18,17 +18,13 @@
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/IndexAccessTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/IndexAccessTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTConst.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTConst.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" afterPath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTRemainder.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTRemainder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ListPropertyAccessor.java" afterPath="$PROJECT_DIR$/src/java/ognl/ListPropertyAccessor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ArrayPropertyAccessor.java" afterPath="$PROJECT_DIR$/src/java/ognl/ArrayPropertyAccessor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/ArithmeticAndLogicalOperatorsTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/ArithmeticAndLogicalOperatorsTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTCtor.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTCtor.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTIn.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTIn.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTNotIn.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTNotIn.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ComparisonExpression.java" afterPath="$PROJECT_DIR$/src/java/ognl/ComparisonExpression.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" afterPath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iws" afterPath="$PROJECT_DIR$/OGNL.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/ArrayCreationTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/ArrayCreationTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" afterPath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/PropertyTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/PropertyTest.java" />
     </list>
   </component>
   <component name="ChangesViewManager" flattened_view="true" />
@@ -283,14 +279,14 @@
   </component>
   <component name="RecentsManager" />
   <component name="RestoreUpdateTree" />
-  <component name="RunManager" selected="JUnit.ArrayCreationTest">
-    <tempConfiguration default="false" name="ArrayCreationTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+  <component name="RunManager" selected="JUnit.ArithmeticAndLogicalOperatorsTest">
+    <tempConfiguration default="false" name="ArithmeticAndLogicalOperatorsTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <pattern value="org.ognl.test.*" />
       <module name="OGNL" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" value="org.ognl.test" />
-      <option name="MAIN_CLASS_NAME" value="org.ognl.test.ArrayCreationTest" />
+      <option name="MAIN_CLASS_NAME" value="org.ognl.test.ArithmeticAndLogicalOperatorsTest" />
       <option name="METHOD_NAME" />
       <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" />
@@ -556,7 +552,7 @@
     <option name="PERFORM_COMMIT_IN_BACKGROUND" value="false" />
     <option name="PUT_FOCUS_INTO_COMMENT" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixes OGNL-18.&#10;&#10;Array/List/etc accessors weren't properly detecting object vs primitive types when accessing their respective properties because ASTConst was still sticking the old object class type as the current context type. This involved refactoring ASTConst to correctly place the native type for numerics as well as fixing all the problems resulting from this new behavior." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixes OGNL-14 &amp;&amp; OGNL-16. &#10;&#10;OgnlRuntime.getChildSource was still using the old non &quot;($w)&quot; widening casting semantics provided by javassist." />
     <option name="SAVE_LAST_COMMIT_MESSAGE" value="true" />
     <option name="CHECKIN_DIALOG_SPLITTER_PROPORTION" value="0.8" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
@@ -569,7 +565,6 @@
     <option name="UPDATE_GROUP_BY_PACKAGES" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="Added svn:ignores for build/target/etc.." />
     <MESSAGE value="Added another static reference test for OGNL-12. Wasn't able to re-produce but will keep the test anyways &quot;just in case&quot;." />
     <MESSAGE value="FIxes OGNL-12 as I was able to find a failure when static methods / fields are involved." />
     <MESSAGE value="Ahemm......Let's try this one last time..." />
@@ -579,6 +574,7 @@
     <MESSAGE value="Partially fixes OGNL-17 . It's only partial because someone tried to sneak in two different tickets under one." />
     <MESSAGE value="Fixes OGNL-17. ...Too much to list, the summary is that ASTCtor / ASTList hadn't had the same kind of context/ refactoring love &#10;that ASTMethod/ property/ etc had ...." />
     <MESSAGE value="Fixes OGNL-18.&#10;&#10;Array/List/etc accessors weren't properly detecting object vs primitive types when accessing their respective properties because ASTConst was still sticking the old object class type as the current context type. This involved refactoring ASTConst to correctly place the native type for numerics as well as fixing all the problems resulting from this new behavior." />
+    <MESSAGE value="Fixes OGNL-14 &amp;&amp; OGNL-16. &#10;&#10;OgnlRuntime.getChildSource was still using the old non &quot;($w)&quot; widening casting semantics provided by javassist." />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
@@ -645,86 +641,9 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="46" column="46" selection-start="2412" selection-end="2412" vertical-scroll-proportion="0.19165248">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTMethod.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="360" column="69" selection-start="13843" selection-end="13843" vertical-scroll-proportion="0.43781942">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/SetterTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="6" selection-start="3876" selection-end="3876" vertical-scroll-proportion="0.47274277">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ArrayPropertyAccessor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="172" column="0" selection-start="6671" selection-end="6671" vertical-scroll-proportion="0.47614992">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ListPropertyAccessor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="174" column="9" selection-start="6550" selection-end="6550" vertical-scroll-proportion="0.65456676">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Simple.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="80" column="0" selection-start="2781" selection-end="2781" vertical-scroll-proportion="0.5081967">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTConst.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="168" column="0" selection-start="5795" selection-end="5795" vertical-scroll-proportion="1.14637">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/MethodWithConversionTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="49" column="0" selection-start="2448" selection-end="2448" vertical-scroll-proportion="0.2427598">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlOps.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="876" column="0" selection-start="32370" selection-end="32370" vertical-scroll-proportion="0.42037472">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTRemainder.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="70" column="12" selection-start="2705" selection-end="2705" vertical-scroll-proportion="0.54332554">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ArithmeticAndLogicalOperatorsTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="156" column="6" selection-start="7004" selection-end="7004" vertical-scroll-proportion="1.367121">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="257" column="0" selection-start="10350" selection-end="10350" vertical-scroll-proportion="0.4335605">
           <folding />
         </state>
       </provider>
@@ -743,9 +662,86 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/PropertyTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="46" column="0" selection-start="2165" selection-end="2165" vertical-scroll-proportion="0.13969335">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="236" column="39" selection-start="7087" selection-end="7108" vertical-scroll-proportion="0.4918033">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTEq.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="37" column="29" selection-start="1891" selection-end="1891" vertical-scroll-proportion="0.14051522">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ComparisonExpression.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="43" column="12" selection-start="1198" selection-end="1198" vertical-scroll-proportion="0.5093677">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="87" column="24" selection-start="3576" selection-end="3576" vertical-scroll-proportion="0.795082">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTAnd.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="95" column="46" selection-start="3495" selection-end="3495" vertical-scroll-proportion="0.29859486">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTIn.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="70" column="4" selection-start="2643" selection-end="2643" vertical-scroll-proportion="0.5238501">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTNotIn.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="62" column="28" selection-start="2568" selection-end="2568" vertical-scroll-proportion="0.42163545">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ArithmeticAndLogicalOperatorsTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="114" column="39" selection-start="4956" selection-end="4956" vertical-scroll-proportion="0.25553662">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/IndexAccessTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="39" column="0" selection-start="1950" selection-end="1950" vertical-scroll-proportion="0.10221465">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="2204" column="0" selection-start="84050" selection-end="84050" vertical-scroll-proportion="0.73168653">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="381" column="10" selection-start="14574" selection-end="14574" vertical-scroll-proportion="0.4088586">
+        <state line="416" column="8" selection-start="15927" selection-end="15927" vertical-scroll-proportion="0.51107323">
           <folding />
         </state>
       </provider>

@@ -54,6 +54,8 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "map[(\"s\" + \"i\") + \"ze\"]", ROOT.getMap().get(Root.SIZE_STRING) },
             { ROOT, "map[\"size\"]", ROOT.getMap().get(Root.SIZE_STRING) },
             { ROOT, "map[@org.ognl.test.objects.Root@SIZE_STRING]", ROOT.getMap().get(Root.SIZE_STRING) },
+            { ROOT, "stringValue != null && stringValue.length() > 0", Boolean.FALSE},
+            { ROOT, "indexedStringValue != null && indexedStringValue.length() > 0", Boolean.TRUE},
             { ROOT.getMap(), "list", ROOT.getList() },
             { ROOT, "map.array[0]", new Integer(ROOT.getArray()[0]) },
             { ROOT, "map.list[1]", ROOT.getList().get(1) },
@@ -94,7 +96,7 @@ public class PropertyTest extends OgnlTestCase
             { ROOT.getMap(), "\"Tapestry\".toCharArray()[2]", new Character('p')},
             { ROOT.getMap(), "nested.deep.last", Boolean.TRUE},
             { ROOT, "'last ' + getCurrentClass(@org.ognl.test.PropertyTest@VALUE)", "last foo stop"},
-            { ROOT, "@org.ognl.test.PropertyTest@formatValue(property.millis, true, true)", formatValue((int)((Bean2)ROOT.getProperty()).getMillis(), true, true) }
+            { ROOT, "@org.ognl.test.PropertyTest@formatValue(property.millis, true, true)", formatValue((int)((Bean2)ROOT.getProperty()).getMillis(), true, true) } 
     };
     
     public static String formatValue(int millis, boolean b1, boolean b2)

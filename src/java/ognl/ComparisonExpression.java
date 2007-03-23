@@ -52,7 +52,7 @@ public abstract class ComparisonExpression extends BooleanExpression
             
             result += OgnlRuntime.getChildSource(context, target, _children[0], conversion)
             + " " 
-            + (conversion ? ", " : getExpressionOperator(0)) + " " 
+            + (conversion ? ", ($w) " : getExpressionOperator(0)) + " " 
             + OgnlRuntime.getChildSource(context, target, _children[1], conversion);
             
             result += conversion ? ")" : "";

@@ -2232,32 +2232,7 @@ public class OgnlRuntime {
 
         if (source == null || source.trim().length() < 1)
             source = "null";
-
-        //System.out.println("getChildSource  currentType: " + context.getCurrentType() + " previousType: " + context.getPreviousType());
-
-        if (context.getCurrentType() != null && !context.getCurrentType().isArray()
-                && Number.class.isAssignableFrom(context.getCurrentType())
-                && (child.jjtGetParent() == null
-                || (forceConversion
-                || (ASTOr.class.isAssignableFrom(child.jjtGetParent().getClass())
-                || ASTAnd.class.isAssignableFrom(child.jjtGetParent().getClass())
-                || !BooleanExpression.class.isAssignableFrom(child.jjtGetParent().getClass()))
-                && !ASTTest.class.isAssignableFrom(child.jjtGetParent().getClass())))) {
-
-            source = "ognl.OgnlOps.convertValue(" + source + ", " + context.getCurrentType().getName() + ".class)";
-
-        } else if (context.getCurrentType() != null && !context.getCurrentType().isArray()
-                && context.getCurrentType() != Boolean.TYPE
-                && context.getCurrentType().isPrimitive()
-                && (child.jjtGetParent() == null
-                || (forceConversion
-                || ASTOr.class.isAssignableFrom(child.jjtGetParent().getClass())
-                || ASTAnd.class.isAssignableFrom(child.jjtGetParent().getClass()))
-                || !BooleanExpression.class.isAssignableFrom(child.jjtGetParent().getClass()))) {
-
-            source = "ognl.OgnlOps.convertValue(" + source + ", " + OgnlRuntime.getPrimitiveWrapperClass(context.getCurrentType()).getName() + ".class)";
-        }
-
+        
         return source;
     }
 }
