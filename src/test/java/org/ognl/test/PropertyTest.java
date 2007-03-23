@@ -46,6 +46,7 @@ public class PropertyTest extends OgnlTestCase
     /* { ROOT, "map.(array[2] + size()).doubleValue()", new Double(ROOT.getArray()[2] + ROOT.getMap().size()) }, */
 
     private static Object[][]       TESTS = {
+            { ROOT, "objectIndex > 0", Boolean.TRUE},
             { ROOT, "false", Boolean.FALSE},
             { ROOT, "map", ROOT.getMap() },
             { ROOT, "map.test", ROOT },
@@ -96,7 +97,7 @@ public class PropertyTest extends OgnlTestCase
             { ROOT.getMap(), "\"Tapestry\".toCharArray()[2]", new Character('p')},
             { ROOT.getMap(), "nested.deep.last", Boolean.TRUE},
             { ROOT, "'last ' + getCurrentClass(@org.ognl.test.PropertyTest@VALUE)", "last foo stop"},
-            { ROOT, "@org.ognl.test.PropertyTest@formatValue(property.millis, true, true)", formatValue((int)((Bean2)ROOT.getProperty()).getMillis(), true, true) } 
+            { ROOT, "@org.ognl.test.PropertyTest@formatValue(property.millis, true, true)", formatValue((int)((Bean2)ROOT.getProperty()).getMillis(), true, true) }
     };
     
     public static String formatValue(int millis, boolean b1, boolean b2)

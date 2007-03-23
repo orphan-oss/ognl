@@ -2150,7 +2150,6 @@ public class OgnlRuntime {
     {
         return context.getCurrentType() != null && !context.getCurrentType().isArray()
                 && context.getPreviousType() != null && !context.getPreviousType().isArray()
-                && !(context.getCurrentType().isPrimitive() && context.getPreviousType().isPrimitive())
                 && (!Number.class.isAssignableFrom(context.getCurrentType())
                 || !Number.class.isAssignableFrom(context.getPreviousType()));
 
@@ -2229,10 +2228,10 @@ public class OgnlRuntime {
 
             source = cast + source;
         }
-
+        
         if (source == null || source.trim().length() < 1)
             source = "null";
-        
+
         return source;
     }
 }
