@@ -157,6 +157,7 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
         context.setCurrentAccessor(List.class);
         
         if (index instanceof String) {
+            
             String key = ((String)index).replaceAll("\"", "");
             if (key.equals("size")) {
                 context.setCurrentType(int.class);
@@ -173,8 +174,17 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
                 }
             }
         }
-        
-        return ".get(" + index + ")";
+
+        String indexStr = (String) index;
+
+        // need to convert to primitive for list index access
+
+        if (!context.getCurrentType().isPrimitive()) {
+            
+            indexStr += "." + OgnlRuntime.getNumericValueGetter(context.getCurrentType());
+        }
+
+        return ".get(" + indexStr + ")";
     }
 
     public String getSourceSetter(OgnlContext context, Object target, Object index)
@@ -184,7 +194,16 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
         if (index instanceof String) {
             return "";
         }
+
+        String indexStr = (String) index;
+
+        // need to convert to primitive for list index access
+
+        if (!context.getCurrentType().isPrimitive()) {
+
+            indexStr += "." + OgnlRuntime.getNumericValueGetter(context.getCurrentType());
+        }
         
-        return ".set(" + index + ", $3)";
+        return ".set(" + indexStr + ", $3)";
     }
 }

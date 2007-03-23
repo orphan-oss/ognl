@@ -422,7 +422,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
         
         body = body.replaceAll("\\.\\.", ".");
         
-        //System.out.println("Setter Body: ===================================\n"+body);
+        // System.out.println("Setter Body: ===================================\n"+body);
         
         if (setterCode.indexOf("$3") < 0)
             setterCode = "";

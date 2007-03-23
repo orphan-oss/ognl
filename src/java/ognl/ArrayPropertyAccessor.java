@@ -162,14 +162,32 @@ public class ArrayPropertyAccessor extends ObjectPropertyAccessor implements Pro
 
     public String getSourceAccessor(OgnlContext context, Object target, Object index)
     {
+        String indexStr = (String) index;
+
+        // need to convert to primitive for list index access
+
+        if (!context.getCurrentType().isPrimitive()) {
+
+            indexStr += "." + OgnlRuntime.getNumericValueGetter(context.getCurrentType());
+        }
+
         context.setCurrentAccessor(target.getClass());
         context.setCurrentType(target.getClass().getComponentType());
         
-        return "[" + index + "]";
+        return "[" + indexStr + "]";
     }
 
     public String getSourceSetter(OgnlContext context, Object target, Object index)
     {
+        String indexStr = (String) index;
+
+        // need to convert to primitive for list index access
+
+        if (!context.getCurrentType().isPrimitive()) {
+
+            indexStr += "." + OgnlRuntime.getNumericValueGetter(context.getCurrentType());
+        }
+
         Class type = target.getClass().isArray() ? target.getClass().getComponentType() : target.getClass();
         
         context.setCurrentAccessor(target.getClass());
@@ -179,11 +197,11 @@ public class ArrayPropertyAccessor extends ObjectPropertyAccessor implements Pro
             
             Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(type);
             
-            return "[" + index + "]=((" + wrapClass.getName() + ")ognl.OgnlOps.convertValue($3," + wrapClass.getName()
+            return "[" + indexStr + "]=((" + wrapClass.getName() + ")ognl.OgnlOps.convertValue($3," + wrapClass.getName()
                     + ".class, true))." + OgnlRuntime.getNumericValueGetter(wrapClass);
         } else {
 
-            return "[" + index + "]=ognl.OgnlOps.convertValue($3," + type.getName() + ".class)";
+            return "[" + indexStr + "]=ognl.OgnlOps.convertValue($3," + type.getName() + ".class)";
         }
     }
 }

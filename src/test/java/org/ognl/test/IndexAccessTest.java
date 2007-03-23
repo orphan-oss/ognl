@@ -34,17 +34,18 @@ import junit.framework.TestSuite;
 import ognl.MethodFailedException;
 import org.ognl.test.objects.Root;
 
-public class IndexAccessTest extends OgnlTestCase
-{
+public class IndexAccessTest extends OgnlTestCase {
 
     private static Root ROOT = new Root();
 
     private static Object[][] TESTS = {
             // indexed access of with navigation chain (should start back at root)
-            { ROOT, "list[index]", ROOT.getList().get(ROOT.getIndex()) },
-            { ROOT, "list[size() - 1]", MethodFailedException.class },
-            { ROOT, "(index == (array.length - 3)) ? 'toggle toggleSelected' : 'toggle'", "toggle toggleSelected"},
-            { ROOT, "\"return toggleDisplay('excdisplay\"+index+\"', this)\"", "return toggleDisplay('excdisplay1', this)"}
+            {ROOT, "list[index]", ROOT.getList().get(ROOT.getIndex())},
+            {ROOT, "list[objectIndex]", ROOT.getList().get(ROOT.getObjectIndex().intValue())},
+            {ROOT, "array[objectIndex]", ROOT.getArray()[ROOT.getObjectIndex().intValue()] },
+            {ROOT, "list[size() - 1]", MethodFailedException.class},
+            {ROOT, "(index == (array.length - 3)) ? 'toggle toggleSelected' : 'toggle'", "toggle toggleSelected"},
+            {ROOT, "\"return toggleDisplay('excdisplay\"+index+\"', this)\"", "return toggleDisplay('excdisplay1', this)"}
     };
 
     /*
@@ -55,7 +56,7 @@ public class IndexAccessTest extends OgnlTestCase
     {
         TestSuite result = new TestSuite();
 
-        for(int i = 0; i < TESTS.length; i++) {
+        for (int i = 0; i < TESTS.length; i++) {
             result.addTest(new IndexAccessTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
         }
         return result;

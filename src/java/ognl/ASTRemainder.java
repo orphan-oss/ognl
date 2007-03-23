@@ -69,7 +69,7 @@ class ASTRemainder extends NumericExpression
             
             String result = "ognl.OgnlOps.remainder(";
             
-            result += OgnlRuntime.getChildSource(context, target, _children[0]) + ", " + OgnlRuntime.getChildSource(context, target, _children[1]);
+            result += " ($w) " + OgnlRuntime.getChildSource(context, target, _children[0]) + ", ($w) " + OgnlRuntime.getChildSource(context, target, _children[1]);
             
             result += ")";
             

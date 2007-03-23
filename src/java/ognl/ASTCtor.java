@@ -228,19 +228,24 @@ public class ASTCtor extends SimpleNode
 
                         if (!ASTConst.class.isInstance(_children[i]))
                             value = cast + value;
-                        
-                        if (ASTConst.class.isInstance(_children[i]) && Number.class.isAssignableFrom(context.getCurrentType())) {
+
+                        if (context.getCurrentType().isPrimitive()) {
                             
-                            value += OgnlRuntime.getNumericLiteral(context.getCurrentType());
-                        } else if (objValue != null && !objValue.getClass().isPrimitive()
-                                   && !objValue.getClass().isArray() && !ASTConst.class.isInstance(_children[i])) {
-
-                            value = "(" + OgnlRuntime.getCompiler().getInterfaceClass(objValue.getClass()).getName() + ")" + value;
-                        } else {
-
-                            value = " ($w) " + value;
+                            String literal = OgnlRuntime.getNumericLiteral(context.getCurrentType());
+                            if (literal != null)
+                                value += literal;
                         }
 
+                        if (objValue != null && !objValue.getClass().isPrimitive()
+                                   && !objValue.getClass().isArray() && !ASTConst.class.isInstance(_children[i])) {
+                            
+                            value = "(" + OgnlRuntime.getCompiler().getInterfaceClass(objValue.getClass()).getName() + ")" + value;
+                        } else if (!ASTConst.class.isInstance(_children[i]) 
+                                   || (ASTConst.class.isInstance(_children[i]) && !context.getCurrentType().isPrimitive())) {
+                            
+                            value = " ($w) " + value;
+                        }
+                        
                         result += value;
                     }
                 }

@@ -63,6 +63,7 @@ public class Root extends Object
     private BeanProvider _beanProvider = new BeanProviderImpl();
     private boolean _render;
     private Boolean _readOnly = Boolean.FALSE;
+    private Integer _objIndex = new Integer(1);
 
     /*===================================================================
 		Public static methods
@@ -206,6 +207,11 @@ public class Root extends Object
     public int getIndex()
     {
         return index;
+    }
+
+    public Integer getObjectIndex()
+    {
+        return _objIndex;
     }
 
     public int getIntValue()

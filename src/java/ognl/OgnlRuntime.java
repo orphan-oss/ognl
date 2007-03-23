@@ -244,10 +244,14 @@ public class OgnlRuntime {
 
     static {
         NUMERIC_LITERALS.put(Integer.class, "");
+        NUMERIC_LITERALS.put(Integer.TYPE, "");
         NUMERIC_LITERALS.put(Long.class, "l");
+        NUMERIC_LITERALS.put(Long.TYPE, "l");
         NUMERIC_LITERALS.put(BigInteger.class, "d");
         NUMERIC_LITERALS.put(Float.class, "f");
+        NUMERIC_LITERALS.put(Float.TYPE, "f");
         NUMERIC_LITERALS.put(Double.class, "d");
+        NUMERIC_LITERALS.put(Double.TYPE, "d");
         NUMERIC_LITERALS.put(BigInteger.class, "d");
         NUMERIC_LITERALS.put(BigDecimal.class, "d");
     }
@@ -2192,7 +2196,7 @@ public class OgnlRuntime {
 
             child.getValue(context, target);
         } catch (NullPointerException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         }
 
         String source = child.toGetSourceString(context, target);

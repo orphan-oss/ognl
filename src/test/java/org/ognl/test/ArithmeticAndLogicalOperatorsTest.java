@@ -33,7 +33,6 @@ package org.ognl.test;
 import junit.framework.TestSuite;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
 {
@@ -95,7 +94,7 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
             { "5+2H*3", Integer.valueOf(11) },
             { "(5+2H)*3", Integer.valueOf(21) },
             { "~1h", Integer.valueOf(~1) },
-            { "5h%2", BigInteger.valueOf(1) },
+            { "5h%2", Integer.valueOf(1) },
             { "5h<<2", Integer.valueOf(20) },
             { "5h>>2", Integer.valueOf(1) },
             { "5h>>1+1", Integer.valueOf(1) },
@@ -155,7 +154,6 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
             { "#y == \"1\"", Boolean.TRUE },
             { "#y + \"1\"", "11" },
             { "\"1\" + #y", "11" }
-
     };
 
     /*
