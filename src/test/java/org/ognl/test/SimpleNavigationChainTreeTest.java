@@ -33,40 +33,40 @@ package org.ognl.test;
 import junit.framework.TestSuite;
 import ognl.Ognl;
 
-public class SimpleNavigationChainTreeTest extends OgnlTestCase
-{
-    private static Object[][]       TESTS = {
-                                        { "name", Boolean.TRUE },
-                                        { "name[i]", Boolean.FALSE },
-                                        { "name + foo", Boolean.FALSE },
-                                        { "name.foo", Boolean.TRUE }
-                                    };
+public class SimpleNavigationChainTreeTest extends OgnlTestCase {
+    
+    private static Object[][] TESTS = {
+            {"name", Boolean.TRUE},
+            {"name[i]", Boolean.FALSE},
+            {"name + foo", Boolean.FALSE},
+            {"name.foo", Boolean.TRUE}
+    };
 
-	/*===================================================================
-		Public static methods
-	  ===================================================================*/
+    /*===================================================================
+         Public static methods
+       ===================================================================*/
     public static TestSuite suite()
     {
-        TestSuite       result = new TestSuite();
+        TestSuite result = new TestSuite();
 
         for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new SimpleNavigationChainTreeTest((String)TESTS[i][0] + " (" + TESTS[i][1] + ")", null, (String)TESTS[i][0], TESTS[i][1]));
+            result.addTest(new SimpleNavigationChainTreeTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", null, (String) TESTS[i][0], TESTS[i][1]));
         }
         return result;
     }
 
-	/*===================================================================
-		Constructors
-	  ===================================================================*/
-	public SimpleNavigationChainTreeTest()
-	{
-	    super();
-	}
+    /*===================================================================
+         Constructors
+       ===================================================================*/
+    public SimpleNavigationChainTreeTest()
+    {
+        super();
+    }
 
-	public SimpleNavigationChainTreeTest(String name)
-	{
-	    super(name);
-	}
+    public SimpleNavigationChainTreeTest(String name)
+    {
+        super(name);
+    }
 
     public SimpleNavigationChainTreeTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult)
     {
@@ -83,11 +83,11 @@ public class SimpleNavigationChainTreeTest extends OgnlTestCase
         super(name, root, expressionString, expectedResult);
     }
 
-	/*===================================================================
-		Overridden methods
-	  ===================================================================*/
+    /*===================================================================
+         Overridden methods
+       ===================================================================*/
     protected void runTest() throws Exception
     {
-        assertTrue(Ognl.isSimpleNavigationChain(getExpression(), _context) == ((Boolean)getExpectedResult()).booleanValue());
+        assertTrue(Ognl.isSimpleNavigationChain(getExpression(), _context) == ((Boolean) getExpectedResult()).booleanValue());
     }
 }

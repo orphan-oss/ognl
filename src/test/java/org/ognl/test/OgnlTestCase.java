@@ -176,8 +176,10 @@ public class OgnlTestCase extends TestCase
                 && Character.class.isInstance(actual)) {
             
             TestCase.assertEquals(((Character)expected).charValue(), ((Character)actual).charValue());
-        } else
+        } else {
+
             TestCase.assertEquals(expected, actual);
+        }
     }
     
 	/*===================================================================

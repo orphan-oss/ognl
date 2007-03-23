@@ -90,81 +90,124 @@ public class ASTList extends SimpleNode implements NodeType
     public String toGetSourceString(OgnlContext context, Object target)
     {
         String result = "";
-        Class mainClass = null;
-        
-        if (_parent == null || !ASTCtor.class.isInstance(_parent)) {
-            result += "java.util.Arrays.asList( new Object[] ";
-            _getterClass = List.class;
-        } else {
-            
-            mainClass = (Class)context.get("_ctorClass");
-            _getterClass = mainClass;
+        boolean array = false;
+
+        if (_parent != null && ASTCtor.class.isInstance(_parent)
+                && ((ASTCtor)_parent).isArray()) {
+
+            array = true;
         }
+
+        if (!array) {
+
+            result += "java.util.Arrays.asList( new Object[] ";
+        }
+        
+        context.setCurrentType(List.class);
+        context.setCurrentAccessor(List.class);
         
         result += "{ ";
-        
-        for(int i = 0; i < jjtGetNumChildren(); ++i) {
-            if (i > 0) {
-                result = result + ", ";
-            }
-            
-            String value = _children[i].toGetSourceString(context, target);
-            
-            //System.out.println("astlist child class " + _children[i].getClass().getName() + " and source: " + value + " mainClass: " + mainClass);
-            
-            if (mainClass != null && String.class.isAssignableFrom(mainClass) && !value.startsWith("\"")) {
-                value = "\"" + value + "\"";
-            } else if (_getterClass == List.class && value.startsWith("'")) {
-                value = value.replaceAll("'", "\"");
-            } else if ((ASTProperty.class.isInstance(_children[i]) || ASTMethod.class.isInstance(_children[i])
-                    || ASTSequence.class.isInstance(_children[i]) || ASTChain.class.isInstance(_children[i]))
-                    && value != null && value.trim().length() > 0) {
+
+        try {
+
+            for(int i = 0; i < jjtGetNumChildren(); ++i) {
+                if (i > 0) {
+                    result = result + ", ";
+                }
+
+                Class prevType = context.getCurrentType();
+
+                Object objValue = _children[i].getValue(context, context.getRoot());
+                String value = _children[i].toGetSourceString(context, target);
+
+                // to undo type setting of constants when used as method parameters
+                if (ASTConst.class.isInstance(_children[i])) {
+
+                    context.setCurrentType(prevType);
+                }
+
+                value = ExpressionCompiler.getRootExpression(_children[i], target, false) + value;
+
+                String cast = "";
+                if (ExpressionCompiler.shouldCast(_children[i])) {
+
+                    cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
+                }
+                if (cast == null)
+                    cast = "";
+
+                if (!ASTConst.class.isInstance(_children[i]))
+                    value = cast + value;
+
+                Class ctorClass = (Class)context.get("_ctorClass");
+                if (array && ctorClass != null && !ctorClass.isPrimitive()) {
+
+                    Class valueClass = value != null ? value.getClass() : null;
+                    if (NodeType.class.isAssignableFrom(_children[i].getClass()))
+                        valueClass = ((NodeType)_children[i]).getGetterClass();
+
+                    if (valueClass != null && ctorClass.isArray()) {
+
+                        value = "(" + ExpressionCompiler.getCastString(ctorClass)
+                                + ")ognl.OgnlOps.toArray(" + value + ", " + ctorClass.getComponentType().getName()
+                                + ".class, true)";
+
+                    } else  if (ctorClass.isPrimitive()) {
+
+                        Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(ctorClass);
+
+                        value = "((" + wrapClass.getName()
+                                + ")ognl.OgnlOps.convertValue(" + value + ","
+                                + wrapClass.getName() + ".class, true))."
+                                + OgnlRuntime.getNumericValueGetter(wrapClass);
+                        
+                    } else if (ctorClass != Object.class) {
+
+                        value = "(" + ctorClass.getName() + ")ognl.OgnlOps.convertValue(" + value + "," + ctorClass.getName() + ".class)";
+                    } else if ((NodeType.class.isInstance(_children[i])
+                                && ((NodeType)_children[i]).getGetterClass() != null
+                                && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass()))
+                               || valueClass.isPrimitive()) {
+
+                        value = " ($w) " + value;
+                    } else if (valueClass.isPrimitive()) {
+                        value = "($w) " + value;
+                    }
                     
-                    String pre = (String)context.get("_currentChain");
-                    if (pre == null)
-                        pre = "";
-                    
-                    String cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
-                    if (cast == null)
-                        cast = "";
-                    
-                    value = cast + ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false) + pre + value;
-                    
-            } else if (!ASTVarRef.class.isInstance(_children[i]) 
-                    && NodeType.class.isInstance(_children[i])) {
-                
-                NodeType ctype = (NodeType)_children[i];
-                
-                if (mainClass != null && !mainClass.isPrimitive()) {
-                    
-                    value = "new " + mainClass.getName() + "(" + value + ")";
-                } else if (ctype.getGetterClass() != null 
-                        && Number.class.isAssignableFrom(ctype.getGetterClass())
-                        && (mainClass == null || !mainClass.isPrimitive())) {
-                    
-                    value = "new " + ctype.getGetterClass().getName() + "(" + value + ")";
-                } else if (ctype.getGetterClass() != null && String.class == ctype.getGetterClass()
-                        && value != null && !value.startsWith("\"")) {
-                    
-                    value = "\"" + value + "\"";
-                } else if (ctype.getGetterClass() != null 
-                        && (Boolean.class == ctype.getGetterClass() || Boolean.TYPE == ctype.getGetterClass())
-                        && (mainClass == null || !mainClass.isPrimitive())) {
-                    
-                    value = "Boolean.valueOf(" + value + ")";
-                } else if (value == null || value.length() <= 0)
+                } else if (ctorClass == null || !ctorClass.isPrimitive()) {
+
+                    value = " ($w) " + value;
+                }
+
+                if (objValue == null || value.length() <= 0)
                     value = "null";
+                
+                result += value;
             }
-            
-            result += value;
+
+        }catch (Throwable t) {
+            if (UnsupportedCompilationException.class.isInstance(t))
+                throw (UnsupportedCompilationException)t;
+            else
+                throw new RuntimeException(t);
         }
+
+        context.setCurrentType(List.class);
+        context.setCurrentAccessor(List.class);
         
-        context.setCurrentType(_getterClass);
-        
+        /*
         if (_parent == null || !ASTCtor.class.isInstance(_parent))
             return result + " })";
         else
             return result + " }";
+            */
+
+        result += "}";
+
+        if (!array)
+            result += ")";
+        
+        return result;
     }
     
     public String toSetSourceString(OgnlContext context, Object target)

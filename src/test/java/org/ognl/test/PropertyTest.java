@@ -96,12 +96,12 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "'last ' + getCurrentClass(@org.ognl.test.PropertyTest@VALUE)", "last foo stop"},
             { ROOT, "@org.ognl.test.PropertyTest@formatValue(property.millis, true, true)", formatValue((int)((Bean2)ROOT.getProperty()).getMillis(), true, true) }
     };
-
+    
     public static String formatValue(int millis, boolean b1, boolean b2)
     {
         return millis + "-formatted";
     }
-    
+
     /*===================================================================
          Public static methods
        ===================================================================*/
@@ -117,6 +117,7 @@ public class PropertyTest extends OgnlTestCase
             } else
                 result.addTest(new PropertyTest((String)TESTS[i][1], TESTS[i][0], (String)TESTS[i][1], TESTS[i][2]));
         }
+        
         return result;
     }
 

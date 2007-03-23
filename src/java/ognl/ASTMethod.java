@@ -239,7 +239,9 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                             + ")ognl.OgnlOps.convertValue(" + parmString + "," 
                             + wrapClass.getName() + ".class, true))."
                             + OgnlRuntime.getNumericValueGetter(wrapClass);
+                            
                         } else if (parms[i] != Object.class) {
+                            
                             parmString = "(" + parms[i].getName() + ")ognl.OgnlOps.convertValue(" + parmString + "," + parms[i].getName() + ".class)";
                         } else if ((NodeType.class.isInstance(_children[i])
                                 && ((NodeType)_children[i]).getGetterClass() != null 

@@ -67,6 +67,11 @@ public class ASTCtor extends SimpleNode
         isArray = value;
     }
 
+    public boolean isArray()
+    {
+        return isArray;
+    }
+
     protected Object getValueBody(OgnlContext context, Object source)
             throws OgnlException
     {
@@ -155,17 +160,18 @@ public class ASTCtor extends SimpleNode
         try {
 
             clazz = OgnlRuntime.classForName(context, className);
-
-            context.put("_ctorClass", clazz);
-
+            
             Object value = this.getValueBody(context, target);
             context.setCurrentObject(value);
-
+            
             if (clazz != null) {
-
+                
                 context.setCurrentType(clazz);
                 context.setCurrentAccessor(clazz);
             }
+
+            if (isArray)
+                context.put("_ctorClass", clazz);
 
         } catch (Throwable t) {
             if (UnsupportedCompilationException.class.isInstance(t))
@@ -198,56 +204,61 @@ public class ASTCtor extends SimpleNode
                 result = result + "(";
 
                 if ((_children != null) && (_children.length > 0)) {
+
+                    
                     for(int i = 0; i < _children.length; i++) {
                         if (i > 0) {
                             result = result + ", ";
                         }
-
+                        
                         Object objValue = _children[i].getValue(context, context.getRoot());
                         String value = _children[i].toGetSourceString(context, target);
-
-                        if (className.equals("String") && !value.startsWith("\""))
-                            value = "\"" + value + "\"";
-                        else if (NodeType.class.isInstance(_children[i])) {
-                            NodeType ctype = (NodeType)_children[i];
-
-                            if (ctype.getGetterClass() != null && String.class == ctype.getGetterClass() && !value.startsWith("\""))
-                                value = "\"" + value + "\"";
-                        }
-
-                        value = ExpressionCompiler.getRootExpression(_children[0], target, false) + value;
-
-                        if (context.get(ExpressionCompiler.PRE_CAST) != null) {
-                            value = context.remove(ExpressionCompiler.PRE_CAST) + value;
-                        }
                         
-                        if (objValue != null && !objValue.getClass().isPrimitive() && !ASTConst.class.isInstance(_children[i])) {
+                        value = ExpressionCompiler.getRootExpression(_children[i], target, false) + value;
 
-                            value = "(" + ExpressionCompiler.getCastString(objValue.getClass()) + ")" + value;
+                        // System.out.println("astctor child class: " + _children[i].getClass() + " value: " + value);
+
+                        String cast = "";
+                        if (ExpressionCompiler.shouldCast(_children[i])) {
+
+                            cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
                         }
+                        if (cast == null)
+                            cast = "";
+
+                        if (!ASTConst.class.isInstance(_children[i]))
+                            value = cast + value;
                         
-                        if (ASTConst.class.isInstance(_children[i]) &&  Number.class.isAssignableFrom(context.getCurrentType())) {
+                        if (ASTConst.class.isInstance(_children[i]) && Number.class.isAssignableFrom(context.getCurrentType())) {
                             
                             value += OgnlRuntime.getNumericLiteral(context.getCurrentType());
+                        } else if (objValue != null && !objValue.getClass().isPrimitive()
+                                   && !objValue.getClass().isArray() && !ASTConst.class.isInstance(_children[i])) {
+
+                            value = "(" + OgnlRuntime.getCompiler().getInterfaceClass(objValue.getClass()).getName() + ")" + value;
+                        } else {
+
+                            value = " ($w) " + value;
                         }
-                        
+
                         result += value;
                     }
                 }
                 result = result + ")";
             }
 
-            context.remove("_ctorClass");
-
             context.setCurrentType(clazz);
-
+            context.setCurrentAccessor(clazz);
             context.setCurrentObject(getValue(context, target));
+
         }catch (Throwable t) {
             if (UnsupportedCompilationException.class.isInstance(t))
                 throw (UnsupportedCompilationException)t;
             else
                 throw new RuntimeException(t);
         }
+
+        context.remove("_ctorClass");
 
         return result;
     }

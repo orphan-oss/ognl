@@ -1,12 +1,10 @@
 package org.ognl.test;
 
 import junit.framework.TestCase;
-import ognl.ASTConst;
-import ognl.ASTProperty;
-import ognl.Ognl;
-import ognl.OgnlContext;
+import ognl.*;
 import org.ognl.test.objects.Root;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -66,5 +64,26 @@ public class ASTPropertyTest extends TestCase {
 
         assertEquals(null, context.getPreviousType());
         assertEquals(null, context.getPreviousAccessor());
+    }
+    
+    public void test_Complicated_List() throws Exception
+    {
+        Root root = new Root();
+        OgnlContext context = (OgnlContext)Ognl.createDefaultContext(null);
+        
+        SimpleNode node = (SimpleNode) Ognl.compileExpression(context, root,
+                "{ new org.ognl.test.objects.MenuItem('Home', 'Main', "
+                    + "{ new org.ognl.test.objects.MenuItem('Help', 'Help'), "
+                    + "new org.ognl.test.objects.MenuItem('Contact', 'Contact') }), " // end first item
+                    + "new org.ognl.test.objects.MenuItem('UserList', getMessages().getMessage('menu.members')), " +
+                    "new org.ognl.test.objects.MenuItem('account/BetSlipList', getMessages().getMessage('menu.account'), " +
+                    "{ new org.ognl.test.objects.MenuItem('account/BetSlipList', 'My Bets'), " +
+                    "new org.ognl.test.objects.MenuItem('account/TransactionList', 'My Transactions') }), " +
+                    "new org.ognl.test.objects.MenuItem('About', 'About'), " +
+                    "new org.ognl.test.objects.MenuItem('admin/Admin', getMessages().getMessage('menu.admin'), " +
+                    "{ new org.ognl.test.objects.MenuItem('admin/AddEvent', 'Add event'), " +
+                    "new org.ognl.test.objects.MenuItem('admin/AddResult', 'Add result') })}");
+        
+        assertTrue(List.class.isAssignableFrom(node.getAccessor().get(context, root).getClass()));
     }
 }

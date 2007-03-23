@@ -56,7 +56,7 @@ public class StaticsAndConstructorsTest extends OgnlTestCase
             { "getStaticInt()", new Integer(Root.getStaticInt()) },
             { "@org.ognl.test.objects.Root@getStaticInt()", new Integer(Root.getStaticInt()) },
             { "new org.ognl.test.objects.Simple(property).getStringValue()", new Simple().getStringValue() },
-            { "new org.ognl.test.objects.Simple(map['test'].property).getStringValue()", new Simple().getStringValue() }, 
+            { "new org.ognl.test.objects.Simple(map['test'].property).getStringValue()", new Simple().getStringValue() },
             { "map.test.getCurrentClass(@org.ognl.test.StaticsAndConstructorsTest@KEY.toString())", "size stop"}
     };
 

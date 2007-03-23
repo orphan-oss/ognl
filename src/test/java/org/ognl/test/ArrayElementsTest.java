@@ -40,25 +40,24 @@ import java.lang.reflect.Member;
 import java.util.Arrays;
 import java.util.Map;
 
-public class ArrayElementsTest extends OgnlTestCase
-{
+public class ArrayElementsTest extends OgnlTestCase {
 
-    private static String[] STRING_ARRAY = new String[] { "hello", "world" };
-    private static int[] INT_ARRAY = new int[] { 10, 20 };
+    private static String[] STRING_ARRAY = new String[]{"hello", "world"};
+    private static int[] INT_ARRAY = new int[]{10, 20};
     private static Root ROOT = new Root();
 
     private static Object[][] TESTS = {
             // Array elements test
-            { STRING_ARRAY, "length", new Integer(2) },
-            { STRING_ARRAY, "#root[1]", "world" },
-            { INT_ARRAY, "#root[1]", new Integer(20) },
-            { INT_ARRAY, "#root[1]", new Integer(20), "50", new Integer(50) },
-            { INT_ARRAY, "#root[1]", new Integer(50), new String[] { "50", "100" }, new Integer(50) },
-            { ROOT, "intValue", new Integer(0), new String[] { "50", "100" }, new Integer(50) },
-            { ROOT, "array", ROOT.getArray(), new String[] { "50", "100" }, new int[] { 50, 100 } },
+            {STRING_ARRAY, "length", new Integer(2)},
+            {STRING_ARRAY, "#root[1]", "world"},
+            {INT_ARRAY, "#root[1]", new Integer(20)},
+            {INT_ARRAY, "#root[1]", new Integer(20), "50", new Integer(50)},
+            {INT_ARRAY, "#root[1]", new Integer(50), new String[]{"50", "100"}, new Integer(50)},
+            {ROOT, "intValue", new Integer(0), new String[]{"50", "100"}, new Integer(50)},
+            {ROOT, "array", ROOT.getArray(), new String[]{"50", "100"}, new int[]{50, 100}},
             {null, "\"{Hello}\".toCharArray()[6]", new Character('}')},
             {null, "\"Tapestry\".toCharArray()[2]", new Character('p')},
-            {null, "{'1','2','3'}", Arrays.asList(new Object[] {"1", "2", "3"})}
+            {null, "{'1','2','3'}", Arrays.asList(new Object[]{ new Character('1'), new Character('2'), new Character('3')})}
     };
 
     /*
@@ -73,7 +72,7 @@ public class ArrayElementsTest extends OgnlTestCase
     {
         TestSuite result = new TestSuite();
 
-        for(int i = 0; i < TESTS.length; i++) {
+        for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new ArrayElementsTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
                         TESTS[i][2]));
@@ -133,8 +132,7 @@ public class ArrayElementsTest extends OgnlTestCase
         TypeConverter arrayConverter;
 
         super.setUp();
-        arrayConverter = new DefaultTypeConverter()
-        {
+        arrayConverter = new DefaultTypeConverter() {
 
             public Object convertValue(Map context, Object target, Member member, String propertyName, Object value,
                                        Class toType)

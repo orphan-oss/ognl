@@ -178,6 +178,11 @@ public class Root extends Object
         return value + " stop";
     }
 
+    public Messages getMessages()
+    {
+        return new Messages(map);
+    }
+
     public Map getMap()
     {
         return map;

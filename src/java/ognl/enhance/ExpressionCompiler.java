@@ -206,7 +206,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
                     || ASTStaticField.class.isInstance(expression.jjtGetChild(0)))
                 return false;
         }
-
+        
         return true;
     }
 
@@ -216,7 +216,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
     public void compileExpression(OgnlContext context, Node expression, Object root)
     throws Exception
     {
-        //System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
+        // System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
         
         if (expression.getAccessor() != null)
             return;
