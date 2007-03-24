@@ -41,7 +41,7 @@ public class ObjectIndexedPropertyTest extends OgnlTestCase {
     private static Bean1 root = new Bean1();
     private static Object[][] TESTS = {
             // Arbitrary indexed properties
-            {OBJECT_INDEXED, "attributes[\"bar\"]", "baz"}, // get non-indexed property through
+            {OBJECT_INDEXED, "attributes[\"bar\"]", "baz"}, // get non-indexed property through 
             // attributes Map
             {OBJECT_INDEXED, "attribute[\"foo\"]", "bar"}, // get indexed property
             {OBJECT_INDEXED, "attribute[\"bar\"]", "baz", "newValue", "newValue"}, // set
@@ -63,7 +63,6 @@ public class ObjectIndexedPropertyTest extends OgnlTestCase {
             // access to object indexed
             // property
             {root, "bean2.bean3.indexedValue[25]", null}
-
     };
 
     /*
@@ -77,15 +76,15 @@ public class ObjectIndexedPropertyTest extends OgnlTestCase {
         for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new ObjectIndexedPropertyTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                                             TESTS[i][2]));
+                        TESTS[i][2]));
             } else {
                 if (TESTS[i].length == 4) {
                     result.addTest(new ObjectIndexedPropertyTest((String) TESTS[i][1], TESTS[i][0],
-                                                                 (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
+                            (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
                 } else {
                     if (TESTS[i].length == 5) {
                         result.addTest(new ObjectIndexedPropertyTest((String) TESTS[i][1], TESTS[i][0],
-                                                                     (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
+                                (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
                     } else {
                         throw new RuntimeException("don't understand TEST format");
                     }

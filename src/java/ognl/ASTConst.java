@@ -132,43 +132,53 @@ public class ASTConst extends SimpleNode implements NodeType
         
         _getterClass = value.getClass();
 
-        context.setCurrentType(value.getClass());
-        context.setCurrentObject(value);
+        Object retval = value;
         
-        if (_parent != null && ComparisonExpression.class.isAssignableFrom(_parent.getClass())
-                && value != null
-                && Number.class.isAssignableFrom(value.getClass())) {
+        if (_parent != null && ASTProperty.class.isInstance(_parent)) {
             
+            context.setCurrentObject(value);
+
+            return value.toString();
+        } else if (value != null && Number.class.isAssignableFrom(value.getClass())) {
+
             context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(value.getClass()));
-            
-        } else if (_parent == null || !ASTProperty.class.isInstance(_parent))
-            context.setCurrentType(_getterClass);
-        
-        if (!(_parent != null
+            context.setCurrentObject(value);
+
+            return value.toString();
+        } else if (!(_parent != null && value != null
                 && NumericExpression.class.isAssignableFrom(_parent.getClass()))
                 && String.class.isAssignableFrom(value.getClass())) {
-            
-            return '\"' + OgnlOps.getEscapeString(value.toString()) + '\"';
+
+            context.setCurrentType(String.class);
+
+            retval = '\"' + OgnlOps.getEscapeString(value.toString()) + '\"';
+
+            context.setCurrentObject(retval.toString());
+
+            return retval.toString();
         } else if (Character.class.isInstance(value)) {
-            
+
             Character val = (Character)value;
-            
+
+            context.setCurrentType(Character.class);
+
             if (Character.isLetterOrDigit(val.charValue()))
-               return "'" + ((Character) value).charValue() + "'";
+               retval = "'" + ((Character) value).charValue() + "'";
             else
-                return "'" + OgnlOps.getEscapedChar(((Character) value).charValue()) + "'";
+                retval = "'" + OgnlOps.getEscapedChar(((Character) value).charValue()) + "'";
+
+            context.setCurrentObject(retval);
+            return retval.toString();
         }
-        
-        if (Boolean.class.isAssignableFrom(value.getClass()))
+
+        if (Boolean.class.isAssignableFrom(value.getClass())) {
             _getterClass = Boolean.TYPE;
 
-        if (Number.class.isAssignableFrom(value.getClass())) {
-            context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(value.getClass()));
-        } else
-            context.setCurrentType(value.getClass());
+            context.setCurrentType(Boolean.TYPE);
+            context.setCurrentObject(value);
 
-        //context.setCurrentType(value.getClass());
-        context.setCurrentObject(value);
+            return value.toString();
+        }
 
         return value.toString();
     }

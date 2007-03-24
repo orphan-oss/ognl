@@ -49,7 +49,7 @@ public class InterfaceInheritanceTest extends OgnlTestCase
         { ROOT, "myMap.test", ROOT },
         { ROOT.getMyMap(), "list", ROOT.getList() },
         { ROOT, "myMap.array[0]", new Integer(ROOT.getArray()[0]) },
-        { ROOT, "myMap.list[1]", ROOT.getList().get(1) }, 
+        { ROOT, "myMap.list[1]", ROOT.getList().get(1) },
         { ROOT, "myMap[^]", new Integer(99) },
         { ROOT, "myMap[$]", null },
         { ROOT.getMyMap(), "array[$]", new Integer(ROOT.getArray()[ROOT.getArray().length - 1]) },

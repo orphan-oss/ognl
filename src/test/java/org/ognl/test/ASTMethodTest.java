@@ -55,7 +55,7 @@ public class ASTMethodTest extends TestCase {
         assertEquals(context.getCurrentObject(), val.getBean3());
         assertEquals(context.getCurrentType(), Bean3.class);
         assertEquals(context.getCurrentAccessor(), Bean2.class);
-        assertEquals(context.getPreviousType(), Object.class);
+        assertEquals(Object.class, context.getPreviousType());
         assert Map.class.isAssignableFrom(context.getPreviousAccessor());
         
         assertEquals(OgnlRuntime.getCompiler().castExpression(context, prop, ".getBean3()"), ").getBean3()");

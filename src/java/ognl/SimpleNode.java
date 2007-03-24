@@ -244,16 +244,6 @@ public abstract class SimpleNode implements Node, Serializable
             result = evaluateGetValueBody(context, source);
         }
         
-        /*
-        if (ASTConst.class.isInstance(this) && result != null
-                && Number.class.isAssignableFrom(result.getClass())) {
-            
-            context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(result.getClass()));
-        } else {
-            
-            context.setCurrentType(result != null ? result.getClass() : null);
-        }*/
-        
         return result;
     }
 

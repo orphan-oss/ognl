@@ -32,6 +32,7 @@ package org.ognl.test;
 
 import junit.framework.TestSuite;
 import ognl.MethodFailedException;
+import ognl.NoSuchPropertyException;
 import org.ognl.test.objects.Root;
 
 public class IndexAccessTest extends OgnlTestCase {
@@ -43,9 +44,14 @@ public class IndexAccessTest extends OgnlTestCase {
             {ROOT, "list[index]", ROOT.getList().get(ROOT.getIndex())},
             {ROOT, "list[objectIndex]", ROOT.getList().get(ROOT.getObjectIndex().intValue())},
             {ROOT, "array[objectIndex]", ROOT.getArray()[ROOT.getObjectIndex().intValue()] },
+            {ROOT, "array[getObjectIndex()]", ROOT.getArray()[ROOT.getObjectIndex().intValue()] },
+            {ROOT, "array[genericIndex]", ROOT.getArray()[((Integer)ROOT.getGenericIndex()).intValue()] },
+            {ROOT, "booleanArray[self.objectIndex]", Boolean.FALSE },
+            {ROOT, "booleanArray[getObjectIndex()]", Boolean.FALSE },
+            {ROOT, "booleanArray[nullIndex]", NoSuchPropertyException.class},
             {ROOT, "list[size() - 1]", MethodFailedException.class},
             {ROOT, "(index == (array.length - 3)) ? 'toggle toggleSelected' : 'toggle'", "toggle toggleSelected"},
-            {ROOT, "\"return toggleDisplay('excdisplay\"+index+\"', this)\"", "return toggleDisplay('excdisplay1', this)"} 
+            {ROOT, "\"return toggleDisplay('excdisplay\"+index+\"', this)\"", "return toggleDisplay('excdisplay1', this)"}
     };
 
     /*

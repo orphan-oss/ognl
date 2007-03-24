@@ -58,12 +58,14 @@ public class Root extends Object
     private boolean _disabled;
     private Locale _selected = Locale.getDefault();
 
+    private boolean[] _booleanArray = {true, false, true, true};
     private List _list;
     private int verbosity = 87;
     private BeanProvider _beanProvider = new BeanProviderImpl();
     private boolean _render;
     private Boolean _readOnly = Boolean.FALSE;
     private Integer _objIndex = new Integer(1);
+    private Object _genericObjIndex = new Integer(2);
 
     /*===================================================================
 		Public static methods
@@ -159,6 +161,11 @@ public class Root extends Object
         return array;
     }
 
+    public boolean[] getBooleanArray()
+    {
+        return _booleanArray;
+    }
+
     public void setArray(int[] value)
     {
         array = value;
@@ -212,6 +219,16 @@ public class Root extends Object
     public Integer getObjectIndex()
     {
         return _objIndex;
+    }
+
+    public Integer getNullIndex()
+    {
+        return null;
+    }
+
+    public Object getGenericIndex()
+    {
+        return _genericObjIndex;
     }
 
     public int getIntValue()
@@ -312,5 +329,10 @@ public class Root extends Object
     public void setReadonly(Boolean value)
     {
         _readOnly = value;
+    }
+
+    public Object getSelf()
+    {
+        return this;
     }
 }

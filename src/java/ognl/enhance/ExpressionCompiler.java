@@ -60,7 +60,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
                 || (OrderedReturn.class.isInstance(expression) && ((OrderedReturn)expression).getLastExpression() != null))
             return body;
 
-        /*
+/*
         System.out.println("castExpression() with expression " + expression + " currentType is: " + context.getCurrentType()
                 + " previousType: " + context.getPreviousType()
                 + "\n current Accessor: " + context.getCurrentAccessor()
@@ -77,7 +77,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
             castClass = ExpressionCompiler.getCastString(context.getCurrentAccessor());
         } else
             castClass = OgnlRuntime.getCompiler().getInterfaceClass(context.getCurrentAccessor()).getName();
-        
+
         ExpressionCompiler.addCastString(context, "((" + castClass + ")");
         
         return ")" + body;
@@ -216,7 +216,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
     public void compileExpression(OgnlContext context, Node expression, Object root)
     throws Exception
     {
-        // System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
+        //System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
         
         if (expression.getAccessor() != null)
             return;
@@ -378,8 +378,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
         }
         
         body = body.replaceAll("\\.\\.", ".");
-        
-        //System.out.println("Getter Body: ===================================\n"+body);
+
+        // System.out.println("Getter Body: ===================================\n"+body);
         valueGetter.setBody(body);
 
         newClass.addMethod(valueGetter);
@@ -422,7 +422,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
         
         body = body.replaceAll("\\.\\.", ".");
         
-        // System.out.println("Setter Body: ===================================\n"+body);
+        //System.out.println("Setter Body: ===================================\n"+body);
         
         if (setterCode.indexOf("$3") < 0)
             setterCode = "";

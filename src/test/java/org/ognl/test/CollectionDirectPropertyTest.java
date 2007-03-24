@@ -42,6 +42,7 @@ public class CollectionDirectPropertyTest extends OgnlTestCase
 
     private static Object[][] TESTS = {
             // Collection direct properties
+            
             { Arrays.asList(new String[] { "hello", "world" }), "size", new Integer(2) },
             { Arrays.asList(new String[] { "hello", "world" }), "isEmpty", Boolean.FALSE },
             { Arrays.asList(new String[] {}), "isEmpty", Boolean.TRUE },

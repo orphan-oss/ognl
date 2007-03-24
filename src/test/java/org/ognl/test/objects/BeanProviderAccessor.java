@@ -62,8 +62,8 @@ public class BeanProviderAccessor extends ObjectPropertyAccessor implements Prop
 
             ExpressionCompiler.addCastString(context, "(("
                     + OgnlRuntime.getCompiler().getInterfaceClass(provider.getBean(beanName).getClass()).getName() + ")");
-
-            return ".getBean(" + name + "))";
+            
+            return ".getBean(\"" + beanName + "\"))";
         }
         
         return super.getSourceAccessor(context, target, name);

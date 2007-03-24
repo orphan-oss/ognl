@@ -130,7 +130,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
     {
         Object result = null;
         String name = oname.toString();
-
+        
         result = getPossibleProperty(context, target, name);
 
         if (result == OgnlRuntime.NotFound) {
@@ -144,7 +144,9 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
     {
         String name = oname.toString();
 
-        if (setPossibleProperty(context, target, name, value) == OgnlRuntime.NotFound) {
+        Object result = setPossibleProperty(context, target, name, value);
+        
+        if (result == OgnlRuntime.NotFound) {
             throw new NoSuchPropertyException(target, name);
         }
     }
@@ -171,7 +173,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
                 return null;
             }
-
+            
             return m.getReturnType();
 
         } catch (Throwable t) {
@@ -182,7 +184,10 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
     public String getSourceAccessor(OgnlContext context, Object target, Object index)
     {
         try {
-            Method m = OgnlRuntime.getReadMethod(target.getClass(), index.toString());
+
+            String methodName = index.toString().replaceAll("\"", "");
+            
+            Method m = OgnlRuntime.getReadMethod(target.getClass(), methodName);
 
             // try to get field if no method could be found 
 
@@ -190,8 +195,8 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
                 try {
                     if (String.class.isAssignableFrom(index.getClass()) && !target.getClass().isArray()) {
-                        String key = ((String) index).replaceAll("\"", "");
-                        Field f = target.getClass().getField(key);
+                        
+                        Field f = target.getClass().getField(methodName);
                         if (f != null) {
 
                             context.setCurrentType(f.getType());
@@ -224,7 +229,10 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
     public String getSourceSetter(OgnlContext context, Object target, Object index)
     {
         try {
-            Method m = OgnlRuntime.getWriteMethod(target.getClass(), index.toString());
+
+            String methodName = index.toString().replaceAll("\"", "");
+            
+            Method m = OgnlRuntime.getWriteMethod(target.getClass(), methodName);
 
             if (m == null)
                 return "";

@@ -119,14 +119,6 @@ public class MapPropertyAccessor implements PropertyAccessor
         }
 
         return Object.class;
-        /*
-        if (Map.class.isAssignableFrom(target.getClass())) {
-            Object result = ((Map)target).get(index);
-            if (result != null)
-                return result.getClass();
-        }*/
-        
-        // return Object.class;
     }
 
     public String getSourceAccessor(OgnlContext context, Object target, Object index)
@@ -142,11 +134,13 @@ public class MapPropertyAccessor implements PropertyAccessor
             indexedAccess = ((ASTProperty) currentNode).isIndexedAccess();
         }
         
+        String indexStr = index.toString();
+
         context.setCurrentAccessor(Map.class);
         context.setCurrentType(Object.class);
         
         if (String.class.isAssignableFrom(index.getClass()) && !indexedAccess) {
-            String key = ((String)index).replaceAll("\"", "");
+            String key = indexStr.replaceAll("\"", "");
             
             if (key.equals("size")) {
                 context.setCurrentType(int.class);
@@ -163,16 +157,18 @@ public class MapPropertyAccessor implements PropertyAccessor
             }
         }
         
-        return ".get(" + index + ")";
+        return ".get(" + indexStr + ")";
     }
     
     public String getSourceSetter(OgnlContext context, Object target, Object index)
     {
         context.setCurrentAccessor(Map.class);
         context.setCurrentType(Object.class);
-        
+
+        String indexStr = index.toString();
+
         if (String.class.isAssignableFrom(index.getClass())) {
-            String key = ((String)index).replaceAll("\"", "");
+            String key = indexStr.replaceAll("\"", "");
             
             if (key.equals("size"))
                 return "";
@@ -184,6 +180,6 @@ public class MapPropertyAccessor implements PropertyAccessor
                 return "";
         }
         
-        return ".put(" + index + ", $3)";
+        return ".put(" + indexStr + ", $3)";
     }
 }

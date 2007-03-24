@@ -47,7 +47,7 @@ public class ArrayPropertyAccessor extends ObjectPropertyAccessor implements Pro
         throws OgnlException
     {
         Object result = null;
-
+        
         if (name instanceof String) {
             if (name.equals("length")) {
                 result = new Integer(Array.getLength(target));
@@ -162,13 +162,24 @@ public class ArrayPropertyAccessor extends ObjectPropertyAccessor implements Pro
 
     public String getSourceAccessor(OgnlContext context, Object target, Object index)
     {
-        String indexStr = (String) index;
-
+        String indexStr = index.toString();
+        
         // need to convert to primitive for list index access
 
-        if (!context.getCurrentType().isPrimitive()) {
+        // System.out.println("index class " + index.getClass() + " current type " + context.getCurrentType() + " current object class " + context.getCurrentObject().getClass());
+
+        if (context.getCurrentType() != null && !context.getCurrentType().isPrimitive()
+            && Number.class.isAssignableFrom(context.getCurrentType())) {
 
             indexStr += "." + OgnlRuntime.getNumericValueGetter(context.getCurrentType());
+        } else if (context.getCurrentObject() != null && Number.class.isAssignableFrom(context.getCurrentObject().getClass())
+                    && !context.getCurrentType().isPrimitive()) {
+
+            // means it needs to be cast first as well
+
+            String toString = String.class.isInstance(index) && context.getCurrentType() != Object.class ? "" : ".toString()";
+
+            indexStr = "java.lang.Integer.valueOf(" + indexStr + toString + ").intValue()";
         }
 
         context.setCurrentAccessor(target.getClass());
@@ -179,13 +190,22 @@ public class ArrayPropertyAccessor extends ObjectPropertyAccessor implements Pro
 
     public String getSourceSetter(OgnlContext context, Object target, Object index)
     {
-        String indexStr = (String) index;
+        String indexStr = index.toString();
 
         // need to convert to primitive for list index access
 
-        if (!context.getCurrentType().isPrimitive()) {
+        if (context.getCurrentType() != null && !context.getCurrentType().isPrimitive()
+            && Number.class.isAssignableFrom(context.getCurrentType())) {
 
             indexStr += "." + OgnlRuntime.getNumericValueGetter(context.getCurrentType());
+        } else if (context.getCurrentObject() != null && Number.class.isAssignableFrom(context.getCurrentObject().getClass())
+                    && !context.getCurrentType().isPrimitive()) {
+
+            // means it needs to be cast first as well
+
+            String toString = String.class.isInstance(index) && context.getCurrentType() != Object.class ? "" : ".toString()";
+
+            indexStr = "java.lang.Integer.valueOf(" + indexStr + toString + ").intValue()";
         }
 
         Class type = target.getClass().isArray() ? target.getClass().getComponentType() : target.getClass();
