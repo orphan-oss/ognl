@@ -50,7 +50,8 @@ public class IndexedPropertyTest extends OgnlTestCase {
             {INDEXED, "values[1]", "bar" + "xxx", "xxxx" + "xxx", "xxxx" + "xxx"}, // set through setValues(int, String)
             {INDEXED, "values[1]", "xxxx" + "xxx"}, // getValues(int) again to check if setValues(int, String) was called
             {INDEXED, "setValues(2, \"xxxx\")", null}, // was "baz" -> "xxxx"
-            {INDEXED, "getTitle(list.size)", "Title count 3"}
+            {INDEXED, "getTitle(list.size)", "Title count 3"},
+            {INDEXED, "source.total", 1}
     };
 
     /*

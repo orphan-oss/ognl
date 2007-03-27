@@ -2035,7 +2035,7 @@ public class OgnlRuntime {
             PropertyDescriptor[] pds = info.getPropertyDescriptors();
 
             for (int i = 0; i < pds.length; i++) {
-                //System.out.println("checking for " + name + " in " + pds[i].getShortDescription());
+                
                 if (pds[i].getName().equalsIgnoreCase(name)
                         || pds[i].getName().toLowerCase().equals(name.toLowerCase())
                         || pds[i].getName().toLowerCase().endsWith(name.toLowerCase()))
@@ -2048,12 +2048,12 @@ public class OgnlRuntime {
 
         return null;
     }
-
+    
     public static Class getSuperOrInterfaceClass(Method m, Class clazz)
     {
         if (clazz.getSuperclass() != null) {
             Class superClass = getSuperOrInterfaceClass(m, clazz.getSuperclass());
-
+            
             if (superClass != null)
                 return superClass;
         }

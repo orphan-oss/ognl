@@ -66,7 +66,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
                 + "\n current Accessor: " + context.getCurrentAccessor()
                 + " previous Accessor: " + context.getPreviousAccessor()
                 + " current object " + context.getCurrentObject());
-        */
+  */      
         
         String castClass = null;
         if (context.getCurrentType() != null && context.getCurrentType().isArray()) {
@@ -75,8 +75,11 @@ public class ExpressionCompiler implements OgnlExpressionCompiler
         } else if (context.getCurrentAccessor().isArray()) {
             
             castClass = ExpressionCompiler.getCastString(context.getCurrentAccessor());
-        } else
-            castClass = OgnlRuntime.getCompiler().getInterfaceClass(context.getCurrentAccessor()).getName();
+        } else {
+            castClass = (context.getCurrentAccessor().getName().indexOf("$") > -1) 
+            ? OgnlRuntime.getCompiler().getInterfaceClass(context.getCurrentAccessor()).getName()
+                : context.getCurrentAccessor().getName();
+        }
 
         ExpressionCompiler.addCastString(context, "((" + castClass + ")");
         

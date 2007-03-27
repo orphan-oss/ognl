@@ -40,11 +40,15 @@ public class Indexed
 
     private List _list = new ArrayList();
 
+    private ListSource _source = new ListSourceImpl();
+
     public Indexed()
     {
         _list.add(new Integer(1));
         _list.add(new Integer(2));
         _list.add(new Integer(3));
+
+        _source.addValue(new Bean2());
     }
 
     public Indexed(String[] values)
@@ -89,5 +93,10 @@ public class Indexed
     public String getTitle(int count)
     {
         return "Title count " + count;
+    }
+    
+    public ListSource getSource()
+    {
+        return _source;
     }
 }

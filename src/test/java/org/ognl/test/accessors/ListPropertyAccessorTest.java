@@ -4,6 +4,9 @@ import junit.framework.TestCase;
 import ognl.ListPropertyAccessor;
 import ognl.Ognl;
 import ognl.OgnlContext;
+import ognl.enhance.ExpressionCompiler;
+import org.ognl.test.objects.ListSource;
+import org.ognl.test.objects.ListSourceImpl;
 import org.ognl.test.objects.Root;
 
 import java.util.List;
@@ -51,5 +54,20 @@ public class ListPropertyAccessorTest extends TestCase {
         assertEquals(null, context.getPreviousAccessor());
     }
 
-    
+    public void test_List_To_Object_Property_Accessor_Read() throws Exception
+    {
+        ListPropertyAccessor pa = new ListPropertyAccessor();
+        
+        ListSource list = new ListSourceImpl();
+
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        context.setRoot(list);
+        context.setCurrentObject(list);
+
+        assertEquals(".getTotal()", pa.getSourceAccessor(context, list, "total"));
+
+        assertNull(context.get(ExpressionCompiler.PRE_CAST));
+        assertEquals(int.class, context.getCurrentType());
+        assertEquals(ListSourceImpl.class, context.getCurrentAccessor());
+   }
 }
