@@ -162,12 +162,14 @@ class ASTAdd extends NumericExpression
                     }
                     
                     String expr = _children[i].toGetSourceString(context, target);
-                    
-                    if (expr == null || expr.trim().length() <= 0) {
+
+                    if ((expr != null && "null".equals(expr))
+                           || (!ASTConst.class.isInstance(_children[i]) && (expr == null || expr.trim().length() <= 0))) {
+
                         expr = "null";
                     }
-                    
-                    //System.out.println("astadd child class: " + _children[i].getClass().getName() + " and return expr: " + expr);
+
+                    // System.out.println("astadd child class: " + _children[i].getClass().getName() + " and return expr: " + expr);
                     
                     if (ASTProperty.class.isInstance(_children[i])) {
                         

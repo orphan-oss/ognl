@@ -40,6 +40,7 @@ public class QuotingTest extends OgnlTestCase
             { null, "'s'", new Character('s') },
             { null, "'string'", "string" },
             { null, "\"string\"", "string" },
+            { null, "'' + 'bar'", "bar"}
     };
 
     /*===================================================================
