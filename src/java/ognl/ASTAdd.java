@@ -31,6 +31,7 @@
 package ognl;
 
 import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.OrderedReturn;
 import ognl.enhance.UnsupportedCompilationException;
 
 import java.math.BigDecimal;
@@ -149,18 +150,17 @@ class ASTAdd extends NumericExpression
                 context.setCurrentAccessor(currAccessor);
             }
 
-
-
             // reset context since previous children loop would have changed it
             
             context.setCurrentObject(target);
             
             if ((_children != null) && (_children.length > 0)) {
                 for ( int i = 0; i < _children.length; ++i ) {
+                    
                     if (i > 0) {
                         result += " " + getExpressionOperator(i) + " ";
                     }
-                    
+
                     String expr = _children[i].toGetSourceString(context, target);
 
                     if ((expr != null && "null".equals(expr))
@@ -226,6 +226,9 @@ class ASTAdd extends NumericExpression
                         }
                     }
 
+                    if (!OrderedReturn.class.isInstance(_parent)) {
+                        result += "(";
+                    }
                     result += expr;
                     
                     if ((lastType == null || !String.class.isAssignableFrom(lastType.getGetterClass()))
@@ -245,6 +248,9 @@ class ASTAdd extends NumericExpression
                         }
                     }
 
+                    if (!OrderedReturn.class.isInstance(_parent)) {
+                        result += ")";
+                    }
                 }
             }
             

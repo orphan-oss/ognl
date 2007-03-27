@@ -33,28 +33,27 @@ package org.ognl.test;
 import junit.framework.TestSuite;
 import org.ognl.test.objects.Root;
 
-public class NullStringCatenationTest extends OgnlTestCase
-{
+public class NullStringCatenationTest extends OgnlTestCase {
 
     private static Root ROOT = new Root();
 
     private static Object[][] TESTS = {
-    // Null string catenation
-           { ROOT, "\"bar\" + null", "barnull" }, // Catenate null to a string  
-           { ROOT, "\"bar\" + nullObject", "barnull" }, // Catenate null to a string 
-           { ROOT, "20.56 + nullObject", NullPointerException.class }, // Catenate null to a number 
-            
+            // Null string catenation
+            {ROOT, "\"bar\" + null", "barnull"}, // Catenate null to a string
+            {ROOT, "\"bar\" + nullObject", "barnull"}, // Catenate null to a string
+            {ROOT, "20.56 + nullObject", NullPointerException.class}, // Catenate null to a number 
+            {ROOT, "(true ? 'tabHeader' : '') + (false ? 'tabHeader' : '')", "tabHeader"}
     };
-    
+
     /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
+    * =================================================================== Public static methods
+    * ===================================================================
+    */
     public static TestSuite suite()
     {
         TestSuite result = new TestSuite();
 
-        for(int i = 0; i < TESTS.length; i++) {
+        for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new NullStringCatenationTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
                         TESTS[i][2]));
@@ -90,13 +89,13 @@ public class NullStringCatenationTest extends OgnlTestCase
     }
 
     public NullStringCatenationTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue, Object expectedAfterSetResult)
+                                    Object setValue, Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
     public NullStringCatenationTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue)
+                                    Object setValue)
     {
         super(name, root, expressionString, expectedResult, setValue);
     }
