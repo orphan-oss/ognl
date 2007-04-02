@@ -180,13 +180,21 @@ public abstract class OgnlOps implements NumericTypes
      */
     public static boolean booleanValue(Object value)
     {
-        if (value == null) return false;
+        if (value == null)
+            return false;
         Class c = value.getClass();
-        if (c == Boolean.class) return ((Boolean) value).booleanValue();
+
+        if (c == Boolean.class)
+            return ((Boolean) value).booleanValue();
+
         // if ( c == String.class )
         // return ((String)value).length() > 0;
-        if (c == Character.class) return ((Character) value).charValue() != 0;
-        if (value instanceof Number) return ((Number) value).doubleValue() != 0;
+
+        if (c == Character.class)
+            return ((Character) value).charValue() != 0;
+        if (value instanceof Number)
+            return ((Number) value).doubleValue() != 0;
+        
         return true; // non-null
     }
 
@@ -979,5 +987,10 @@ public abstract class OgnlOps implements NumericTypes
             break;
         }
         return result;
+    }
+
+    public static Object returnValue(Object ignore, Object returnValue)
+    {
+        return returnValue;
     }
 }

@@ -209,12 +209,11 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
                     return "";
                 }
 
-
                 return "";
             }
 
             context.setCurrentType(m.getReturnType());
-            context.setCurrentAccessor(OgnlRuntime.getSuperOrInterfaceClass(m, m.getDeclaringClass()));
+            context.setCurrentAccessor(OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, m.getDeclaringClass()));
 
             return "." + m.getName() + "()";
 
@@ -242,29 +241,40 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
             Class parm = m.getParameterTypes()[0];
             String conversion = null;
-
+            
             if (m.getParameterTypes().length > 1)
                 throw new UnsupportedCompilationException("Object property accessors can only support single parameter setters.");
 
-            if (parm.isPrimitive()) {
 
+
+            if (parm.isPrimitive()) {
+                
                 Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(parm);
 
-                conversion = "((" + wrapClass.getName() + ")ognl.OgnlOps.convertValue($3," + wrapClass.getName()
-                             + ".class, true))." + OgnlRuntime.getNumericValueGetter(wrapClass);
+                conversion = OgnlRuntime.getCompiler().createLocalReference(context,
+                        "((" + wrapClass.getName() + ")ognl.OgnlOps.convertValue($3," + wrapClass.getName()
+                        + ".class, true))." + OgnlRuntime.getNumericValueGetter(wrapClass),
+                        parm
+                );
+
             } else if (parm.isArray()) {
 
-                conversion = "((" + ExpressionCompiler.getCastString(parm) + ")ognl.OgnlOps.convertValue($3,"
-                             + ExpressionCompiler.getCastString(parm) + ".class))";
+                conversion = OgnlRuntime.getCompiler().createLocalReference(context,
+                         "(" + ExpressionCompiler.getCastString(parm) + ")ognl.OgnlOps.convertValue($3,"
+                        + ExpressionCompiler.getCastString(parm) + ".class)",
+                        parm);
+                
             } else {
 
-                conversion = "((" + parm.getName() + ")ognl.OgnlOps.convertValue($3,"
-                             + parm.getName()
-                             + ".class))";
+                conversion = OgnlRuntime.getCompiler().createLocalReference(context,
+                         "(" + parm.getName()+ ")ognl.OgnlOps.convertValue($3,"
+                        + parm.getName()
+                        + ".class)",
+                        parm);
             }
 
             context.setCurrentType(m.getReturnType());
-            context.setCurrentAccessor(OgnlRuntime.getSuperOrInterfaceClass(m, m.getDeclaringClass()));
+            context.setCurrentAccessor(OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, m.getDeclaringClass()));
 
             return "." + m.getName() + "(" + conversion + ")";
 

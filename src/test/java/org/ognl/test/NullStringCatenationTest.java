@@ -41,8 +41,9 @@ public class NullStringCatenationTest extends OgnlTestCase {
             // Null string catenation
             {ROOT, "\"bar\" + null", "barnull"}, // Catenate null to a string
             {ROOT, "\"bar\" + nullObject", "barnull"}, // Catenate null to a string
-            {ROOT, "20.56 + nullObject", NullPointerException.class}, // Catenate null to a number 
-            {ROOT, "(true ? 'tabHeader' : '') + (false ? 'tabHeader' : '')", "tabHeader"}
+            {ROOT, "20.56 + nullObject", NullPointerException.class}, // Catenate null to a number
+            {ROOT, "(true ? 'tabHeader' : '') + (false ? 'tabHeader' : '')", "tabHeader"},
+            {ROOT, "theInt == 0 ? '5%' : theInt + '%'", "6%"}
     };
 
     /*

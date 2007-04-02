@@ -71,7 +71,7 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "map.(#this != null ? #this['size'] : null)", ROOT.getMap().get(Root.SIZE_STRING) },
             { ROOT, "map[^].(#this == null ? 'empty' : #this)", new Integer(99) },
             { ROOT, "map[$].(#this == null ? 'empty' : #this)", "empty" },
-            { ROOT, "map[$].(#root == null ? 'empty' : #root)", ROOT },
+            { ROOT, "map[$].(#root == null ? 'empty' : #root)", ROOT }, 
             { ROOT, "((selected != null) && (currLocale.toString() == selected.toString())) ? 'first' : 'second'", "first" },
             { ROOT, "{stringValue, getMap()}", Arrays.asList(new Object[]{ROOT.getStringValue(), ROOT.getMap()})},
             { ROOT, "{'stringValue', map[\"test\"].map[\"size\"]}", Arrays.asList(new Object[]{"stringValue", ROOT.getMap().get("size")}) },

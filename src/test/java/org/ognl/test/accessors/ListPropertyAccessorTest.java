@@ -68,6 +68,6 @@ public class ListPropertyAccessorTest extends TestCase {
 
         assertNull(context.get(ExpressionCompiler.PRE_CAST));
         assertEquals(int.class, context.getCurrentType());
-        assertEquals(ListSourceImpl.class, context.getCurrentAccessor());
+        assertEquals(ListSource.class, context.getCurrentAccessor());
    }
 }

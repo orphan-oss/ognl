@@ -89,29 +89,37 @@ public class ASTAnd extends BooleanExpression
         if (_children.length != 2)
             throw new UnsupportedCompilationException("Can only compile boolean expressions with two children.");
         
-        String result = "";
+        String result = "(";
         
         try {
             
             String first = OgnlRuntime.getChildSource(context, target, _children[0]);
-            
+            if (!OgnlRuntime.isBoolean(first))
+                first = OgnlRuntime.getCompiler().createLocalReference(context, first, context.getCurrentType());
+
+            Class firstType = context.getCurrentType();
+
             String second = OgnlRuntime.getChildSource(context, target, _children[1]);
-            
-            result += "(ognl.OgnlOps.booleanValue(" + first + ")";
+            if (!OgnlRuntime.isBoolean(second))
+                second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());
+
+            Class secondType = context.getCurrentType();
+
+            boolean mismatched = (firstType.isPrimitive() && !secondType.isPrimitive())
+                                            || (!firstType.isPrimitive() && secondType.isPrimitive()) ? true : false;            
+
+            result += "ognl.OgnlOps.booleanValue(" + first + ")";
             
             result += " ? ";
-            
-            result += second;
+
+            result += (mismatched ? " ($w) " : "") + second;
             result += " : ";
-            
-            result += first;
-            
+
+            result += (mismatched ? " ($w) " : "") + first;
+
             result += ")";
-            
-            result += "";
-            
+
             context.setCurrentObject(target);
-            
             context.setCurrentType(Boolean.TYPE);
         } catch (NullPointerException e) {
             
@@ -148,8 +156,11 @@ public class ASTAnd extends BooleanExpression
             
             String second = ExpressionCompiler.getRootExpression(_children[1], context.getRoot(), false) 
             + pre + _children[1].toSetSourceString(context, target);
-            
-            result += "if(ognl.OgnlOps.booleanValue(" + first + ")){";
+
+            if (!OgnlRuntime.isBoolean(first))
+                result += "if(ognl.OgnlOps.booleanValue(" + first + ")){";
+            else
+                result += "if(" + first + "){";
             
             result += second;
             result += "; } ";

@@ -30,169 +30,170 @@
 //--------------------------------------------------------------------------
 package org.ognl.test;
 
-import java.math.*;
 import junit.framework.TestSuite;
 import ognl.OgnlException;
 import ognl.OgnlOps;
 
-public class NumericConversionTest extends OgnlTestCase
-{
-    private static Object[][]       TESTS = {
-                                        /* To Integer.class */
-                                        { "55", Integer.class, new Integer(55) },
-                                        { new Integer(55), Integer.class, new Integer(55) },
-                                        { new Double(55), Integer.class, new Integer(55) },
-                                        { Boolean.TRUE, Integer.class, new Integer(1) },
-                                        { new Byte((byte)55), Integer.class, new Integer(55) },
-                                        { new Character((char)55), Integer.class, new Integer(55) },
-                                        { new Short((short)55), Integer.class, new Integer(55) },
-                                        { new Long(55), Integer.class, new Integer(55) },
-                                        { new Float(55), Integer.class, new Integer(55) },
-                                        { new BigInteger("55"), Integer.class, new Integer(55) },
-                                        { new BigDecimal("55"), Integer.class, new Integer(55) },
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
-                                        /* To Double.class */
-                                        { "55.1234", Double.class, new Double(55.1234) },
-                                        { new Integer(55), Double.class, new Double(55) },
-                                        { new Double(55.1234), Double.class, new Double(55.1234) },
-                                        { Boolean.TRUE, Double.class, new Double(1) },
-                                        { new Byte((byte)55), Double.class, new Double(55) },
-                                        { new Character((char)55), Double.class, new Double(55) },
-                                        { new Short((short)55), Double.class, new Double(55) },
-                                        { new Long(55), Double.class, new Double(55) },
-                                        { new Float(55.1234), Double.class, new Double(55.1234), new Integer(4) },
-                                        { new BigInteger("55"), Double.class, new Double(55) },
-                                        { new BigDecimal("55.1234"), Double.class, new Double(55.1234) },
+public class NumericConversionTest extends OgnlTestCase {
+    private static Object[][] TESTS = {
+            /* To Integer.class */
+            {"55", Integer.class, new Integer(55)},
+            {new Integer(55), Integer.class, new Integer(55)},
+            {new Double(55), Integer.class, new Integer(55)},
+            {Boolean.TRUE, Integer.class, new Integer(1)},
+            {new Byte((byte) 55), Integer.class, new Integer(55)},
+            {new Character((char) 55), Integer.class, new Integer(55)},
+            {new Short((short) 55), Integer.class, new Integer(55)},
+            {new Long(55), Integer.class, new Integer(55)},
+            {new Float(55), Integer.class, new Integer(55)},
+            {new BigInteger("55"), Integer.class, new Integer(55)},
+            {new BigDecimal("55"), Integer.class, new Integer(55)},
 
-                                        /* To Boolean.class */
-                                        { "true", Boolean.class, Boolean.TRUE },
-                                        { new Integer(55), Boolean.class, Boolean.TRUE },
-                                        { new Double(55), Boolean.class, Boolean.TRUE },
-                                        { Boolean.TRUE, Boolean.class, Boolean.TRUE },
-                                        { new Byte((byte)55), Boolean.class, Boolean.TRUE },
-                                        { new Character((char)55), Boolean.class, Boolean.TRUE },
-                                        { new Short((short)55), Boolean.class, Boolean.TRUE },
-                                        { new Long(55), Boolean.class, Boolean.TRUE },
-                                        { new Float(55), Boolean.class, Boolean.TRUE },
-                                        { new BigInteger("55"), Boolean.class, Boolean.TRUE },
-                                        { new BigDecimal("55"), Boolean.class, Boolean.TRUE },
+            /* To Double.class */
+            {"55.1234", Double.class, new Double(55.1234)},
+            {new Integer(55), Double.class, new Double(55)},
+            {new Double(55.1234), Double.class, new Double(55.1234)},
+            {Boolean.TRUE, Double.class, new Double(1)},
+            {new Byte((byte) 55), Double.class, new Double(55)},
+            {new Character((char) 55), Double.class, new Double(55)},
+            {new Short((short) 55), Double.class, new Double(55)},
+            {new Long(55), Double.class, new Double(55)},
+            {new Float(55.1234), Double.class, new Double(55.1234), new Integer(4)},
+            {new BigInteger("55"), Double.class, new Double(55)},
+            {new BigDecimal("55.1234"), Double.class, new Double(55.1234)},
 
-                                        /* To Byte.class */
-                                        { "55", Byte.class, new Byte((byte)55) },
-                                        { new Integer(55), Byte.class, new Byte((byte)55) },
-                                        { new Double(55), Byte.class, new Byte((byte)55) },
-                                        { Boolean.TRUE, Byte.class, new Byte((byte)1) },
-                                        { new Byte((byte)55), Byte.class, new Byte((byte)55) },
-                                        { new Character((char)55), Byte.class, new Byte((byte)55) },
-                                        { new Short((short)55), Byte.class, new Byte((byte)55) },
-                                        { new Long(55), Byte.class, new Byte((byte)55) },
-                                        { new Float(55), Byte.class, new Byte((byte)55) },
-                                        { new BigInteger("55"), Byte.class, new Byte((byte)55) },
-                                        { new BigDecimal("55"), Byte.class, new Byte((byte)55) },
+            /* To Boolean.class */
+            {"true", Boolean.class, Boolean.TRUE},
+            {new Integer(55), Boolean.class, Boolean.TRUE},
+            {new Double(55), Boolean.class, Boolean.TRUE},
+            {Boolean.TRUE, Boolean.class, Boolean.TRUE},
+            {new Byte((byte) 55), Boolean.class, Boolean.TRUE},
+            {new Character((char) 55), Boolean.class, Boolean.TRUE},
+            {new Short((short) 55), Boolean.class, Boolean.TRUE},
+            {new Long(55), Boolean.class, Boolean.TRUE},
+            {new Float(55), Boolean.class, Boolean.TRUE},
+            {new BigInteger("55"), Boolean.class, Boolean.TRUE},
+            {new BigDecimal("55"), Boolean.class, Boolean.TRUE},
 
-                                        /* To Character.class */
-                                        { "55", Character.class, new Character((char)55) },
-                                        { new Integer(55), Character.class, new Character((char)55) },
-                                        { new Double(55), Character.class, new Character((char)55) },
-                                        { Boolean.TRUE, Character.class, new Character((char)1) },
-                                        { new Byte((byte)55), Character.class, new Character((char)55) },
-                                        { new Character((char)55), Character.class, new Character((char)55) },
-                                        { new Short((short)55), Character.class, new Character((char)55) },
-                                        { new Long(55), Character.class, new Character((char)55) },
-                                        { new Float(55), Character.class, new Character((char)55) },
-                                        { new BigInteger("55"), Character.class, new Character((char)55) },
-                                        { new BigDecimal("55"), Character.class, new Character((char)55) },
+            /* To Byte.class */
+            {"55", Byte.class, new Byte((byte) 55)},
+            {new Integer(55), Byte.class, new Byte((byte) 55)},
+            {new Double(55), Byte.class, new Byte((byte) 55)},
+            {Boolean.TRUE, Byte.class, new Byte((byte) 1)},
+            {new Byte((byte) 55), Byte.class, new Byte((byte) 55)},
+            {new Character((char) 55), Byte.class, new Byte((byte) 55)},
+            {new Short((short) 55), Byte.class, new Byte((byte) 55)},
+            {new Long(55), Byte.class, new Byte((byte) 55)},
+            {new Float(55), Byte.class, new Byte((byte) 55)},
+            {new BigInteger("55"), Byte.class, new Byte((byte) 55)},
+            {new BigDecimal("55"), Byte.class, new Byte((byte) 55)},
 
-                                        /* To Short.class */
-                                        { "55", Short.class, new Short((short)55) },
-                                        { new Integer(55), Short.class, new Short((short)55) },
-                                        { new Double(55), Short.class, new Short((short)55) },
-                                        { Boolean.TRUE, Short.class, new Short((short)1) },
-                                        { new Byte((byte)55), Short.class, new Short((short)55) },
-                                        { new Character((char)55), Short.class, new Short((short)55) },
-                                        { new Short((short)55), Short.class, new Short((short)55) },
-                                        { new Long(55), Short.class, new Short((short)55) },
-                                        { new Float(55), Short.class, new Short((short)55) },
-                                        { new BigInteger("55"), Short.class, new Short((short)55) },
-                                        { new BigDecimal("55"), Short.class, new Short((short)55) },
+            /* To Character.class */
+            {"55", Character.class, new Character((char) 55)},
+            {new Integer(55), Character.class, new Character((char) 55)},
+            {new Double(55), Character.class, new Character((char) 55)},
+            {Boolean.TRUE, Character.class, new Character((char) 1)},
+            {new Byte((byte) 55), Character.class, new Character((char) 55)},
+            {new Character((char) 55), Character.class, new Character((char) 55)},
+            {new Short((short) 55), Character.class, new Character((char) 55)},
+            {new Long(55), Character.class, new Character((char) 55)},
+            {new Float(55), Character.class, new Character((char) 55)},
+            {new BigInteger("55"), Character.class, new Character((char) 55)},
+            {new BigDecimal("55"), Character.class, new Character((char) 55)},
 
-                                        /* To Long.class */
-                                        { "55", Long.class, new Long(55) },
-                                        { new Integer(55), Long.class, new Long(55) },
-                                        { new Double(55), Long.class, new Long(55) },
-                                        { Boolean.TRUE, Long.class, new Long(1) },
-                                        { new Byte((byte)55), Long.class, new Long(55) },
-                                        { new Character((char)55), Long.class, new Long(55) },
-                                        { new Short((short)55), Long.class, new Long(55) },
-                                        { new Long(55), Long.class, new Long(55) },
-                                        { new Float(55), Long.class, new Long(55) },
-                                        { new BigInteger("55"), Long.class, new Long(55) },
-                                        { new BigDecimal("55"), Long.class, new Long(55) },
+            /* To Short.class */
+            {"55", Short.class, new Short((short) 55)},
+            {new Integer(55), Short.class, new Short((short) 55)},
+            {new Double(55), Short.class, new Short((short) 55)},
+            {Boolean.TRUE, Short.class, new Short((short) 1)},
+            {new Byte((byte) 55), Short.class, new Short((short) 55)},
+            {new Character((char) 55), Short.class, new Short((short) 55)},
+            {new Short((short) 55), Short.class, new Short((short) 55)},
+            {new Long(55), Short.class, new Short((short) 55)},
+            {new Float(55), Short.class, new Short((short) 55)},
+            {new BigInteger("55"), Short.class, new Short((short) 55)},
+            {new BigDecimal("55"), Short.class, new Short((short) 55)},
 
-                                        /* To Float.class */
-                                        { "55.1234", Float.class, new Float(55.1234) },
-                                        { new Integer(55), Float.class, new Float(55) },
-                                        { new Double(55.1234), Float.class, new Float(55.1234) },
-                                        { Boolean.TRUE, Float.class, new Float(1) },
-                                        { new Byte((byte)55), Float.class, new Float(55) },
-                                        { new Character((char)55), Float.class, new Float(55) },
-                                        { new Short((short)55), Float.class, new Float(55) },
-                                        { new Long(55), Float.class, new Float(55) },
-                                        { new Float(55.1234), Float.class, new Float(55.1234) },
-                                        { new BigInteger("55"), Float.class, new Float(55) },
-                                        { new BigDecimal("55.1234"), Float.class, new Float(55.1234) },
+            /* To Long.class */
+            {"55", Long.class, new Long(55)},
+            {new Integer(55), Long.class, new Long(55)},
+            {new Double(55), Long.class, new Long(55)},
+            {Boolean.TRUE, Long.class, new Long(1)},
+            {new Byte((byte) 55), Long.class, new Long(55)},
+            {new Character((char) 55), Long.class, new Long(55)},
+            {new Short((short) 55), Long.class, new Long(55)},
+            {new Long(55), Long.class, new Long(55)},
+            {new Float(55), Long.class, new Long(55)},
+            {new BigInteger("55"), Long.class, new Long(55)},
+            {new BigDecimal("55"), Long.class, new Long(55)},
 
-                                        /* To BigInteger.class */
-                                        { "55", BigInteger.class, new BigInteger("55") },
-                                        { new Integer(55), BigInteger.class, new BigInteger("55") },
-                                        { new Double(55), BigInteger.class, new BigInteger("55") },
-                                        { Boolean.TRUE, BigInteger.class, new BigInteger("1") },
-                                        { new Byte((byte)55), BigInteger.class, new BigInteger("55") },
-                                        { new Character((char)55), BigInteger.class, new BigInteger("55") },
-                                        { new Short((short)55), BigInteger.class, new BigInteger("55") },
-                                        { new Long(55), BigInteger.class, new BigInteger("55") },
-                                        { new Float(55), BigInteger.class, new BigInteger("55") },
-                                        { new BigInteger("55"), BigInteger.class, new BigInteger("55") },
-                                        { new BigDecimal("55"), BigInteger.class, new BigInteger("55") },
+            /* To Float.class */
+            {"55.1234", Float.class, new Float(55.1234)},
+            {new Integer(55), Float.class, new Float(55)},
+            {new Double(55.1234), Float.class, new Float(55.1234)},
+            {Boolean.TRUE, Float.class, new Float(1)},
+            {new Byte((byte) 55), Float.class, new Float(55)},
+            {new Character((char) 55), Float.class, new Float(55)},
+            {new Short((short) 55), Float.class, new Float(55)},
+            {new Long(55), Float.class, new Float(55)},
+            {new Float(55.1234), Float.class, new Float(55.1234)},
+            {new BigInteger("55"), Float.class, new Float(55)},
+            {new BigDecimal("55.1234"), Float.class, new Float(55.1234)},
 
-                                        /* To BigDecimal.class */
-                                        { "55.1234", BigDecimal.class, new BigDecimal("55.1234") },
-                                        { new Integer(55), BigDecimal.class, new BigDecimal("55") },
-                                        { new Double(55.1234), BigDecimal.class, new BigDecimal("55.1234"), new Integer(4) },
-                                        { Boolean.TRUE, BigDecimal.class, new BigDecimal("1") },
-                                        { new Byte((byte)55), BigDecimal.class, new BigDecimal("55") },
-                                        { new Character((char)55), BigDecimal.class, new BigDecimal("55") },
-                                        { new Short((short)55), BigDecimal.class, new BigDecimal("55") },
-                                        { new Long(55), BigDecimal.class, new BigDecimal("55") },
-                                        { new Float(55.1234), BigDecimal.class, new BigDecimal("55.1234"), new Integer(4) },
-                                        { new BigInteger("55"), BigDecimal.class, new BigDecimal("55") },
-                                        { new BigDecimal("55.1234"), BigDecimal.class, new BigDecimal("55.1234") },
-                                    };
+            /* To BigInteger.class */
+            {"55", BigInteger.class, new BigInteger("55")},
+            {new Integer(55), BigInteger.class, new BigInteger("55")},
+            {new Double(55), BigInteger.class, new BigInteger("55")},
+            {Boolean.TRUE, BigInteger.class, new BigInteger("1")},
+            {new Byte((byte) 55), BigInteger.class, new BigInteger("55")},
+            {new Character((char) 55), BigInteger.class, new BigInteger("55")},
+            {new Short((short) 55), BigInteger.class, new BigInteger("55")},
+            {new Long(55), BigInteger.class, new BigInteger("55")},
+            {new Float(55), BigInteger.class, new BigInteger("55")},
+            {new BigInteger("55"), BigInteger.class, new BigInteger("55")},
+            {new BigDecimal("55"), BigInteger.class, new BigInteger("55")},
 
-    private Object                  value;
-    private Class                   toClass;
-    private Object                  expectedValue;
-    private int                     scale;
+            /* To BigDecimal.class */
+            {"55.1234", BigDecimal.class, new BigDecimal("55.1234")},
+            {new Integer(55), BigDecimal.class, new BigDecimal("55")},
+            {new Double(55.1234), BigDecimal.class, new BigDecimal("55.1234"), new Integer(4)},
+            {Boolean.TRUE, BigDecimal.class, new BigDecimal("1")},
+            {new Byte((byte) 55), BigDecimal.class, new BigDecimal("55")},
+            {new Character((char) 55), BigDecimal.class, new BigDecimal("55")},
+            {new Short((short) 55), BigDecimal.class, new BigDecimal("55")},
+            {new Long(55), BigDecimal.class, new BigDecimal("55")},
+            {new Float(55.1234), BigDecimal.class, new BigDecimal("55.1234"), new Integer(4)},
+            {new BigInteger("55"), BigDecimal.class, new BigDecimal("55")},
+            {new BigDecimal("55.1234"), BigDecimal.class, new BigDecimal("55.1234")},
+    };
 
-	/*===================================================================
-		Public static methods
-	  ===================================================================*/
+    private Object value;
+    private Class toClass;
+    private Object expectedValue;
+    private int scale;
+
+    /*===================================================================
+         Public static methods
+       ===================================================================*/
     public static TestSuite suite()
     {
-        TestSuite       result = new TestSuite();
+        TestSuite result = new TestSuite();
 
         for (int i = 0; i < TESTS.length; i++) {
             result.addTest(new NumericConversionTest(TESTS[i][0],
-                                                    (Class)TESTS[i][1],
-                                                    TESTS[i][2],
-                                                    (TESTS[i].length > 3) ? ((Integer)TESTS[i][3]).intValue() : -1));
+                    (Class) TESTS[i][1],
+                    TESTS[i][2],
+                    (TESTS[i].length > 3) ? ((Integer) TESTS[i][3]).intValue() : -1));
         }
         return result;
     }
 
-	/*===================================================================
-		Constructors
-	  ===================================================================*/
+    /*===================================================================
+         Constructors
+       ===================================================================*/
     public NumericConversionTest(Object value, Class toClass, Object expectedValue, int scale)
     {
         super(value + " [" + value.getClass().getName() + "] -> " + toClass.getName() + " == " + expectedValue + " [" + expectedValue.getClass().getName() + "]" + ((scale >= 0) ? (" (to within " + scale + " decimal places)") : ""));
@@ -202,21 +203,21 @@ public class NumericConversionTest extends OgnlTestCase
         this.scale = scale;
     }
 
-	/*===================================================================
-		Overridden methods
-	  ===================================================================*/
+    /*===================================================================
+         Overridden methods
+       ===================================================================*/
     protected void runTest() throws OgnlException
     {
-        Object      result;
+        Object result;
 
         result = OgnlOps.convertValue(value, toClass);
         if (!isEqual(result, expectedValue)) {
             if (scale >= 0) {
-                double  scalingFactor = Math.pow(10, scale),
-                        v1 = ((Number)value).doubleValue() * scalingFactor,
-                        v2 = ((Number)expectedValue).doubleValue() * scalingFactor;
+                double scalingFactor = Math.pow(10, scale),
+                        v1 = ((Number) value).doubleValue() * scalingFactor,
+                        v2 = ((Number) expectedValue).doubleValue() * scalingFactor;
 
-                assertTrue((int)v1 == (int)v2);
+                assertTrue((int) v1 == (int) v2);
             } else {
                 fail();
             }

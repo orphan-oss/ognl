@@ -121,10 +121,11 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
             { "5 not in {true,false,null}", Boolean.TRUE },
             { "5 instanceof java.lang.Integer", Boolean.TRUE },
             { "5. instanceof java.lang.Integer", Boolean.FALSE },
+            { "!false || true", Boolean.TRUE},
 
             // Logical expressions (string versions)
-            { "2 or 0", new Integer(2) },
-            { "1 and 0", new Integer(0) },
+            { "2 or 0", Integer.valueOf(2)},
+            { "1 and 0", Integer.valueOf(0) },
             { "1 bor 0", new Integer(1) },
             { "1 xor 0", new Integer(1) }, { "1 band 0", new Integer(0) }, { "1 eq 1", Boolean.TRUE },
             { "1 neq 1", Boolean.FALSE }, { "1 lt 5", Boolean.TRUE }, { "1 lte 5", Boolean.TRUE },

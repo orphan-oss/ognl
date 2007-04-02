@@ -163,21 +163,31 @@ public class ASTStaticMethod extends SimpleNode implements NodeType
 
                         if (parms[i].isArray()) {
 
-                            parmString = "(" + ExpressionCompiler.getCastString(parms[i])
+                            parmString = OgnlRuntime.getCompiler().createLocalReference(context,
+                                    "(" + ExpressionCompiler.getCastString(parms[i])
                                     + ")ognl.OgnlOps.toArray(" + parmString + ", " + parms[i].getComponentType().getName()
-                                    + ".class, true)";
-
+                                    + ".class, true)",
+                                    parms[i]
+                            );
+                            
                         } else  if (parms[i].isPrimitive()) {
 
                             Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(parms[i]);
+                            
+                            parmString = OgnlRuntime.getCompiler().createLocalReference(context,
+                                    "((" + wrapClass.getName()
+                                    + ")ognl.OgnlOps.convertValue(" + parmString + ","
+                                    + wrapClass.getName() + ".class, true))."
+                                    + OgnlRuntime.getNumericValueGetter(wrapClass),
+                                    parms[i]
+                            );
 
-                            parmString = "((" + wrapClass.getName()
-                            + ")ognl.OgnlOps.convertValue(" + parmString + ","
-                            + wrapClass.getName() + ".class, true))."
-                            + OgnlRuntime.getNumericValueGetter(wrapClass);
                         } else if (parms[i] != Object.class) {
 
-                            parmString = "(" + parms[i].getName() + ")ognl.OgnlOps.convertValue(" + parmString + "," + parms[i].getName() + ".class)";
+                            parmString = OgnlRuntime.getCompiler().createLocalReference(context,
+                                    "(" + parms[i].getName() + ")ognl.OgnlOps.convertValue(" + parmString + "," + parms[i].getName() + ".class)",
+                                    parms[i]
+                            );
                         } else if ((NodeType.class.isInstance(_children[i])
                                 && ((NodeType)_children[i]).getGetterClass() != null
                                 && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass()))
@@ -198,7 +208,7 @@ public class ASTStaticMethod extends SimpleNode implements NodeType
                 _getterClass = m.getReturnType();
 
                 context.setCurrentType(m.getReturnType());
-                context.setCurrentAccessor(OgnlRuntime.getSuperOrInterfaceClass(m, m.getDeclaringClass()));
+                context.setCurrentAccessor(OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, m.getDeclaringClass()));
             }
 
         } catch (Throwable t) {

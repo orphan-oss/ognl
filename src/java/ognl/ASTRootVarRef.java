@@ -74,7 +74,7 @@ public class ASTRootVarRef extends ASTVarRef
             
             context.setCurrentType(_getterClass);
         }
-        
+
         if (_parent == null || (_getterClass != null && _getterClass.isArray()))
             return "";
         else

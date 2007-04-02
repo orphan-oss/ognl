@@ -95,6 +95,15 @@ public class Root extends Object
         map.put( "baz", array);
         map.put("value", new Bean2());
 
+        IFormComponent comp = new FormComponentImpl();
+        comp.setClientId("formComponent");
+
+        IForm form = new FormImpl();
+        form.setClientId("form1");
+        comp.setForm(form);
+
+        map.put("comp", comp);
+
         Map newMap = new HashMap();
         Map chain = new HashMap();
         newMap.put("deep", chain);
@@ -239,6 +248,11 @@ public class Root extends Object
     public void setIntValue(int value)
     {
         intValue = value;
+    }
+
+    public int getTheInt()
+    {
+        return six;
     }
 
     public String getStringValue()

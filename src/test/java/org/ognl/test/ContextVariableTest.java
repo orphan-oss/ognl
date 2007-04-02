@@ -33,16 +33,15 @@ package org.ognl.test;
 import junit.framework.TestSuite;
 import org.ognl.test.objects.Simple;
 
-public class ContextVariableTest extends OgnlTestCase
-{
+public class ContextVariableTest extends OgnlTestCase {
 
     private static Object ROOT = new Simple();
     private static Object[][] TESTS = {
-    // Naming and referring to names
-           { "#root", ROOT }, // Special root reference
-            { "#this", ROOT }, // Special this reference 
-            { "#f=5, #s=6, #f + #s", new Integer(11) }, 
-           { "#six=(#five=5, 6), #five + #six", new Integer(11) }, 
+            // Naming and referring to names
+            {"#root", ROOT}, // Special root reference
+            {"#this", ROOT}, // Special this reference
+            {"#f=5, #s=6, #f + #s", new Integer(11)},
+            {"#six=(#five=5, 6), #five + #six", new Integer(11)},
     };
 
     /*
@@ -53,7 +52,7 @@ public class ContextVariableTest extends OgnlTestCase
     {
         TestSuite result = new TestSuite();
 
-        for(int i = 0; i < TESTS.length; i++) {
+        for (int i = 0; i < TESTS.length; i++) {
             result.addTest(new ContextVariableTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", ROOT,
                     (String) TESTS[i][0], TESTS[i][1]));
         }
@@ -75,7 +74,7 @@ public class ContextVariableTest extends OgnlTestCase
     }
 
     public ContextVariableTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue, Object expectedAfterSetResult)
+                               Object setValue, Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }

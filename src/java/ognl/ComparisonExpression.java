@@ -48,7 +48,7 @@ public abstract class ComparisonExpression extends BooleanExpression
             
             boolean conversion = OgnlRuntime.shouldConvertNumericTypes(context);
             
-            String result = conversion ? getComparisonFunction() + "( ($w) " : "";
+            String result = conversion ? "(" + getComparisonFunction() + "( ($w) " : "(";
             
             result += OgnlRuntime.getChildSource(context, target, _children[0], conversion)
             + " " 
@@ -56,7 +56,11 @@ public abstract class ComparisonExpression extends BooleanExpression
             + OgnlRuntime.getChildSource(context, target, _children[1], conversion);
             
             result += conversion ? ")" : "";
-            
+
+            context.setCurrentType(Boolean.TYPE);
+
+            result += ")";
+
             return result;
         } catch (NullPointerException e) {
             

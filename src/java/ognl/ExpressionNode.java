@@ -96,7 +96,7 @@ public abstract class ExpressionNode extends SimpleNode
     public String toGetSourceString(OgnlContext context, Object target)
     {
         String result = (_parent == null || NumericExpression.class.isAssignableFrom(_parent.getClass())) ? "" : "(";
-        
+
         if ((_children != null) && (_children.length > 0)) {
             for ( int i = 0; i < _children.length; ++i ) {
                 if (i > 0) {
@@ -123,7 +123,7 @@ public abstract class ExpressionNode extends SimpleNode
                 result += value;
             }
         }
-        
+
         if (_parent != null && !NumericExpression.class.isAssignableFrom(_parent.getClass())) {
             result = result + ")";
         }

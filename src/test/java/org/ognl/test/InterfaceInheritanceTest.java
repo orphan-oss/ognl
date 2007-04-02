@@ -34,33 +34,34 @@ import junit.framework.TestSuite;
 import ognl.OgnlRuntime;
 import org.ognl.test.objects.*;
 
-public class InterfaceInheritanceTest extends OgnlTestCase
-{
+public class InterfaceInheritanceTest extends OgnlTestCase {
     private static Root ROOT = new Root();
 
     static {
         ROOT.getBeans().setBean("testBean", new Bean1());
-        ROOT.getBeans().setBean("evenOdd",  new EvenOdd());
+        ROOT.getBeans().setBean("evenOdd", new EvenOdd());
     }
-    
+
     private static Object[][] TESTS = {
-        // Interface inheritence test
-        { ROOT, "myMap", ROOT.getMyMap() },
-        { ROOT, "myMap.test", ROOT },
-        { ROOT.getMyMap(), "list", ROOT.getList() },
-        { ROOT, "myMap.array[0]", new Integer(ROOT.getArray()[0]) },
-        { ROOT, "myMap.list[1]", ROOT.getList().get(1) },
-        { ROOT, "myMap[^]", new Integer(99) },
-        { ROOT, "myMap[$]", null },
-        { ROOT.getMyMap(), "array[$]", new Integer(ROOT.getArray()[ROOT.getArray().length - 1]) },
-        { ROOT, "[\"myMap\"]", ROOT.getMyMap() }, 
-        { ROOT, "myMap[null]", null },
-        { ROOT, "myMap[#x = null]", null },
-        { ROOT, "myMap.(null,test)", ROOT },
-        { ROOT, "myMap[null] = 25", new Integer(25)},
-        { ROOT, "myMap[null]", new Integer(25), new Integer(50), new Integer(50) },
-        { ROOT, "beans.testBean", ROOT.getBeans().getBean("testBean")},
-        { ROOT, "beans.evenOdd.next", ((EvenOdd)ROOT.getBeans().getBean("evenOdd")).getNext()},
+            // Interface inheritence test
+            {ROOT, "myMap", ROOT.getMyMap()},
+            {ROOT, "myMap.test", ROOT},
+            {ROOT.getMyMap(), "list", ROOT.getList()},
+            {ROOT, "myMap.array[0]", new Integer(ROOT.getArray()[0])},
+            {ROOT, "myMap.list[1]", ROOT.getList().get(1)},
+            {ROOT, "myMap[^]", new Integer(99)},
+            {ROOT, "myMap[$]", null},
+            {ROOT.getMyMap(), "array[$]", new Integer(ROOT.getArray()[ROOT.getArray().length - 1])},
+            {ROOT, "[\"myMap\"]", ROOT.getMyMap()},
+            {ROOT, "myMap[null]", null},
+            {ROOT, "myMap[#x = null]", null},
+            {ROOT, "myMap.(null,test)", ROOT},
+            {ROOT, "myMap[null] = 25", new Integer(25)},
+            {ROOT, "myMap[null]", new Integer(25), new Integer(50), new Integer(50)},
+            {ROOT, "beans.testBean", ROOT.getBeans().getBean("testBean")},
+            {ROOT, "beans.evenOdd.next", ((EvenOdd) ROOT.getBeans().getBean("evenOdd")).getNext()},
+            {ROOT, "map.comp.form.clientId", "form1"},
+            {ROOT, "map.comp.getCount(genericIndex)", Integer.valueOf(0)}
     };
 
     /*
@@ -70,8 +71,8 @@ public class InterfaceInheritanceTest extends OgnlTestCase
     public static TestSuite suite()
     {
         TestSuite result = new TestSuite();
-        
-        for(int i = 0; i < TESTS.length; i++) {
+
+        for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new InterfaceInheritanceTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
                         TESTS[i][2]));
@@ -89,14 +90,14 @@ public class InterfaceInheritanceTest extends OgnlTestCase
                 }
             }
         }
-        
+
         return result;
     }
-    
+
     /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
+    * =================================================================== Constructors
+    * ===================================================================
+    */
     public InterfaceInheritanceTest()
     {
         super();
@@ -108,13 +109,13 @@ public class InterfaceInheritanceTest extends OgnlTestCase
     }
 
     public InterfaceInheritanceTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue, Object expectedAfterSetResult)
+                                    Object setValue, Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
     public InterfaceInheritanceTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue)
+                                    Object setValue)
     {
         super(name, root, expressionString, expectedResult, setValue);
     }
@@ -123,11 +124,11 @@ public class InterfaceInheritanceTest extends OgnlTestCase
     {
         super(name, root, expressionString, expectedResult);
     }
-    
+
     public void setUp()
     {
         super.setUp();
-        
+
         OgnlRuntime.setPropertyAccessor(BeanProvider.class, new BeanProviderAccessor());
     }
 }

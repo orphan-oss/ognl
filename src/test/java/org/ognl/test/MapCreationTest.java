@@ -38,8 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class MapCreationTest extends OgnlTestCase
-{
+public class MapCreationTest extends OgnlTestCase {
 
     private static Root ROOT = new Root();
     private static Map fooBarMap1;
@@ -67,13 +66,13 @@ public class MapCreationTest extends OgnlTestCase
 
     private static Object[][] TESTS = {
             // Map creation
-            { ROOT, "#{ \"foo\" : \"bar\" }", fooBarMap1 },
-            { ROOT, "#{ \"foo\" : \"bar\", \"bar\" : \"baz\"  }", fooBarMap2 },
-            { ROOT, "#{ \"foo\", \"bar\" : \"baz\"  }", fooBarMap3 },
-            { ROOT, "#@java.util.LinkedHashMap@{ \"foo\" : \"bar\", \"bar\" : \"baz\"  }", fooBarMap4 },
-            { ROOT, "#@java.util.TreeMap@{ \"foo\" : \"bar\", \"bar\" : \"baz\"  }", fooBarMap5 }, 
-            
-            };
+            {ROOT, "#{ \"foo\" : \"bar\" }", fooBarMap1},
+            {ROOT, "#{ \"foo\" : \"bar\", \"bar\" : \"baz\"  }", fooBarMap2},
+            {ROOT, "#{ \"foo\", \"bar\" : \"baz\"  }", fooBarMap3},
+            {ROOT, "#@java.util.LinkedHashMap@{ \"foo\" : \"bar\", \"bar\" : \"baz\"  }", fooBarMap4},
+            {ROOT, "#@java.util.TreeMap@{ \"foo\" : \"bar\", \"bar\" : \"baz\"  }", fooBarMap5},
+
+    };
 
     /*
      * =================================================================== Public static methods
@@ -83,7 +82,7 @@ public class MapCreationTest extends OgnlTestCase
     {
         TestSuite result = new TestSuite();
 
-        for(int i = 0; i < TESTS.length; i++) {
+        for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result
                         .addTest(new MapCreationTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
@@ -120,7 +119,7 @@ public class MapCreationTest extends OgnlTestCase
     }
 
     public MapCreationTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-            Object expectedAfterSetResult)
+                           Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }

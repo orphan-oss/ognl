@@ -30,6 +30,7 @@
 //--------------------------------------------------------------------------
 package ognl;
 
+import ognl.enhance.OrderedReturn;
 import ognl.enhance.UnsupportedCompilationException;
 
 /**
@@ -61,32 +62,51 @@ class ASTAssign extends SimpleNode
     public String toGetSourceString(OgnlContext context, Object target)
     {
         String result = "";
-        
-        result += _children[0].toGetSourceString(context, target);
+
+        String first = _children[0].toGetSourceString(context, target);
+        String second = "";
         
         if (ASTProperty.class.isInstance(_children[1])) {
-            result += "((" + OgnlRuntime.getCompiler().getClassName(target.getClass()) + ")$2).";
+            second += "((" + OgnlRuntime.getCompiler().getClassName(target.getClass()) + ")$2).";
         }
         
-        String value =_children[1].toGetSourceString(context, target);
-        
-        if (value == null)
-            throw new UnsupportedCompilationException("Value for assignment is null, can't enhance statement to bytecode.");
+        second += _children[1].toGetSourceString(context, target);
         
         if (ASTSequence.class.isAssignableFrom(_children[1].getClass())) {
             ASTSequence seq = (ASTSequence)_children[1];
-            result = seq.getCoreExpression() + result;
-            value = seq.getLastExpression();
+
+            context.setCurrentType(Object.class);
+
+            String core = seq.getCoreExpression();
+            if (core.endsWith(";"))
+                core = core.substring(0, core.lastIndexOf(";"));
+
+            second = OgnlRuntime.getCompiler().createLocalReference(context,
+                    "ognl.OgnlOps.returnValue(($w)" + core  + ", ($w) " + seq.getLastExpression() + ")",
+                    Object.class);
         }
-        
-        if (NodeType.class.isInstance(_children[1]) 
+
+        if (NodeType.class.isInstance(_children[1])
                 && !ASTProperty.class.isInstance(_children[1])
-                && ((NodeType)_children[1]).getGetterClass() != null) {
+                && ((NodeType)_children[1]).getGetterClass() != null && !OrderedReturn.class.isInstance(_children[1])) {
             
-            value = "new " + ((NodeType)_children[1]).getGetterClass().getName() + "(" + value + ")";
+            second = "new " + ((NodeType)_children[1]).getGetterClass().getName() + "(" + second + ")";
         }
         
-        return result + value + ")";
+        if (OrderedReturn.class.isAssignableFrom(_children[0].getClass())
+            && ((OrderedReturn)_children[0]).getCoreExpression() != null) {
+            context.setCurrentType(Object.class);
+
+            result = first + second + ")";
+
+            // System.out.println("building ordered ret from child[0] with result of:" + result);
+
+            result = OgnlRuntime.getCompiler().createLocalReference(context,
+                    "ognl.OgnlOps.returnValue(($w)" + result + ", ($w)" + ((OrderedReturn)_children[0]).getLastExpression() + ")",
+                    Object.class);
+        }
+
+        return result;
     }
     
     public String toSetSourceString(OgnlContext context, Object target)

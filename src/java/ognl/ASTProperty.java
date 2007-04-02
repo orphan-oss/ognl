@@ -297,7 +297,8 @@ public class ASTProperty extends SimpleNode implements NodeType
                     context.put("_indexedMethod", m);
                 }
             } else {
-/*
+
+                /*
                 System.out.println("astproperty trying to get " + name + " on object target: " + context.getCurrentObject().getClass().getName()
                         + " current type " + context.getCurrentType() + " current accessor " + context.getCurrentAccessor()
                     + " prev type " + context.getPreviousType() + " prev accessor " + context.getPreviousAccessor());
@@ -344,21 +345,6 @@ public class ASTProperty extends SimpleNode implements NodeType
 
                         _getterClass = context.getCurrentType();
 
-                    } else if (pd != null) {
-                        
-                        m = pd.getReadMethod();
-                        result = m.getName() + "()";
-                    } else {
-                        
-                        m = OgnlRuntime.getReadMethod(context.getCurrentObject().getClass(), name);
-                        if (m == null) {
-                            
-                            m = OgnlRuntime.getReadMethod(context.getCurrentObject().getClass(), name);
-                            result = name + "()";
-                        } else {
-                            result = m.getName() + "()";
-                            _getterClass = m.getReturnType();
-                        }
                     }
                 }
                 
@@ -377,7 +363,7 @@ public class ASTProperty extends SimpleNode implements NodeType
             _getterClass = m.getReturnType();
             
             context.setCurrentType(m.getReturnType());
-            context.setCurrentAccessor(OgnlRuntime.getSuperOrInterfaceClass(m, m.getDeclaringClass()));
+            context.setCurrentAccessor(OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, m.getDeclaringClass()));
         }
         
         context.setCurrentObject(target);
@@ -435,7 +421,7 @@ public class ASTProperty extends SimpleNode implements NodeType
                     _setterClass = m.getParameterTypes()[0];
 
                     context.setCurrentType(_setterClass);
-                    context.setCurrentAccessor(OgnlRuntime.getSuperOrInterfaceClass(m, m.getDeclaringClass()));
+                    context.setCurrentAccessor(OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, m.getDeclaringClass()));
                     context.setCurrentObject(target);
                     
                     return m.getName() + "(" + srcString + ")";
@@ -551,37 +537,7 @@ public class ASTProperty extends SimpleNode implements NodeType
                         }
 
                         _getterClass = context.getCurrentType();
-                    } else if (pd != null) {
-                        
-                        m = pd.getWriteMethod();
-                        if (m != null) {
-                            
-                            result = m.getName() + "(";
-                            Class ptype = m.getParameterTypes()[0];
-                            
-                            if (ptype.isArray()) {
-                                
-                                result += "(" + ExpressionCompiler.getCastString(ptype)
-                                + ")ognl.OgnlOps.convertValue($3," 
-                                + target.getClass().getComponentType().getName() + ".class))";
-                            } else {
-                                
-                                if (ptype.isPrimitive()) {
-                                    
-                                    Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(ptype);
-                                    
-                                    result += "((" + wrapClass.getName() 
-                                    + ")ognl.OgnlOps.convertValue($3," 
-                                    + wrapClass.getName() + ".class, true))."
-                                    + OgnlRuntime.getNumericValueGetter(wrapClass)
-                                    + ")";
-                                } else
-                                    result += "ognl.OgnlOps.convertValue($3," + ptype.getName() + ".class))";
-                                
-                            }
-                        }
-                        
-                    }
+                    } 
                 }
             }
             
@@ -591,13 +547,13 @@ public class ASTProperty extends SimpleNode implements NodeType
             else
                 throw new RuntimeException(t);
         }
-        
+
         context.setCurrentObject(target);
         
         if (m != null) {
             
             context.setCurrentType(m.getReturnType());
-            context.setCurrentAccessor(OgnlRuntime.getSuperOrInterfaceClass(m, m.getDeclaringClass()));
+            context.setCurrentAccessor(OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, m.getDeclaringClass()));
         }
 
         return result;

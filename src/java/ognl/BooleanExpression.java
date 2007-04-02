@@ -46,8 +46,15 @@ public abstract class BooleanExpression extends ExpressionNode implements NodeTy
                 _getterClass = value.getClass();
             else
                 _getterClass = Boolean.TYPE;
+
+            String ret = super.toGetSourceString(context, target);
+
+            if ("(false)".equals(ret))
+                return "false";
+            else if ("(true)".equals(ret))
+                return "true";
             
-            return super.toGetSourceString(context, target);
+            return ret;
             
         } catch (NullPointerException e) {
             

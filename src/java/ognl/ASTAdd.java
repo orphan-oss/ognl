@@ -226,9 +226,16 @@ class ASTAdd extends NumericExpression
                         }
                     }
 
+                    // turn quoted characters into quoted strings
+                    if (context.getCurrentType() != null && context.getCurrentType() == Character.class
+                            && ASTConst.class.isInstance(_children[i])) {
+                        expr = expr.replaceAll("'", "\"");
+                    }
+
                     if (!OrderedReturn.class.isInstance(_parent)) {
                         result += "(";
                     }
+                    
                     result += expr;
                     
                     if ((lastType == null || !String.class.isAssignableFrom(lastType.getGetterClass()))

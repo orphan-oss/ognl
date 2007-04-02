@@ -85,8 +85,9 @@ class ASTTest extends ExpressionNode
                     String value = OgnlRuntime.getChildSource(context, target, _children[i]);
 
                     if (i == 0) {
-                        
-                        value = "ognl.OgnlOps.booleanValue(" + value + ")";
+
+                        if (!OgnlRuntime.isBoolean(value))
+                            value = "ognl.OgnlOps.booleanValue(" + value + ")";
                     }
 
                     result += value;

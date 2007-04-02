@@ -148,22 +148,32 @@ public class ASTList extends SimpleNode implements NodeType
 
                     if (valueClass != null && ctorClass.isArray()) {
 
-                        value = "(" + ExpressionCompiler.getCastString(ctorClass)
+                        value = OgnlRuntime.getCompiler().createLocalReference(context,
+                                "(" + ExpressionCompiler.getCastString(ctorClass)
                                 + ")ognl.OgnlOps.toArray(" + value + ", " + ctorClass.getComponentType().getName()
-                                + ".class, true)";
+                                + ".class, true)",
+                                ctorClass
+                        );
 
                     } else  if (ctorClass.isPrimitive()) {
 
                         Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(ctorClass);
-
-                        value = "((" + wrapClass.getName()
+                        
+                        value = OgnlRuntime.getCompiler().createLocalReference(context,
+                                "((" + wrapClass.getName()
                                 + ")ognl.OgnlOps.convertValue(" + value + ","
                                 + wrapClass.getName() + ".class, true))."
-                                + OgnlRuntime.getNumericValueGetter(wrapClass);
-                        
+                                + OgnlRuntime.getNumericValueGetter(wrapClass),
+                                ctorClass
+                        );
+
                     } else if (ctorClass != Object.class) {
 
-                        value = "(" + ctorClass.getName() + ")ognl.OgnlOps.convertValue(" + value + "," + ctorClass.getName() + ".class)";
+                        value = OgnlRuntime.getCompiler().createLocalReference(context,
+                                "(" + ctorClass.getName() + ")ognl.OgnlOps.convertValue(" + value + "," + ctorClass.getName() + ".class)",
+                                ctorClass
+                        );
+                        
                     } else if ((NodeType.class.isInstance(_children[i])
                                 && ((NodeType)_children[i]).getGetterClass() != null
                                 && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass()))
@@ -194,16 +204,9 @@ public class ASTList extends SimpleNode implements NodeType
 
         context.setCurrentType(List.class);
         context.setCurrentAccessor(List.class);
-        
-        /*
-        if (_parent == null || !ASTCtor.class.isInstance(_parent))
-            return result + " })";
-        else
-            return result + " }";
-            */
 
         result += "}";
-
+        
         if (!array)
             result += ")";
         

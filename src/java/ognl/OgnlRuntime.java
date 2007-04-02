@@ -2048,88 +2048,20 @@ public class OgnlRuntime {
 
         return null;
     }
-    
-    public static Class getSuperOrInterfaceClass(Method m, Class clazz)
+
+    public static boolean isBoolean(String expression)
     {
-        if (clazz.getSuperclass() != null) {
-            Class superClass = getSuperOrInterfaceClass(m, clazz.getSuperclass());
-            
-            if (superClass != null)
-                return superClass;
-        }
-
-        boolean clazzHasMethod = containsMethod(m, clazz);
-
-        if (clazz.getInterfaces() != null && clazz.getInterfaces().length > 0) {
-
-            Class[] intfs = clazz.getInterfaces();
-            Class intClass = null;
-            for (int i = 0; i < intfs.length; i++) {
-                intClass = getSuperOrInterfaceClass(m, intfs[i]);
-
-                if (intClass != null && !clazzHasMethod)
-                    return intClass;
-            }
-        }
-
-        if (clazzHasMethod)
-            return clazz;
-
-        return null;
-    }
-
-    public static boolean containsMethod(Method m, Class clazz)
-    {
-        Method[] methods = clazz.getMethods();
-
-        if (methods == null)
+        if (expression == null)
             return false;
 
-        for (int i = 0; i < methods.length; i++) {
-            if (methods[i].getName().equals(m.getName())
-                    && methods[i].getReturnType() == m.getReturnType()) {
-
-                Class[] parms = m.getParameterTypes();
-                if (parms == null)
-                    continue;
-
-                Class[] mparms = methods[i].getParameterTypes();
-                if (mparms == null || mparms.length != parms.length)
-                    continue;
-
-                boolean parmsMatch = true;
-                for (int p = 0; p < parms.length; p++) {
-                    if (parms[p] != mparms[p]) {
-                        parmsMatch = false;
-                        break;
-                    }
-                }
-
-                if (!parmsMatch)
-                    continue;
-
-                Class[] exceptions = m.getExceptionTypes();
-                if (exceptions == null)
-                    continue;
-
-                Class[] mexceptions = methods[i].getExceptionTypes();
-                if (mexceptions == null || mexceptions.length != exceptions.length)
-                    continue;
-
-                boolean exceptionsMatch = true;
-                for (int e = 0; e < exceptions.length; e++) {
-                    if (exceptions[e] != mexceptions[e]) {
-                        exceptionsMatch = false;
-                        break;
-                    }
-                }
-
-                if (!exceptionsMatch)
-                    continue;
-
-                return true;
-            }
-        }
+        if ("true".equals(expression) || "false".equals(expression)
+                    || "!true".equals(expression) || "!false".equals(expression)
+                || "(true)".equals(expression)
+                || "!(true)".equals(expression)
+                || "(false)".equals(expression)
+                || "!(false)".equals(expression)
+                || expression.startsWith("ognl.OgnlOps"))
+            return true;
 
         return false;
     }

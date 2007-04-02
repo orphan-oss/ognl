@@ -251,13 +251,12 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
     
     public String toGetSourceString(OgnlContext context, Object target)
     {
-        if (target == null)
-            throw new UnsupportedCompilationException("Eval expressions not supported as native java yet.");
-        
         String prevChain = (String)context.get("_currentChain");
         
-        context.setCurrentObject(target);
-        context.setCurrentType(target.getClass());
+        if (target != null) {
+            context.setCurrentObject(target);
+            context.setCurrentType(target.getClass());
+        }
         
         String result = "";
         NodeType _lastType = null;
@@ -271,7 +270,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                     
                     String value = _children[i].toGetSourceString(context, context.getCurrentObject());
                     
-                    //System.out.println("astchain child returned >>  " + value + "  <<");
+                    // System.out.println("astchain child returned >>  " + value + "  <<");
                     
                     if (ASTCtor.class.isInstance(_children[i]))
                         constructor = true;
@@ -283,7 +282,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                     }
 
                     //System.out.println("Astchain i: " + i + " currentobj : " + context.getCurrentObject() + " and root: " + context.getRoot());
-                    if (!constructor && !(OrderedReturn.class.isInstance(_children[i]) && ((OrderedReturn)_children[i]).getLastExpression() != null)
+                    if (!ASTVarRef.class.isInstance(_children[i]) && !constructor && !(OrderedReturn.class.isInstance(_children[i]) && ((OrderedReturn)_children[i]).getLastExpression() != null)
                             && (_parent == null || !ASTSequence.class.isInstance(_parent))) {
                         
                         value = OgnlRuntime.getCompiler().castExpression(context, _children[i], value);
@@ -316,7 +315,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                         result = value;
                     } else
                         result += value;
-                    
+
                     context.put("_currentChain", result);
                 }
             }
@@ -343,26 +342,24 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
     
     public String toSetSourceString(OgnlContext context, Object target)
     {
-        if (target == null)
-            throw new UnsupportedCompilationException("Must have valid target object to compile chain.");
-        
         String prevChain = (String)context.get("_currentChain");
         String prevChild = (String)context.get("_lastChild");
         
         if (prevChain != null)
             throw new UnsupportedCompilationException("Can't compile nested chain expressions.");
         
-        context.setCurrentObject(target);
-        context.setCurrentType(target.getClass());
-        context.setCurrentAccessor(target.getClass());
-        
+        if (target != null) {
+            context.setCurrentObject(target);
+            context.setCurrentType(target.getClass());
+        }
+
         String result = "";
         NodeType _lastType = null;
         boolean constructor = false;
         try {
             if ((_children != null) && (_children.length > 0)) {
                 for(int i = 0; i < _children.length; i++) {
-                    //System.out.println("astchain setsource child : " + _children[i].getClass().getName());
+                    // System.out.println("astchain setsource child : " + _children[i].getClass().getName());
                     
                     if (i == (_children.length -1)) {
                         
@@ -388,7 +385,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                         value = OgnlRuntime.getCompiler().castExpression(context, _children[i], value);
                     }
                     
-                    if (ASTOr.class.isInstance(_children[i]) 
+                    if (ASTOr.class.isInstance(_children[i])
                             || ASTAnd.class.isInstance(_children[i])
                             || ASTCtor.class.isInstance(_children[i])
                             || ASTStaticField.class.isInstance(_children[i])) {

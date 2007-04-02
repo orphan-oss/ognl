@@ -40,7 +40,7 @@ public class ClassMethodTest extends OgnlTestCase
 
     private static Object[][] TESTS = {
             // Methods on Class
-           { CORRECTED, "getClass().getName()", CORRECTED.getClass().getName() },
+            { CORRECTED, "getClass().getName()", CORRECTED.getClass().getName() },
             { CORRECTED, "getClass().getInterfaces()", CORRECTED.getClass().getInterfaces() },
             { CORRECTED, "getClass().getInterfaces().length", new Integer(CORRECTED.getClass().getInterfaces().length) },
             { null, "@System@class.getInterfaces()", System.class.getInterfaces() },
