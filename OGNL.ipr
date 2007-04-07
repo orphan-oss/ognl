@@ -166,7 +166,7 @@
         <option name="downloadSourcesEnabled" value="false" />
         <option name="downloadJavadocEnabled" value="false" />
         <option name="generateSourcesEnabled" value="false" />
-        <option name="settingsPath" value="$USERPROFILE$/.m2/settings.xml" />
+        <option name="settingsPath" value="/home/jkuhnert/.m2/settings.xml" />
         <option name="searchFilter" value="" />
         <option name="disabledPoms">
           <value>
@@ -341,6 +341,7 @@
     <option name="ADDITIONAL_OPTIONS_STRING" value="" />
   </component>
   <component name="StarteamVcsAdapter" />
+  <component name="XSLT-Support.FileAssociationsManager" />
   <component name="com.intellij.jsf.UserDefinedFacesConfigs">
     <option name="USER_DEFINED_CONFIGS">
       <value>
@@ -354,8 +355,6 @@
     <option name="COPY_FORMS_RUNTIME_TO_OUTPUT" value="true" />
     <option name="DEFAULT_LAYOUT_MANAGER" value="GridLayoutManager" />
   </component>
-  <UsedPathMacros>
-    <macro name="USERPROFILE" />
-  </UsedPathMacros>
+  <UsedPathMacros />
 </project>
 

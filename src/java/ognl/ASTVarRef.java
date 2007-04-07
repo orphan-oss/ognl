@@ -112,7 +112,7 @@ public class ASTVarRef extends SimpleNode implements NodeType, OrderedReturn {
         context.setCurrentAccessor(context.getClass());
         
         context.setCurrentObject(value);
-        context.setRoot(context.get(_name));
+        //context.setRoot(context.get(_name));
         
         if (context.getCurrentObject() == null)
             throw new UnsupportedCompilationException("Current context object is null, can't compile var reference.");

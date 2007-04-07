@@ -83,6 +83,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/OgnlTestCase.java</exclude>
+                        <exclude>**/*$*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -118,6 +119,11 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.2-SNAPSHOT</version>
+            </plugin>
         </plugins>
 
         <extensions>
@@ -129,15 +135,6 @@
             </extension>
         </extensions>
     </build>
-
-    <!--
-    <pluginRepositories>
-        <pluginRepository>
-            <id>howardlewisship.com</id>
-            <url>http://howardlewisship.com/repository</url>
-        </pluginRepository>
-    </pluginRepositories>
-    -->
     
     <distributionManagement>
         <repository>

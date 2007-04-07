@@ -1031,7 +1031,9 @@ public class OgnlRuntime {
             throws OgnlException, IllegalAccessException, NoSuchMethodException, IntrospectionException
     {
         Object result = null;
-        Method m = getGetMethod(context, (target == null) ? null : target.getClass(), propertyName);
+        Method m = getGetMethod(context, (target == null) ? null : target.getClass() , propertyName);
+        if (m == null)
+           m = getReadMethod((target == null) ? null : target.getClass(), propertyName, 0);
 
         if (checkAccessAndExistence) {
             if ((m == null) || !context.getMemberAccess().isAccessible(context, target, m, propertyName)) {
@@ -1959,8 +1961,7 @@ public class OgnlRuntime {
             }
 
             for (int i = 0; i < methods.length; i++) {
-
-                //System.out.println("checking for read method " + name + " in " + methods[i].getName());
+                
                 if (methods[i].getName().toLowerCase().endsWith(name.toLowerCase())
                         && !methods[i].getName().startsWith("set")) {
 
@@ -2000,7 +2001,7 @@ public class OgnlRuntime {
             MethodDescriptor[] methods = info.getMethodDescriptors();
 
             for (int i = 0; i < methods.length; i++) {
-                //System.out.println("checking for write method " + name + " in " + methods[i].getName());
+
                 if ((methods[i].getName().equalsIgnoreCase(name)
                         || methods[i].getName().toLowerCase().equals(name.toLowerCase())
                         || methods[i].getName().toLowerCase().equals("set" + name.toLowerCase()))
@@ -2132,28 +2133,18 @@ public class OgnlRuntime {
 
         String source = child.toGetSourceString(context, target);
 
-        // System.out.println("getChildSource class: " + child.getClass().getName() + " source: " + source);
-
         // handle root / method expressions that may not have proper root java source access
 
         source = pre + source;
 
-        if (ASTProperty.class.isInstance(child)) {
-
+        if (context.getRoot() != null) {
+            
             source = ExpressionCompiler.getRootExpression(child, context.getRoot(), false) + source;
             context.setCurrentAccessor(context.getRoot().getClass());
-
-        } else if (ASTMethod.class.isInstance(child)) {
-
-            source = ExpressionCompiler.getRootExpression(child, context.getRoot(), false) + source;
-
-            context.setCurrentAccessor(context.getRoot().getClass());
-
-        } else if (ASTChain.class.isInstance(child)) {
-
-            source = ExpressionCompiler.getRootExpression(child, context.getRoot(), false) + source;
-            context.setCurrentAccessor(context.getRoot().getClass());
-
+        }
+        
+        if (ASTChain.class.isInstance(child)) {
+            
             String cast = (String) context.remove(ExpressionCompiler.PRE_CAST);
             if (cast == null)
                 cast = "";

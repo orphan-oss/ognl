@@ -17,51 +17,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/TestOgnlRuntime.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/TestOgnlRuntime.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/IForm.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTOr.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTOr.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/OgnlOps.java" afterPath="$PROJECT_DIR$/src/java/ognl/OgnlOps.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/ArrayElementsTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/ArrayElementsTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/IComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ExpressionNode.java" afterPath="$PROJECT_DIR$/src/java/ognl/ExpressionNode.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" afterPath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTStaticMethod.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTStaticMethod.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTAssign.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTAssign.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/ArithmeticAndLogicalOperatorsTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/ArithmeticAndLogicalOperatorsTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/IFormComponent.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/ognl/enhance/LocalReference.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTAdd.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTAdd.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/FormImpl.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTVarRef.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTVarRef.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/ComponentImpl.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" afterPath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iws" afterPath="$PROJECT_DIR$/OGNL.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/InterfaceInheritanceTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/InterfaceInheritanceTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/ognl/enhance/LocalReferenceImpl.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/enhance/OgnlExpressionCompiler.java" afterPath="$PROJECT_DIR$/src/java/ognl/enhance/OgnlExpressionCompiler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTMethod.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTMethod.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/NullStringCatenationTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/NullStringCatenationTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/ContextVariableTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/ContextVariableTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTNot.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTNot.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTTest.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ComparisonExpression.java" afterPath="$PROJECT_DIR$/src/java/ognl/ComparisonExpression.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/BooleanExpression.java" afterPath="$PROJECT_DIR$/src/java/ognl/BooleanExpression.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/OgnlTestCase.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/OgnlTestCase.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTRootVarRef.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTRootVarRef.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/MapCreationTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/MapCreationTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTAnd.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTAnd.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/ClassMethodTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/ClassMethodTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTList.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTList.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/PropertyTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/PropertyTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/ComponentSubclass.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTProperty.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTProperty.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/MemberAccessTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/MemberAccessTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ObjectPropertyAccessor.java" afterPath="$PROJECT_DIR$/src/java/ognl/ObjectPropertyAccessor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/NumericConversionTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/NumericConversionTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/FormComponentImpl.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/accessors/ListPropertyAccessorTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/accessors/ListPropertyAccessorTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTChain.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTChain.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.ipr" afterPath="$PROJECT_DIR$/OGNL.ipr" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/InterfaceInheritanceTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/InterfaceInheritanceTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" afterPath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/ShortCircuitingExpressionTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/ShortCircuitingExpressionTest.java" />
     </list>
   </component>
   <component name="ChangesViewManager" flattened_view="true" />
@@ -184,26 +148,7 @@
     </subPane>
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="ExpressionCompiler.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="471" column="11" selection-start="16624" selection-end="16624" vertical-scroll-proportion="0.012787724">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="OgnlExpressionCompiler.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/OgnlExpressionCompiler.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="0" selection-start="377" selection-end="377" vertical-scroll-proportion="0.20460358">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -284,7 +229,7 @@
       <showLibraryContents />
       <hideEmptyPackages />
       <abbreviatePackageNames />
-      <showStructure Favorites="false" PackagesPane="false" Scope="false" ProjectPane="false" />
+      <showStructure Favorites="false" ProjectPane="false" Scope="false" PackagesPane="false" />
       <autoscrollToSource />
       <autoscrollFromSource />
       <sortByType />
@@ -304,16 +249,16 @@
     <property name="cvs_file_history_flatOrder1" value="1" />
     <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
-    <property name="cvs_file_history_treeWidth0" value="464" />
-    <property name="cvs_file_history_treeWidth1" value="464" />
-    <property name="cvs_file_history_treeWidth2" value="464" />
-    <property name="cvs_file_history_flatWidth2" value="464" />
-    <property name="cvs_file_history_treeWidth3" value="464" />
-    <property name="cvs_file_history_flatWidth3" value="464" />
+    <property name="cvs_file_history_treeWidth0" value="503" />
+    <property name="cvs_file_history_treeWidth1" value="503" />
+    <property name="cvs_file_history_treeWidth2" value="504" />
+    <property name="cvs_file_history_treeWidth3" value="503" />
+    <property name="cvs_file_history_flatWidth2" value="504" />
     <property name="cvs_file_history_treeOrder0" value="0" />
+    <property name="cvs_file_history_flatWidth3" value="503" />
     <property name="MemberChooser.showClasses" value="true" />
-    <property name="cvs_file_history_flatWidth0" value="464" />
-    <property name="cvs_file_history_flatWidth1" value="464" />
+    <property name="cvs_file_history_flatWidth0" value="503" />
+    <property name="cvs_file_history_flatWidth1" value="503" />
     <property name="GoToClass.includeLibraries" value="false" />
   </component>
   <component name="ReadonlyStatusHandler">
@@ -324,15 +269,109 @@
       <recent name="ognl.enhance.ExpressionCompiler" />
     </key>
   </component>
-  <component name="RestoreUpdateTree" />
-  <component name="RunManager" selected="JUnit.ContextVariableTest">
-    <tempConfiguration default="false" name="ContextVariableTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+  <component name="RestoreUpdateTree">
+    <UpdateInfo date="4/7/07 4:40 PM" ActionInfo="_Update">
+      <UpdatedFiles>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Updated from server" />
+          <option name="myStatusName" value="Changed on server" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="CHANGED_ON_SERVER" />
+          <FILE-GROUP>
+            <option name="myUpdateName" value="Updated" />
+            <option name="myStatusName" value="Changed" />
+            <option name="mySupportsDeletion" value="false" />
+            <option name="myCanBeAbsent" value="false" />
+            <option name="myId" value="UPDATED" />
+          </FILE-GROUP>
+          <FILE-GROUP>
+            <option name="myUpdateName" value="Created" />
+            <option name="myStatusName" value="Created" />
+            <option name="mySupportsDeletion" value="false" />
+            <option name="myCanBeAbsent" value="false" />
+            <option name="myId" value="CREATED" />
+          </FILE-GROUP>
+          <FILE-GROUP>
+            <option name="myUpdateName" value="Deleted" />
+            <option name="myStatusName" value="Deleted" />
+            <option name="mySupportsDeletion" value="false" />
+            <option name="myCanBeAbsent" value="true" />
+            <option name="myId" value="REMOVED_FROM_REPOSITORY" />
+          </FILE-GROUP>
+          <FILE-GROUP>
+            <option name="myUpdateName" value="Restored" />
+            <option name="myStatusName" value="Will be restored" />
+            <option name="mySupportsDeletion" value="false" />
+            <option name="myCanBeAbsent" value="false" />
+            <option name="myId" value="RESTORED" />
+          </FILE-GROUP>
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Modified" />
+          <option name="myStatusName" value="Modified" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="MODIFIED" />
+          <PATH>$PROJECT_DIR$/OGNL.ipr</PATH>
+          <PATH>$PROJECT_DIR$/OGNL.iws</PATH>
+          <PATH>$PROJECT_DIR$/pom.xml</PATH>
+          <PATH>$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java</PATH>
+          <PATH>$PROJECT_DIR$/src/test/java/org/ognl/test/InterfaceInheritanceTest.java</PATH>
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Skipped" />
+          <option name="myStatusName" value="Skipped" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="SKIPPED" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Merged with conflicts" />
+          <option name="myStatusName" value="Will be merged with conflicts" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="MERGED_WITH_CONFLICTS" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Merged" />
+          <option name="myStatusName" value="Will be merged" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="MERGED" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Not in repository" />
+          <option name="myStatusName" value="Not in repository" />
+          <option name="mySupportsDeletion" value="true" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="UNKNOWN" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Locally added" />
+          <option name="myStatusName" value="Locally added" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="LOCALLY_ADDED" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Locally removed" />
+          <option name="myStatusName" value="Locally removed" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="LOCALLY_REMOVED" />
+        </FILE-GROUP>
+      </UpdatedFiles>
+    </UpdateInfo>
+  </component>
+  <component name="RunManager" selected="JUnit.ShortCircuitingExpressionTest">
+    <tempConfiguration default="false" name="ShortCircuitingExpressionTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <pattern value="org.ognl.test.*" />
       <module name="OGNL" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" value="org.ognl.test" />
-      <option name="MAIN_CLASS_NAME" value="org.ognl.test.ContextVariableTest" />
+      <option name="MAIN_CLASS_NAME" value="org.ognl.test.ShortCircuitingExpressionTest" />
       <option name="METHOD_NAME" />
       <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" />
@@ -348,60 +387,6 @@
         <option name="Make" value="true" />
       </method>
     </tempConfiguration>
-    <configuration default="true" type="TestNG" factoryName="TestNG" enabled="false" merge="false">
-      <module name="" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="SUITE_NAME" value="" />
-      <option name="PACKAGE_NAME" />
-      <option name="MAIN_CLASS_NAME" value="" />
-      <option name="METHOD_NAME" />
-      <option name="GROUP_NAME" value="" />
-      <option name="TEST_OBJECT" value="CLASS" />
-      <option name="VM_PARAMETERS" value="" />
-      <option name="PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/build" />
-      <option name="OUTPUT_DIRECTORY" value="" />
-      <option name="ADDITIONAL_CLASS_PATH" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <option name="PROPERTIES_FILE" value="" />
-      <properties />
-      <method>
-        <option name="Make" value="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Remote">
-      <option name="WORKING_DIRECTORY" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="8080" />
-      <option name="LOCAL" value="false" />
-      <option name="OPEN_IN_BROWSER" value="true" />
-      <option name="OPEN_IN_BROWSER_URL" value="/" />
-      <option name="COMMON_VM_ARGUMENTS" value="" />
-      <option name="DEPLOY_TOMCAT_MANAGER" value="false" />
-      <option name="BASE_DIRECTORY_NAME" value="tomcat__aca44b58" />
-      <predefined_log_file id="TOMCAT_LOCALHOST_LOG_ID" enabled="true" />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="51620" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="false" />
-      </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
-      <ConfigurationWrapper RunnerId="Run" />
-    </configuration>
-    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
-      <option name="MAIN_CLASS_NAME" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <module name="" />
-    </configuration>
     <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local">
       <option name="WORKING_DIRECTORY" />
       <option name="HOST" value="localhost" />
@@ -450,12 +435,78 @@
         </SHUTDOWN>
       </ConfigurationWrapper>
     </configuration>
+    <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Remote">
+      <option name="WORKING_DIRECTORY" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="8080" />
+      <option name="LOCAL" value="false" />
+      <option name="OPEN_IN_BROWSER" value="true" />
+      <option name="OPEN_IN_BROWSER_URL" value="/" />
+      <option name="COMMON_VM_ARGUMENTS" value="" />
+      <option name="DEPLOY_TOMCAT_MANAGER" value="false" />
+      <option name="BASE_DIRECTORY_NAME" value="tomcat__aca44b58" />
+      <predefined_log_file id="TOMCAT_LOCALHOST_LOG_ID" enabled="true" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="51620" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="false" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
+      <ConfigurationWrapper RunnerId="Run" />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <module name="" />
+    </configuration>
     <configuration default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
       <option name="SHMEM_ADDRESS" value="javadebug" />
       <option name="HOST" value="localhost" />
       <option name="PORT" value="5005" />
+    </configuration>
+    <configuration default="true" type="TestNG" factoryName="TestNG" enabled="false" merge="false">
+      <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="SUITE_NAME" value="" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" value="" />
+      <option name="METHOD_NAME" />
+      <option name="GROUP_NAME" value="" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/build" />
+      <option name="OUTPUT_DIRECTORY" value="" />
+      <option name="ADDITIONAL_CLASS_PATH" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <option name="PROPERTIES_FILE" value="" />
+      <properties />
+      <method>
+        <option name="Make" value="true" />
+      </method>
     </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <module name="" />
@@ -475,18 +526,6 @@
       <method>
         <option name="Make" value="true" />
       </method>
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
     </configuration>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
@@ -536,7 +575,7 @@
     <option name="UPDATE_RUN_STATUS" value="true" />
     <option name="UPDATE_RECURSIVELY" value="true" />
     <option name="MERGE_DRY_RUN" value="false" />
-    <configuration useDefault="true">$USERPROFILE$/.subversion</configuration>
+    <configuration useDefault="true">/home/jkuhnert/.subversion</configuration>
     <checkoutURL>http://svn.opensymphony.com/svn/ognl/trunk</checkoutURL>
     <upgradeMode>none</upgradeMode>
   </component>
@@ -555,7 +594,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="96" y="160" width="2112" height="1361" extended-state="0" />
+    <frame x="98" y="164" width="2112" height="1361" extended-state="0" />
     <editor active="false" />
     <layout>
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
@@ -564,7 +603,7 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32807308" order="1" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2755187" order="3" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24046434" order="8" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.23983403" order="8" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22259136" order="8" />
       <window_info id="Maven" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="7" />
@@ -574,7 +613,7 @@
       <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24780916" order="0" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22930866" order="0" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="6" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2591362" order="2" />
@@ -622,6 +661,11 @@
     <MESSAGE value="Resolves OGNL-24. ListPropertyAccessor wasn't delegating to superclass for getSource in operations where a list object has been extended .." />
     <MESSAGE value="Let's just say it fixes most problems and leave it at that..." />
   </component>
+  <component name="XPathView.XPathProjectComponent">
+    <history />
+    <find-history />
+  </component>
+  <component name="XSLT-Support.FileAssociationsSettings" />
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
     <option name="FILTER_TARGETS" value="false" />
@@ -687,107 +731,109 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlOps.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/InterfaceInheritanceTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="990" column="0" selection-start="35200" selection-end="35200" vertical-scroll-proportion="0.82435596">
+        <state line="47" column="0" selection-start="2170" selection-end="2170" vertical-scroll-proportion="0.17902814">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/BooleanExpression.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/ListSource.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="53" column="42" selection-start="1214" selection-end="1214" vertical-scroll-proportion="0.56088996">
+        <state line="8" column="0" selection-start="101" selection-end="101" vertical-scroll-proportion="0.10230179">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="2124" column="0" selection-start="81539" selection-end="81539" vertical-scroll-proportion="0.47775176">
+        <state line="255" column="5" selection-start="7543" selection-end="7543" vertical-scroll-proportion="0.30775788">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTAnd.java">
+    <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="107" column="0" selection-start="4065" selection-end="4065" vertical-scroll-proportion="0.4566745">
+        <state line="79" column="20" selection-start="2637" selection-end="2637" vertical-scroll-proportion="0.5140665">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ArrayElementsTest.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/NullStringCatenationTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="58" column="72" selection-start="2959" selection-end="2959" vertical-scroll-proportion="0.36885247">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTRootVarRef.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="79" column="12" selection-start="2838" selection-end="2838" vertical-scroll-proportion="0.87822014">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTOr.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="112" column="0" selection-start="4219" selection-end="4219" vertical-scroll-proportion="0.07025761">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/CollectionDirectPropertyTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="42" selection-start="1953" selection-end="1953" vertical-scroll-proportion="0.08951407">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ContextVariableTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="0" selection-start="2247" selection-end="2247" vertical-scroll-proportion="0.19181585">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ShortCircuitingExpressionTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="46" selection-start="2400" selection-end="2400" vertical-scroll-proportion="0.17902814">
+        <state line="78" column="73" selection-start="3741" selection-end="3741" vertical-scroll-proportion="0.6138107">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTVarRef.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="115" column="8" selection-start="3461" selection-end="3461" vertical-scroll-proportion="0.59079283">
+        <state line="68" column="5" selection-start="2503" selection-end="2503" vertical-scroll-proportion="0.29859486">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTAssign.java">
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="101" column="15" selection-start="4133" selection-end="4133" vertical-scroll-proportion="0.45012787">
+        <state line="2153" column="8" selection-start="82300" selection-end="82300" vertical-scroll-proportion="0.8337596">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTSequence.java">
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTOr.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="143" column="12" selection-start="4962" selection-end="4962" vertical-scroll-proportion="0.67689687">
+        <state line="97" column="0" selection-start="3409" selection-end="3409" vertical-scroll-proportion="0.24211423">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="87" column="0" selection-start="3552" selection-end="3552" vertical-scroll-proportion="0.5652174">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTChain.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="136" column="0" selection-start="5882" selection-end="5882" vertical-scroll-proportion="0.24211423">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTMethod.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="89" column="0" selection-start="3030" selection-end="3030" vertical-scroll-proportion="0.4339301">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlContext.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="204" column="0" selection-start="7685" selection-end="7685" vertical-scroll-proportion="0.22932652">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTAnd.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="120" column="0" selection-start="4579" selection-end="4579" vertical-scroll-proportion="0.5268542">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ShortCircuitingExpressionTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="63" column="20" selection-start="3037" selection-end="3037" vertical-scroll-proportion="0.4347826">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="471" column="11" selection-start="16624" selection-end="16624" vertical-scroll-proportion="0.012787724">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/OgnlExpressionCompiler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="0" selection-start="377" selection-end="377" vertical-scroll-proportion="0.20460358">
+        <state line="527" column="33" selection-start="18784" selection-end="18784" vertical-scroll-proportion="0.5106564">
           <folding />
         </state>
       </provider>

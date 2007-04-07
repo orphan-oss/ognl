@@ -34,12 +34,19 @@ import junit.framework.TestSuite;
 import ognl.OgnlRuntime;
 import org.ognl.test.objects.*;
 
+import java.util.List;
+
 public class InterfaceInheritanceTest extends OgnlTestCase {
     private static Root ROOT = new Root();
 
     static {
         ROOT.getBeans().setBean("testBean", new Bean1());
         ROOT.getBeans().setBean("evenOdd", new EvenOdd());
+
+        List list = new ListSourceImpl();
+        list.add("test1");
+
+        ROOT.getMap().put("customList", list);
     }
 
     private static Object[][] TESTS = {
@@ -61,7 +68,8 @@ public class InterfaceInheritanceTest extends OgnlTestCase {
             {ROOT, "beans.testBean", ROOT.getBeans().getBean("testBean")},
             {ROOT, "beans.evenOdd.next", ((EvenOdd) ROOT.getBeans().getBean("evenOdd")).getNext()},
             {ROOT, "map.comp.form.clientId", "form1"},
-            {ROOT, "map.comp.getCount(genericIndex)", Integer.valueOf(0)}
+            {ROOT, "map.comp.getCount(genericIndex)", Integer.valueOf(0)},
+            {ROOT, "map.customList.total", Integer.valueOf(1)}
     };
 
     /*
