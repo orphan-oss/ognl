@@ -40,6 +40,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Array;
 
 public class OgnlTestCase extends TestCase {
+    
     protected OgnlContext _context;
     private String _expressionString;
     private SimpleNode _expression;

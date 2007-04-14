@@ -155,11 +155,11 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
             
             m = OgnlRuntime.getMethod(context, context.getCurrentType() != null ? context.getCurrentType() : target.getClass(), _methodName, _children, false);
             if (m == null)
-                m = OgnlRuntime.getReadMethod(target.getClass(), _methodName);
+                m = OgnlRuntime.getReadMethod(target.getClass(), _methodName, _children != null ? _children.length : -1);
             
             if (m == null) {
-                m = OgnlRuntime.getWriteMethod(target.getClass(), _methodName);
-                
+                m = OgnlRuntime.getWriteMethod(target.getClass(), _methodName, _children != null ? _children.length : -1);
+
                 if (m != null) {
                     
                     context.setCurrentType(m.getReturnType());

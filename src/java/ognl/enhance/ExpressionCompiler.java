@@ -12,7 +12,6 @@ import java.util.*;
  * Responsible for managing/providing functionality related to compiling generated java source
  * expressions via bytecode enhancements for a given ognl expression.
  *
- * @author jkuhnert
  */
 public class ExpressionCompiler implements OgnlExpressionCompiler {
     public static final String PRE_CAST = "_preCast";
@@ -460,7 +459,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         body = body.replaceAll("\\.\\.", ".");
 
-        // System.out.println("Getter Body: ===================================\n" + body);
+        //System.out.println("Getter Body: ===================================\n" + body);
         valueGetter.setBody(body);
 
         newClass.addMethod(valueGetter);

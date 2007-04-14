@@ -18,4 +18,24 @@ public class Messages {
     {
         return (String)_source.get(key);
     }
+
+    public String format(String key, Object[] parms)
+    {
+        return "foo";
+    }
+
+    public String format(String key, Object param1, Object param2, Object param3)
+    {
+        return "blah";
+    }
+
+    public String format(String key, Object param1)
+    {
+        return "first";
+    }
+
+    public String format(String key, Object param1, Object param2)
+    {
+        return "haha";
+    }
 }

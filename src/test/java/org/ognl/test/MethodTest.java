@@ -39,9 +39,8 @@ public class MethodTest extends OgnlTestCase
     private static Simple ROOT = new Simple();
 
     private static Object[][] TESTS = {
-            /* { "hashCode().doubleValue()", new Integer(ROOT.hashCode()) } , */
             { "hashCode()", new Integer(ROOT.hashCode()) } ,
-            { "getBooleanValue() ? \"here\" : \"\"", ""}
+            { "getBooleanValue() ? \"here\" : \"\"", ""},
     };
 
     /*
@@ -53,8 +52,7 @@ public class MethodTest extends OgnlTestCase
         TestSuite result = new TestSuite();
 
         for(int i = 0; i < TESTS.length; i++) {
-            result.addTest(new MethodTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", ROOT, (String) TESTS[i][0],
-                    TESTS[i][1]));
+            result.addTest(new MethodTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", ROOT, (String) TESTS[i][0], TESTS[i][1]));
         }
         return result;
     }

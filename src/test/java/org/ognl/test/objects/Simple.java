@@ -34,6 +34,8 @@ import org.ognl.test.OgnlTestCase;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Simple extends Object
 {
@@ -51,9 +53,14 @@ public class Simple extends Object
 
     private Object[] _array;
 
+    private Messages _messages;
+
     public Simple()
     {
-        super();
+        Map src = new HashMap();
+        src.put("test", "This is a test");
+        
+        _messages = new Messages(src);
     }
 
     public Simple(Bean3 bean)
@@ -165,7 +172,27 @@ public class Simple extends Object
     {
         return root;
     }
-    
+
+    public Messages getMessages()
+    {
+        return _messages;
+    }
+
+    public int getOne()
+    {
+        return 1;
+    }
+
+    public int getTwo()
+    {
+        return 2;
+    }
+
+    public int getThree()
+    {
+        return 3;
+    }
+
     public boolean equals(Object other)
     {
         boolean     result = false;

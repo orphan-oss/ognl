@@ -32,7 +32,6 @@ package ognl;
 
 import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
-import ognl.enhance.UnsupportedCompilationException;
 
 import java.beans.*;
 import java.lang.reflect.*;
@@ -1880,14 +1879,23 @@ public class OgnlRuntime {
         if (children != null && children.length > 0) {
 
             parms = new Class[children.length];
-            for (int i = 0; i < children.length; i++) {
-                if (!NodeType.class.isInstance(children[i]))
-                    throw new UnsupportedCompilationException("Unable to determine parameter types for method.");
 
-                NodeType type = (NodeType) children[i];
-                parms[i] = type.getGetterClass();
+            // used to reset context after loop
+            Class currType = context.getCurrentType();
+            Class currAccessor = context.getCurrentAccessor();
+            Object cast = context.get(ExpressionCompiler.PRE_CAST);
+
+            for (int i=0; i < children.length; i++) {
+
+                children[i].toGetSourceString(context, context.getCurrentObject());
+                parms[i] = context.getCurrentType();
             }
 
+            context.put(ExpressionCompiler.PRE_CAST, cast);
+
+            context.setCurrentType(currType);
+            context.setCurrentAccessor(currAccessor);
+            context.setCurrentObject(target);
         } else
             parms = new Class[0];
 

@@ -45,7 +45,8 @@ public class MethodWithConversionTest extends OgnlTestCase
             { SIMPLE, "stringValue", "10", new Character('x'), "x" },
             { SIMPLE, "setStringValue('x')", null }, // set by calling setStringValue() directly 
             { SIMPLE, "floatValue", new Float(10.56) },
-            { SIMPLE, "getValueIsTrue(rootValue)", Boolean.TRUE}
+            { SIMPLE, "getValueIsTrue(rootValue)", Boolean.TRUE},
+            { SIMPLE, "messages.format('Testing', one, two, three)", "blah" }
     };
 
     /*
