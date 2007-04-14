@@ -459,7 +459,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         body = body.replaceAll("\\.\\.", ".");
 
-        //System.out.println("Getter Body: ===================================\n" + body);
+        // System.out.println("Getter Body: ===================================\n" + body);
         valueGetter.setBody(body);
 
         newClass.addMethod(valueGetter);
@@ -521,8 +521,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             
             body = body.replaceAll("\\.\\.", ".");
             
-            // System.out.println("adding method " + ref.getName() + " with body:\n" + body + " and return type: " + ref.getType());
-
+            //System.out.println("adding method " + ref.getName() + " with body:\n" + body + " and return type: " + ref.getType());
+            
             CtMethod method = new CtMethod(pool.get(ref.getType().getName()), ref.getName(), params, clazz);
             method.setBody(body);
             

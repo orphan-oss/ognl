@@ -66,7 +66,7 @@ class ASTNot extends BooleanExpression
                 _getterClass = Boolean.TYPE;
             else if (value != null)
                 _getterClass = value.getClass();
-            
+
             String srcString = super.toGetSourceString(context, target);
             
             if (srcString == null || srcString.trim().length() < 1)
@@ -78,7 +78,7 @@ class ASTNot extends BooleanExpression
                 return "!" + srcString;
             }
             
-            return "!ognl.OgnlOps.booleanValue(" + srcString + ")";
+            return "(! ognl.OgnlOps.booleanValue(" + srcString + ") )";
             
         } catch (Throwable t) {
             if (UnsupportedCompilationException.class.isInstance(t))
