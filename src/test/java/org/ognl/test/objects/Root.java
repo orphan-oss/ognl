@@ -66,6 +66,7 @@ public class Root extends Object
     private Boolean _readOnly = Boolean.FALSE;
     private Integer _objIndex = new Integer(1);
     private Object _genericObjIndex = new Integer(2);
+    private Date _date = new Date();
 
     /*===================================================================
 		Public static methods
@@ -348,5 +349,10 @@ public class Root extends Object
     public Object getSelf()
     {
         return this;
+    }
+
+    public Date getTestDate()
+    {
+        return _date;
     }
 }

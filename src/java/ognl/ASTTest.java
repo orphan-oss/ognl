@@ -71,28 +71,37 @@ class ASTTest extends ExpressionNode
     {
         if (target == null)
             throw new UnsupportedCompilationException("evaluation resulted in null expression.");
-        
+
+        if (_children.length != 2)
+            throw new UnsupportedCompilationException("Can only compile test expressions with two children.");
+
         String result = (_parent == null || NumericExpression.class.isAssignableFrom(_parent.getClass())) ? "" : "(";
         
         try {
+
+            String first = OgnlRuntime.getChildSource(context, target, _children[0]);
+            if (!OgnlRuntime.isBoolean(first))
+                first = OgnlRuntime.getCompiler().createLocalReference(context, first, context.getCurrentType());
             
-            if ((_children != null) && (_children.length > 0)) {
-                for ( int i = 0; i < _children.length; ++i ) {
-                    if (i > 0) {
-                        result += " " + getExpressionOperator(i) + " ";
-                    }
-                    
-                    String value = OgnlRuntime.getChildSource(context, target, _children[i]);
+            Class firstType = context.getCurrentType();
 
-                    if (i == 0) {
+            String second = OgnlRuntime.getChildSource(context, target, _children[1]);
+             if (!OgnlRuntime.isBoolean(second))
+                 second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());
+            
+            Class secondType = context.getCurrentType();
+            
+            boolean mismatched = (firstType.isPrimitive() && !secondType.isPrimitive())
+                                 || (!firstType.isPrimitive() && secondType.isPrimitive()) ? true : false;
+            
+            result += "ognl.OgnlOps.booleanValue(" + first + ")";
 
-                        if (!OgnlRuntime.isBoolean(value))
-                            value = "ognl.OgnlOps.booleanValue(" + value + ")";
-                    }
+            result += " ? ";
 
-                    result += value;
-                }
-            }
+            result += (mismatched ? " ($w) " : "") + first;
+            result += " : ";
+
+            result += (mismatched ? " ($w) " : "") + second;
             
             if (_parent != null && !NumericExpression.class.isAssignableFrom(_parent.getClass())) {
                 result = result + ")";

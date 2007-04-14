@@ -34,10 +34,13 @@ import junit.framework.TestSuite;
 import org.ognl.test.objects.Bean2;
 import org.ognl.test.objects.Root;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 public class PropertyTest extends OgnlTestCase
 {
+
+    public static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("MM/dd/yyyy hh:mm a 'CST'");
 
     public static final String VALUE = "foo";
     
@@ -99,7 +102,8 @@ public class PropertyTest extends OgnlTestCase
             { ROOT.getMap(), "nested.deep.last", Boolean.TRUE},
             { ROOT, "'last ' + getCurrentClass(@org.ognl.test.PropertyTest@VALUE)", "last foo stop"},
             { ROOT, "@org.ognl.test.PropertyTest@formatValue(property.millis, true, true)", formatValue((int)((Bean2)ROOT.getProperty()).getMillis(), true, true) },
-            { ROOT, "nullObject || !readonly", Boolean.TRUE }
+            { ROOT, "nullObject || !readonly", Boolean.TRUE },
+            { ROOT, "testDate == null ? '-' : @org.ognl.test.PropertyTest@DATETIME_FORMAT.format(testDate)", DATETIME_FORMAT.format(ROOT.getTestDate()) }
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)
