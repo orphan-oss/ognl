@@ -355,4 +355,9 @@ public class Root extends Object
     {
         return _date;
     }
+
+    public String getWidth()
+    {
+        return "238px";
+    }
 }

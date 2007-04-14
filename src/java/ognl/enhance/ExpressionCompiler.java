@@ -459,7 +459,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         body = body.replaceAll("\\.\\.", ".");
 
-        // System.out.println("Getter Body: ===================================\n" + body);
+        //System.out.println("Getter Body: ===================================\n" + body);
         valueGetter.setBody(body);
 
         newClass.addMethod(valueGetter);

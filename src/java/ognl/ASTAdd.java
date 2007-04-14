@@ -169,7 +169,7 @@ class ASTAdd extends NumericExpression
                         expr = "null";
                     }
 
-                    // System.out.println("astadd child class: " + _children[i].getClass().getName() + " and return expr: " + expr);
+                    //System.out.println("astadd child class: " + _children[i].getClass().getName() + " and return expr: " + expr);
                     
                     if (ASTProperty.class.isInstance(_children[i])) {
                         
@@ -210,28 +210,30 @@ class ASTAdd extends NumericExpression
                         expr = cast + expr;
                     }
 
-                    if (!ASTVarRef.class.isAssignableFrom(_children[i].getClass())
+                    // turn quoted characters into quoted strings
+                    
+                    if (context.getCurrentType() != null && context.getCurrentType() == Character.class
+                        && ASTConst.class.isInstance(_children[i])) {
+                        
+                        expr = expr.replaceAll("'", "\"");
+                    } else {
+                        if (!ASTVarRef.class.isAssignableFrom(_children[i].getClass())
                             && !ASTProperty.class.isInstance(_children[i])
                             && !ASTMethod.class.isInstance(_children[i])
                             && !ASTSequence.class.isInstance(_children[i])
                             && !ASTChain.class.isInstance(_children[i])
                             && !NumericExpression.class.isAssignableFrom(_children[i].getClass())) {
-                        
-                        if (lastType != null && String.class.isAssignableFrom(lastType.getGetterClass()))  {
-                            //System.out.println("Input expr >>" + expr + "<<");
-                            expr = expr.replaceAll("&quot;", "\"");
-                            expr = expr.replaceAll("\"", "'");
-                            expr = "\"" + expr + "\"";
-                            //System.out.println("Expr now >>" + expr + "<<");
+
+                            if (lastType != null && String.class.isAssignableFrom(lastType.getGetterClass()))  {
+                                //System.out.println("Input expr >>" + expr + "<<");
+                                expr = expr.replaceAll("&quot;", "\"");
+                                expr = expr.replaceAll("\"", "'");
+                                expr = "\"" + expr + "\"";
+                                //System.out.println("Expr now >>" + expr + "<<");
+                            }
                         }
                     }
-
-                    // turn quoted characters into quoted strings
-                    if (context.getCurrentType() != null && context.getCurrentType() == Character.class
-                            && ASTConst.class.isInstance(_children[i])) {
-                        expr = expr.replaceAll("'", "\"");
-                    }
-
+                    
                     if (!OrderedReturn.class.isInstance(_parent)) {
                         result += "(";
                     }
