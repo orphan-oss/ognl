@@ -360,4 +360,9 @@ public class Root extends Object
     {
         return "238px";
     }
+
+    public Long getTheLong()
+    {
+        return new Long(4);
+    }
 }

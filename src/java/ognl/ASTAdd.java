@@ -250,7 +250,8 @@ class ASTAdd extends NumericExpression
                                 && Number.class.isAssignableFrom(ctype.getGetterClass())
                                 && !ASTMethod.class.isAssignableFrom(_children[i].getClass())) {
                             
-                            if (ASTVarRef.class.isAssignableFrom(_children[i].getClass()))
+                            if (ASTVarRef.class.isAssignableFrom(_children[i].getClass())
+                                    || ASTProperty.class.isInstance(_children[i]))
                                 result += ".";
                             
                             result += OgnlRuntime.getNumericValueGetter(ctype.getGetterClass());

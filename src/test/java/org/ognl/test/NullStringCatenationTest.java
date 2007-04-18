@@ -44,7 +44,8 @@ public class NullStringCatenationTest extends OgnlTestCase {
             {ROOT, "20.56 + nullObject", NullPointerException.class}, // Catenate null to a number
             {ROOT, "(true ? 'tabHeader' : '') + (false ? 'tabHeader' : '')", "tabHeader"},
             {ROOT, "theInt == 0 ? '5%' : theInt + '%'", "6%"},
-            {ROOT, "'width:' + width + ';'", "width:238px;" }
+            {ROOT, "'width:' + width + ';'", "width:238px;" },
+            {ROOT, "theLong + '_' + index", "4_1"} 
     };
 
     /*
