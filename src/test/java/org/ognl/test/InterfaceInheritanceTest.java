@@ -69,7 +69,8 @@ public class InterfaceInheritanceTest extends OgnlTestCase {
             {ROOT, "beans.evenOdd.next", ((EvenOdd) ROOT.getBeans().getBean("evenOdd")).getNext()},
             {ROOT, "map.comp.form.clientId", "form1"},
             {ROOT, "map.comp.getCount(genericIndex)", Integer.valueOf(0)},
-            {ROOT, "map.customList.total", Integer.valueOf(1)}
+            {ROOT, "map.customList.total", Integer.valueOf(1)},
+            {ROOT, "myTest.theMap['key']", "value" }
     };
 
     /*
@@ -101,7 +102,7 @@ public class InterfaceInheritanceTest extends OgnlTestCase {
 
         return result;
     }
-
+    
     /*
     * =================================================================== Constructors
     * ===================================================================

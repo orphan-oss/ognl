@@ -365,4 +365,9 @@ public class Root extends Object
     {
         return new Long(4);
     }
+
+    public TestClass getMyTest()
+    {
+        return new TestImpl();
+    }
 }

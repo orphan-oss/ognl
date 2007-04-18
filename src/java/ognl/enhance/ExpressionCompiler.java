@@ -407,24 +407,9 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         if (getterCode == null || getterCode.trim().length() <= 0 && !ASTVarRef.class.isAssignableFrom(expression.getClass()))
             getterCode = "null";
-
-        /*
-        Class returnType = null;
-
-
-        if (NodeType.class.isInstance(expression)) {
-            NodeType nType = (NodeType) expression;
-            returnType = nType.getGetterClass();
-
-            if (returnType != null && !String.class.isAssignableFrom(returnType) && context.getCurrentType().isPrimitive()) {
-
-                pre = pre + " ($w) (";
-                post = post + ")";
-            }
-        }*/
-
+        
         String castExpression = (String) context.get(PRE_CAST);
-
+        
         if (context.getCurrentType() == null || context.getCurrentType().isPrimitive() || Character.class.isAssignableFrom(context.getCurrentType())) {
             pre = pre + " ($w) (";
             post = post + ")";
@@ -461,7 +446,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         body = body.replaceAll("\\.\\.", ".");
 
-        //System.out.println("Getter Body: ===================================\n" + body);
+        // System.out.println("Getter Body: ===================================\n" + body);
         valueGetter.setBody(body);
 
         newClass.addMethod(valueGetter);

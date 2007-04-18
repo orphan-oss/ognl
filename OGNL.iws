@@ -17,10 +17,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/NullStringCatenationTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/NullStringCatenationTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTAdd.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTAdd.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/TestImpl.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" afterPath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iws" afterPath="$PROJECT_DIR$/OGNL.iws" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/InterfaceInheritanceTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/InterfaceInheritanceTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/TestClass.java" />
     </list>
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
@@ -155,7 +157,7 @@
       <file leaf-file-name="ExpressionCompiler.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="457" column="25" selection-start="16412" selection-end="16412" vertical-scroll-proportion="0.38977367">
+            <state line="447" column="0" selection-start="16085" selection-end="16085" vertical-scroll-proportion="0.6412406">
               <folding />
             </state>
           </provider>
@@ -241,36 +243,6 @@
         </PATH_ELEMENT>
         <PATH_ELEMENT>
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/org/ognl/test" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -383,14 +355,14 @@
     <option name="showLabels" value="true" />
   </component>
   <component name="RestoreUpdateTree" />
-  <component name="RunManager" selected="JUnit.NullStringCatenationTest">
-    <tempConfiguration default="false" name="NullStringCatenationTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+  <component name="RunManager" selected="JUnit.InterfaceInheritanceTest">
+    <tempConfiguration default="false" name="InterfaceInheritanceTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <pattern value="org.ognl.test.*" />
       <module name="OGNL" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="ALTERNATIVE_JRE_PATH" value="/usr/local/jdk1.6.0_02" />
       <option name="PACKAGE_NAME" value="org.ognl.test" />
-      <option name="MAIN_CLASS_NAME" value="org.ognl.test.NullStringCatenationTest" />
+      <option name="MAIN_CLASS_NAME" value="org.ognl.test.InterfaceInheritanceTest" />
       <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="" />
@@ -663,7 +635,7 @@
     <option name="PERFORM_EDIT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixes OGNL-44. ASTAdd wasn't checking for property/var references before expanding value via native conversion methods." />
+    <option name="LAST_COMMIT_MESSAGE" value="Code cleanup , new test for bug in javassist." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -690,6 +662,7 @@
     <MESSAGE value="Resolves OGNL-40. ASTAdd was improperly double escaping quoting characters." />
     <MESSAGE value="Resolves OGNL-43. ASTAnd was incorrectly casting to a boolean expression when language grammar states &amp;&amp; expressions return value of second expression - not just boolean." />
     <MESSAGE value="Fixes OGNL-44. ASTAdd wasn't checking for property/var references before expanding value via native conversion methods." />
+    <MESSAGE value="Code cleanup , new test for bug in javassist." />
   </component>
   <component name="XPathView.XPathProjectComponent">
     <history />
@@ -761,34 +734,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/OgnlTestCase.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="184" column="44" selection-start="6996" selection-end="6996" vertical-scroll-proportion="0.38390613">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="97" column="0" selection-start="4201" selection-end="4201" vertical-scroll-proportion="0.80229884">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTIn.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="81" column="0" selection-start="3047" selection-end="3047" vertical-scroll-proportion="0.63793105">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTNotIn.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="78" column="0" selection-start="3009" selection-end="3009" vertical-scroll-proportion="0.5862069">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ArithmeticAndLogicalOperatorsTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="50" column="0" selection-start="2340" selection-end="2340" vertical-scroll-proportion="0.3275862">
@@ -852,16 +797,46 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/MyMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="42" column="0" selection-start="2007" selection-end="2007" vertical-scroll-proportion="0.16345347">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/TestClass.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="8" column="0" selection-start="80" selection-end="80" vertical-scroll-proportion="0.13793103">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/TestImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="17" column="0" selection-start="294" selection-end="294" vertical-scroll-proportion="0.29310346">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/InterfaceInheritanceTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="47" column="0" selection-start="2170" selection-end="2170" vertical-scroll-proportion="0.13243923">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="365" column="27" selection-start="9306" selection-end="9306" vertical-scroll-proportion="0.8868399">
+        <state line="317" column="4" selection-start="8580" selection-end="8580" vertical-scroll-proportion="0.22045264">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="457" column="25" selection-start="16412" selection-end="16412" vertical-scroll-proportion="0.38977367">
+        <state line="447" column="0" selection-start="16085" selection-end="16085" vertical-scroll-proportion="0.6412406">
           <folding />
         </state>
       </provider>
