@@ -76,7 +76,9 @@ class ASTNotIn extends SimpleNode implements NodeType
             result += OgnlRuntime.getChildSource(context, target, _children[0]) + ", ($w) " + OgnlRuntime.getChildSource(context, target, _children[1]);
             
             result += ") )";
-            
+
+            context.setCurrentType(Boolean.TYPE);
+
             return result;
         } catch (NullPointerException e) {
             

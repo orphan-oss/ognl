@@ -364,5 +364,8 @@
   </component>
   <component name="libraryTable" />
   <component name="uidesigner-configuration" />
+  <UsedPathMacros>
+    <macro name="USERPROFILE" />
+  </UsedPathMacros>
 </project>
 

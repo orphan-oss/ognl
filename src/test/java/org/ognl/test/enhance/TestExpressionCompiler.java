@@ -10,6 +10,9 @@ import ognl.OgnlContext;
 import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
 import org.ognl.test.objects.Bean1;
+import org.ognl.test.objects.Root;
+
+import java.util.Collection;
 
 
 /**
@@ -114,5 +117,16 @@ public class TestExpressionCompiler extends TestCase
         
         expr.getAccessor().set(_context, root, "bam");
         assertEquals("bam", expr.getAccessor().get(_context, root));
+    }
+
+    public void test_Property_Index()
+    throws Throwable
+    {
+        Root root = new Root();
+        Node expr = (Node) Ognl.compileExpression(_context, root, "{index + 1}");
+
+        Object ret = expr.getAccessor().get(_context, root);
+
+        assertTrue(Collection.class.isInstance(ret));
     }
 }

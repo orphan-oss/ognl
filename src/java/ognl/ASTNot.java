@@ -77,7 +77,9 @@ class ASTNot extends BooleanExpression
 
                 return "!" + srcString;
             }
-            
+
+            context.setCurrentType(Boolean.TYPE);
+
             return "(! ognl.OgnlOps.booleanValue(" + srcString + ") )";
             
         } catch (Throwable t) {

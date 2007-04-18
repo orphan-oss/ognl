@@ -292,7 +292,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     public void compileExpression(OgnlContext context, Node expression, Object root)
             throws Exception
     {
-        // System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
+//        System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
 
         if (expression.getAccessor() != null)
             return;
@@ -408,22 +408,24 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         if (getterCode == null || getterCode.trim().length() <= 0 && !ASTVarRef.class.isAssignableFrom(expression.getClass()))
             getterCode = "null";
 
+        /*
         Class returnType = null;
+
 
         if (NodeType.class.isInstance(expression)) {
             NodeType nType = (NodeType) expression;
             returnType = nType.getGetterClass();
 
-            if (returnType != null && !String.class.isAssignableFrom(returnType)) {
+            if (returnType != null && !String.class.isAssignableFrom(returnType) && context.getCurrentType().isPrimitive()) {
 
                 pre = pre + " ($w) (";
                 post = post + ")";
             }
-        }
+        }*/
 
         String castExpression = (String) context.get(PRE_CAST);
 
-        if (returnType == null) {
+        if (context.getCurrentType() == null || context.getCurrentType().isPrimitive() || Character.class.isAssignableFrom(context.getCurrentType())) {
             pre = pre + " ($w) (";
             post = post + ")";
         }
@@ -521,7 +523,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             
             body = body.replaceAll("\\.\\.", ".");
             
-            //System.out.println("adding method " + ref.getName() + " with body:\n" + body + " and return type: " + ref.getType());
+            // System.out.println("adding method " + ref.getName() + " with body:\n" + body + " and return type: " + ref.getType());
             
             CtMethod method = new CtMethod(pool.get(ref.getType().getName()), ref.getName(), params, clazz);
             method.setBody(body);

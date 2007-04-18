@@ -254,7 +254,12 @@ class ASTAdd extends NumericExpression
                                 result += ".";
                             
                             result += OgnlRuntime.getNumericValueGetter(ctype.getGetterClass());
+                            context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(ctype.getGetterClass()));
                         }
+                    }
+                    
+                    if (lastType != null) {
+                        context.setCurrentAccessor(lastType.getGetterClass());
                     }
 
                     if (!OrderedReturn.class.isInstance(_parent)) {
@@ -263,17 +268,8 @@ class ASTAdd extends NumericExpression
                 }
             }
             
-            if (lastType != null) {
-                
-                _getterClass = lastType.getGetterClass();
-                context.setCurrentType(_getterClass);
-                context.setCurrentAccessor(null);
-            }
-            
             if (_parent == null || ASTSequence.class.isAssignableFrom(_parent.getClass())) {
-                
-                //if (_getterClass != null && Number.class.isAssignableFrom(_getterClass))
-                  //  result = OgnlRuntime.getNumericCast(_getterClass) + "(" + result + ")";
+
                 if (_getterClass != null && String.class.isAssignableFrom(_getterClass))
                     _getterClass = Object.class;
             }

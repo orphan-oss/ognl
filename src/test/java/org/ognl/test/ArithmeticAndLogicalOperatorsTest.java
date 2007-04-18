@@ -127,6 +127,7 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
             { "2 or 0", Integer.valueOf(2)},
             { "1 and 0", Integer.valueOf(0) },
             { "1 bor 0", new Integer(1) },
+            { "true && 12", Integer.valueOf(12)},
             { "1 xor 0", new Integer(1) }, { "1 band 0", new Integer(0) }, { "1 eq 1", Boolean.TRUE },
             { "1 neq 1", Boolean.FALSE }, { "1 lt 5", Boolean.TRUE }, { "1 lte 5", Boolean.TRUE },
             { "1 gt 5", Boolean.FALSE }, { "1 gte 5", Boolean.FALSE }, { "1 lt 5", Boolean.TRUE },

@@ -41,7 +41,7 @@ public class ContextVariableTest extends OgnlTestCase {
             {"#root", ROOT}, // Special root reference
             {"#this", ROOT}, // Special this reference
             {"#f=5, #s=6, #f + #s", new Integer(11)},
-            {"#six=(#five=5, 6), #five + #six", new Integer(11)},
+            { "#six=(#five=5, 6), #five + #six", new Integer(11)},
     };
 
     /*

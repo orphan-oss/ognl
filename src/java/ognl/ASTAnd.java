@@ -86,7 +86,7 @@ public class ASTAnd extends BooleanExpression
 
     boolean allConditionsTrue(OgnlContext context, Object target) throws OgnlException
     {
-        Object result = null;
+        Object result;
         int last = _children.length - 1;
         for ( int i=0; i <= last; ++i ) {
             result = _children[i].getValue( context, target );
@@ -102,7 +102,7 @@ public class ASTAnd extends BooleanExpression
         if (_children.length != 2)
             throw new UnsupportedCompilationException("Can only compile boolean expressions with two children.");
         
-        String result = "(";
+        String result = "";
         
         try {
 
@@ -110,33 +110,33 @@ public class ASTAnd extends BooleanExpression
                 throw new UnsupportedCompilationException("And expression can't be compiled until all conditions are true.");
 
             String first = OgnlRuntime.getChildSource(context, target, _children[0]);
-            if (!OgnlRuntime.isBoolean(first))
+            if (!OgnlRuntime.isBoolean(first) && !context.getCurrentType().isPrimitive())
                 first = OgnlRuntime.getCompiler().createLocalReference(context, first, context.getCurrentType());
 
             Class firstType = context.getCurrentType();
 
             String second = OgnlRuntime.getChildSource(context, target, _children[1]);
-            if (!OgnlRuntime.isBoolean(second))
+            if (!OgnlRuntime.isBoolean(second) && !context.getCurrentType().isPrimitive())
                 second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());
 
             Class secondType = context.getCurrentType();
 
             boolean mismatched = (firstType.isPrimitive() && !secondType.isPrimitive())
-                                            || (!firstType.isPrimitive() && secondType.isPrimitive()) ? true : false;            
+                                 || (!firstType.isPrimitive() && secondType.isPrimitive());
 
             result += "ognl.OgnlOps.booleanValue(" + first + ")";
             
             result += " ? ";
 
-            result += (mismatched ? " ($w) " : "") + second;
+            result += (mismatched ? " ($w) " : " ($w) ") + second;
             result += " : ";
 
-            result += (mismatched ? " ($w) " : "") + first;
+            result += (mismatched ? " ($w) " : " ($w) ") + first;
 
-            result += ")";
+            result += "";
 
             context.setCurrentObject(target);
-            context.setCurrentType(Boolean.TYPE);
+            context.setCurrentType(Object.class);
         } catch (NullPointerException e) {
             
             throw new UnsupportedCompilationException("evaluation resulted in null expression.");
@@ -185,7 +185,7 @@ public class ASTAnd extends BooleanExpression
             
             context.setCurrentObject(target);
             
-            context.setCurrentType(Boolean.TYPE);
+            context.setCurrentType(Object.class);
             
         } catch (Throwable t) {
             if (UnsupportedCompilationException.class.isInstance(t))
