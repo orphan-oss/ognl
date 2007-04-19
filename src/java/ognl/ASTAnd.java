@@ -167,12 +167,12 @@ public class ASTAnd extends BooleanExpression
 
             _children[0].getValue(context, target);
             
-            String first = ExpressionCompiler.getRootExpression(_children[0], context.getRoot(), false)
+            String first = ExpressionCompiler.getRootExpression(_children[0], context.getRoot(), context)
             + pre + _children[0].toGetSourceString(context, target);
             
             _children[1].getValue(context, target);
             
-            String second = ExpressionCompiler.getRootExpression(_children[1], context.getRoot(), false) 
+            String second = ExpressionCompiler.getRootExpression(_children[1], context.getRoot(), context)
             + pre + _children[1].toSetSourceString(context, target);
 
             if (!OgnlRuntime.isBoolean(first))

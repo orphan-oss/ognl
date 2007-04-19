@@ -173,13 +173,13 @@ class ASTAdd extends NumericExpression
                     
                     if (ASTProperty.class.isInstance(_children[i])) {
                         
-                        expr = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false) + expr;
+                        expr = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context) + expr;
                         context.setCurrentAccessor(context.getRoot().getClass());
                     } else if (ASTMethod.class.isInstance(_children[i])) {
                         
                         String chain = (String)context.get("_currentChain");
                         
-                        String rootExpr = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false);
+                        String rootExpr = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context);
 
                         //System.out.println("astadd chains is >>" + chain + "<< and rootExpr is >>" + rootExpr + "<<");
                         
@@ -194,7 +194,7 @@ class ASTAdd extends NumericExpression
                         
                     } else if (_parent == null && ASTChain.class.isInstance(_children[i])) {
                         
-                        String rootExpr = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false);
+                        String rootExpr = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context);
                         //System.out.println("astadd rootExpr " + rootExpr + " and expr: " + expr);
                         
                         if (!ASTProperty.class.isInstance(_children[i].jjtGetChild(0)) && rootExpr.endsWith(")") && expr.startsWith(")"))

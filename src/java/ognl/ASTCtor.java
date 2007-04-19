@@ -189,7 +189,7 @@ public class ASTCtor extends SimpleNode
                 } else if (ASTProperty.class.isInstance(_children[0])) {
 
                     result = result + "["
-                            + ExpressionCompiler.getRootExpression(_children[0], target, false)
+                            + ExpressionCompiler.getRootExpression(_children[0], target, context)
                             + _children[0].toGetSourceString(context, target)
                             + "]";
                 } else if (ASTChain.class.isInstance(_children[0])) {
@@ -214,7 +214,7 @@ public class ASTCtor extends SimpleNode
                         Object objValue = _children[i].getValue(context, context.getRoot());
                         String value = _children[i].toGetSourceString(context, target);
                         
-                        value = ExpressionCompiler.getRootExpression(_children[i], target, false) + value;
+                        value = ExpressionCompiler.getRootExpression(_children[i], target, context) + value;
 
                         // System.out.println("astctor child class: " + _children[i].getClass() + " value: " + value);
 

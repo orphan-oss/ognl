@@ -17,12 +17,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/TestImpl.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTOr.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTOr.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTRootVarRef.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTRootVarRef.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTAnd.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTAnd.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ExpressionNode.java" afterPath="$PROJECT_DIR$/src/java/ognl/ExpressionNode.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Inherited.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" afterPath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTList.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTList.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTStaticMethod.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTStaticMethod.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTAdd.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTAdd.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/TestInherited1.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTProperty.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTProperty.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTCtor.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTCtor.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" afterPath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iws" afterPath="$PROJECT_DIR$/OGNL.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/InterfaceInheritanceTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/InterfaceInheritanceTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/TestClass.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTSequence.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTSequence.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/enhance/TestExpressionCompiler.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/enhance/TestExpressionCompiler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTMethod.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTMethod.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/TestInherited2.java" />
     </list>
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
@@ -153,17 +165,7 @@
     </subPane>
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="ExpressionCompiler.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="447" column="0" selection-start="16085" selection-end="16085" vertical-scroll-proportion="0.6412406">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -246,24 +248,6 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
     </subPane>
   </component>
   <component name="ProjectReloadState">
@@ -293,8 +277,8 @@
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth0" value="284" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth3" value="35" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth2" value="304" />
-    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder1" value="1" />
     <property name="cvs_file_history_treeOrder2" value="2" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder1" value="1" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder0" value="0" />
     <property name="cvs_file_history_treeOrder1" value="1" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder3" value="3" />
@@ -305,6 +289,7 @@
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth2" value="248" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth1" value="274" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder4" value="4" />
+    <property name="last_opened_file_path" value="$USERPROFILE$/projects/tapestry/tapestry-framework/src/java/org/apache/tapestry/services/impl" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth0" value="243" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth4" value="1042" />
     <property name="GoToClass.includeJavaFiles" value="false" />
@@ -313,25 +298,25 @@
     <property name="cvs_file_history_treeWidth0" value="503" />
     <property name="cvs_file_history_treeWidth1" value="503" />
     <property name="cvs_file_history_treeWidth2" value="504" />
-    <property name="cvs_file_history_flatWidth2" value="504" />
     <property name="cvs_file_history_treeWidth3" value="503" />
-    <property name="cvs_file_history_flatWidth3" value="503" />
+    <property name="cvs_file_history_flatWidth2" value="504" />
     <property name="cvs_file_history_treeOrder0" value="0" />
+    <property name="cvs_file_history_flatWidth3" value="503" />
     <property name="MemberChooser.showClasses" value="true" />
-    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth4" value="1098" />
     <property name="cvs_file_history_flatWidth0" value="503" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth4" value="1098" />
     <property name="cvs_file_history_flatWidth1" value="503" />
     <property name="GoToClass.includeLibraries" value="false" />
     <property name="GoToFile.includeJavaFiles" value="false" />
     <property name="RunManagerConfig.compileBeforeRunning" value="true" />
-    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder3" value="3" />
     <property name="cvs_file_history_flatOrder2" value="2" />
-    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder4" value="4" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder3" value="3" />
     <property name="cvs_file_history_flatOrder3" value="3" />
-    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder1" value="1" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder4" value="4" />
     <property name="cvs_file_history_flatOrder0" value="0" />
-    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder2" value="2" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder1" value="1" />
     <property name="cvs_file_history_flatOrder1" value="1" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder2" value="2" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder0" value="0" />
     <property name="MemberChooser.copyJavadoc" value="false" />
   </component>
@@ -355,14 +340,14 @@
     <option name="showLabels" value="true" />
   </component>
   <component name="RestoreUpdateTree" />
-  <component name="RunManager" selected="JUnit.InterfaceInheritanceTest">
-    <tempConfiguration default="false" name="InterfaceInheritanceTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
-      <pattern value="org.ognl.test.*" />
+  <component name="RunManager" selected="JUnit.TestExpressionCompiler">
+    <tempConfiguration default="false" name="TestExpressionCompiler" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+      <pattern value="org.ognl.test.enhance.*" />
       <module name="OGNL" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="ALTERNATIVE_JRE_PATH" value="/usr/local/jdk1.6.0_02" />
-      <option name="PACKAGE_NAME" value="org.ognl.test" />
-      <option name="MAIN_CLASS_NAME" value="org.ognl.test.InterfaceInheritanceTest" />
+      <option name="PACKAGE_NAME" value="org.ognl.test.enhance" />
+      <option name="MAIN_CLASS_NAME" value="org.ognl.test.enhance.TestExpressionCompiler" />
       <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="" />
@@ -378,35 +363,6 @@
         <option name="Make" value="true" />
       </method>
     </tempConfiguration>
-    <configuration default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-    </configuration>
-    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
-      <option name="MAIN_CLASS_NAME" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <module name="" />
-    </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <module name="" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
@@ -425,6 +381,28 @@
       <method>
         <option name="Make" value="true" />
       </method>
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <module name="" />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
     </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG" enabled="false" merge="false">
       <module name="" />
@@ -449,6 +427,13 @@
       <method>
         <option name="Make" value="true" />
       </method>
+    </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
     </configuration>
     <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local">
       <option name="WORKING_DIRECTORY" />
@@ -605,7 +590,7 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="0" />
       <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20940171" order="0" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21652421" order="0" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="6" />
       <window_info id="Duplicates" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
@@ -628,14 +613,14 @@
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="true" />
+    <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="false" />
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="PERFORM_UPDATE_IN_BACKGROUND" value="false" />
     <option name="PERFORM_COMMIT_IN_BACKGROUND" value="false" />
     <option name="PERFORM_EDIT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Code cleanup , new test for bug in javassist." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixes OGNL-46. ExpressionCompiler.getRootExpression() was incorrectly casting directly to the root type instead of checking the context accessor type first. (to be friendly with object inheritance)" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -663,6 +648,8 @@
     <MESSAGE value="Resolves OGNL-43. ASTAnd was incorrectly casting to a boolean expression when language grammar states &amp;&amp; expressions return value of second expression - not just boolean." />
     <MESSAGE value="Fixes OGNL-44. ASTAdd wasn't checking for property/var references before expanding value via native conversion methods." />
     <MESSAGE value="Code cleanup , new test for bug in javassist." />
+    <MESSAGE value="Fixes regression of string concatenations in OGNL-48." />
+    <MESSAGE value="Fixes OGNL-46. ExpressionCompiler.getRootExpression() was incorrectly casting directly to the root type instead of checking the context accessor type first. (to be friendly with object inheritance)" />
   </component>
   <component name="XPathView.XPathProjectComponent">
     <history />
@@ -734,69 +721,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ArithmeticAndLogicalOperatorsTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="50" column="0" selection-start="2340" selection-end="2340" vertical-scroll-proportion="0.3275862">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/QuotingTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="55" column="20" selection-start="2656" selection-end="2656" vertical-scroll-proportion="0.32690695">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ContextVariableTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="78" column="94" selection-start="3378" selection-end="3378" vertical-scroll-proportion="0.6035205">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTAnd.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="161" column="27" selection-start="6101" selection-end="6101" vertical-scroll-proportion="0.7586207">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="358" column="24" selection-start="15065" selection-end="15065" vertical-scroll-proportion="0.33333334">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTNot.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="68" column="0" selection-start="2773" selection-end="2773" vertical-scroll-proportion="0.51724136">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/PropertyTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="92" column="71" selection-start="5558" selection-end="5558" vertical-scroll-proportion="0.50461024">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/NullStringCatenationTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="12" selection-start="2015" selection-end="2015" vertical-scroll-proportion="0.18965517">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTAdd.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="241" column="20" selection-start="10704" selection-end="10704" vertical-scroll-proportion="0.34618607">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/MyMap.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="42" column="0" selection-start="2007" selection-end="2007" vertical-scroll-proportion="0.16345347">
@@ -806,37 +730,98 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/TestClass.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="0" selection-start="80" selection-end="80" vertical-scroll-proportion="0.13793103">
+        <state line="8" column="0" selection-start="80" selection-end="80" vertical-scroll-proportion="0.10058676">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/TestImpl.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="0" selection-start="294" selection-end="294" vertical-scroll-proportion="0.29310346">
+        <state line="17" column="0" selection-start="294" selection-end="294" vertical-scroll-proportion="0.20117351">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTMethod.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="204" column="24" selection-start="6945" selection-end="6945" vertical-scroll-proportion="0.41379312">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTStaticField.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="47" column="33" selection-start="2113" selection-end="2113" vertical-scroll-proportion="0.29310346">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTAdd.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="241" column="20" selection-start="10812" selection-end="10812" vertical-scroll-proportion="0.44827586">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/NullStringCatenationTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="53" column="6" selection-start="2709" selection-end="2709" vertical-scroll-proportion="0.28918692">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/TestInherited1.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="0" selection-start="170" selection-end="170" vertical-scroll-proportion="0.15088013">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/TestInherited2.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="0" selection-start="170" selection-end="170" vertical-scroll-proportion="0.15088013">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/InterfaceInheritanceTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="0" selection-start="2170" selection-end="2170" vertical-scroll-proportion="0.13243923">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state line="44" column="0" selection-start="2100" selection-end="2100" vertical-scroll-proportion="0.1383068">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="317" column="4" selection-start="8580" selection-end="8580" vertical-scroll-proportion="0.22045264">
+        <state line="373" column="0" selection-start="9392" selection-end="9392" vertical-scroll-proportion="0.92455995">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USERPROFILE$/projects/tapestry/tapestry-framework/src/java/org/apache/tapestry/services/impl/HiveMindExpressionCompiler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="74" selection-start="489" selection-end="489" vertical-scroll-proportion="0.12573345">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/enhance/TestExpressionCompiler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="104" column="5" selection-start="2953" selection-end="2953" vertical-scroll-proportion="0.44677284">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Inherited.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="9" column="0" selection-start="101" selection-end="101" vertical-scroll-proportion="0.1131601">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="447" column="0" selection-start="16085" selection-end="16085" vertical-scroll-proportion="0.6412406">
+        <state line="414" column="8" selection-start="14801" selection-end="14801" vertical-scroll-proportion="0.47946355">
           <folding />
         </state>
       </provider>

@@ -133,7 +133,7 @@ public class ASTSequence extends SimpleNode implements NodeType, OrderedReturn
                 if (pre == null)
                     pre = "";
                 
-                seqValue = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false) + pre + seqValue;
+                seqValue = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context) + pre + seqValue;
                 context.setCurrentAccessor(context.getRoot().getClass());
             }
             

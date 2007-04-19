@@ -206,7 +206,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                         context.setCurrentType(prevType);
                     }
                     
-                    parmString = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false) + parmString;
+                    parmString = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context) + parmString;
 
                     String cast = "";
                     if (ExpressionCompiler.shouldCast(_children[i])) {
@@ -336,7 +336,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                         context.setCurrentType(prevType);
                     }
 
-                    parmString = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false) + parmString;
+                    parmString = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context) + parmString;
                     
                     String cast = "";
                     if (ExpressionCompiler.shouldCast(_children[i])) {

@@ -172,7 +172,7 @@ public class ASTProperty extends SimpleNode implements NodeType
                 // Get root cast string if the child is a type that needs it (like a nested ASTProperty)
                 
                 String srcString = _children[0].toGetSourceString(context, context.getRoot());
-                srcString = ExpressionCompiler.getRootExpression(_children[0], context.getRoot(), false) + srcString;
+                srcString = ExpressionCompiler.getRootExpression(_children[0], context.getRoot(), context) + srcString;
 
                 if (!ASTConst.class.isInstance(_children[0])) {
                     String cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
@@ -400,7 +400,7 @@ public class ASTProperty extends SimpleNode implements NodeType
                 
                 String srcString = _children[0].toGetSourceString(context, context.getRoot());
                 
-                srcString = ExpressionCompiler.getRootExpression(_children[0], context.getRoot(), false) + srcString;
+                srcString = ExpressionCompiler.getRootExpression(_children[0], context.getRoot(), context) + srcString;
                 
                 if (!ASTConst.class.isInstance(_children[0])) {
                     String cast = (String)context.remove(ExpressionCompiler.PRE_CAST);

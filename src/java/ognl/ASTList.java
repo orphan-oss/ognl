@@ -126,7 +126,7 @@ public class ASTList extends SimpleNode implements NodeType
                     context.setCurrentType(prevType);
                 }
 
-                value = ExpressionCompiler.getRootExpression(_children[i], target, false) + value;
+                value = ExpressionCompiler.getRootExpression(_children[i], target, context) + value;
 
                 String cast = "";
                 if (ExpressionCompiler.shouldCast(_children[i])) {

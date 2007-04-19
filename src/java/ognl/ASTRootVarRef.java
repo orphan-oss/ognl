@@ -78,7 +78,7 @@ public class ASTRootVarRef extends ASTVarRef
         if (_parent == null || (_getterClass != null && _getterClass.isArray()))
             return "";
         else
-            return ExpressionCompiler.getRootExpression(this, target, false);
+            return ExpressionCompiler.getRootExpression(this, target, context);
     }
     
     public String toSetSourceString(OgnlContext context, Object target)

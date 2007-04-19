@@ -233,7 +233,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         return type.isArray() ? type.getComponentType().getName() + "[]" : type.getName();
     }
 
-    public static String getRootExpression(Node expression, Object root, boolean boolValue)
+    public static String getRootExpression(Node expression, Object root, OgnlContext context)
     {
         String rootExpr = "";
 
@@ -248,13 +248,16 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
              && !ExpressionNode.class.isInstance(expression)
              && !ASTCtor.class.isInstance(expression)
              && !ASTStaticMethod.class.isInstance(expression)
-             && root != null) || (boolValue && root != null)
-                              || (root != null && ASTRootVarRef.class.isInstance(expression))) {
+             && root != null) || (root != null && ASTRootVarRef.class.isInstance(expression))) {
 
-            if (root.getClass().isArray() || ASTRootVarRef.class.isInstance(expression)
+            Class castClass = root.getClass();
+            if (context.getCurrentAccessor() != null && context.getCurrentAccessor().isInstance(root))
+                castClass = context.getCurrentAccessor();
+
+            if (castClass.isArray() || ASTRootVarRef.class.isInstance(expression)
                 || ASTThisVarRef.class.isInstance(expression)) {
 
-                rootExpr = "((" + getCastString(root.getClass()) + ")$2)";
+                rootExpr = "((" + getCastString(castClass) + ")$2)";
 
                 if (ASTProperty.class.isInstance(expression) && !((ASTProperty) expression).isIndexedAccess())
                     rootExpr += ".";
@@ -262,10 +265,10 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                         && ((ASTProperty) expression).isIndexedAccess())
                        || ASTChain.class.isInstance(expression)) {
 
-                rootExpr = "((" + OgnlRuntime.getCompiler().getClassName(root.getClass()) + ")$2)";
+                rootExpr = "((" + OgnlRuntime.getCompiler().getClassName(castClass) + ")$2)";
             } else {
 
-                rootExpr = "((" + OgnlRuntime.getCompiler().getClassName(root.getClass()) + ")$2).";
+                rootExpr = "((" + OgnlRuntime.getCompiler().getClassName(castClass) + ")$2).";
             }
         }
 
@@ -415,7 +418,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             post = post + ")";
         }
 
-        String rootExpr = !getterCode.equals("null") ? getRootExpression(expression, root, false) : "";
+        String rootExpr = !getterCode.equals("null") ? getRootExpression(expression, root, context) : "";
 
         String noRoot = (String) context.remove("_noRoot");
         if (noRoot != null)
@@ -539,7 +542,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         if (root == null)
             throw new UnsupportedCompilationException("Can't compile setters with a null root object.");
 
-        String pre = getRootExpression(expression, root, false);
+        String pre = getRootExpression(expression, root, context);
 
         String noRoot = (String) context.remove("_noRoot");
         if (noRoot != null)

@@ -151,14 +151,14 @@ public class ASTOr extends BooleanExpression {
 
             _children[0].getValue(context, target);
 
-            String first = ExpressionCompiler.getRootExpression(_children[0], context.getRoot(), false)
+            String first = ExpressionCompiler.getRootExpression(_children[0], context.getRoot(), context)
                            + pre + _children[0].toGetSourceString(context, target);
             if (!OgnlRuntime.isBoolean(first))
                 first = OgnlRuntime.getCompiler().createLocalReference(context, first, Object.class);
 
             _children[1].getValue(context, target);
             
-            String second = ExpressionCompiler.getRootExpression(_children[1], context.getRoot(), false)
+            String second = ExpressionCompiler.getRootExpression(_children[1], context.getRoot(), context)
                             + pre + _children[1].toSetSourceString(context, target);
             if (!OgnlRuntime.isBoolean(second))
                 second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());

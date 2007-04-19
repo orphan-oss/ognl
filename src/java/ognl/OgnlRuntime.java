@@ -2147,7 +2147,7 @@ public class OgnlRuntime {
 
         if (context.getRoot() != null) {
             
-            source = ExpressionCompiler.getRootExpression(child, context.getRoot(), false) + source;
+            source = ExpressionCompiler.getRootExpression(child, context.getRoot(), context) + source;
             context.setCurrentAccessor(context.getRoot().getClass());
         }
         

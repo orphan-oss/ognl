@@ -117,7 +117,7 @@ public abstract class ExpressionNode extends SimpleNode
                         if (cast == null)
                             cast = "";
                         
-                        value = cast + ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), false) + pre + value;
+                        value = cast + ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context) + pre + value;
                 } 
                
                 result += value;

@@ -9,8 +9,7 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
-import org.ognl.test.objects.Bean1;
-import org.ognl.test.objects.Root;
+import org.ognl.test.objects.*;
 
 import java.util.Collection;
 
@@ -128,5 +127,17 @@ public class TestExpressionCompiler extends TestCase
         Object ret = expr.getAccessor().get(_context, root);
 
         assertTrue(Collection.class.isInstance(ret));
+    }
+
+    public void test_Root_Expression_Inheritance()
+    throws Throwable
+    {
+        Inherited obj1 = new TestInherited1();
+        Inherited obj2 = new TestInherited2();
+        
+        Node expr = (Node) Ognl.compileExpression(_context, obj1, "myString");
+
+        assertEquals(expr.getAccessor().get(_context, obj1), "inherited1");
+        assertEquals(expr.getAccessor().get(_context, obj2), "inherited2");
     }
 }
