@@ -35,6 +35,8 @@ import org.ognl.test.objects.Root;
 
 public class NullStringCatenationTest extends OgnlTestCase {
 
+    public static final String MESSAGE = "blarney";
+
     private static Root ROOT = new Root();
 
     private static Object[][] TESTS = {
@@ -45,7 +47,8 @@ public class NullStringCatenationTest extends OgnlTestCase {
             {ROOT, "(true ? 'tabHeader' : '') + (false ? 'tabHeader' : '')", "tabHeader"},
             {ROOT, "theInt == 0 ? '5%' : theInt + '%'", "6%"},
             {ROOT, "'width:' + width + ';'", "width:238px;" },
-            {ROOT, "theLong + '_' + index", "4_1"} 
+            {ROOT, "theLong + '_' + index", "4_1"},
+            {ROOT, "'javascript:' + @org.ognl.test.NullStringCatenationTest@MESSAGE", "javascript:blarney" }
     };
 
     /*

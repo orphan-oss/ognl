@@ -222,7 +222,9 @@ class ASTAdd extends NumericExpression
                             && !ASTMethod.class.isInstance(_children[i])
                             && !ASTSequence.class.isInstance(_children[i])
                             && !ASTChain.class.isInstance(_children[i])
-                            && !NumericExpression.class.isAssignableFrom(_children[i].getClass())) {
+                            && !NumericExpression.class.isAssignableFrom(_children[i].getClass())
+                                && !ASTStaticField.class.isInstance(_children[i])
+                                && !ASTStaticMethod.class.isInstance(_children[i])) {
 
                             if (lastType != null && String.class.isAssignableFrom(lastType.getGetterClass()))  {
                                 //System.out.println("Input expr >>" + expr + "<<");
