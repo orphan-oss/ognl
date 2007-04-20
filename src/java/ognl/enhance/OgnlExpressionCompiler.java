@@ -22,7 +22,9 @@ public interface OgnlExpressionCompiler {
     Class getInterfaceClass(Class clazz);
 
     Class getSuperOrInterfaceClass(Method m, Class clazz);
-    
+
+    Class getRootExpressionClass(Node rootNode, OgnlContext context);
+
     String castExpression(OgnlContext context, Node expression, String body);
 
     String createLocalReference(OgnlContext context, String expression, Class type);

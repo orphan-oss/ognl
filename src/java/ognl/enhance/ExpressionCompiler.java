@@ -214,6 +214,19 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         return clazz;
     }
 
+    public Class getRootExpressionClass(Node rootNode, OgnlContext context)
+    {
+        if (context.getRoot() == null)
+            return null;
+
+        Class ret = context.getRoot().getClass();
+
+        if (context.getFirstAccessor() != null && context.getFirstAccessor().isInstance(context.getRoot()))
+            ret = context.getFirstAccessor();
+
+        return ret;
+    }
+
     /**
      * Returns the appropriate casting expression (minus parens) for the specified class type.
      * <p/>
@@ -250,11 +263,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
              && !ASTStaticMethod.class.isInstance(expression)
              && root != null) || (root != null && ASTRootVarRef.class.isInstance(expression))) {
 
-            Class castClass = root.getClass();
+            Class castClass = OgnlRuntime.getCompiler().getRootExpressionClass(expression, context);
 
-            if (context.getFirstAccessor() != null && context.getFirstAccessor().isInstance(context.getRoot()))
-                castClass = context.getFirstAccessor();
-            
             if (castClass.isArray() || ASTRootVarRef.class.isInstance(expression)
                 || ASTThisVarRef.class.isInstance(expression)) {
 
