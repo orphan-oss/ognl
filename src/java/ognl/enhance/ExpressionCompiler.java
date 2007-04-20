@@ -100,7 +100,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         if (clazz.getInterfaces() != null && clazz.getInterfaces().length > 0) {
 
             Class[] intfs = clazz.getInterfaces();
-            Class intClass = null;
+            Class intClass;
             for (int i = 0; i < intfs.length; i++) {
                 intClass = getSuperOrInterfaceClass(m, intfs[i]);
 
@@ -251,9 +251,10 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
              && root != null) || (root != null && ASTRootVarRef.class.isInstance(expression))) {
 
             Class castClass = root.getClass();
-            if (context.getCurrentAccessor() != null && context.getCurrentAccessor().isInstance(root))
-                castClass = context.getCurrentAccessor();
 
+            if (context.getFirstAccessor() != null && context.getFirstAccessor().isInstance(context.getRoot()))
+                castClass = context.getFirstAccessor();
+            
             if (castClass.isArray() || ASTRootVarRef.class.isInstance(expression)
                 || ASTThisVarRef.class.isInstance(expression)) {
 
@@ -300,8 +301,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         if (expression.getAccessor() != null)
             return;
 
-        String getBody = null;
-        String setBody = null;
+        String getBody, setBody;
 
         EnhancedClassLoader loader = getClassLoader(context);
         ClassPool pool = getClassPool(context, loader);
@@ -394,7 +394,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     {
         String pre = "";
         String post = "";
-        String body = null;
+        String body;
 
         context.setRoot(root);
         context.setCurrentObject(root);
@@ -531,7 +531,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         context.setCurrentObject(root);
         context.remove(PRE_CAST);
 
-        String body = null;
+        String body;
 
         String setterCode = expression.toSetSourceString(context, root);
         String castExpression = (String) context.get(PRE_CAST);
@@ -558,9 +558,6 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         body = body.replaceAll("\\.\\.", ".");
 
         // System.out.println("Setter Body: ===================================\n" + body);
-
-        if (setterCode.indexOf("$3") < 0)
-            setterCode = "";
 
         valueSetter.setBody(body);
 

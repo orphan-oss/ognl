@@ -100,22 +100,10 @@ public class OgnlContext extends Object implements Map
             // restricted access environment, just keep defaults
         }
     }
-    
-    /**
-     * Indicates the current "type" of object being evaluated on the stack, this is used 
-     * for javassist bytecode enhancement logic to do proper casting / return type generations.
-     */
-    private Class _currentType;
-    
-    /**
-     * Like {@link #_currentType}, provides runtime class type information important for
-     * javassist casting/evaluation of generated java code expressions.
-     */
-    private Class _previousType;
-    
-    private Class _currentAccessor;
-    
-    private Class _previousAccessor;
+
+    private List _typeStack = new ArrayList();
+
+    private List _accessorStack = new ArrayList();
     
     /**
      * Constructs a new OgnlContext with the default class resolver, type converter and member
@@ -123,7 +111,6 @@ public class OgnlContext extends Object implements Map
      */
     public OgnlContext()
     {
-        super();
     }
 
     /**
@@ -275,20 +262,36 @@ public class OgnlContext extends Object implements Map
     
     public void setCurrentAccessor(Class type)
     {
-        _previousAccessor = _currentAccessor;
-        _currentAccessor = type;
+        _accessorStack.add(type);        
     }
     
     public Class getCurrentAccessor()
     {
-        return _currentAccessor;
+        if (_accessorStack.isEmpty())
+            return null;
+        
+        return (Class) _accessorStack.get(_accessorStack.size() - 1);
     }
     
     public Class getPreviousAccessor()
     {
-        return _previousAccessor;
+        if (_accessorStack.isEmpty())
+            return null;
+
+        if (_accessorStack.size() > 1)
+            return (Class) _accessorStack.get(_accessorStack.size() - 2);
+        else
+            return null;
     }
-    
+
+    public Class getFirstAccessor()
+    {
+        if (_accessorStack.isEmpty())
+            return null;
+
+        return (Class)_accessorStack.get(0);
+    }
+
     /**
      * Gets the current class type being evaluated on the stack, as set by {@link #setCurrentType(Class)}.
      * 
@@ -296,13 +299,15 @@ public class OgnlContext extends Object implements Map
      */
     public Class getCurrentType()
     {
-       return _currentType; 
+        if (_typeStack.isEmpty())
+            return null;
+
+       return (Class) _typeStack.get(_typeStack.size() - 1); 
     }
     
     public void setCurrentType(Class type)
     {
-        _previousType = _currentType;
-        _currentType = type;
+        _typeStack.add(type);
     }
     
     /**
@@ -313,12 +318,29 @@ public class OgnlContext extends Object implements Map
      */
     public Class getPreviousType()
     {
-        return _previousType;
+        if (_typeStack.isEmpty())
+            return null;
+
+        if (_typeStack.size() > 1)
+            return (Class)_typeStack.get(_typeStack.size() - 2);
+        else
+            return null;
     }
     
     public void setPreviousType(Class type)
     {
-        _previousType = type;
+        if (_typeStack.isEmpty() || _typeStack.size() < 2)
+            return;
+
+        _typeStack.set(_typeStack.size() - 2, type);
+    }
+
+    public Class getFirstType()
+    {
+        if (_typeStack.isEmpty())
+            return null;
+
+        return (Class)_typeStack.get(0);
     }
 
     public void setCurrentNode(Node value)
@@ -605,6 +627,9 @@ public class OgnlContext extends Object implements Map
     public void clear()
     {
         _values.clear();
+        _typeStack.clear();
+        _accessorStack.clear();
+        
         setRoot(null);
         setCurrentObject(null);
         setRootEvaluation(null);
