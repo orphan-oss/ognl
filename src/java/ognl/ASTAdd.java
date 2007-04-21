@@ -216,6 +216,7 @@ class ASTAdd extends NumericExpression
                         && ASTConst.class.isInstance(_children[i])) {
                         
                         expr = expr.replaceAll("'", "\"");
+                        context.setCurrentType(String.class);
                     } else {
                         if (!ASTVarRef.class.isAssignableFrom(_children[i].getClass())
                             && !ASTProperty.class.isInstance(_children[i])

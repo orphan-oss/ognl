@@ -32,8 +32,6 @@ package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
-
-
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
@@ -72,41 +70,38 @@ class ASTTest extends ExpressionNode
         if (target == null)
             throw new UnsupportedCompilationException("evaluation resulted in null expression.");
 
-        if (_children.length != 2)
-            throw new UnsupportedCompilationException("Can only compile test expressions with two children.");
+        if (_children.length != 3)
+            throw new UnsupportedCompilationException("Can only compile test expressions with two children." + _children.length);
 
-        String result = (_parent == null || NumericExpression.class.isAssignableFrom(_parent.getClass())) ? "" : "(";
+        String result = "";
+        //String result = (_parent == null || NumericExpression.class.isAssignableFrom(_parent.getClass())) ? "" : "(";
         
         try {
 
             String first = OgnlRuntime.getChildSource(context, target, _children[0]);
-            if (!OgnlRuntime.isBoolean(first))
+            if (!OgnlRuntime.isBoolean(first) && !context.getCurrentType().isPrimitive())
                 first = OgnlRuntime.getCompiler().createLocalReference(context, first, context.getCurrentType());
-            
-            Class firstType = context.getCurrentType();
 
             String second = OgnlRuntime.getChildSource(context, target, _children[1]);
-             if (!OgnlRuntime.isBoolean(second))
+             if (!OgnlRuntime.isBoolean(second) && !context.getCurrentType().isPrimitive())
                  second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());
             
-            Class secondType = context.getCurrentType();
-            
-            boolean mismatched = (firstType.isPrimitive() && !secondType.isPrimitive())
-                                 || (!firstType.isPrimitive() && secondType.isPrimitive()) ? true : false;
-            
+            String third = OgnlRuntime.getChildSource(context, target, _children[2]);
+             if (!OgnlRuntime.isBoolean(third) && !context.getCurrentType().isPrimitive())
+                 third = OgnlRuntime.getCompiler().createLocalReference(context, third, context.getCurrentType());
+
             result += "ognl.OgnlOps.booleanValue(" + first + ")";
 
             result += " ? ";
 
-            result += (mismatched ? " ($w) " : "") + first;
+            result += " ($w) " + second;
             result += " : ";
 
-            result += (mismatched ? " ($w) " : "") + second;
-            
-            if (_parent != null && !NumericExpression.class.isAssignableFrom(_parent.getClass())) {
-                result = result + ")";
-            }
-            
+            result += " ($w) " + third;
+
+            context.setCurrentObject(target);
+            context.setCurrentType(Object.class);
+
             return result;
         
         } catch (NullPointerException e) {

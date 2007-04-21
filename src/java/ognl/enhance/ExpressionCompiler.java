@@ -341,6 +341,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         } catch (UnsupportedCompilationException uc) {
 
+            //uc.printStackTrace();
+
             nodeMember = new CtField(nodeClass, "_node", newClass);
 
             newClass.addField(nodeMember);
@@ -360,6 +362,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         } catch (UnsupportedCompilationException uc) {
 
+            //uc.printStackTrace();
+            
             if (nodeMember == null) {
 
                 nodeMember = new CtField(nodeClass, "_node", newClass);
@@ -392,6 +396,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             }
 
         } catch (Throwable t) {
+            //t.printStackTrace();
+            
             throw new RuntimeException("Error compiling expression on object " + root
                                        + " with expression node " + expression + " getter body: " + getBody
                                        + " setter body: " + setBody, t);
@@ -459,7 +465,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         body = body.replaceAll("\\.\\.", ".");
 
-        // System.out.println("Getter Body: ===================================\n" + body);
+        //System.out.println("Getter Body: ===================================\n" + body);
         valueGetter.setBody(body);
 
         newClass.addMethod(valueGetter);

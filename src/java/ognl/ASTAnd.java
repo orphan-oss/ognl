@@ -113,25 +113,18 @@ public class ASTAnd extends BooleanExpression
             if (!OgnlRuntime.isBoolean(first) && !context.getCurrentType().isPrimitive())
                 first = OgnlRuntime.getCompiler().createLocalReference(context, first, context.getCurrentType());
 
-            Class firstType = context.getCurrentType();
-
             String second = OgnlRuntime.getChildSource(context, target, _children[1]);
             if (!OgnlRuntime.isBoolean(second) && !context.getCurrentType().isPrimitive())
                 second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());
-
-            Class secondType = context.getCurrentType();
-
-            boolean mismatched = (firstType.isPrimitive() && !secondType.isPrimitive())
-                                 || (!firstType.isPrimitive() && secondType.isPrimitive());
 
             result += "ognl.OgnlOps.booleanValue(" + first + ")";
             
             result += " ? ";
 
-            result += (mismatched ? " ($w) " : " ($w) ") + second;
+            result += " ($w) "  + second;
             result += " : ";
 
-            result += (mismatched ? " ($w) " : " ($w) ") + first;
+            result += " ($w) " + first;
 
             result += "";
 

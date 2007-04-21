@@ -75,7 +75,7 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "map.(#this != null ? #this['size'] : null)", ROOT.getMap().get(Root.SIZE_STRING) },
             { ROOT, "map[^].(#this == null ? 'empty' : #this)", new Integer(99) },
             { ROOT, "map[$].(#this == null ? 'empty' : #this)", "empty" },
-            { ROOT, "map[$].(#root == null ? 'empty' : #root)", ROOT }, 
+            { ROOT, "map[$].(#root == null ? 'empty' : #root)", ROOT },
             { ROOT, "((selected != null) && (currLocale.toString() == selected.toString())) ? 'first' : 'second'", "first" },
             { ROOT, "{stringValue, getMap()}", Arrays.asList(new Object[]{ROOT.getStringValue(), ROOT.getMap()})},
             { ROOT, "{'stringValue', map[\"test\"].map[\"size\"]}", Arrays.asList(new Object[]{"stringValue", ROOT.getMap().get("size")}) },
@@ -103,7 +103,8 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "'last ' + getCurrentClass(@org.ognl.test.PropertyTest@VALUE)", "last foo stop"},
             { ROOT, "@org.ognl.test.PropertyTest@formatValue(property.millis, true, true)", formatValue((int)((Bean2)ROOT.getProperty()).getMillis(), true, true) },
             { ROOT, "nullObject || !readonly", Boolean.TRUE },
-            { ROOT, "testDate == null ? '-' : @org.ognl.test.PropertyTest@DATETIME_FORMAT.format(testDate)", DATETIME_FORMAT.format(ROOT.getTestDate()) }
+            { ROOT, "testDate == null ? '-' : @org.ognl.test.PropertyTest@DATETIME_FORMAT.format(testDate)", DATETIME_FORMAT.format(ROOT.getTestDate()) },
+            { ROOT, "disabled ? 'disabled' : 'othernot'", "disabled" }
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)
