@@ -615,22 +615,26 @@ public class OgnlRuntime {
         Object result;
         boolean wasAccessible = true;
 
-        if (securityManager != null) {
-            try {
-                securityManager.checkPermission(getPermission(method));
-            } catch (SecurityException ex) {
-                throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
+        synchronized(method) {
+
+            if (securityManager != null) {
+                try {
+                    securityManager.checkPermission(getPermission(method));
+                } catch (SecurityException ex) {
+                    throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
+                }
+            }
+            if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
+                if (!(wasAccessible = ((AccessibleObject) method).isAccessible())) {
+                    ((AccessibleObject) method).setAccessible(true);
+                }
+            }
+            result = method.invoke(target, argsArray);
+            if (!wasAccessible) {
+                ((AccessibleObject) method).setAccessible(false);
             }
         }
-        if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-            if (!(wasAccessible = ((AccessibleObject) method).isAccessible())) {
-                ((AccessibleObject) method).setAccessible(true);
-            }
-        }
-        result = method.invoke(target, argsArray);
-        if (!wasAccessible) {
-            ((AccessibleObject) method).setAccessible(false);
-        }
+        
         return result;
     }
 
