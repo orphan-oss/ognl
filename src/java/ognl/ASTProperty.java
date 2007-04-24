@@ -105,9 +105,9 @@ public class ASTProperty extends SimpleNode implements NodeType
         Object result = null;
         Object property = null;
         result = property = getProperty(context, source);
-        
+
         result = OgnlRuntime.getProperty(context, source, property);
-        
+
         if (result == null) {
             
             result = OgnlRuntime.getNullHandler(OgnlRuntime.getTargetClass(source)).nullPropertyValue(context, source, property);
@@ -159,7 +159,7 @@ public class ASTProperty extends SimpleNode implements NodeType
         Method m = null;
         
         try {
-           // System.out.println("astproperty is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
+           //System.out.println("astproperty is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
              //      + " target: " + target.getClass().getName() + " current object: " + context.getCurrentObject().getClass().getName());
             
             if (isIndexedAccess()) {
@@ -298,11 +298,11 @@ public class ASTProperty extends SimpleNode implements NodeType
                 }
             } else {
 
-                /*
-                System.out.println("astproperty trying to get " + name + " on object target: " + context.getCurrentObject().getClass().getName()
+/*
+                 System.out.println("astproperty trying to get " + name + " on object target: " + context.getCurrentObject().getClass().getName()
                         + " current type " + context.getCurrentType() + " current accessor " + context.getCurrentAccessor()
-                    + " prev type " + context.getPreviousType() + " prev accessor " + context.getPreviousAccessor());
-               */
+                    + " prev type " + context.getPreviousType() + " prev accessor " + context.getPreviousAccessor()); */
+               
                 
                 PropertyAccessor pa = OgnlRuntime.getPropertyAccessor(context.getCurrentObject().getClass());
 
@@ -337,6 +337,7 @@ public class ASTProperty extends SimpleNode implements NodeType
                             srcString = "\"" + srcString + "\"";
                         }
 
+
                         context.setCurrentObject(currObj);
                         context.setCurrentType(currType);
                         context.setPreviousType(prevType);
@@ -344,7 +345,6 @@ public class ASTProperty extends SimpleNode implements NodeType
                         result = pa.getSourceAccessor(context, context.getCurrentObject(), srcString);
 
                         _getterClass = context.getCurrentType();
-
                     }
                 }
                 

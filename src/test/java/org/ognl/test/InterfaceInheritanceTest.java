@@ -37,6 +37,7 @@ import org.ognl.test.objects.*;
 import java.util.List;
 
 public class InterfaceInheritanceTest extends OgnlTestCase {
+    
     private static Root ROOT = new Root();
 
     static {
@@ -70,7 +71,8 @@ public class InterfaceInheritanceTest extends OgnlTestCase {
             {ROOT, "map.comp.form.clientId", "form1"},
             {ROOT, "map.comp.getCount(genericIndex)", Integer.valueOf(0)},
             {ROOT, "map.customList.total", Integer.valueOf(1)},
-            {ROOT, "myTest.theMap['key']", "value" }
+            {ROOT, "myTest.theMap['key']", "value" },
+            {ROOT, "contentProvider.hasChildren(property)", Boolean.TRUE}
     };
 
     /*

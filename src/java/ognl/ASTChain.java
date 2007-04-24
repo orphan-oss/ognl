@@ -93,7 +93,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                         
                         if (indexNode.isIndexedAccess()) {
                             Object index = indexNode.getProperty(context, result);
-                            
+
                             if (index instanceof DynamicSubscript) {
                                 if (indexType == OgnlRuntime.INDEXED_PROPERTY_INT) {
                                     Object array = propertyNode.getValue(context, result);

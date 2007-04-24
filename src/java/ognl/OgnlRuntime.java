@@ -1889,9 +1889,14 @@ public class OgnlRuntime {
             Class currAccessor = context.getCurrentAccessor();
             Object cast = context.get(ExpressionCompiler.PRE_CAST);
 
+            context.setCurrentObject(context.getRoot());
+            context.setCurrentType(context.getRoot() != null ? context.getRoot().getClass() : null);
+            context.setCurrentAccessor(null);
+            context.setPreviousType(null);
+
             for (int i=0; i < children.length; i++) {
 
-                children[i].toGetSourceString(context, context.getCurrentObject());
+                children[i].toGetSourceString(context, context.getRoot());
                 parms[i] = context.getCurrentType();
             }
 
@@ -2137,24 +2142,25 @@ public class OgnlRuntime {
             pre = "";
 
         try {
-
             child.getValue(context, target);
         } catch (NullPointerException e) {
-            // e.printStackTrace();
+            // ignore
         }
-
+        
         String source = child.toGetSourceString(context, target);
 
         // handle root / method expressions that may not have proper root java source access
 
-        source = pre + source;
+        if (!ASTConst.class.isInstance(child) && (target == null || context.getRoot() != target)) {
+            source = pre + source;
+        }
 
         if (context.getRoot() != null) {
             
             source = ExpressionCompiler.getRootExpression(child, context.getRoot(), context) + source;
             context.setCurrentAccessor(context.getRoot().getClass());
         }
-        
+
         if (ASTChain.class.isInstance(child)) {
             
             String cast = (String) context.remove(ExpressionCompiler.PRE_CAST);

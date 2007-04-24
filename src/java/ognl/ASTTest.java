@@ -74,7 +74,6 @@ class ASTTest extends ExpressionNode
             throw new UnsupportedCompilationException("Can only compile test expressions with two children." + _children.length);
 
         String result = "";
-        //String result = (_parent == null || NumericExpression.class.isAssignableFrom(_parent.getClass())) ? "" : "(";
         
         try {
 

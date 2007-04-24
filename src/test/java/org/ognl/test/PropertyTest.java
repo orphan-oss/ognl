@@ -31,7 +31,9 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
+import org.ognl.test.objects.BaseBean;
 import org.ognl.test.objects.Bean2;
+import org.ognl.test.objects.FirstBean;
 import org.ognl.test.objects.Root;
 
 import java.text.SimpleDateFormat;
@@ -45,6 +47,8 @@ public class PropertyTest extends OgnlTestCase
     public static final String VALUE = "foo";
     
     private static Root ROOT = new Root();
+
+    private static BaseBean BEAN = new FirstBean();
 
     /* { ROOT, "map.(array[2] + size()).doubleValue()", new Double(ROOT.getArray()[2] + ROOT.getMap().size()) }, */
 
@@ -106,7 +110,8 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "@org.ognl.test.PropertyTest@formatValue(property.millis, true, true)", formatValue((int)((Bean2)ROOT.getProperty()).getMillis(), true, true) },
             { ROOT, "nullObject || !readonly", Boolean.TRUE },
             { ROOT, "testDate == null ? '-' : @org.ognl.test.PropertyTest@DATETIME_FORMAT.format(testDate)", DATETIME_FORMAT.format(ROOT.getTestDate()) },
-            { ROOT, "disabled ? 'disabled' : 'othernot'", "disabled" }
+            { ROOT, "disabled ? 'disabled' : 'othernot'", "disabled" },
+            { BEAN, "two.getMessage(active ? 'ACT' : 'INA')", "[ACT]"} 
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)

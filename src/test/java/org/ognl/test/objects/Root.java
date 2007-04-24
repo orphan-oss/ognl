@@ -68,6 +68,8 @@ public class Root extends Object
     private Object _genericObjIndex = new Integer(2);
     private Date _date = new Date();
 
+    private ITreeContentProvider _contentProvider = new TreeContentProvider();
+
     /*===================================================================
 		Public static methods
 	  ===================================================================*/
@@ -374,5 +376,10 @@ public class Root extends Object
     public TestClass getMyTest()
     {
         return new TestImpl();
+    }
+
+    public ITreeContentProvider getContentProvider()
+    {
+        return _contentProvider;
     }
 }

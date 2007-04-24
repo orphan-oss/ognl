@@ -194,9 +194,14 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
 
                     Class prevType = context.getCurrentType();
 
+                    context.setCurrentObject(context.getRoot());
+                    context.setCurrentType(context.getRoot() != null ? context.getRoot().getClass() : null);
+                    context.setCurrentAccessor(null);
+                    context.setPreviousType(null);
+
                     Object value = _children[i].getValue(context, context.getRoot());
                     String parmString = _children[i].toGetSourceString(context, context.getRoot());
-
+                    
                     if (parmString == null || parmString.trim().length() < 1)
                         parmString = "null";
                     
@@ -205,7 +210,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                         
                         context.setCurrentType(prevType);
                     }
-                    
+
                     parmString = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context) + parmString;
 
                     String cast = "";
@@ -296,7 +301,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
         if (m == null) {
             return "";
         }
-        
+
         String post = "";
         String result = "." + m.getName() + "(";
         
@@ -325,10 +330,16 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                     Class prevType = context.getCurrentType();
 
                     Object value = _children[i].getValue(context, context.getRoot());
-                    String parmString = _children[i].toGetSourceString(context, context.getRoot());
+                    String parmString = _children[i].toSetSourceString(context, context.getRoot());
 
-                    if (parmString == null || parmString.trim().length() < 1)
+                    if (parmString == null || parmString.trim().length() < 1) {
+
+                        if (ASTProperty.class.isInstance(_children[i]) || ASTMethod.class.isInstance(_children[i])
+                                || ASTStaticMethod.class.isInstance(_children[i]) || ASTChain.class.isInstance(_children[i]))
+                            throw new UnsupportedCompilationException("ASTMethod setter child returned null from a sub property expression.");
+                        
                         parmString = "null";
+                    }
 
                     // to undo type setting of constants when used as method parameters
                     if (ASTConst.class.isInstance(_children[i])) {
@@ -337,7 +348,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                     }
 
                     parmString = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context) + parmString;
-                    
+
                     String cast = "";
                     if (ExpressionCompiler.shouldCast(_children[i])) {
 
@@ -347,7 +358,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                         cast = "";
                     
                     parmString = cast + parmString;
-                    
+
                     Class valueClass = value != null ? value.getClass() : null;
                     if (NodeType.class.isAssignableFrom(_children[i].getClass()))
                         valueClass = ((NodeType)_children[i]).getGetterClass();
