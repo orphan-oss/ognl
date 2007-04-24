@@ -121,10 +121,10 @@ public class ASTAnd extends BooleanExpression
             
             result += " ? ";
 
-            result += " ($w) "  + second;
+            result += " ($w) ("  + second + ")";
             result += " : ";
 
-            result += " ($w) " + first;
+            result += " ($w) (" + first + ")";
 
             result += "";
 

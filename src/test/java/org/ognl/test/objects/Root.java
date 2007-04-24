@@ -275,7 +275,12 @@ public class Root extends Object
     {
         return null;
     }
-    
+
+    public String getTestString()
+    {
+        return "wiggle";
+    }
+
     public Object getProperty()
     {
         return new Bean2();

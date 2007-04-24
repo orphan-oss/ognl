@@ -52,6 +52,7 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "objectIndex > 0", Boolean.TRUE},
             { ROOT, "false", Boolean.FALSE},
             { ROOT, "!false || true", Boolean.TRUE},
+            { ROOT, "testString != null && !false", Boolean.TRUE},
             { ROOT, "map", ROOT.getMap() },
             { ROOT, "map.test", ROOT },
             { ROOT, "map[\"test\"]", ROOT },
