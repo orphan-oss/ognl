@@ -9,4 +9,9 @@ public class Two {
     {
         return "[" + mes + "]";
     }
+
+    public boolean hasChildren(String name)
+    {
+        return name.length() > 2;
+    }
 }

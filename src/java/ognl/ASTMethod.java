@@ -329,6 +329,11 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
 
                     Class prevType = context.getCurrentType();
 
+                    context.setCurrentObject(context.getRoot());
+                    context.setCurrentType(context.getRoot() != null ? context.getRoot().getClass() : null);
+                    context.setCurrentAccessor(null);
+                    context.setPreviousType(null);
+
                     Object value = _children[i].getValue(context, context.getRoot());
                     String parmString = _children[i].toSetSourceString(context, context.getRoot());
 

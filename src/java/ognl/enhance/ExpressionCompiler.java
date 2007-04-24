@@ -297,6 +297,9 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                 return false;
         }
 
+        if (ASTConst.class.isInstance(expression))
+            return false;
+
         return true;
     }
 

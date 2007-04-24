@@ -111,7 +111,10 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "nullObject || !readonly", Boolean.TRUE },
             { ROOT, "testDate == null ? '-' : @org.ognl.test.PropertyTest@DATETIME_FORMAT.format(testDate)", DATETIME_FORMAT.format(ROOT.getTestDate()) },
             { ROOT, "disabled ? 'disabled' : 'othernot'", "disabled" },
-            { BEAN, "two.getMessage(active ? 'ACT' : 'INA')", "[ACT]"} 
+            { BEAN, "two.getMessage(active ? 'ACT' : 'INA')", "[ACT]"},
+            { BEAN, "hasChildren('aaa')", Boolean.TRUE},
+            { BEAN, "two.hasChildren('aa')", Boolean.FALSE},
+            { BEAN, "two.hasChildren('a')", Boolean.FALSE}
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)
