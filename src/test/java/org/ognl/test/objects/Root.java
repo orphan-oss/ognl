@@ -373,6 +373,11 @@ public class Root extends Object
         return new Long(4);
     }
 
+    public boolean isSorted()
+    {
+        return true;
+    }
+
     public TestClass getMyTest()
     {
         return new TestImpl();

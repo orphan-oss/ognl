@@ -80,14 +80,23 @@ class ASTTest extends ExpressionNode
             String first = OgnlRuntime.getChildSource(context, target, _children[0]);
             if (!OgnlRuntime.isBoolean(first) && !context.getCurrentType().isPrimitive())
                 first = OgnlRuntime.getCompiler().createLocalReference(context, first, context.getCurrentType());
-
-            String second = OgnlRuntime.getChildSource(context, target, _children[1]);
-             if (!OgnlRuntime.isBoolean(second) && !context.getCurrentType().isPrimitive())
-                 second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());
+            if (ExpressionNode.class.isInstance(_children[0])) {
+                first = "(" + first + ")";
+            }
             
+            String second = OgnlRuntime.getChildSource(context, target, _children[1]);
+            if (!OgnlRuntime.isBoolean(second) && !context.getCurrentType().isPrimitive())
+                second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());
+            if (ExpressionNode.class.isInstance(_children[1])) {
+                second = "(" + second + ")";
+            }
+
             String third = OgnlRuntime.getChildSource(context, target, _children[2]);
-             if (!OgnlRuntime.isBoolean(third) && !context.getCurrentType().isPrimitive())
-                 third = OgnlRuntime.getCompiler().createLocalReference(context, third, context.getCurrentType());
+            if (!OgnlRuntime.isBoolean(third) && !context.getCurrentType().isPrimitive())
+                third = OgnlRuntime.getCompiler().createLocalReference(context, third, context.getCurrentType());
+            if (ExpressionNode.class.isInstance(_children[2])) {
+                third = "(" + third + ")";
+            }
 
             result += "ognl.OgnlOps.booleanValue(" + first + ")";
 

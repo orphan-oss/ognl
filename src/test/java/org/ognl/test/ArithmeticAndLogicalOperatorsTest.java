@@ -122,6 +122,7 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
             { "5 instanceof java.lang.Integer", Boolean.TRUE },
             { "5. instanceof java.lang.Integer", Boolean.FALSE },
             { "!false || true", Boolean.TRUE},
+            { "(1 > 0 && true) || 2 > 0", Boolean.TRUE},
 
             // Logical expressions (string versions)
             { "2 or 0", Integer.valueOf(2)},
