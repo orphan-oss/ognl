@@ -72,12 +72,6 @@ class ASTNot extends BooleanExpression
             if (srcString == null || srcString.trim().length() < 1)
                 srcString = "null";
             
-            if (context.getCurrentType() != null && context.getCurrentType() == Boolean.TYPE
-                    || OgnlRuntime.isBoolean(srcString)) {
-
-                return "!" + srcString;
-            }
-
             context.setCurrentType(Boolean.TYPE);
 
             return "(! ognl.OgnlOps.booleanValue(" + srcString + ") )";
