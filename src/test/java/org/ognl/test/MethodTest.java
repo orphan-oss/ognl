@@ -41,6 +41,7 @@ public class MethodTest extends OgnlTestCase
     private static Object[][] TESTS = {
             { "hashCode()", new Integer(ROOT.hashCode()) } ,
             { "getBooleanValue() ? \"here\" : \"\"", ""},
+            { "getValueIsTrue(!false) ? \"\" : \"here\" ", ""}
     };
 
     /*

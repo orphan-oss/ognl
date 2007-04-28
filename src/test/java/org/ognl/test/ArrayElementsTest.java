@@ -57,7 +57,8 @@ public class ArrayElementsTest extends OgnlTestCase {
             {ROOT, "array", ROOT.getArray(), new String[]{"50", "100"}, new int[]{50, 100}},
             {null, "\"{Hello}\".toCharArray()[6]", new Character('}')},
             {null, "\"Tapestry\".toCharArray()[2]", new Character('p')},
-            {null, "{'1','2','3'}", Arrays.asList(new Object[]{new Character('1'), new Character('2'), new Character('3')})}
+            {null, "{'1','2','3'}", Arrays.asList(new Object[]{new Character('1'), new Character('2'), new Character('3')})},
+            {null, "{ true, !false }", Arrays.asList(new Boolean[] { Boolean.TRUE, Boolean.TRUE }) }
     };
 
     /*

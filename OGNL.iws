@@ -17,10 +17,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/ArithmeticAndLogicalOperatorsTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/ArithmeticAndLogicalOperatorsTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTNot.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTNot.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" afterPath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/MethodTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/MethodTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iws" afterPath="$PROJECT_DIR$/OGNL.iws" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/ArrayElementsTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/ArrayElementsTest.java" />
     </list>
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
@@ -220,6 +219,20 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
         </PATH_ELEMENT>
       </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="OGNL" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="OGNL" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
     </subPane>
   </component>
   <component name="ProjectReloadState">
@@ -402,14 +415,14 @@
       </UpdatedFiles>
     </UpdateInfo>
   </component>
-  <component name="RunManager" selected="JUnit.ArithmeticAndLogicalOperatorsTest">
-    <tempConfiguration default="false" name="ArithmeticAndLogicalOperatorsTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+  <component name="RunManager" selected="JUnit.MethodTest">
+    <tempConfiguration default="false" name="MethodTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <pattern value="org.ognl.test.*" />
       <module name="OGNL" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="ALTERNATIVE_JRE_PATH" value="/usr/local/jdk1.6.0_02" />
       <option name="PACKAGE_NAME" value="org.ognl.test" />
-      <option name="MAIN_CLASS_NAME" value="org.ognl.test.ArithmeticAndLogicalOperatorsTest" />
+      <option name="MAIN_CLASS_NAME" value="org.ognl.test.MethodTest" />
       <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="" />
@@ -682,7 +695,7 @@
     <option name="PERFORM_EDIT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixes OGNL-56. Trying to be clever with source strings containg booleans didn't work out.  Used clumsier OgnlOps method instead." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added some more unit tests referenced in jira but could not get them to fail." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -693,7 +706,6 @@
     <option name="UPDATE_GROUP_BY_PACKAGES" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="Upgraded javacc and re-ran grammar generator." />
     <MESSAGE value="Resolves OGNL-22. Null strings weren't being handled properly in mathematical expressions." />
     <MESSAGE value="Resolves OGNL-23. String concatenation not working properly in ternary statements." />
     <MESSAGE value="Resolves OGNL-24. ListPropertyAccessor wasn't delegating to superclass for getSource in operations where a list object has been extended .." />
@@ -718,6 +730,7 @@
     <MESSAGE value="Fixed small error with ASTTest expressions containing sub-expressions without any paranthetical boundaries." />
     <MESSAGE value="Fixes OGNL-58. ASTChain children weren't having their expression root strings added." />
     <MESSAGE value="Fixes OGNL-56. Trying to be clever with source strings containg booleans didn't work out.  Used clumsier OgnlOps method instead." />
+    <MESSAGE value="Added some more unit tests referenced in jira but could not get them to fail." />
   </component>
   <component name="XPathView.XPathProjectComponent">
     <history />
@@ -789,20 +802,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/BaseBean.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="29" column="5" selection-start="418" selection-end="418" vertical-scroll-proportion="0.3394803">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Two.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="33" selection-start="232" selection-end="232" vertical-scroll-proportion="0.17602682">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTMethod.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="363" column="20" selection-start="14162" selection-end="14162" vertical-scroll-proportion="0.41492036">
@@ -892,6 +891,20 @@
     <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ArithmeticAndLogicalOperatorsTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="147" column="43" selection-start="6721" selection-end="6721" vertical-scroll-proportion="0.5427632">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/MethodTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="45" column="0" selection-start="2146" selection-end="2146" vertical-scroll-proportion="0.18503289">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ArrayElementsTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="62" column="0" selection-start="3194" selection-end="3194" vertical-scroll-proportion="0.234375">
           <folding />
         </state>
       </provider>
