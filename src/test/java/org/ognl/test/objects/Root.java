@@ -387,4 +387,14 @@ public class Root extends Object
     {
         return _contentProvider;
     }
+
+    public boolean isPrintDelivery()
+    {
+        return true;
+    }
+
+    public Long getCurrentDeliveryId()
+    {
+        return 1l;
+    }
 }

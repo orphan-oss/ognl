@@ -43,4 +43,9 @@ public class Bean2 extends Object
     {
         return 1000 * 60 * 2;
     }
+
+    public boolean isCarrier()
+    {
+        return false;
+    }
 }

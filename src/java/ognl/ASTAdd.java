@@ -192,8 +192,8 @@ class ASTAdd extends NumericExpression
                         
                         context.setCurrentAccessor(context.getRoot().getClass());
                         
-                    } else if (_parent == null && ASTChain.class.isInstance(_children[i])) {
-                        
+                    } else if ((_parent == null || !ASTChain.class.isInstance(_parent)) && ASTChain.class.isInstance(_children[i])) {
+
                         String rootExpr = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context);
                         //System.out.println("astadd rootExpr " + rootExpr + " and expr: " + expr);
                         
