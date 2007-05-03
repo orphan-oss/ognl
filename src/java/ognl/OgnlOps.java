@@ -381,7 +381,6 @@ public abstract class OgnlOps implements NumericTypes
         return toArray(new Boolean(value), toType);
     }
 
-    
     public static Object convertValue(char value, Class toType)
     {
         return convertValue(new Character(value), toType);
@@ -568,8 +567,10 @@ public abstract class OgnlOps implements NumericTypes
             } else if (!value.getClass().isArray() && toType.isArray()){
                 
                 if (toType.getComponentType() == Character.TYPE) {
-                    
+
                     result = stringValue(value).toCharArray();
+                } else if (toType.getComponentType() == Object.class) {
+                    return new Object[] { value };
                 }
             } else {
                 if ((toType == Integer.class) || (toType == Integer.TYPE)) {

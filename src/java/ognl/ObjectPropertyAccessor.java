@@ -252,7 +252,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
                 Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(parm);
 
                 conversion = OgnlRuntime.getCompiler().createLocalReference(context,
-                        "((" + wrapClass.getName() + ")ognl.OgnlOps.convertValue($3," + wrapClass.getName()
+                        "((" + wrapClass.getName() + ")ognl.OgnlOps#convertValue($3," + wrapClass.getName()
                         + ".class, true))." + OgnlRuntime.getNumericValueGetter(wrapClass),
                         parm
                 );
@@ -260,14 +260,14 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
             } else if (parm.isArray()) {
 
                 conversion = OgnlRuntime.getCompiler().createLocalReference(context,
-                         "(" + ExpressionCompiler.getCastString(parm) + ")ognl.OgnlOps.convertValue($3,"
+                         "(" + ExpressionCompiler.getCastString(parm) + ")ognl.OgnlOps#convertValue($3,"
                         + ExpressionCompiler.getCastString(parm) + ".class)",
                         parm);
                 
             } else {
 
                 conversion = OgnlRuntime.getCompiler().createLocalReference(context,
-                         "(" + parm.getName()+ ")ognl.OgnlOps.convertValue($3,"
+                         "(" + parm.getName()+ ")ognl.OgnlOps#convertValue($3,"
                         + parm.getName()
                         + ".class)",
                         parm);
