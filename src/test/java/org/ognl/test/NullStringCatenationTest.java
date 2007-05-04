@@ -49,7 +49,8 @@ public class NullStringCatenationTest extends OgnlTestCase {
             {ROOT, "'width:' + width + ';'", "width:238px;" },
             {ROOT, "theLong + '_' + index", "4_1"},
             {ROOT, "'javascript:' + @org.ognl.test.NullStringCatenationTest@MESSAGE", "javascript:blarney" },
-            {ROOT, "printDelivery ? '' : 'javascript:deliverySelected(' + property.carrier + ',' + currentDeliveryId + ')'", "" }
+            {ROOT, "printDelivery ? '' : 'javascript:deliverySelected(' + property.carrier + ',' + currentDeliveryId + ')'", "" },
+            {ROOT, "bean2.id + '_' + theInt", "1_6" }
     };
 
     /*

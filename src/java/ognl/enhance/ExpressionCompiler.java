@@ -432,7 +432,9 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         
         String castExpression = (String) context.get(PRE_CAST);
         
-        if (context.getCurrentType() == null || context.getCurrentType().isPrimitive() || Character.class.isAssignableFrom(context.getCurrentType())) {
+        if (context.getCurrentType() == null
+            || context.getCurrentType().isPrimitive() ||
+            Character.class.isAssignableFrom(context.getCurrentType())) {
             pre = pre + " ($w) (";
             post = post + ")";
         }

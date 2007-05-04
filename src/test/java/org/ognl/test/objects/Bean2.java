@@ -36,6 +36,11 @@ public class Bean2 extends Object
 
     private boolean _pageBreakAfter = false;
 
+    public Long getId()
+    {
+        return 1l;
+    }
+
     public Bean3 getBean3()
     {
         return bean3;

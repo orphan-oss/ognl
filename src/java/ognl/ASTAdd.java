@@ -31,7 +31,6 @@
 package ognl;
 
 import ognl.enhance.ExpressionCompiler;
-import ognl.enhance.OrderedReturn;
 import ognl.enhance.UnsupportedCompilationException;
 
 import java.math.BigDecimal;
@@ -200,10 +199,10 @@ class ASTAdd extends NumericExpression
 
                         String rootExpr = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context);
                         //System.out.println("astadd rootExpr " + rootExpr + " and expr: " + expr);
-                        
+
                         if (!ASTProperty.class.isInstance(_children[i].jjtGetChild(0)) && rootExpr.endsWith(")") && expr.startsWith(")"))
                             expr = expr.substring(1, expr.length());
-                        
+
                         expr = rootExpr + expr;
                         context.setCurrentAccessor(context.getRoot().getClass());
                         
@@ -241,38 +240,30 @@ class ASTAdd extends NumericExpression
                             }
                         }
                     }
-                    
-                    if (!OrderedReturn.class.isInstance(_parent)) {
-                        result += "(";
-                    }
-                    
+
                     result += expr;
+
+                    // hanlde addition for numeric types when applicable or just string concatenation
                     
-                    if ((lastType == null || !String.class.isAssignableFrom(lastType.getGetterClass()))
-                            && NodeType.class.isInstance(_children[i]) 
+                    if ( (lastType == null || !String.class.isAssignableFrom(lastType.getGetterClass()))
                             && !ASTConst.class.isAssignableFrom(_children[i].getClass())
                             && !NumericExpression.class.isAssignableFrom(_children[i].getClass())) {
-                        
-                        NodeType ctype = (NodeType)_children[i];
-                        if (ctype.getGetterClass() != null 
-                                && Number.class.isAssignableFrom(ctype.getGetterClass())
-                                && !ASTMethod.class.isAssignableFrom(_children[i].getClass())) {
-                            
-                            if (ASTVarRef.class.isAssignableFrom(_children[i].getClass())
-                                    || ASTProperty.class.isInstance(_children[i]))
+
+                        if (context.getCurrentType() != null && Number.class.isAssignableFrom(context.getCurrentType())
+                                && !ASTMethod.class.isInstance(_children[i])) {
+
+                            if (ASTVarRef.class.isInstance(_children[i])
+                                    || ASTProperty.class.isInstance(_children[i])
+                                    || ASTChain.class.isInstance(_children[i]))
                                 result += ".";
-                            
-                            result += OgnlRuntime.getNumericValueGetter(ctype.getGetterClass());
-                            context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(ctype.getGetterClass()));
+
+                            result += OgnlRuntime.getNumericValueGetter(context.getCurrentType());
+                            context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(context.getCurrentType()));
                         }
                     }
-                    
-                    if (lastType != null) {
-                        context.setCurrentAccessor(lastType.getGetterClass());
-                    }
 
-                    if (!OrderedReturn.class.isInstance(_parent)) {
-                        result += ")";
+                    if (lastType != null) {
+                        context.setCurrentAccessor(((NodeType)lastType).getGetterClass());
                     }
                 }
             }
