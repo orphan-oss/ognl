@@ -117,7 +117,7 @@ public class ASTAnd extends BooleanExpression
             if (!OgnlRuntime.isBoolean(second) && !context.getCurrentType().isPrimitive())
                 second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());
 
-            result += "ognl.OgnlOps.booleanValue(" + first + ")";
+            result += "(ognl.OgnlOps.booleanValue(" + first + ")";
             
             result += " ? ";
 
@@ -126,7 +126,7 @@ public class ASTAnd extends BooleanExpression
 
             result += " ($w) (" + first + ")";
 
-            result += "";
+            result += ")";
 
             context.setCurrentObject(target);
             context.setCurrentType(Object.class);

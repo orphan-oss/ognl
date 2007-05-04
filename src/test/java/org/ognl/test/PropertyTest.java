@@ -31,10 +31,7 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import org.ognl.test.objects.BaseBean;
-import org.ognl.test.objects.Bean2;
-import org.ognl.test.objects.FirstBean;
-import org.ognl.test.objects.Root;
+import org.ognl.test.objects.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -47,8 +44,8 @@ public class PropertyTest extends OgnlTestCase
     public static final String VALUE = "foo";
     
     private static Root ROOT = new Root();
-
     private static BaseBean BEAN = new FirstBean();
+    private static TestModel MODEL = new TestModel();
 
     /* { ROOT, "map.(array[2] + size()).doubleValue()", new Double(ROOT.getArray()[2] + ROOT.getMap().size()) }, */
 
@@ -117,7 +114,8 @@ public class PropertyTest extends OgnlTestCase
             { BEAN, "two.hasChildren('aa')", Boolean.FALSE},
             { BEAN, "two.hasChildren('a')", Boolean.FALSE},
             { ROOT, "sorted ? (readonly ? 'currentSortDesc' : 'currentSortAsc') : 'currentSortNone'", "currentSortAsc"},
-            { ROOT, "getAsset( (width?'Yes':'No')+'Icon' )", "YesIcon"}
+            { ROOT, "getAsset( (width?'Yes':'No')+'Icon' )", "YesIcon"},
+            { MODEL, "(unassignedCopyModel.optionCount > 0 && canApproveCopy) || entry.copy.size() > 0", Boolean.TRUE }
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)
