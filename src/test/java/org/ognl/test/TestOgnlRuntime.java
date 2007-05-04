@@ -42,4 +42,13 @@ public class TestOgnlRuntime extends TestCase {
 
         assertEquals(IComponent.class, OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, form.getClass()));
     }
+
+    public void test_Get_Read_Method()
+     throws Exception
+    {
+        Method m = OgnlRuntime.getReadMethod(Bean2.class, "pageBreakAfter");
+        assertNotNull(m);
+
+        assertEquals("isPageBreakAfter", m.getName());
+    }
 }

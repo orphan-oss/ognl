@@ -1980,7 +1980,8 @@ public class OgnlRuntime {
             for (int i = 0; i < methods.length; i++) {
                 
                 if (methods[i].getName().toLowerCase().endsWith(name.toLowerCase())
-                        && !methods[i].getName().startsWith("set")) {
+                        && !methods[i].getName().startsWith("set")
+                        && methods[i].getMethod().getReturnType() != Void.TYPE) {
 
                     if (numParms > 0 && methods[i].getMethod().getParameterTypes().length == numParms)
                         return methods[i].getMethod();

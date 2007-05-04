@@ -287,7 +287,12 @@ public class Root extends Object
     {
         return new Bean2();
     }
-    
+
+    public Bean2 getBean2()
+    {
+        return new Bean2();
+    }
+
     public Object getIndexedProperty(String name)
     {
         return myMap.get(name);

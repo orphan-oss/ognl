@@ -34,6 +34,8 @@ public class Bean2 extends Object
 {
     private Bean3       bean3 = new Bean3();
 
+    private boolean _pageBreakAfter = false;
+
     public Bean3 getBean3()
     {
         return bean3;
@@ -47,5 +49,20 @@ public class Bean2 extends Object
     public boolean isCarrier()
     {
         return false;
+    }
+
+    public boolean isPageBreakAfter()
+    {
+        return _pageBreakAfter;
+    }
+
+    public void setPageBreakAfter(boolean value)
+    {
+        _pageBreakAfter = value;
+    }
+
+    public void togglePageBreakAfter()
+    {
+        _pageBreakAfter ^= true;
     }
 }
