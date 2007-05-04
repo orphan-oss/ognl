@@ -220,7 +220,7 @@ public class Root extends Object
 
     public Object getAsset(String key)
     {
-        return myMap.get(key);
+        return key;
     }
 
     public List getSettableList()

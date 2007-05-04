@@ -168,7 +168,7 @@ class ASTAdd extends NumericExpression
 
                         expr = "null";
                     }
-
+                    
                     //System.out.println("astadd child class: " + _children[i].getClass().getName() + " and return expr: " + expr);
                     
                     if (ASTProperty.class.isInstance(_children[i])) {
@@ -191,6 +191,10 @@ class ASTAdd extends NumericExpression
                         expr = rootExpr + (chain != null ? chain + "." : "") + expr;
                         
                         context.setCurrentAccessor(context.getRoot().getClass());
+                        
+                    } else if (ExpressionNode.class.isInstance(_children[i])) {
+
+                        expr = "(" + expr + ")";
                         
                     } else if ((_parent == null || !ASTChain.class.isInstance(_parent)) && ASTChain.class.isInstance(_children[i])) {
 
@@ -225,7 +229,8 @@ class ASTAdd extends NumericExpression
                             && !ASTChain.class.isInstance(_children[i])
                             && !NumericExpression.class.isAssignableFrom(_children[i].getClass())
                                 && !ASTStaticField.class.isInstance(_children[i])
-                                && !ASTStaticMethod.class.isInstance(_children[i])) {
+                                && !ASTStaticMethod.class.isInstance(_children[i])
+                                && !ASTTest.class.isInstance(_children[i])) {
 
                             if (lastType != null && String.class.isAssignableFrom(lastType.getGetterClass()))  {
                                 //System.out.println("Input expr >>" + expr + "<<");
@@ -271,7 +276,7 @@ class ASTAdd extends NumericExpression
                     }
                 }
             }
-            
+
             if (_parent == null || ASTSequence.class.isAssignableFrom(_parent.getClass())) {
 
                 if (_getterClass != null && String.class.isAssignableFrom(_getterClass))

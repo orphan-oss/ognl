@@ -117,7 +117,7 @@ public class PropertyTest extends OgnlTestCase
             { BEAN, "two.hasChildren('aa')", Boolean.FALSE},
             { BEAN, "two.hasChildren('a')", Boolean.FALSE},
             { ROOT, "sorted ? (readonly ? 'currentSortDesc' : 'currentSortAsc') : 'currentSortNone'", "currentSortAsc"},
-            { ROOT, "getAsset( (genericIndex?'Yes':'No')+'Icon' )", null}
+            { ROOT, "getAsset( (width?'Yes':'No')+'Icon' )", "YesIcon"}
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)
