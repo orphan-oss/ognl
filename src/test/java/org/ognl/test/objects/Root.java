@@ -218,6 +218,11 @@ public class Root extends Object
         return list;
     }
 
+    public Object getAsset(String key)
+    {
+        return myMap.get(key);
+    }
+
     public List getSettableList()
     {
         return settableList;
