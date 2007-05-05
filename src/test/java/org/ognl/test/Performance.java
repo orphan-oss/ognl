@@ -164,16 +164,16 @@ public class Performance extends Object
             MAX_TIME = maxTime;
             MAX_ITERATIONS = maxIterations;
             
+            System.out.println("\n\n============================================================================\n");
+
             Thread.sleep(2500);
-            System.out.println("\n\n============================================================================\n");
-            
             runTests(tests, true);
-            /*
-            Thread.sleep(2000);
+
+            //Thread.sleep(2000);
             
             System.out.println("\n\n============================================================================\n");
-            runTests(tests);
-            */
+            // runTests(tests);
+            
         } catch (Exception ex) {
             ex.printStackTrace();
         }

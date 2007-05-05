@@ -115,7 +115,8 @@ public class PropertyTest extends OgnlTestCase
             { BEAN, "two.hasChildren('a')", Boolean.FALSE},
             { ROOT, "sorted ? (readonly ? 'currentSortDesc' : 'currentSortAsc') : 'currentSortNone'", "currentSortAsc"},
             { ROOT, "getAsset( (width?'Yes':'No')+'Icon' )", "YesIcon"},
-            { MODEL, "(unassignedCopyModel.optionCount > 0 && canApproveCopy) || entry.copy.size() > 0", Boolean.TRUE }
+            { MODEL, "(unassignedCopyModel.optionCount > 0 && canApproveCopy) || entry.copy.size() > 0", Boolean.TRUE },
+            { ROOT, "flyingMonkey", Boolean.TRUE}
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)

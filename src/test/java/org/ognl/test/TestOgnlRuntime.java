@@ -1,6 +1,9 @@
 package org.ognl.test;
 
 import junit.framework.TestCase;
+import ognl.MethodFailedException;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.OgnlRuntime;
 import org.ognl.test.objects.*;
 
@@ -50,5 +53,21 @@ public class TestOgnlRuntime extends TestCase {
         assertNotNull(m);
 
         assertEquals("isPageBreakAfter", m.getName());
+    }
+
+    public void test_Call_Static_Method_Invalid_Class()
+    {
+
+        try {
+
+            OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+            OgnlRuntime.callStaticMethod(context, "made.up.Name", "foo", null);
+
+            fail("ClassNotFoundException should have been thrown by previous reference to <made.up.Name> class.");
+        } catch (Exception et) {
+            
+            assertTrue(MethodFailedException.class.isInstance(et));
+            assertTrue(et.getMessage().indexOf("made.up.Name") > -1);
+        }
     }
 }

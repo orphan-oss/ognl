@@ -948,6 +948,9 @@ public class OgnlRuntime {
     {
         try {
             Class targetClass = classForName(context, className);
+            if (targetClass == null)
+                throw new ClassNotFoundException("Unable to resolve class with name " + className);
+            
             MethodAccessor ma = getMethodAccessor(targetClass);
 
             return ma.callStaticMethod(context, targetClass, methodName, args);
@@ -1641,7 +1644,7 @@ public class OgnlRuntime {
     }
 
     public static MethodAccessor getMethodAccessor(Class cls)
-            throws OgnlException
+            throws OgnlException    
     {
         MethodAccessor answer = (MethodAccessor) getHandler(cls, methodAccessors);
         if (answer != null)

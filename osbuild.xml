@@ -15,7 +15,6 @@
     <property name="compile.version" value="1.5"/>
 
     <property file="build.properties"/>
-    <property file="release.properties"/>
 
     <property name="lib" value="lib"/>
     <property name="lib.core" value="${lib}/core"/>
@@ -87,11 +86,13 @@
         </copy>
     </target>
 
+    <!-- <taskdef classpathref="${ant.home}/lib/clover.jar" name="clover-setup"/> -->
+
     <target name="test" depends="junit-check,clover-check,compile">
-        <taskdef resource="clovertasks"/>
         <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
 
         <mkdir dir="${build.clover}"/>
+
         <clover-setup initString="${build.clover}/coverage.db">
             <files>
                 <exclude name="src/test/**/*.java"/>

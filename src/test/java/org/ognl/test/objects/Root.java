@@ -407,4 +407,9 @@ public class Root extends Object
     {
         return 1l;
     }
+
+    public Boolean isFlyingMonkey()
+    {
+        return Boolean.TRUE;
+    }
 }

@@ -1,6 +1,6 @@
-<project name="ognl" default="jar" basedir=".">
+<project name="ognl" default="jar" basedir="." >
 
-    <import file="osbuild.xml"/>
+    <import file="osbuild.xml" /> 
 
     <path id="junit.cp">
         <pathelement location="${build.test}"/>
