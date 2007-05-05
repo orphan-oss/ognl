@@ -17,14 +17,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/Performance.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/Performance.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/TestOgnlRuntime.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/TestOgnlRuntime.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/TestOgnlRuntime.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iml" afterPath="$PROJECT_DIR$/OGNL.iml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/ognl/TestOgnlRuntime.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ObjectPropertyAccessor.java" afterPath="$PROJECT_DIR$/src/java/ognl/ObjectPropertyAccessor.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/ognl" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iws" afterPath="$PROJECT_DIR$/OGNL.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/osbuild.xml" afterPath="$PROJECT_DIR$/osbuild.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" afterPath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/PropertyTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/PropertyTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/SetterReturns.java" />
     </list>
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
@@ -245,8 +245,16 @@
   </component>
   <component name="ProjectRootConfigurable.UI">
     <option name="proportions">
-      <SplitterProportionsDataImpl />
+      <SplitterProportionsDataImpl>
+        <option name="proportions">
+          <collection>
+            <option value="0.16666667" />
+            <option value="0.5" />
+          </collection>
+        </option>
+      </SplitterProportionsDataImpl>
     </option>
+    <option name="lastEditedConfigurable" value="OGNL" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="0.16666667" version="1" splitterProportion="0.5">
@@ -317,6 +325,10 @@
     <key name="MoveMembersDialog.RECENTS_KEY">
       <recent name="ognl.enhance.ExpressionCompiler" />
     </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="ognl" />
+      <recent name="org.ognl" />
+    </key>
   </component>
   <component name="Regex">
     <option name="pos1" value="700" />
@@ -336,8 +348,8 @@
       <module name="OGNL" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="ALTERNATIVE_JRE_PATH" value="/usr/local/jdk1.6.0_02" />
-      <option name="PACKAGE_NAME" value="org.ognl.test" />
-      <option name="MAIN_CLASS_NAME" value="org.ognl.test.TestOgnlRuntime" />
+      <option name="PACKAGE_NAME" value="ognl" />
+      <option name="MAIN_CLASS_NAME" value="ognl.TestOgnlRuntime" />
       <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="" />
@@ -717,36 +729,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTAdd.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="262" column="21" selection-start="12097" selection-end="12097" vertical-scroll-proportion="0.6299342">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="472" column="10" selection-start="16732" selection-end="16732" vertical-scroll-proportion="0.40131578">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/NullStringCatenationTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="12" selection-start="2068" selection-end="2068" vertical-scroll-proportion="0.08634868">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ArithmeticAndLogicalOperatorsTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="12" selection-start="1989" selection-end="1989" vertical-scroll-proportion="-0.17269737">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Bean2.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="42" column="0" selection-start="1957" selection-end="1957" vertical-scroll-proportion="0.16036184">
@@ -810,16 +792,48 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/TestOgnlRuntime.java">
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/MemberAccess.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="64" column="0" selection-start="1921" selection-end="1921" vertical-scroll-proportion="0.6784539">
+        <state line="58" column="23" selection-start="2619" selection-end="2619" vertical-scroll-proportion="0.4783599">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/local/jdk1.5.0_11/src.zip!/java/beans/Introspector.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="243" column="25" selection-start="9716" selection-end="9716" vertical-scroll-proportion="0.33257404">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ObjectPropertyAccessor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="242" column="0" selection-start="8742" selection-end="8742" vertical-scroll-proportion="0.37582237">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/ognl/TestOgnlRuntime.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="73" column="15" selection-start="2283" selection-end="2283" vertical-scroll-proportion="0.8149671">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="952" column="12" selection-start="35942" selection-end="35942" vertical-scroll-proportion="0.4004934">
+        <state line="2019" column="12" selection-start="76980" selection-end="76980" vertical-scroll-proportion="0.067434214">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/SetterReturns.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="0" selection-start="170" selection-end="170" vertical-scroll-proportion="0.16036184">
           <folding />
         </state>
       </provider>

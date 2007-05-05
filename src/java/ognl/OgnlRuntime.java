@@ -1488,7 +1488,7 @@ public class OgnlRuntime {
         return result;
     }
 
-    private static final void findObjectIndexedPropertyDescriptors(Class targetClass, Map intoMap)
+    static void findObjectIndexedPropertyDescriptors(Class targetClass, Map intoMap)
             throws OgnlException
     {
         Map allMethods = getMethods(targetClass, false);
@@ -1531,6 +1531,7 @@ public class OgnlRuntime {
                 }
             }
         }
+        
         for (Iterator it = pairs.keySet().iterator(); it.hasNext();) {
             String propertyName = (String) it.next();
             List methods = (List) pairs.get(propertyName);
@@ -2016,9 +2017,8 @@ public class OgnlRuntime {
     {
         try {
             name = name.replaceAll("\"", "");
-
+            
             BeanInfo info = Introspector.getBeanInfo(target);
-
             MethodDescriptor[] methods = info.getMethodDescriptors();
 
             for (int i = 0; i < methods.length; i++) {
@@ -2034,11 +2034,27 @@ public class OgnlRuntime {
                         return methods[i].getMethod();
                 }
             }
-            
+
+            // try again on pure class
+
+            Method[] cmethods = target.getClass().getMethods();
+            for (int i = 0; i < cmethods.length; i++) {
+                
+                if ((cmethods[i].getName().equalsIgnoreCase(name)
+                        || cmethods[i].getName().toLowerCase().equals(name.toLowerCase())
+                        || cmethods[i].getName().toLowerCase().equals("set" + name.toLowerCase()))
+                        && !cmethods[i].getName().startsWith("get")) {
+                    
+                    if (numParms > 0 && cmethods[i].getParameterTypes().length == numParms)
+                        return cmethods[i];
+                    else if (numParms < 0)
+                        return cmethods[i];
+                }
+            }
+
             // try one last time adding a set to beginning
 
             if (!name.startsWith("set")) {
-
                 return OgnlRuntime.getReadMethod(target, "set" + name, numParms);
             }
 

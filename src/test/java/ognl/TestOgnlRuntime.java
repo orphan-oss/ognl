@@ -1,10 +1,6 @@
-package org.ognl.test;
+package ognl;
 
 import junit.framework.TestCase;
-import ognl.MethodFailedException;
-import ognl.Ognl;
-import ognl.OgnlContext;
-import ognl.OgnlRuntime;
 import org.ognl.test.objects.*;
 
 import java.lang.reflect.Method;
@@ -69,5 +65,18 @@ public class TestOgnlRuntime extends TestCase {
             assertTrue(MethodFailedException.class.isInstance(et));
             assertTrue(et.getMessage().indexOf("made.up.Name") > -1);
         }
+    }
+
+    public void test_Setter_Returns()
+    throws Exception
+    {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        SetterReturns root = new SetterReturns();
+
+        Method m = OgnlRuntime.getWriteMethod(root.getClass(), "value");
+        assertTrue(m != null);
+
+        Ognl.setValue("value", context, root, "12__");
+        assertEquals(Ognl.getValue("value", context, root), "12__");
     }
 }
