@@ -82,6 +82,7 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
             { "5 ^3", new Integer(6) },
             { "5l&3|5^3", new Long(7) },
             { "5&(3|5^3)", new Integer(5) },
+            { "true ? 1 : 1/0", new Integer(1) },
 
             // BigInteger-valued arithmetic expressions
             { "-1h", Integer.valueOf(-1) },
