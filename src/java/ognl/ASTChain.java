@@ -270,7 +270,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                     
                     String value = _children[i].toGetSourceString(context, context.getCurrentObject());
                     
-                    // System.out.println("astchain child returned >>  " + value + "  <<");
+                    //System.out.println("astchain child returned >>  " + value + "  <<");
                     
                     if (ASTCtor.class.isInstance(_children[i]))
                         constructor = true;

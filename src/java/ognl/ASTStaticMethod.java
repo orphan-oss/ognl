@@ -109,7 +109,7 @@ public class ASTStaticMethod extends SimpleNode implements NodeType
 
     public String toGetSourceString(OgnlContext context, Object target)
     {
-        String result = _className + "." + _methodName + "(";
+        String result = _className + "#" + _methodName + "(";
 
         try {
             Class clazz = OgnlRuntime.classForName(context, _className);

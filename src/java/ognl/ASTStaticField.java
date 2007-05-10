@@ -158,9 +158,11 @@ public class ASTStaticField extends SimpleNode implements NodeType
             Object obj = OgnlRuntime.getStaticField(context, className, fieldName);
             
             context.setCurrentObject(obj);
-            
+
             _getterClass = getFieldClass(context);
-            
+
+            context.setCurrentType(_getterClass);
+
         } catch (Throwable t) { throw new RuntimeException(t); }
         
         return className + "." + fieldName;
@@ -175,7 +177,9 @@ public class ASTStaticField extends SimpleNode implements NodeType
             context.setCurrentObject(obj);
             
             _getterClass = getFieldClass(context);
-            
+
+            context.setCurrentType(_getterClass);
+
         } catch (Throwable t) { throw new RuntimeException(t); }
         
         return className + "." + fieldName;

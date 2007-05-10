@@ -42,7 +42,8 @@ public class MethodTest extends OgnlTestCase
             { "hashCode()", new Integer(ROOT.hashCode()) } ,
             { "getBooleanValue() ? \"here\" : \"\"", ""},
             { "getValueIsTrue(!false) ? \"\" : \"here\" ", ""},
-            { "messages.format('ShowAllCount', one)", "foo"}
+            { "messages.format('ShowAllCount', one)", "foo"},
+            { "getTestValue(@org.ognl.test.objects.SimpleEnum@ONE.value)", new Integer(2)}
     };
 
     /*

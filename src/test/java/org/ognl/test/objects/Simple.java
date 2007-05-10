@@ -193,6 +193,11 @@ public class Simple extends Object
         return 3;
     }
 
+    public int getTestValue(int val)
+    {
+        return val + 1;
+    }
+
     public boolean equals(Object other)
     {
         boolean     result = false;
