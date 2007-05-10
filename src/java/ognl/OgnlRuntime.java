@@ -2165,6 +2165,9 @@ public class OgnlRuntime {
             child.getValue(context, target);
         } catch (NullPointerException e) {
             // ignore
+        } catch (ArithmeticException e) {
+            context.setCurrentType(int.class);
+            return "0";
         }
         
         String source = child.toGetSourceString(context, target);
