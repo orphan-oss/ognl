@@ -32,6 +32,7 @@ package ognl;
 
 import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
+import ognl.enhance.UnsupportedCompilationException;
 
 import java.beans.*;
 import java.lang.reflect.*;
@@ -1287,6 +1288,9 @@ public class OgnlRuntime {
         try {
             Class c = classForName(context, className);
 
+            if (c == null)
+                    throw new OgnlException("Unable to find class " + className + " when resolving field name of " + fieldName);
+
             /*
              * Check for virtual static field "class"; this cannot interfere with normal static
              * fields because it is a reserved word.
@@ -2168,9 +2172,24 @@ public class OgnlRuntime {
         } catch (ArithmeticException e) {
             context.setCurrentType(int.class);
             return "0";
+        } catch (Throwable t) {
+           if (UnsupportedCompilationException.class.isInstance(t))
+                throw (UnsupportedCompilationException)t;
+
+            throw new UnsupportedCompilationException("Error evaluating child source: " + t.getMessage());
         }
-        
-        String source = child.toGetSourceString(context, target);
+
+        String source = null;
+
+        try {
+            source = child.toGetSourceString(context, target);
+        }
+        catch (Throwable t) {
+            if (UnsupportedCompilationException.class.isInstance(t))
+                throw (UnsupportedCompilationException)t;
+
+            throw new UnsupportedCompilationException("Error evaluating child source: " + t.getMessage());
+        }
 
         // handle root / method expressions that may not have proper root java source access
 

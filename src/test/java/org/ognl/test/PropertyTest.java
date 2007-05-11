@@ -40,14 +40,12 @@ public class PropertyTest extends OgnlTestCase
 {
 
     public static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("MM/dd/yyyy hh:mm a 'CST'");
-
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
     public static final String VALUE = "foo";
     
     private static Root ROOT = new Root();
     private static BaseBean BEAN = new FirstBean();
     private static TestModel MODEL = new TestModel();
-
-    /* { ROOT, "map.(array[2] + size()).doubleValue()", new Double(ROOT.getArray()[2] + ROOT.getMap().size()) }, */
 
     private static Object[][]       TESTS = {
             { ROOT, "objectIndex > 0", Boolean.TRUE},
@@ -116,7 +114,8 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "sorted ? (readonly ? 'currentSortDesc' : 'currentSortAsc') : 'currentSortNone'", "currentSortAsc"},
             { ROOT, "getAsset( (width?'Yes':'No')+'Icon' )", "YesIcon"},
             { MODEL, "(unassignedCopyModel.optionCount > 0 && canApproveCopy) || entry.copy.size() > 0", Boolean.TRUE },
-            { ROOT, "flyingMonkey", Boolean.TRUE}
+            { ROOT, "flyingMonkey", Boolean.TRUE},
+            { ROOT, "expiration == null ? '' : @org.ognl.test.PropertyTest@DATE_FORMAT.format(expiration)", ""},
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)

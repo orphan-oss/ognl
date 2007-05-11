@@ -412,4 +412,9 @@ public class Root extends Object
     {
         return Boolean.TRUE;
     }
+
+    public Date getExpiration()
+    {
+        return null;
+    }
 }
