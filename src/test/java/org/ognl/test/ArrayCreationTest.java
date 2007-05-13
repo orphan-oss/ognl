@@ -32,6 +32,7 @@ package org.ognl.test;
 
 import junit.framework.TestSuite;
 import ognl.ExpressionSyntaxException;
+import org.ognl.test.objects.Entry;
 import org.ognl.test.objects.Root;
 import org.ognl.test.objects.Simple;
 
@@ -45,17 +46,20 @@ public class ArrayCreationTest extends OgnlTestCase
             { ROOT, "new String[] { \"one\", \"two\" }", new String[] { "one", "two" } },
             { ROOT, "new String[] { 1, 2 }", new String[] { "1", "2" } },
             { ROOT, "new Integer[] { \"1\", 2, \"3\" }",
-                    new Integer[] { new Integer(1), new Integer(2), new Integer(3) } },
+              new Integer[] { new Integer(1), new Integer(2), new Integer(3) } },
             { ROOT, "new String[10]", new String[10] },
             { ROOT, "new Object[4] { #root, #this }", ExpressionSyntaxException.class },
             { ROOT, "new Object[4]", new Object[4] },
             { ROOT, "new Object[] { #root, #this }", new Object[] { ROOT, ROOT } },
             { ROOT,
-                    "new org.ognl.test.objects.Simple[] { new org.ognl.test.objects.Simple(), new org.ognl.test.objects.Simple(\"foo\", 1.0f, 2) }",
-                    new Simple[] { new Simple(), new Simple("foo", 1.0f, 2) } },
+              "new org.ognl.test.objects.Simple[] { new org.ognl.test.objects.Simple(), new org.ognl.test.objects.Simple(\"foo\", 1.0f, 2) }",
+              new Simple[] { new Simple(), new Simple("foo", 1.0f, 2) } },
             { ROOT, "new org.ognl.test.objects.Simple[5]", new Simple[5] },
             { ROOT, "new org.ognl.test.objects.Simple(new Object[5])", new Simple(new Object[5]) },
-            { ROOT, "new org.ognl.test.objects.Simple(new String[5])", new Simple(new String[5]) }
+            { ROOT, "new org.ognl.test.objects.Simple(new String[5])", new Simple(new String[5]) },
+            { ROOT, "objectIndex ? new org.ognl.test.objects.Entry[] { new org.ognl.test.objects.Entry(), new org.ognl.test.objects.Entry()} "
+                    + ": new org.ognl.test.objects.Entry[] { new org.ognl.test.objects.Entry(), new org.ognl.test.objects.Entry()} ",
+              new Entry[] { new Entry(), new Entry()} }
     };
 
     /*
@@ -69,15 +73,15 @@ public class ArrayCreationTest extends OgnlTestCase
         for(int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new ArrayCreationTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
+                                                     TESTS[i][2]));
             } else {
                 if (TESTS[i].length == 4) {
                     result.addTest(new ArrayCreationTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                            TESTS[i][2], TESTS[i][3]));
+                                                         TESTS[i][2], TESTS[i][3]));
                 } else {
                     if (TESTS[i].length == 5) {
                         result.addTest(new ArrayCreationTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                TESTS[i][2], TESTS[i][3], TESTS[i][4]));
+                                                             TESTS[i][2], TESTS[i][3], TESTS[i][4]));
                     } else {
                         throw new RuntimeException("don't understand TEST format");
                     }

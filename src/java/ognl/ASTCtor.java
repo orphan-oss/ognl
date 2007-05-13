@@ -157,17 +157,18 @@ public class ASTCtor extends SimpleNode
         String result = "new " + className;
 
         Class clazz = null;
+        Object ctorValue = null;
         try {
 
             clazz = OgnlRuntime.classForName(context, className);
             
-            Object value = this.getValueBody(context, target);
-            context.setCurrentObject(value);
+            ctorValue = this.getValueBody(context, target);
+            context.setCurrentObject(ctorValue);
             
-            if (clazz != null) {
+            if (clazz != null && ctorValue != null) {
                 
-                context.setCurrentType(clazz);
-                context.setCurrentAccessor(clazz);
+                context.setCurrentType(ctorValue.getClass());
+                context.setCurrentAccessor(ctorValue.getClass());
             }
 
             if (isArray)
@@ -252,9 +253,9 @@ public class ASTCtor extends SimpleNode
                 result = result + ")";
             }
 
-            context.setCurrentType(clazz);
+            context.setCurrentType(ctorValue != null ? ctorValue.getClass() : clazz);
             context.setCurrentAccessor(clazz);
-            context.setCurrentObject(getValue(context, target));
+            context.setCurrentObject(ctorValue);
 
         }catch (Throwable t) {
             if (UnsupportedCompilationException.class.isInstance(t))
