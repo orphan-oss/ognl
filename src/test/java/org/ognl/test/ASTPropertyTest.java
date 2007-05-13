@@ -197,7 +197,7 @@ public class ASTPropertyTest extends TestCase {
 
         // test with only getIndex
 
-        assertEquals(".get(java.lang.Integer.valueOf(((org.ognl.test.objects.Root)$2)..getGenericIndex().toString()).intValue())", p.toGetSourceString(context, root.getList()));
+        assertEquals(".get(ognl.OgnlOps#getIntValue(((org.ognl.test.objects.Root)$2)..getGenericIndex().toString()))", p.toGetSourceString(context, root.getList()));
         assertEquals(root.getArray(), context.getCurrentObject());
         assertEquals(root.getArray().getClass().getComponentType(), context.getCurrentType());
     }

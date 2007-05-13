@@ -213,7 +213,7 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
 
             String toString = String.class.isInstance(index) && context.getCurrentType() != Object.class ? "" : ".toString()";
 
-            indexStr = "java.lang.Integer.valueOf(" + indexStr + toString + ").intValue()";
+            indexStr = "ognl.OgnlOps#getIntValue(" + indexStr + toString + ")";
         }
         
         context.setCurrentType(Object.class);
@@ -263,7 +263,7 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
 
             String toString = String.class.isInstance(index) && context.getCurrentType() != Object.class ? "" : ".toString()";
 
-            indexStr = "java.lang.Integer.valueOf(" + indexStr + toString + ").intValue()";
+            indexStr = "ognl.OgnlOps#getIntValue(" + indexStr + toString + ")";
         }
         
         context.setCurrentType(Object.class);

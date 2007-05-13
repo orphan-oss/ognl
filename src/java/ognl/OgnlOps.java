@@ -609,7 +609,42 @@ public abstract class OgnlOps implements NumericTypes
 
         return result;
     }
-    
+
+    /**
+     * Converts the specified value to a primitive integer value.
+     *
+     * <ul>
+     *  <li>Null values will cause a -1 to be returned.</li>
+     *  <li>{@link Number} instances have their intValue() methods invoked.</li>
+     *  <li>All other types result in calling Integer.parseInt(value.toString());</li>
+     * </ul>
+     *
+     * @param value
+     *          The object to get the value of.
+     * @return A valid integer.
+     */
+    public static int getIntValue(Object value)
+    {
+        try
+        {
+            if (value == null)
+                return -1;
+
+            if (Number.class.isInstance(value)) {
+
+                return ((Number)value).intValue();
+            }
+
+            String str = String.class.isInstance(value) ? (String)value : value.toString();
+            
+            return Integer.parseInt(str);
+        }
+        catch (Throwable t)
+        {
+            throw new RuntimeException("Error converting " + value + " to integer:", t);
+        }
+    }
+
     /**
      * Returns the constant from the NumericTypes interface that best expresses the type of a
      * numeric operation on the two given objects.

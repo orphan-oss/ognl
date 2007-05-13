@@ -179,7 +179,7 @@ public class ArrayPropertyAccessor extends ObjectPropertyAccessor implements Pro
 
             String toString = String.class.isInstance(index) && context.getCurrentType() != Object.class ? "" : ".toString()";
 
-            indexStr = "java.lang.Integer.valueOf(" + indexStr + toString + ").intValue()";
+            indexStr = "ognl.OgnlOps#getIntValue(" + indexStr + toString + ")";
         }
 
         context.setCurrentAccessor(target.getClass());
@@ -205,7 +205,7 @@ public class ArrayPropertyAccessor extends ObjectPropertyAccessor implements Pro
 
             String toString = String.class.isInstance(index) && context.getCurrentType() != Object.class ? "" : ".toString()";
 
-            indexStr = "java.lang.Integer.valueOf(" + indexStr + toString + ").intValue()";
+            indexStr = "ognl.OgnlOps#getIntValue(" + indexStr + toString + ")";
         }
 
         Class type = target.getClass().isArray() ? target.getClass().getComponentType() : target.getClass();

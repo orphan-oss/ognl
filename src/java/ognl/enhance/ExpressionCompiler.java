@@ -493,7 +493,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             context.put(LOCAL_REFERENCE_MAP, new LinkedHashMap());
         }
 
-        counter = Integer.valueOf(counter.intValue() + 1);
+        counter = new Integer(counter.intValue() + 1);
         context.put(LOCAL_REFERENCE_COUNTER, counter);
 
         Map referenceMap = (Map) context.get(LOCAL_REFERENCE_MAP);
