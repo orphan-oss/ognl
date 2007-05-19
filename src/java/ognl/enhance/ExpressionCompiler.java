@@ -39,7 +39,6 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
     public String castExpression(OgnlContext context, Node expression, String body)
     {
-
         if (context.getCurrentAccessor() == null
             || context.getPreviousType() == null
             || context.getCurrentAccessor().isAssignableFrom(context.getPreviousType())
@@ -48,7 +47,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                 && context.getCurrentType().isAssignableFrom(context.getCurrentObject().getClass())
                 && context.getCurrentAccessor().isAssignableFrom(context.getPreviousType()))
             || body == null || body.trim().length() < 1
-            || (context.getCurrentType() != null && context.getCurrentType().isArray())
+            || (context.getCurrentType() != null && context.getCurrentType().isArray() 
+                && (context.getPreviousType() == null || context.getPreviousType() != Object.class))
             || ASTOr.class.isInstance(expression)
             || ASTAnd.class.isInstance(expression)
             || ASTRootVarRef.class.isInstance(expression)

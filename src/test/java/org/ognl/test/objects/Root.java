@@ -97,6 +97,7 @@ public class Root extends Object
         map.put( DynamicSubscript.first, new Integer(99) );
         map.put( "baz", array);
         map.put("value", new Bean2());
+        map.put(new Long(82), "StringStuff=someValue");
 
         IFormComponent comp = new FormComponentImpl();
         comp.setClientId("formComponent");
@@ -416,5 +417,10 @@ public class Root extends Object
     public Date getExpiration()
     {
         return null;
+    }
+
+    public Long getMapKey()
+    {
+        return new Long(82);
     }
 }

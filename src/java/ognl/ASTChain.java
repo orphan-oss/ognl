@@ -288,10 +288,12 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                         value = OgnlRuntime.getCompiler().castExpression(context, _children[i], value);
                     }
 /*
+
                     System.out.println("astchain value now : " + value + " with index " + i
                     + " current type " + context.getCurrentType() + " current accessor " + context.getCurrentAccessor()
                     + " prev type " + context.getPreviousType() + " prev accessor " + context.getPreviousAccessor());
 */
+
                     if (OrderedReturn.class.isInstance(_children[i]) && ((OrderedReturn)_children[i]).getLastExpression() != null) {
                         
                         ordered = true;
