@@ -272,6 +272,9 @@ class ASTAdd extends NumericExpression
 
                 if (_getterClass != null && String.class.isAssignableFrom(_getterClass))
                     _getterClass = Object.class;
+            } else {
+
+                context.setCurrentType(_getterClass);
             }
 
             return result;

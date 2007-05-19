@@ -435,6 +435,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         if (context.getCurrentType() == null
             || context.getCurrentType().isPrimitive() ||
             Character.class.isAssignableFrom(context.getCurrentType())) {
+            
             pre = pre + " ($w) (";
             post = post + ")";
         }

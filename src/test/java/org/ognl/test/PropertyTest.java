@@ -116,6 +116,7 @@ public class PropertyTest extends OgnlTestCase
             { MODEL, "(unassignedCopyModel.optionCount > 0 && canApproveCopy) || entry.copy.size() > 0", Boolean.TRUE },
             { ROOT, "flyingMonkey", Boolean.TRUE},
             { ROOT, "expiration == null ? '' : @org.ognl.test.PropertyTest@DATE_FORMAT.format(expiration)", ""},
+            { ROOT, "printDelivery ? 'javascript:toggle(' + bean2.id + ');' : ''", "javascript:toggle(1);"},
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)
