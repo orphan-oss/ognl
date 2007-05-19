@@ -31,14 +31,10 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import ognl.DefaultTypeConverter;
 import ognl.TypeConverter;
 import org.ognl.test.objects.Root;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Member;
 import java.util.Arrays;
-import java.util.Map;
 
 public class ArrayElementsTest extends OgnlTestCase {
 
@@ -76,15 +72,15 @@ public class ArrayElementsTest extends OgnlTestCase {
         for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new ArrayElementsTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
+                                                     TESTS[i][2]));
             } else {
                 if (TESTS[i].length == 4) {
                     result.addTest(new ArrayElementsTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                            TESTS[i][2], TESTS[i][3]));
+                                                         TESTS[i][2], TESTS[i][3]));
                 } else {
                     if (TESTS[i].length == 5) {
                         result.addTest(new ArrayElementsTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                TESTS[i][2], TESTS[i][3], TESTS[i][4]));
+                                                             TESTS[i][2], TESTS[i][3], TESTS[i][4]));
                     } else {
                         throw new RuntimeException("don't understand TEST format");
                     }
@@ -133,19 +129,20 @@ public class ArrayElementsTest extends OgnlTestCase {
         TypeConverter arrayConverter;
 
         super.setUp();
-        arrayConverter = new DefaultTypeConverter() {
+        /**
+         arrayConverter = new DefaultTypeConverter() {
 
-            public Object convertValue(Map context, Object target, Member member, String propertyName, Object value,
-                                       Class toType)
-            {
-                if (value.getClass().isArray()) {
-                    if (!toType.isArray()) {
-                        value = Array.get(value, 0);
-                    }
-                }
-                return super.convertValue(context, target, member, propertyName, value, toType);
-            }
-        };
-        _context.setTypeConverter(arrayConverter);
+         public Object convertValue(Map context, Object target, Member member, String propertyName, Object value,
+         Class toType)
+         {
+         if (value.getClass().isArray()) {
+         if (!toType.isArray()) {
+         value = Array.get(value, 0);
+         }
+         }
+         return super.convertValue(context, target, member, propertyName, value, toType);
+         }
+         };
+         _context.setTypeConverter(arrayConverter); */
     }
 }

@@ -423,4 +423,19 @@ public class Root extends Object
     {
         return new Long(82);
     }
+
+    public Object getArrayValue()
+    {
+        return new Object[] {new Integer("2"), new Integer("2")};
+    }
+    
+    public List getResult()
+    {
+        List list = new ArrayList();
+        list.add(new Object[]{new Integer("2"), new Integer("2")});
+        list.add(new Object[]{new Integer("2"), new Integer("2")});
+        list.add(new Object[]{new Integer("2"), new Integer("2")});
+
+        return list;
+    }
 }

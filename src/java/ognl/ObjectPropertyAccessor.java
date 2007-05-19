@@ -254,7 +254,6 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
                 throw new UnsupportedCompilationException("Object property accessors can only support single parameter setters.");
 
 
-
             if (parm.isPrimitive()) {
                 
                 Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(parm);
@@ -268,8 +267,8 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
             } else if (parm.isArray()) {
 
                 conversion = OgnlRuntime.getCompiler().createLocalReference(context,
-                         "(" + ExpressionCompiler.getCastString(parm) + ")ognl.OgnlOps#convertValue($3,"
-                        + ExpressionCompiler.getCastString(parm) + ".class)",
+                         "(" + ExpressionCompiler.getCastString(parm) + ")ognl.OgnlOps#toArray($3,"
+                        + parm.getComponentType().getName() + ".class)",
                         parm);
                 
             } else {
