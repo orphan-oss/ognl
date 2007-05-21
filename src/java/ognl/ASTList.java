@@ -179,14 +179,14 @@ public class ASTList extends SimpleNode implements NodeType
                                 && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass()))
                                || valueClass.isPrimitive()) {
 
-                        value = " ($w) " + value;
+                        value = " ($w) (" + value + ")";
                     } else if (valueClass.isPrimitive()) {
-                        value = "($w) " + value;
+                        value = "($w) (" + value + ")";
                     }
                     
                 } else if (ctorClass == null || !ctorClass.isPrimitive()) {
 
-                    value = " ($w) " + value;
+                    value = " ($w) (" + value + ")";
                 }
 
                 if (objValue == null || value.length() <= 0)
