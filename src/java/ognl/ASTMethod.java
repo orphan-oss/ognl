@@ -143,7 +143,8 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
 
     public String toGetSourceString(OgnlContext context, Object target)
     {
-        //System.out.println("methodName is " + _methodName + " for target " + target + " and parent: " + _parent);
+        /*System.out.println("methodName is " + _methodName + " for target " + target + " target class: " + (target != null ? target.getClass() : null)
+                           + " current type: " + context.getCurrentType());*/
         if (target == null)
             throw new UnsupportedCompilationException("Target object is null.");
 
@@ -186,7 +187,8 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
             if ((_children != null) && (_children.length > 0)) {
                 
                 Class[] parms = m.getParameterTypes();
-
+                String prevCast = (String)context.remove(ExpressionCompiler.PRE_CAST);
+                
                 for(int i = 0; i < _children.length; i++) {
                     if (i > 0) {
                         result = result + ", ";
@@ -269,6 +271,11 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                     
                     result += parmString;
                 }
+
+                if (prevCast != null) {
+                    
+                    context.put(ExpressionCompiler.PRE_CAST, prevCast);
+                }
             }
             
             Object contextObj = getValueBody(context, target);
@@ -288,10 +295,10 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
             _coreExpression = result + ";";
             _lastExpression = "null";
         }
-        
+
         context.setCurrentType(m.getReturnType());
         context.setCurrentAccessor(OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, m.getDeclaringClass()));
-        
+
         return result;
     }
 
@@ -320,6 +327,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
             if ((_children != null) && (_children.length > 0)) {
 
                 Class[] parms = m.getParameterTypes();
+                String prevCast = (String)context.remove(ExpressionCompiler.PRE_CAST);
                 
                 for(int i = 0; i < _children.length; i++) {
 
@@ -414,6 +422,11 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                     }
                     
                     result += parmString;
+                }
+
+                if (prevCast != null) {
+
+                    context.put(ExpressionCompiler.PRE_CAST, prevCast);
                 }
             }
 

@@ -34,12 +34,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class Indexed
+public class Indexed extends BaseIndexed
 {
     private String[] _values = new String[] { "foo", "bar", "baz" };
 
     private List _list = new ArrayList();
-
     private ListSource _source = new ListSourceImpl();
 
     public Indexed()

@@ -199,7 +199,7 @@ public class ASTPropertyTest extends TestCase {
 
         assertEquals(".get(ognl.OgnlOps#getIntValue(((org.ognl.test.objects.Root)$2)..getGenericIndex().toString()))", p.toGetSourceString(context, root.getList()));
         assertEquals(root.getArray(), context.getCurrentObject());
-        assertEquals(root.getArray().getClass().getComponentType(), context.getCurrentType());
+        assertEquals(Object.class, context.getCurrentType());
     }
 
     public void test_Complicated_List() throws Exception

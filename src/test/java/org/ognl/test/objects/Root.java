@@ -69,7 +69,8 @@ public class Root extends Object
     private Date _date = new Date();
 
     private ITreeContentProvider _contentProvider = new TreeContentProvider();
-
+    private Indexed _indexed = new Indexed();
+    
     /*===================================================================
 		Public static methods
 	  ===================================================================*/
@@ -303,7 +304,12 @@ public class Root extends Object
     {
         return myMap.get(name);
     }
-    
+
+    public Indexed getIndexer()
+    {
+        return _indexed;
+    }
+
     public BeanProvider getBeans()
     {
         return _beanProvider;
@@ -412,6 +418,11 @@ public class Root extends Object
     public Boolean isFlyingMonkey()
     {
         return Boolean.TRUE;
+    }
+
+    public Boolean isDumb()
+    {
+        return Boolean.FALSE;
     }
 
     public Date getExpiration()

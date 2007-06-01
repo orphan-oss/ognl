@@ -32,10 +32,12 @@ package org.ognl.test;
 
 import junit.framework.TestSuite;
 import org.ognl.test.objects.Indexed;
+import org.ognl.test.objects.Root;
 
 public class IndexedPropertyTest extends OgnlTestCase {
 
     private static Indexed INDEXED = new Indexed();
+    private static Root ROOT = new Root();
 
     private static Object[][] TESTS = {
             // Indexed properties
@@ -51,7 +53,10 @@ public class IndexedPropertyTest extends OgnlTestCase {
             {INDEXED, "values[1]", "xxxx" + "xxx"}, // getValues(int) again to check if setValues(int, String) was called
             {INDEXED, "setValues(2, \"xxxx\")", null}, // was "baz" -> "xxxx"
             {INDEXED, "getTitle(list.size)", "Title count 3"},
-            {INDEXED, "source.total", 1}
+            {INDEXED, "source.total", 1},
+            {ROOT, "indexer.line[index]", "line:1"},
+            {INDEXED, "list[2].longValue()", new Long(3)},
+            {ROOT, "map.value.id", new Long(1)}
     };
 
     /*

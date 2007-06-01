@@ -159,8 +159,8 @@ public class ASTProperty extends SimpleNode implements NodeType
         Method m = null;
         
         try {
-           //System.out.println("astproperty is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
-             //      + " target: " + target.getClass().getName() + " current object: " + context.getCurrentObject().getClass().getName());
+           /*System.out.println("astproperty is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
+                   + " target: " + target.getClass().getName() + " current object: " + context.getCurrentObject().getClass().getName());*/
             
             if (isIndexedAccess()) {
 
@@ -184,7 +184,7 @@ public class ASTProperty extends SimpleNode implements NodeType
                     srcString = "\"" + srcString + "\"";
                 }
 
-                //System.out.println("indexed getting with child srcString: " + srcString + " value class: " + value.getClass() + " and child: " + _children[0].getClass());
+                // System.out.println("indexed getting with child srcString: " + srcString + " value class: " + value.getClass() + " and child: " + _children[0].getClass());
                 
                 if (context.get("_indexedMethod") != null) {
                     
@@ -193,6 +193,7 @@ public class ASTProperty extends SimpleNode implements NodeType
 
                     context.setCurrentType(_getterClass);
                     context.setCurrentObject(target);
+                    context.setCurrentAccessor(OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, m.getDeclaringClass()));
 
                     return "." + m.getName() + "(" + srcString + ")";
                 } else {
@@ -214,19 +215,19 @@ public class ASTProperty extends SimpleNode implements NodeType
                     context.setCurrentType(currType);
                     context.setPreviousType(prevType);
                     
-                    /*
-                    System.out.println("astprop srcString: " + srcString 
+                    /*System.out.println("astprop srcString: " + srcString
                             + " from child class " + _children[0].getClass().getName()
                             + " and indexVal " + indexVal
                             + " propertyAccessor : " + p.getClass().getName() + " context obj " + context.getCurrentObject()
-                            + " context obj is array? : " + context.getCurrentObject().getClass().isArray());
-                    */
+                            + " context obj is array? : " + context.getCurrentObject().getClass().isArray()
+                                       + " current type: " + context.getCurrentType());*/
                     
                     if (ASTConst.class.isInstance(_children[0]) && Number.class.isInstance(context.getCurrentObject()))
                         context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(context.getCurrentObject().getClass()));
 
                     result = p.getSourceAccessor(context, target, srcString);
-                    _getterClass = p.getPropertyClass(context, target, srcString);
+                    _getterClass = context.getCurrentType();
+                    /* _getterClass = p.getPropertyClass(context, target, srcString);
                     
                     if (_getterClass == null && context.getCurrentObject().getClass().isArray() 
                             && ArrayPropertyAccessor.class.isAssignableFrom(p.getClass())) {
@@ -235,13 +236,13 @@ public class ASTProperty extends SimpleNode implements NodeType
                     } else if (_getterClass == null && indexVal != null) {
                         
                        _getterClass = indexVal.getClass().isArray() ? indexVal.getClass().getComponentType() : indexVal.getClass();
-                    }
+                    }*/
 
                     //System.out.println("result of index src is " + result + " and getterClass " + _getterClass);
                     
-                    context.setCurrentType(_getterClass);
+                    //context.setCurrentType(_getterClass);
                     context.setCurrentObject(indexVal);
-                    
+
                     return result;
                 }
 
@@ -336,8 +337,7 @@ public class ASTProperty extends SimpleNode implements NodeType
                             String.class.isInstance(context.getCurrentObject())) {
                             srcString = "\"" + srcString + "\"";
                         }
-
-
+                        
                         context.setCurrentObject(currObj);
                         context.setCurrentType(currType);
                         context.setPreviousType(prevType);

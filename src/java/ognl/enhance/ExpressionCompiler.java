@@ -47,13 +47,12 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                 && context.getCurrentType().isAssignableFrom(context.getCurrentObject().getClass())
                 && context.getCurrentAccessor().isAssignableFrom(context.getPreviousType()))
             || body == null || body.trim().length() < 1
-            || (context.getCurrentType() != null && context.getCurrentType().isArray() 
+            || (context.getCurrentType() != null && context.getCurrentType().isArray()
                 && (context.getPreviousType() == null || context.getPreviousType() != Object.class))
             || ASTOr.class.isInstance(expression)
             || ASTAnd.class.isInstance(expression)
             || ASTRootVarRef.class.isInstance(expression)
             || context.getCurrentAccessor() == Class.class
-            || Number.class.isAssignableFrom(context.getCurrentAccessor())
             || (context.get(ExpressionCompiler.PRE_CAST) != null && ((String) context.get(ExpressionCompiler.PRE_CAST)).startsWith("new"))
             || ASTStaticField.class.isInstance(expression)
             || (OrderedReturn.class.isInstance(expression) && ((OrderedReturn) expression).getLastExpression() != null))

@@ -182,6 +182,7 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
         
         // TODO: This feels really inefficient, must be some better way
         // check if the index string represents a method on a custom class implementing java.util.List instead..
+        
         if (context.getCurrentObject() != null && !Number.class.isInstance(context.getCurrentObject())) {
 
             try {
