@@ -38,7 +38,60 @@ public class StaticsAndConstructorsTest extends OgnlTestCase
 {
     public static final String KEY = "size";
 
-    private static Root             ROOT = new Root();
+    private static Root ROOT = new Root();
+
+    public static class IntWrapper {
+        public IntWrapper(int value)
+        {
+            this.value = value;
+        }
+
+        private final int value;
+
+        public String toString()
+        {
+            return Integer.toString(value);
+        }
+
+        public boolean equals(Object o)
+        {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+
+            IntWrapper that = (IntWrapper) o;
+
+            return value == that.value;
+        }
+    }
+
+    public static class IntObjectWrapper {
+
+        public IntObjectWrapper(Integer value)
+        {
+            this.value = value;
+        }
+
+        private final Integer value;
+
+        public String toString()
+        {
+            return value.toString();
+        }
+
+        public boolean equals(Object o)
+        {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+
+            IntObjectWrapper that = (IntObjectWrapper) o;
+
+            return value.equals(that.value);
+        }
+    }
 
     private static Object[][]       TESTS = {
             { "@java.lang.Class@forName(\"java.lang.Object\")", Object.class },
@@ -57,7 +110,9 @@ public class StaticsAndConstructorsTest extends OgnlTestCase
             { "@org.ognl.test.objects.Root@getStaticInt()", new Integer(Root.getStaticInt()) },
             { "new org.ognl.test.objects.Simple(property).getStringValue()", new Simple().getStringValue() },
             { "new org.ognl.test.objects.Simple(map['test'].property).getStringValue()", new Simple().getStringValue() },
-            { "map.test.getCurrentClass(@org.ognl.test.StaticsAndConstructorsTest@KEY.toString())", "size stop"}
+            { "map.test.getCurrentClass(@org.ognl.test.StaticsAndConstructorsTest@KEY.toString())", "size stop"},
+            { "new org.ognl.test.StaticsAndConstructorsTest$IntWrapper(index)", new IntWrapper(ROOT.getIndex()) },
+            { "new org.ognl.test.StaticsAndConstructorsTest$IntObjectWrapper(index)", new IntObjectWrapper(ROOT.getIndex()) },
     };
 
     /*===================================================================

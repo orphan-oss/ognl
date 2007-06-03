@@ -58,8 +58,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             || (OrderedReturn.class.isInstance(expression) && ((OrderedReturn) expression).getLastExpression() != null))
             return body;
 
-/*
-        System.out.println("castExpression() with expression " + expression + " expr class: " + expression.getClass() + " currentType is: " + context.getCurrentType()
+
+       /* System.out.println("castExpression() with expression " + expression + " expr class: " + expression.getClass() + " currentType is: " + context.getCurrentType()
                 + " previousType: " + context.getPreviousType()
                 + "\n current Accessor: " + context.getCurrentAccessor()
                 + " previous Accessor: " + context.getPreviousAccessor()

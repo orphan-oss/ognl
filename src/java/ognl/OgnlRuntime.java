@@ -773,6 +773,10 @@ public class OgnlRuntime {
             }
             result = resolver.classForName(className, context);
         }
+
+        if (result == null)
+            throw new ClassNotFoundException("Unable to resolve class: " + className);
+        
         return result;
     }
 

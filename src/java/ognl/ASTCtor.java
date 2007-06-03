@@ -34,6 +34,7 @@ import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.UnsupportedCompilationException;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.util.List;
 
 /**
@@ -206,18 +207,18 @@ public class ASTCtor extends SimpleNode
 
                 if ((_children != null) && (_children.length > 0)) {
 
+                    Object[] values = new Object[_children.length];
+                    String[] expressions = new String[_children.length];
+                    Class[] types = new Class[_children.length];
+
+                    // first populate arrays with child values
                     
                     for(int i = 0; i < _children.length; i++) {
-                        if (i > 0) {
-                            result = result + ", ";
-                        }
                         
                         Object objValue = _children[i].getValue(context, context.getRoot());
                         String value = _children[i].toGetSourceString(context, target);
-                        
-                        value = ExpressionCompiler.getRootExpression(_children[i], target, context) + value;
 
-                        // System.out.println("astctor child class: " + _children[i].getClass() + " value: " + value);
+                        value = ExpressionCompiler.getRootExpression(_children[i], target, context) + value;
 
                         String cast = "";
                         if (ExpressionCompiler.shouldCast(_children[i])) {
@@ -230,25 +231,72 @@ public class ASTCtor extends SimpleNode
                         if (!ASTConst.class.isInstance(_children[i]))
                             value = cast + value;
 
-                        if (context.getCurrentType().isPrimitive()) {
-                            
-                            String literal = OgnlRuntime.getNumericLiteral(context.getCurrentType());
+                        values[i] = objValue;
+                        expressions[i] = value;
+                        types[i] = context.getCurrentType();
+                    }
+
+                    // now try and find a matching constructor
+                    
+                    Constructor[] cons = clazz.getConstructors();
+                    Constructor ctor = null;
+                    Class[] ctorParamTypes = null;
+                    
+                    for (int i=0; i < cons.length; i++)
+                    {
+                        Class[] ctorTypes = cons[i].getParameterTypes();
+
+                        if (OgnlRuntime.areArgsCompatible(values, ctorTypes)
+                            && (ctor == null || OgnlRuntime.isMoreSpecific(ctorTypes, ctorParamTypes))) {
+                            ctor = cons[i];
+                            ctorParamTypes = ctorTypes;
+                        }
+                    }
+
+                    if (ctor == null)
+                        ctor = OgnlRuntime.getConvertedConstructorAndArgs(context, clazz, OgnlRuntime.getConstructors(clazz), values, new Object[values.length]);
+
+                    if (ctor == null)
+                        throw new NoSuchMethodException("Unable to find constructor appropriate for arguments in class: " + clazz);
+
+                    ctorParamTypes = ctor.getParameterTypes();
+
+                    // now loop over child values again and build up the actual source string
+
+                    for(int i = 0; i < _children.length; i++) {
+                        if (i > 0) {
+                            result = result + ", ";
+                        }
+
+                        String value = expressions[i];
+
+                        if (types[i].isPrimitive()) {
+
+                            String literal = OgnlRuntime.getNumericLiteral(types[i]);
                             if (literal != null)
                                 value += literal;
                         }
 
-                        if (objValue != null && !objValue.getClass().isPrimitive()
-                                   && !objValue.getClass().isArray() && !ASTConst.class.isInstance(_children[i])) {
-                            
-                            value = "(" + OgnlRuntime.getCompiler().getInterfaceClass(objValue.getClass()).getName() + ")" + value;
-                        } else if (!ASTConst.class.isInstance(_children[i]) 
-                                   || (ASTConst.class.isInstance(_children[i]) && !context.getCurrentType().isPrimitive())) {
-                            
-                            value = " ($w) " + value;
+                        if (ctorParamTypes[i] != types[i]) {
+
+                            if (values[i] != null && !types[i].isPrimitive()
+                                && !values[i].getClass().isArray() && !ASTConst.class.isInstance(_children[i])) {
+                                
+                                value = "(" + OgnlRuntime.getCompiler().getInterfaceClass(values[i].getClass()).getName() + ")" + value;
+                            } else if (!ASTConst.class.isInstance(_children[i])
+                                       || (ASTConst.class.isInstance(_children[i]) && !types[i].isPrimitive())) {
+                                
+                                if (!types[i].isArray()
+                                    && types[i].isPrimitive() && !ctorParamTypes[i].isPrimitive())
+                                    value = "new " + ExpressionCompiler.getCastString(OgnlRuntime.getPrimitiveWrapperClass(types[i])) + "(" + value + ")";
+                                else
+                                    value = " ($w) " + value;
+                            }
                         }
-                        
+
                         result += value;
                     }
+
                 }
                 result = result + ")";
             }
