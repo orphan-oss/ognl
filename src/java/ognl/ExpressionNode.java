@@ -104,22 +104,27 @@ public abstract class ExpressionNode extends SimpleNode
                 }
                 
                 String value = _children[i].toGetSourceString(context, target);
-                
+
                 if ((ASTProperty.class.isInstance(_children[i]) || ASTMethod.class.isInstance(_children[i])
-                        || ASTSequence.class.isInstance(_children[i]) || ASTChain.class.isInstance(_children[i]))
-                        && value != null && value.trim().length() > 0) {
-                        
-                        String pre = (String)context.get("_currentChain");
-                        if (pre == null)
-                            pre = "";
-                        
-                        String cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
-                        if (cast == null)
-                            cast = "";
-                        
-                        value = cast + ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context) + pre + value;
+                     || ASTSequence.class.isInstance(_children[i]) || ASTChain.class.isInstance(_children[i]))
+                    && value != null && value.trim().length() > 0) {
+
+                    String pre = null;
+                    if (ASTMethod.class.isInstance(_children[i]))
+                    {
+                        pre = (String)context.get("_currentChain");
+                    }
+
+                    if (pre == null)
+                        pre = "";
+
+                    String cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
+                    if (cast == null)
+                        cast = "";
+
+                    value = cast + ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context) + pre + value;
                 } 
-               
+
                 result += value;
             }
         }

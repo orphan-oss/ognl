@@ -70,7 +70,8 @@ public class SetterTest extends OgnlTestCase
             { ROOT, "map.(someMissingKey && newValue)", null, null }, // again, no setting
             { null, "0", new Integer(0), null, InappropriateExpressionException.class }, // illegal for setting, no property
             { ROOT, "map[0]=\"map.newValue\", map[0](#this)", new Integer(666), new Integer(888) },
-            { ROOT, "selectedList", null, _list, IllegalArgumentException.class}
+            { ROOT, "selectedList", null, _list, IllegalArgumentException.class},
+            { ROOT, "openTransitionWin", Boolean.FALSE, Boolean.TRUE}
     };
 
     /*===================================================================
@@ -124,6 +125,5 @@ public class SetterTest extends OgnlTestCase
     public SetterTest(String name, Object root, String expressionString, Object expectedResult)
     {
         super(name, root, expressionString, expectedResult);
-        _compileExpressions = true;
     }
 }

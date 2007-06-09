@@ -55,11 +55,7 @@ public abstract class NumericExpression extends ExpressionNode implements NodeTy
                     
                     return value.toString();
                 }
-
-                /*if (OgnlRuntime.getNumericCast(value.getClass()) != null
-                        && OgnlRuntime.getNumericCast(value.getClass()).length() > 0) {
-                    return OgnlRuntime.getNumericCast(value.getClass()) + "(" + value + ")";
-                } else */
+                
                 return value.toString();
             }
             

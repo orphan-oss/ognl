@@ -118,7 +118,9 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "expiration == null ? '' : @org.ognl.test.PropertyTest@DATE_FORMAT.format(expiration)", ""},
             { ROOT, "printDelivery ? 'javascript:toggle(' + bean2.id + ');' : ''", "javascript:toggle(1);"},
             { ROOT, "{theInt + 1}", Arrays.asList(new Integer(ROOT.getTheInt() + 1)) },
-            { ROOT, " !(printDelivery || @Boolean@FALSE)", Boolean.FALSE}
+            { ROOT, " !(printDelivery || @Boolean@FALSE)", Boolean.FALSE},
+            { ROOT, "openTransitionWin", Boolean.FALSE},
+            { ROOT, "b.methodOfB(a.methodOfA(b)-1)", new Integer(0)}
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)

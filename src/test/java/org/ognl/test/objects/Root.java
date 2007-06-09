@@ -67,6 +67,7 @@ public class Root extends Object
     private Integer _objIndex = new Integer(1);
     private Object _genericObjIndex = new Integer(2);
     private Date _date = new Date();
+    private boolean _openWindow = false;
 
     private ITreeContentProvider _contentProvider = new TreeContentProvider();
     private Indexed _indexed = new Indexed();
@@ -448,5 +449,46 @@ public class Root extends Object
         list.add(new Object[]{new Integer("2"), new Integer("2")});
 
         return list;
+    }
+
+    public boolean isOpenTransitionWin()
+    {
+        return _openWindow;
+    }
+
+    public void setOpenTransitionWin(boolean value)
+    {
+        _openWindow = value;
+    }
+
+    public static class A
+    {
+        public int methodOfA(B b)
+        {
+            return 0;
+        }
+
+        public int getIntValue()
+        {
+            return 1;
+        }
+    }
+
+    public static class B
+    {
+        public int methodOfB(int i)
+        {
+            return 0;
+        }
+    }
+
+    public A getA()
+    {
+        return new A();
+    }
+
+    public B getB()
+    {
+        return new B();
     }
 }

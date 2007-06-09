@@ -143,7 +143,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
 
     public String toGetSourceString(OgnlContext context, Object target)
     {
-        /*System.out.println("methodName is " + _methodName + " for target " + target + " target class: " + (target != null ? target.getClass() : null)
+       /* System.out.println("methodName is " + _methodName + " for target " + target + " target class: " + (target != null ? target.getClass() : null)
                            + " current type: " + context.getCurrentType());*/
         if (target == null)
             throw new UnsupportedCompilationException("Target object is null.");
@@ -188,7 +188,10 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                 
                 Class[] parms = m.getParameterTypes();
                 String prevCast = (String)context.remove(ExpressionCompiler.PRE_CAST);
-                
+/*
+                System.out.println("before children methodName is " + _methodName + " for target " + target + " target class: " + (target != null ? target.getClass() : null)
+                           + " current type: " + context.getCurrentType() + " and previous type: " + context.getPreviousType());*/
+
                 for(int i = 0; i < _children.length; i++) {
                     if (i > 0) {
                         result = result + ", ";
