@@ -25,10 +25,10 @@
     <property name="project.docbook.filelist" value="LanguageGuide,DeveloperGuide"/>
 
     <!-- Build results setup -->
-    <property name="output.docbook.style" location="target/docbook/style"/>
-    <property name="output.docbook.fop" location="target/docbook/fop"/>
-    <property name="output.docbook.html" location="target/docbook/html"/>
-    <property name="output.docbook.pdf" location="target/docbook/pdf"/>
+    <property name="output.docbook.style" location="build/docbook/style"/>
+    <property name="output.docbook.fop" location="build/docbook/fop"/>
+    <property name="output.docbook.html" location="build/docbook/html"/>
+    <property name="output.docbook.pdf" location="build/docbook/pdf"/>
 
     <!-- DocBook -->
 
@@ -246,7 +246,7 @@
     </target>
 
     <target name="docbook-generate-fop" unless="uptodate.fop">
-        <style destdir="${output.docbook.fop}"
+        <xslt destdir="${output.docbook.fop}"
             style="${docbook.fop.xsl}"
             processor="trax"
             force="true"
@@ -256,7 +256,7 @@
             <param name="project.docbook.file" expression="${docbook.file}"/>
             <param name="use.id.as.filename" expression="1"/>
             <xmlcatalog refid="docbook.catalog"/>
-        </style>
+        </xslt>
     </target>
 
     <target name="docbook-convert-fo-to-pdf" unless="uptodate.pdf">
