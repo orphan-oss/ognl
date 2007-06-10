@@ -93,6 +93,7 @@
     <completion properties="true" methods="false" htmlAttributes="true" />
     <ext extensionComponentSpec="jwc" extensionPageSpec="page" extensionScript="script" />
   </component>
+  <component name="IdProvider" IDEtalkID="D6C42C2F050272871E47A6B68AAC3B78" />
   <component name="InspectionProjectProfileManager">
     <option name="PROJECT_PROFILE" value="Project Default" />
     <option name="USE_PROJECT_LEVEL_SETTINGS" value="false" />
@@ -339,6 +340,13 @@
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="1.6" project-jdk-type="JavaSDK" />
+  <component name="ResourceManagerContainer">
+    <option name="myResourceBundles">
+      <value>
+        <list size="0" />
+      </value>
+    </option>
+  </component>
   <component name="RmicSettings">
     <option name="IS_EANABLED" value="false" />
     <option name="DEBUGGING_INFO" value="true" />

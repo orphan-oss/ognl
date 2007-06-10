@@ -57,11 +57,14 @@ public interface PropertyAccessor
 
     /**
      * Extracts and returns the property of the given name from the given target object.
-     * 
+     *
+     * @param context
+     *          The current execution context.
      * @param target
      *            the object to get the property from
      * @param name
-     *            the name of the property to get
+     *            the name of the property to get.
+     * 
      * @return the current value of the given property in the given object
      * @exception OgnlException
      *                if there is an error locating the property in the given object
@@ -71,13 +74,16 @@ public interface PropertyAccessor
 
     /**
      * Sets the value of the property of the given name in the given target object.
-     * 
+     *
+     * @param context
+     *          The current execution context.
      * @param target
      *            the object to set the property in
      * @param name
      *            the name of the property to set
      * @param value
-     *            the new value for the property
+     *            the new value for the property.
+     * 
      * @exception OgnlException
      *                if there is an error setting the property in the given object
      */
@@ -102,9 +108,14 @@ public interface PropertyAccessor
     /**
      * Returns a java string representing the textual method that should be called to access a
      * particular element. (ie "get")
-     * 
+     *
+     * @param context
+     *          The current execution context.
+     * @param target
+     *          The current object target on the expression tree being evaluated.
      * @param index
      *            The index object that will be placed inside the string to access the value.
+     * 
      * @return The source accessor method to call.
      */
     String getSourceAccessor(OgnlContext context, Object target, Object index);
@@ -112,7 +123,11 @@ public interface PropertyAccessor
     /**
      * Returns a java string representing the textual method that should be called to set a
      * particular element. (ie "set")
-     * 
+     *
+     * @param context
+     *          The current execution context.
+     * @param target
+     *          The current object target on the expression tree being evaluated.
      * @param index
      *            The index object that will be placed inside the string to set the value.
      * @return The source setter method to call.

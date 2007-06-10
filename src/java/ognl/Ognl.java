@@ -43,14 +43,14 @@ import java.util.Map;
  * The simplest use of the Ognl class is to get the value of an expression from an object, without
  * extra context or pre-parsing.
  * </P>
- * 
+ *
  * <PRE>
- * 
+ *
  * import ognl.Ognl; import ognl.OgnlException; try { result = Ognl.getValue(expression, root); }
  * catch (OgnlException ex) { // Report error or recover }
- * 
+ *
  * </PRE>
- * 
+ *
  * <P>
  * This will parse the expression given and evaluate it against the root object given, returning the
  * result. If there is an error in the expression, such as the property is not found, the exception
@@ -73,27 +73,27 @@ import java.util.Map;
  * how to extract the <CODE>documentName</CODE> property out of the root object and append a
  * string with the current user name in parens:
  * </P>
- * 
+ *
  * <PRE>
- * 
+ *
  * private Map context = new HashMap(); public void setUserName(String value) {
  * context.put("userName", value); } try { // get value using our own custom context map result =
  * Ognl.getValue("documentName + \" (\" + ((#userName == null) ? \"&lt;nobody&gt;\" : #userName) +
  * \")\"", context, root); } catch (OgnlException ex) { // Report error or recover }
- * 
+ *
  * </PRE>
- * 
+ *
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  * @version 27 June 1999
  */
 public abstract class Ognl
 {
-    
+
     /**
      * Parses the given OGNL expression and returns a tree representation of the expression that can
      * be used by <CODE>Ognl</CODE> static methods.
-     * 
+     *
      * @param expression
      *            the OGNL expression to be parsed
      * @return a tree representation of the expression
@@ -103,7 +103,7 @@ public abstract class Ognl
      *             if there is a pathological environmental problem
      */
     public static Object parseExpression(String expression)
-        throws OgnlException
+            throws OgnlException
     {
         try {
             OgnlParser parser = new OgnlParser(new StringReader(expression));
@@ -114,20 +114,38 @@ public abstract class Ognl
             throw new ExpressionSyntaxException(expression, e);
         }
     }
-    
+
+    /**
+     * Parses and compiles the given expression using the {@link ognl.enhance.OgnlExpressionCompiler} returned
+     * from {@link ognl.OgnlRuntime#getCompiler()}.
+     *
+     * @param context
+     *          The context to use.
+     * @param root
+     *          The root object for the given expression.
+     * @param expression
+     *          The expression to compile.
+     *
+     * @return The node with a compiled accessor set on {@link ognl.Node#getAccessor()} if compilation
+     *          was successfull. In instances where compilation wasn't possible because of a partially null
+     *          expression the {@link ExpressionAccessor} instance may be null and the compilation of this expression
+     *          still possible at some as yet indertermined point in the future.
+     *
+     * @throws Exception If a compilation error occurs.
+     */
     public static Node compileExpression(OgnlContext context, Object root, String expression)
-    throws Exception
+            throws Exception
     {
         Node expr = (Node)Ognl.parseExpression(expression);
-        
+
         OgnlRuntime.compileExpression(context, expr, root);
-        
+
         return expr;
     }
-    
+
     /**
      * Creates and returns a new standard naming context for evaluating an OGNL expression.
-     * 
+     *
      * @param root
      *            the root of the object graph
      * @return a new Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
@@ -140,9 +158,12 @@ public abstract class Ognl
 
     /**
      * Creates and returns a new standard naming context for evaluating an OGNL expression.
-     * 
+     *
      * @param root
-     *            the root of the object graph
+     *          The root of the object graph.
+     * @param classResolver
+     *          The resolver used to instantiate {@link Class} instances referenced in the expression.
+     *
      * @return a new OgnlContext with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
      */
@@ -153,9 +174,14 @@ public abstract class Ognl
 
     /**
      * Creates and returns a new standard naming context for evaluating an OGNL expression.
-     * 
+     *
      * @param root
-     *            the root of the object graph
+     *          The root of the object graph.
+     * @param classResolver
+     *          The resolver used to instantiate {@link Class} instances referenced in the expression.
+     * @param converter
+     *          Converter used to convert return types of an expression in to their desired types.
+     *
      * @return a new Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
      */
@@ -166,14 +192,21 @@ public abstract class Ognl
 
     /**
      * Creates and returns a new standard naming context for evaluating an OGNL expression.
-     * 
+     *
      * @param root
-     *            the root of the object graph
+     *          The root of the object graph.
+     * @param classResolver
+     *          The resolver used to instantiate {@link Class} instances referenced in the expression.
+     * @param converter
+     *          Converter used to convert return types of an expression in to their desired types.
+     * @param memberAccess
+     *          Java security handling object to determine semantics for accessing normally private/protected
+     *          methods / fields.
      * @return a new Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
      */
-    public static Map createDefaultContext(Object root, ClassResolver classResolver, TypeConverter converter,
-            MemberAccess memberAccess)
+    public static Map createDefaultContext(Object root, ClassResolver classResolver,
+                                           TypeConverter converter, MemberAccess memberAccess)
     {
         return addDefaultContext(root, classResolver, converter, memberAccess, new OgnlContext());
     }
@@ -181,7 +214,7 @@ public abstract class Ognl
     /**
      * Appends the standard naming context for evaluating an OGNL expression into the context given
      * so that cached maps can be used as a context.
-     * 
+     *
      * @param root
      *            the root of the object graph
      * @param context
@@ -197,11 +230,14 @@ public abstract class Ognl
     /**
      * Appends the standard naming context for evaluating an OGNL expression into the context given
      * so that cached maps can be used as a context.
-     * 
+     *
      * @param root
-     *            the root of the object graph
+     *          The root of the object graph.
+     * @param classResolver
+     *          The resolver used to instantiate {@link Class} instances referenced in the expression.
      * @param context
-     *            the context to which OGNL context will be added.
+     *          The context to which OGNL context will be added.
+     *
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
      */
@@ -213,15 +249,21 @@ public abstract class Ognl
     /**
      * Appends the standard naming context for evaluating an OGNL expression into the context given
      * so that cached maps can be used as a context.
-     * 
+     *
      * @param root
-     *            the root of the object graph
+     *          The root of the object graph.
+     * @param classResolver
+     *          The resolver used to instantiate {@link Class} instances referenced in the expression.
+     * @param converter
+     *          Converter used to convert return types of an expression in to their desired types.
      * @param context
-     *            the context to which OGNL context will be added.
+     *          The context to which OGNL context will be added.
+     *
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
      */
-    public static Map addDefaultContext(Object root, ClassResolver classResolver, TypeConverter converter, Map context)
+    public static Map addDefaultContext(Object root, ClassResolver classResolver,
+                                        TypeConverter converter, Map context)
     {
         return addDefaultContext(root, classResolver, converter, null, context);
     }
@@ -229,7 +271,7 @@ public abstract class Ognl
     /**
      * Appends the standard naming context for evaluating an OGNL expression into the context given
      * so that cached maps can be used as a context.
-     * 
+     *
      * @param root
      *            the root of the object graph
      * @param classResolver
@@ -244,11 +286,11 @@ public abstract class Ognl
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
      */
-    public static Map addDefaultContext(Object root, ClassResolver classResolver, TypeConverter converter,
-            MemberAccess memberAccess, Map context)
+    public static Map addDefaultContext(Object root, ClassResolver classResolver,
+                                        TypeConverter converter, MemberAccess memberAccess, Map context)
     {
         OgnlContext result;
-        
+
         if (!(context instanceof OgnlContext)) {
             result = new OgnlContext();
             result.setValues(context);
@@ -264,51 +306,127 @@ public abstract class Ognl
         if (memberAccess != null) {
             result.setMemberAccess(memberAccess);
         }
-        
+
         result.setRoot(root);
         return result;
     }
-    
+
+    /**
+     * Configures the {@link ClassResolver} to use for the given context.  Will be used during
+     * expression parsing / execution to resolve class names.
+     *
+     * @param context
+     *          The context to place the resolver.
+     * @param classResolver
+     *          The resolver to use to resolve classes.
+     */
     public static void setClassResolver(Map context, ClassResolver classResolver)
     {
         context.put(OgnlContext.CLASS_RESOLVER_CONTEXT_KEY, classResolver);
     }
 
+    /**
+     * Gets the previously stored {@link ClassResolver} for the given context - if any.
+     *
+     * @param context
+     *          The context to get the configured resolver from.
+     *
+     * @return The resolver instance, or null if none found. 
+     */
     public static ClassResolver getClassResolver(Map context)
     {
         return (ClassResolver) context.get(OgnlContext.CLASS_RESOLVER_CONTEXT_KEY);
     }
 
+    /**
+     * Configures the type converter to use for a given context. This will be used
+     * to convert into / out of various java class types.
+     *
+     * @param context
+     *          The context to configure it for.
+     * @param converter
+     *          The converter to use.
+     */
     public static void setTypeConverter(Map context, TypeConverter converter)
     {
         context.put(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY, converter);
     }
 
+    /**
+     * Gets the currently configured {@link TypeConverter} for the given context - if any.
+     *
+     * @param context
+     *          The context to get the converter from.
+     *
+     * @return The converter - or null if none found.
+     */
     public static TypeConverter getTypeConverter(Map context)
     {
         return (TypeConverter) context.get(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY);
     }
 
+    /**
+     * Configures the specified context with a {@link MemberAccess} instance for
+     * handling field/method protection levels.
+     *
+     * @param context
+     *          The context to configure.
+     * @param memberAccess
+     *          The access resolver to configure the context with.
+     */
     public static void setMemberAccess(Map context, MemberAccess memberAccess)
     {
         context.put(OgnlContext.MEMBER_ACCESS_CONTEXT_KEY, memberAccess);
     }
 
+    /**
+     * Gets the currently stored {@link MemberAccess} object for the given context - if any.
+     *
+     * @param context
+     *          The context to get the object from.
+     * 
+     * @return The configured {@link MemberAccess} instance in the specified context - or null if none found.
+     */
     public static MemberAccess getMemberAccess(Map context)
     {
         return (MemberAccess) context.get(OgnlContext.MEMBER_ACCESS_CONTEXT_KEY);
     }
 
+    /**
+     * Sets the root object to use for all expressions in the given context - doesn't necessarily replace
+     * root object instances explicitly passed in to other expression resolving methods on this class.
+     *
+     * @param context
+     *          The context to store the root object in.
+     * @param root
+     *          The root object.
+     */
     public static void setRoot(Map context, Object root)
     {
         context.put(OgnlContext.ROOT_CONTEXT_KEY, root);
     }
 
+    /**
+     * Gets the stored root object for the given context - if any.
+     *
+     * @param context
+     *          The context to get the root object from.
+     * 
+     * @return The root object - or null if none found.
+     */
     public static Object getRoot(Map context)
     {
         return context.get(OgnlContext.ROOT_CONTEXT_KEY);
     }
 
+    /**
+     * Gets the last {@link Evaluation} executed on the given context.
+     *
+     * @param context
+     *          The context to get the evaluation from.
+     * 
+     * @return The {@link Evaluation} - or null if none was found.
+     */
     public static Evaluation getLastEvaluation(Map context)
     {
         return (Evaluation) context.get(OgnlContext.LAST_EVALUATION_CONTEXT_KEY);
@@ -317,7 +435,7 @@ public abstract class Ognl
     /**
      * Evaluates the given OGNL expression tree to extract a value from the given root object. The
      * default context is set for the given context and root via <CODE>addDefaultContext()</CODE>.
-     * 
+     *
      * @param tree
      *            the OGNL expression tree to evaluate, as returned by parseExpression()
      * @param context
@@ -335,7 +453,7 @@ public abstract class Ognl
      *             if there is a pathological environmental problem
      */
     public static Object getValue(Object tree, Map context, Object root)
-        throws OgnlException
+            throws OgnlException
     {
         return getValue(tree, context, root, null);
     }
@@ -343,7 +461,7 @@ public abstract class Ognl
     /**
      * Evaluates the given OGNL expression tree to extract a value from the given root object. The
      * default context is set for the given context and root via <CODE>addDefaultContext()</CODE>.
-     * 
+     *
      * @param tree
      *            the OGNL expression tree to evaluate, as returned by parseExpression()
      * @param context
@@ -363,28 +481,28 @@ public abstract class Ognl
      *             if there is a pathological environmental problem
      */
     public static Object getValue(Object tree, Map context, Object root, Class resultType)
-        throws OgnlException
+            throws OgnlException
     {
         Object result;
         OgnlContext ognlContext = (OgnlContext) addDefaultContext(root, context);
-        
+
         Node node = (Node)tree;
-        
+
         if (node.getAccessor() != null)
             result =  node.getAccessor().get(ognlContext, root);
         else
             result = node.getValue(ognlContext, root);
-        
+
         if (resultType != null) {
             result = getTypeConverter(context).convertValue(context, root, null, null, result, resultType);
         }
         return result;
     }
-    
+
     /**
      * Gets the value represented by the given pre-compiled expression on the specified root 
      * object.
-     * 
+     *
      * @param expression
      *          The pre-compiled expression, as found in {@link Node#getAccessor()}. 
      * @param context
@@ -398,11 +516,11 @@ public abstract class Ognl
     {
         return expression.get(context, root);
     }
-    
+
     /**
      * Gets the value represented by the given pre-compiled expression on the specified root 
      * object.
-     * 
+     *
      * @param expression
      *          The pre-compiled expression, as found in {@link Node#getAccessor()}. 
      * @param context
@@ -414,15 +532,16 @@ public abstract class Ognl
      * @return
      *          The value.
      */
-    public static Object getValue(ExpressionAccessor expression, OgnlContext context, Object root, Class resultType)
+    public static Object getValue(ExpressionAccessor expression, OgnlContext context,
+                                  Object root, Class resultType)
     {
         return getTypeConverter(context).convertValue(context, root, null, null, expression.get(context, root), resultType);
     }
-    
+
     /**
      * Evaluates the given OGNL expression to extract a value from the given root object in a given
      * context
-     * 
+     *
      * @see #parseExpression(String)
      * @see #getValue(Object,Object)
      * @param expression
@@ -442,7 +561,7 @@ public abstract class Ognl
      *             if there is a pathological environmental problem
      */
     public static Object getValue(String expression, Map context, Object root)
-        throws OgnlException
+            throws OgnlException
     {
         return getValue(expression, context, root, null);
     }
@@ -450,7 +569,7 @@ public abstract class Ognl
     /**
      * Evaluates the given OGNL expression to extract a value from the given root object in a given
      * context
-     * 
+     *
      * @see #parseExpression(String)
      * @see #getValue(Object,Object)
      * @param expression
@@ -472,14 +591,14 @@ public abstract class Ognl
      *             if there is a pathological environmental problem
      */
     public static Object getValue(String expression, Map context, Object root, Class resultType)
-        throws OgnlException
+            throws OgnlException
     {
         return getValue(parseExpression(expression), context, root, resultType);
     }
 
     /**
      * Evaluates the given OGNL expression tree to extract a value from the given root object.
-     * 
+     *
      * @param tree
      *            the OGNL expression tree to evaluate, as returned by parseExpression()
      * @param root
@@ -495,14 +614,14 @@ public abstract class Ognl
      *             if there is a pathological environmental problem
      */
     public static Object getValue(Object tree, Object root)
-        throws OgnlException
+            throws OgnlException
     {
         return getValue(tree, root, null);
     }
 
     /**
      * Evaluates the given OGNL expression tree to extract a value from the given root object.
-     * 
+     *
      * @param tree
      *            the OGNL expression tree to evaluate, as returned by parseExpression()
      * @param root
@@ -520,7 +639,7 @@ public abstract class Ognl
      *             if there is a pathological environmental problem
      */
     public static Object getValue(Object tree, Object root, Class resultType)
-        throws OgnlException
+            throws OgnlException
     {
         return getValue(tree, createDefaultContext(root), root, resultType);
     }
@@ -528,7 +647,7 @@ public abstract class Ognl
     /**
      * Convenience method that combines calls to <code> parseExpression </code> and
      * <code> getValue</code>.
-     * 
+     *
      * @see #parseExpression(String)
      * @see #getValue(Object,Object)
      * @param expression
@@ -548,7 +667,7 @@ public abstract class Ognl
      *             if there is a pathological environmental problem
      */
     public static Object getValue(String expression, Object root)
-        throws OgnlException
+            throws OgnlException
     {
         return getValue(expression, root, null);
     }
@@ -556,7 +675,7 @@ public abstract class Ognl
     /**
      * Convenience method that combines calls to <code> parseExpression </code> and
      * <code> getValue</code>.
-     * 
+     *
      * @see #parseExpression(String)
      * @see #getValue(Object,Object)
      * @param expression
@@ -578,7 +697,7 @@ public abstract class Ognl
      *             if there is a pathological environmental problem
      */
     public static Object getValue(String expression, Object root, Class resultType)
-        throws OgnlException
+            throws OgnlException
     {
         return getValue(parseExpression(expression), root, resultType);
     }
@@ -586,7 +705,7 @@ public abstract class Ognl
     /**
      * Evaluates the given OGNL expression tree to insert a value into the object graph rooted at
      * the given root object. The default context is set for the given context and root via <CODE>addDefaultContext()</CODE>.
-     * 
+     *
      * @param tree
      *            the OGNL expression tree to evaluate, as returned by parseExpression()
      * @param context
@@ -605,23 +724,23 @@ public abstract class Ognl
      *             if there is a pathological environmental problem
      */
     public static void setValue(Object tree, Map context, Object root, Object value)
-        throws OgnlException
+            throws OgnlException
     {
         OgnlContext ognlContext = (OgnlContext) addDefaultContext(root, context);
         Node n = (Node) tree;
-        
+
         if (n.getAccessor() != null) {
             n.getAccessor().set(ognlContext, root, value);
             return;
         }
-        
+
         n.setValue(ognlContext, root, value);
     }
 
     /**
      * Sets the value given using the pre-compiled expression on the specified root 
      * object.
-     * 
+     *
      * @param expression
      *          The pre-compiled expression, as found in {@link Node#getAccessor()}. 
      * @param context
@@ -631,15 +750,16 @@ public abstract class Ognl
      * @param value
      *          The value to set.
      */
-    public static void setValue(ExpressionAccessor expression, OgnlContext context, Object root, Object value)
+    public static void setValue(ExpressionAccessor expression, OgnlContext context,
+                                Object root, Object value)
     {
         expression.set(context, root, value);
     }
-    
+
     /**
      * Evaluates the given OGNL expression to insert a value into the object graph rooted at the
      * given root object given the context.
-     * 
+     *
      * @param expression
      *            the OGNL expression to be parsed
      * @param root
@@ -658,7 +778,7 @@ public abstract class Ognl
      *             if there is a pathological environmental problem
      */
     public static void setValue(String expression, Map context, Object root, Object value)
-        throws OgnlException
+            throws OgnlException
     {
         setValue(parseExpression(expression), context, root, value);
     }
@@ -666,7 +786,7 @@ public abstract class Ognl
     /**
      * Evaluates the given OGNL expression tree to insert a value into the object graph rooted at
      * the given root object.
-     * 
+     *
      * @param tree
      *            the OGNL expression tree to evaluate, as returned by parseExpression()
      * @param root
@@ -683,7 +803,7 @@ public abstract class Ognl
      *             if there is a pathological environmental problem
      */
     public static void setValue(Object tree, Object root, Object value)
-        throws OgnlException
+            throws OgnlException
     {
         setValue(tree, createDefaultContext(root), root, value);
     }
@@ -691,7 +811,7 @@ public abstract class Ognl
     /**
      * Convenience method that combines calls to <code> parseExpression </code> and
      * <code> setValue</code>.
-     * 
+     *
      * @see #parseExpression(String)
      * @see #setValue(Object,Object,Object)
      * @param expression
@@ -712,79 +832,122 @@ public abstract class Ognl
      *             if there is a pathological environmental problem
      */
     public static void setValue(String expression, Object root, Object value)
-        throws OgnlException
+            throws OgnlException
     {
         setValue(parseExpression(expression), root, value);
     }
 
+    /**
+     * Checks if the specified {@link Node} instance represents a constant
+     * expression.
+     *
+     * @param tree
+     *          The {@link Node} to check.
+     * @param context
+     *          The context to use.
+     *
+     * @return True if the node is a constant - false otherwise.
+     * @throws OgnlException  If an error occurs checking the expression.
+     */
     public static boolean isConstant(Object tree, Map context)
-        throws OgnlException
+            throws OgnlException
     {
         return ((SimpleNode) tree).isConstant((OgnlContext) addDefaultContext(null, context));
     }
 
+     /**
+     * Checks if the specified expression represents a constant expression.
+     *
+     * @param expression
+     *          The expression to check.
+     * @param context
+     *          The context to use.
+     *
+     * @return True if the node is a constant - false otherwise.
+     * @throws OgnlException  If an error occurs checking the expression.
+     */
     public static boolean isConstant(String expression, Map context)
-        throws OgnlException
+            throws OgnlException
     {
         return isConstant(parseExpression(expression), context);
     }
 
+    /**
+     * Same as {@link #isConstant(Object, java.util.Map)} - only the {@link Map} context
+     * is created for you.
+     *
+     * @param tree
+     *          The {@link Node} to check.
+     * 
+     * @return True if the node represents a constant expression - false otherwise.
+     * @throws OgnlException If an exception occurs.
+     */
     public static boolean isConstant(Object tree)
-        throws OgnlException
+            throws OgnlException
     {
         return isConstant(tree, createDefaultContext(null));
     }
 
+    /**
+     * Same as {@link #isConstant(String, java.util.Map)} - only the {@link Map}
+     * instance is created for you.
+     *
+     * @param expression
+     *          The expression to check.
+     *
+     * @return True if the expression represents a constant - false otherwise.
+     * @throws OgnlException If an exception occurs.
+     */
     public static boolean isConstant(String expression)
-        throws OgnlException
+            throws OgnlException
     {
         return isConstant(parseExpression(expression), createDefaultContext(null));
     }
 
     public static boolean isSimpleProperty(Object tree, Map context)
-        throws OgnlException
+            throws OgnlException
     {
         return ((SimpleNode) tree).isSimpleProperty((OgnlContext) addDefaultContext(null, context));
     }
 
     public static boolean isSimpleProperty(String expression, Map context)
-        throws OgnlException
+            throws OgnlException
     {
         return isSimpleProperty(parseExpression(expression), context);
     }
 
     public static boolean isSimpleProperty(Object tree)
-        throws OgnlException
+            throws OgnlException
     {
         return isSimpleProperty(tree, createDefaultContext(null));
     }
 
     public static boolean isSimpleProperty(String expression)
-        throws OgnlException
+            throws OgnlException
     {
         return isSimpleProperty(parseExpression(expression), createDefaultContext(null));
     }
 
     public static boolean isSimpleNavigationChain(Object tree, Map context)
-        throws OgnlException
+            throws OgnlException
     {
         return ((SimpleNode) tree).isSimpleNavigationChain((OgnlContext) addDefaultContext(null, context));
     }
 
     public static boolean isSimpleNavigationChain(String expression, Map context)
-        throws OgnlException
+            throws OgnlException
     {
         return isSimpleNavigationChain(parseExpression(expression), context);
     }
 
     public static boolean isSimpleNavigationChain(Object tree)
-        throws OgnlException
+            throws OgnlException
     {
         return isSimpleNavigationChain(tree, createDefaultContext(null));
     }
 
     public static boolean isSimpleNavigationChain(String expression)
-        throws OgnlException
+            throws OgnlException
     {
         return isSimpleNavigationChain(parseExpression(expression), createDefaultContext(null));
     }

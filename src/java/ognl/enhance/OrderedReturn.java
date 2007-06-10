@@ -7,8 +7,6 @@ import ognl.Node;
  * Marks an ognl expression {@link Node} as needing to have the return portion of a 
  * getter method happen in a specific part of the generated expression vs just having
  * the whole expression returned in one chunk.
- * 
- * @author jkuhnert
  */
 public interface OrderedReturn
 {

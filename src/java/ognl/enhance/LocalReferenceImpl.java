@@ -1,7 +1,7 @@
 package ognl.enhance;
 
 /**
- *
+ * Implementation of {@link LocalReference}. 
  */
 public class LocalReferenceImpl implements LocalReference {
 
