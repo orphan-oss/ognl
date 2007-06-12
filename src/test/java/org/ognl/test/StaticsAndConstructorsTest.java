@@ -93,6 +93,28 @@ public class StaticsAndConstructorsTest extends OgnlTestCase
         }
     }
 
+    public static class A
+    {
+        String key = "A";
+
+        public A(Root root)
+        {
+
+        }
+
+        public boolean equals(Object o)
+        {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            A a = (A) o;
+
+            if (key != null ? !key.equals(a.key) : a.key != null) return false;
+
+            return true;
+        }
+    }
+
     private static Object[][]       TESTS = {
             { "@java.lang.Class@forName(\"java.lang.Object\")", Object.class },
             { "@java.lang.Integer@MAX_VALUE", new Integer(Integer.MAX_VALUE) },
@@ -113,6 +135,7 @@ public class StaticsAndConstructorsTest extends OgnlTestCase
             { "map.test.getCurrentClass(@org.ognl.test.StaticsAndConstructorsTest@KEY.toString())", "size stop"},
             { "new org.ognl.test.StaticsAndConstructorsTest$IntWrapper(index)", new IntWrapper(ROOT.getIndex()) },
             { "new org.ognl.test.StaticsAndConstructorsTest$IntObjectWrapper(index)", new IntObjectWrapper(ROOT.getIndex()) },
+            { "new org.ognl.test.StaticsAndConstructorsTest$A(#root)", new A(ROOT)}
     };
 
     /*===================================================================

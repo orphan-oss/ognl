@@ -218,7 +218,10 @@ public class ASTCtor extends SimpleNode
                         Object objValue = _children[i].getValue(context, context.getRoot());
                         String value = _children[i].toGetSourceString(context, target);
 
-                        value = ExpressionCompiler.getRootExpression(_children[i], target, context) + value;
+                        if (!ASTRootVarRef.class.isInstance(_children[i]))
+                        {
+                            value = ExpressionCompiler.getRootExpression(_children[i], target, context) + value;
+                        }
 
                         String cast = "";
                         if (ExpressionCompiler.shouldCast(_children[i])) {
