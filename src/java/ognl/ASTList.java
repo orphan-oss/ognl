@@ -97,15 +97,18 @@ public class ASTList extends SimpleNode implements NodeType
 
             array = true;
         }
-
-        if (!array) {
-
-            result += "java.util.Arrays.asList( new Object[] ";
-        }
         
         context.setCurrentType(List.class);
         context.setCurrentAccessor(List.class);
-        
+
+        if (!array)
+        {
+            if (jjtGetNumChildren() < 1)
+                return "java.util.Arrays.asList( new Object[0])";
+
+            result += "java.util.Arrays.asList( new Object[] ";
+        }
+
         result += "{ ";
 
         try {

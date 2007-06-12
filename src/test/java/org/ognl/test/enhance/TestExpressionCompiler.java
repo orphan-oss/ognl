@@ -140,4 +140,15 @@ public class TestExpressionCompiler extends TestCase
         assertEquals(expr.getAccessor().get(_context, obj1), "inherited1");
         assertEquals(expr.getAccessor().get(_context, obj2), "inherited2");
     }
+
+    public void test_Create_Empty_Collection()
+    throws Throwable
+    {
+        Node expr = (Node) Ognl.compileExpression(_context, null, "{}");
+
+        Object ret = expr.getAccessor().get(_context, null);
+        
+        assertNotNull(ret);
+        assertTrue(Collection.class.isAssignableFrom(ret.getClass()));
+    }
 }

@@ -27,9 +27,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTCtor.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTCtor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/StaticsAndConstructorsTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/StaticsAndConstructorsTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iws" afterPath="$PROJECT_DIR$/OGNL.iws" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/enhance/TestExpressionCompiler.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/enhance/TestExpressionCompiler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTList.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTList.java" />
     </list>
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
@@ -159,7 +159,28 @@
     </subPane>
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="TestExpressionCompiler.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/enhance/TestExpressionCompiler.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="41" column="4" selection-start="942" selection-end="942" vertical-scroll-proportion="0.4237856">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ExpressionCompiler.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="540" column="34" selection-start="19596" selection-end="19596" vertical-scroll-proportion="0.54941374">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -344,14 +365,14 @@
     <option name="referencePos" value="0" />
     <option name="showLabels" value="true" />
   </component>
-  <component name="RunManager" selected="JUnit.StaticsAndConstructorsTest">
-    <tempConfiguration default="false" name="StaticsAndConstructorsTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
-      <pattern value="org.ognl.test.*" />
+  <component name="RunManager" selected="JUnit.TestExpressionCompiler">
+    <tempConfiguration default="false" name="TestExpressionCompiler" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+      <pattern value="org.ognl.test.enhance.*" />
       <module name="OGNL" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="ALTERNATIVE_JRE_PATH" value="/usr/local/jdk1.6.0_02" />
-      <option name="PACKAGE_NAME" value="org.ognl.test" />
-      <option name="MAIN_CLASS_NAME" value="org.ognl.test.StaticsAndConstructorsTest" />
+      <option name="PACKAGE_NAME" value="org.ognl.test.enhance" />
+      <option name="MAIN_CLASS_NAME" value="org.ognl.test.enhance.TestExpressionCompiler" />
       <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="" />
@@ -768,27 +789,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/docbook/style/html-xsl.template">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="0" selection-start="279" selection-end="279" vertical-scroll-proportion="0.10178117">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/docbook/style/fop-xsl.template">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="0" selection-start="1082" selection-end="1082" vertical-scroll-proportion="0.31806615">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="0" selection-start="630" selection-end="630" vertical-scroll-proportion="0.13994911">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/extlib/docbook-xsl-1.69.1/html/autotoc.xsl">
       <provider selected="true" editor-type-id="text-editor">
         <state line="317" column="37" selection-start="11636" selection-end="11636" vertical-scroll-proportion="0.34605598">
@@ -851,13 +851,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="540" column="34" selection-start="19596" selection-end="19596" vertical-scroll-proportion="0.546416">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/StaticsAndConstructorsTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="139" column="0" selection-start="5317" selection-end="5317" vertical-scroll-proportion="0.39698493">
@@ -878,6 +871,36 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="224" column="0" selection-start="8337" selection-end="8337" vertical-scroll-proportion="0.3517588">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/CollectionDirectPropertyTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="60" column="0" selection-start="3311" selection-end="3311" vertical-scroll-proportion="0.3517588">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTList.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="106" column="65" selection-start="3530" selection-end="3530" vertical-scroll-proportion="0.493537">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="540" column="34" selection-start="19596" selection-end="19596" vertical-scroll-proportion="0.54941374">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/enhance/TestExpressionCompiler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="41" column="4" selection-start="942" selection-end="942" vertical-scroll-proportion="0.4237856">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
