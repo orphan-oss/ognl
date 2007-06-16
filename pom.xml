@@ -134,8 +134,12 @@
     <distributionManagement>
         <repository>
             <id>opencomponentry.com</id>
-            <url>scpexe://opencomponentry.com/var/www/vhosts/opencomponentry.com/httpdocs/repository/m2-snapshot-repo</url>
+            <url>scpexe://opencomponentry.com/var/www/vhosts/opencomponentry.com/httpdocs/repository/m2-ibiblio-sync-repo</url>
         </repository>
+        <snapshotRepository>
+            <id>opencomponentry.com</id>
+            <url>scpexe://opencomponentry.com/var/www/vhosts/opencomponentry.com/httpdocs/repository/m2-snapshot-repo</url>
+        </snapshotRepository>
     </distributionManagement>
 
 </project>
