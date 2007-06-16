@@ -115,7 +115,7 @@ class ASTTest extends ExpressionNode
             result += (mismatched ? " ($w) " : "") + third;
 
             context.setCurrentObject(target);
-            context.setCurrentType(Object.class);
+            context.setCurrentType(mismatched ? Object.class : secondType);
 
             return result;
         

@@ -30,6 +30,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      */
     protected ClassPool _pool;
 
+    protected int _classCounter = 0;
+
     /**
      * Default constructor, does nothing.
      */
@@ -387,7 +389,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         EnhancedClassLoader loader = getClassLoader(context);
         ClassPool pool = getClassPool(context, loader);
 
-        CtClass newClass = pool.makeClass(expression.getClass().getName() + expression.hashCode() + "Accessor");
+        CtClass newClass = pool.makeClass(expression.getClass().getName() + expression.hashCode() + _classCounter++ + "Accessor");
         newClass.addInterface(getCtClass(ExpressionAccessor.class));
 
         CtClass ognlClass = getCtClass(OgnlContext.class);
