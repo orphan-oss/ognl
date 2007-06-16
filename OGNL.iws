@@ -27,6 +27,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iws" afterPath="$PROJECT_DIR$/OGNL.iws" />
     </list>
   </component>
@@ -153,7 +154,7 @@
       <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="16" selection-start="750" selection-end="750" vertical-scroll-proportion="0.27989823">
+            <state line="23" column="0" selection-start="768" selection-end="768" vertical-scroll-proportion="0.2620865">
               <folding />
             </state>
           </provider>
@@ -708,7 +709,7 @@
     <option name="PERFORM_EDIT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated version to 2.7 (minus -SNAPSHOT) before tagging for release." />
+    <option name="LAST_COMMIT_MESSAGE" value="Minor iws change..?" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -720,7 +721,6 @@
     <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="Resolves OGNL-64." />
     <MESSAGE value="Fixes weird condition where some kind of JBoss classloader monkeybusiness causes not found classes to not throw ClassNotFoundException. Fixes OGNL-13." />
     <MESSAGE value="Added new test for OGNL-66 which was un-reproducable." />
     <MESSAGE value="Resolves OGNL-70. Don't know why it doesn't like dividing by zero..sheesh." />
@@ -745,6 +745,7 @@
     <MESSAGE value="Fixes OGNL-94.  Incorrect widening expressions on ASTTest when expression types are already compatible." />
     <MESSAGE value="Made asttest set propery return type on context when it is known." />
     <MESSAGE value="Updated version to 2.7 (minus -SNAPSHOT) before tagging for release." />
+    <MESSAGE value="Minor iws change..?" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -953,7 +954,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="16" selection-start="750" selection-end="750" vertical-scroll-proportion="0.27989823">
+        <state line="23" column="0" selection-start="768" selection-end="768" vertical-scroll-proportion="0.2620865">
           <folding />
         </state>
       </provider>
