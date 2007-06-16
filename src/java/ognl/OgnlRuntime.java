@@ -110,26 +110,29 @@ public class OgnlRuntime {
      */
     private static final String NULL_OBJECT_STRING = "<null>";
 
-    private static final ClassCache methodAccessors = new ClassCache();
-    private static final ClassCache propertyAccessors = new ClassCache();
-    private static final ClassCache elementsAccessors = new ClassCache();
-    private static final ClassCache nullHandlers = new ClassCache();
-    private static final ClassCache propertyDescriptorCache = new ClassCache();
-    private static final ClassCache constructorCache = new ClassCache();
-    private static final ClassCache staticMethodCache = new ClassCache();
-    private static final ClassCache instanceMethodCache = new ClassCache();
-    private static final ClassCache invokePermissionCache = new ClassCache();
-    private static final ClassCache fieldCache = new ClassCache();
-    private static final List superclasses = new ArrayList(); /* Used by fieldCache lookup */
-    private static final ClassCache[] declaredMethods = new ClassCache[]{new ClassCache(), new ClassCache()};
+    static final ClassCache _methodAccessors = new ClassCache();
+    static final ClassCache _propertyAccessors = new ClassCache();
+    static final ClassCache _elementsAccessors = new ClassCache();
+    static final ClassCache _nullHandlers = new ClassCache();
+    
+    static final ClassCache _propertyDescriptorCache = new ClassCache();
+    static final ClassCache _constructorCache = new ClassCache();
+    static final ClassCache _staticMethodCache = new ClassCache();
+    static final ClassCache _instanceMethodCache = new ClassCache();
+    static final ClassCache _invokePermissionCache = new ClassCache();
+    static final ClassCache _fieldCache = new ClassCache();
+    static final List _superclasses = new ArrayList(); /* Used by fieldCache lookup */
+    static final ClassCache[] _declaredMethods = new ClassCache[]{new ClassCache(), new ClassCache()};
 
-    private static final Map primitiveTypes = new HashMap(101);
-    private static final ClassCache primitiveDefaults = new ClassCache();
-    private static final Map methodParameterTypesCache = new HashMap(101);
-    private static final Map ctorParameterTypesCache = new HashMap(101);
-    private static SecurityManager securityManager = System.getSecurityManager();
-    private static final EvaluationPool evaluationPool = new EvaluationPool();
-    private static final ObjectArrayPool objectArrayPool = new ObjectArrayPool();
+    static final Map _primitiveTypes = new HashMap(101);
+    static final ClassCache _primitiveDefaults = new ClassCache();
+    static final Map _methodParameterTypesCache = new HashMap(101);
+    static final Map _ctorParameterTypesCache = new HashMap(101);
+    static SecurityManager _securityManager = System.getSecurityManager();
+    static final EvaluationPool _evaluationPool = new EvaluationPool();
+    static final ObjectArrayPool _objectArrayPool = new ObjectArrayPool();
+
+    static ClassCacheInspector _cacheInspector;
 
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
@@ -139,7 +142,7 @@ public class OgnlRuntime {
     /**
      * This is a highly specialized map for storing values keyed by Class objects.
      */
-    private static class ClassCache {
+    static class ClassCache {
 
         /* this MUST be a power of 2 */
         private static final int TABLE_SIZE = 512;
@@ -148,6 +151,8 @@ public class OgnlRuntime {
         private static final int TABLE_SIZE_MASK = TABLE_SIZE - 1;
 
         private Entry[] table;
+
+        private ClassCacheInspector _classInspector;
 
         private static class Entry {
 
@@ -169,6 +174,31 @@ public class OgnlRuntime {
             this.table = new Entry[TABLE_SIZE];
         }
 
+        public void setClassInspector(ClassCacheInspector inspector)
+        {
+            _classInspector = inspector;
+        }
+
+        public void clear()
+        {
+            for (int i=0; i < this.table.length; i++)
+            {
+                this.table[i] = null;
+            }
+        }
+
+        public int getSize()
+        {
+            int counter = 0;
+            for (int i=0; i < table.length; i++)
+            {
+                if (table[i] != null)
+                    counter++;
+            }
+
+            return counter;
+        }
+
         public final Object get(Class key)
         {
             Object result = null;
@@ -188,6 +218,9 @@ public class OgnlRuntime {
 
         public final Object put(Class key, Object value)
         {
+            if (_classInspector != null && !_classInspector.shouldCache(key))
+                return value;
+
             Object result = null;
             int i = key.hashCode() & TABLE_SIZE_MASK;
             Entry entry = table[i];
@@ -379,29 +412,54 @@ public class OgnlRuntime {
         setMethodAccessor(double[].class, ma);
         setMethodAccessor(Object[].class, ma);
 
-        primitiveTypes.put("boolean", Boolean.TYPE);
-        primitiveTypes.put("byte", Byte.TYPE);
-        primitiveTypes.put("short", Short.TYPE);
-        primitiveTypes.put("char", Character.TYPE);
-        primitiveTypes.put("int", Integer.TYPE);
-        primitiveTypes.put("long", Long.TYPE);
-        primitiveTypes.put("float", Float.TYPE);
-        primitiveTypes.put("double", Double.TYPE);
+        _primitiveTypes.put("boolean", Boolean.TYPE);
+        _primitiveTypes.put("byte", Byte.TYPE);
+        _primitiveTypes.put("short", Short.TYPE);
+        _primitiveTypes.put("char", Character.TYPE);
+        _primitiveTypes.put("int", Integer.TYPE);
+        _primitiveTypes.put("long", Long.TYPE);
+        _primitiveTypes.put("float", Float.TYPE);
+        _primitiveTypes.put("double", Double.TYPE);
 
-        primitiveDefaults.put(Boolean.TYPE, Boolean.FALSE);
-        primitiveDefaults.put(Boolean.class, Boolean.FALSE);
-        primitiveDefaults.put(Byte.TYPE, new Byte((byte) 0));
-        primitiveDefaults.put(Byte.class, new Byte((byte) 0));
-        primitiveDefaults.put(Short.TYPE, new Short((short) 0));
-        primitiveDefaults.put(Short.class, new Short((short) 0));
-        primitiveDefaults.put(Character.TYPE, new Character((char) 0));
-        primitiveDefaults.put(Integer.TYPE, new Integer(0));
-        primitiveDefaults.put(Long.TYPE, new Long(0L));
-        primitiveDefaults.put(Float.TYPE, new Float(0.0f));
-        primitiveDefaults.put(Double.TYPE, new Double(0.0));
+        _primitiveDefaults.put(Boolean.TYPE, Boolean.FALSE);
+        _primitiveDefaults.put(Boolean.class, Boolean.FALSE);
+        _primitiveDefaults.put(Byte.TYPE, new Byte((byte) 0));
+        _primitiveDefaults.put(Byte.class, new Byte((byte) 0));
+        _primitiveDefaults.put(Short.TYPE, new Short((short) 0));
+        _primitiveDefaults.put(Short.class, new Short((short) 0));
+        _primitiveDefaults.put(Character.TYPE, new Character((char) 0));
+        _primitiveDefaults.put(Integer.TYPE, new Integer(0));
+        _primitiveDefaults.put(Long.TYPE, new Long(0L));
+        _primitiveDefaults.put(Float.TYPE, new Float(0.0f));
+        _primitiveDefaults.put(Double.TYPE, new Double(0.0));
 
-        primitiveDefaults.put(BigInteger.class, new BigInteger("0"));
-        primitiveDefaults.put(BigDecimal.class, new BigDecimal(0.0));
+        _primitiveDefaults.put(BigInteger.class, new BigInteger("0"));
+        _primitiveDefaults.put(BigDecimal.class, new BigDecimal(0.0));
+    }
+
+    /**
+     * Clears all of the cached reflection information normally used
+     * to improve the speed of expressions that operate on the same classes
+     * or are executed multiple times.
+     *
+     * <p>
+     * <strong>Warning:</strong> Calling this too often can be a huge performance
+     * drain on your expressions - use with care.
+     * </p>
+     */
+    public static void clearCache()
+    {
+        _methodParameterTypesCache.clear();
+        _ctorParameterTypesCache.clear();
+        _propertyDescriptorCache.clear();
+        _constructorCache.clear();
+        _staticMethodCache.clear();
+        _instanceMethodCache.clear();
+        _invokePermissionCache.clear();
+        _fieldCache.clear();
+        _superclasses.clear();
+        _declaredMethods[0].clear();
+        _declaredMethods[1].clear();
     }
 
     public static String getNumericValueGetter(Class type)
@@ -595,11 +653,11 @@ public class OgnlRuntime {
      */
     public static Class[] getParameterTypes(Method m)
     {
-        synchronized (methodParameterTypesCache) {
+        synchronized (_methodParameterTypesCache) {
             Class[] result;
 
-            if ((result = (Class[]) methodParameterTypesCache.get(m)) == null) {
-                methodParameterTypesCache.put(m, result = m.getParameterTypes());
+            if ((result = (Class[]) _methodParameterTypesCache.get(m)) == null) {
+                _methodParameterTypesCache.put(m, result = m.getParameterTypes());
             }
             return result;
         }
@@ -610,11 +668,11 @@ public class OgnlRuntime {
      */
     public static Class[] getParameterTypes(Constructor c)
     {
-        synchronized (ctorParameterTypesCache) {
+        synchronized (_ctorParameterTypesCache) {
             Class[] result;
 
-            if ((result = (Class[]) ctorParameterTypesCache.get(c)) == null) {
-                ctorParameterTypesCache.put(c, result = c.getParameterTypes());
+            if ((result = (Class[]) _ctorParameterTypesCache.get(c)) == null) {
+                _ctorParameterTypesCache.put(c, result = c.getParameterTypes());
             }
             return result;
         }
@@ -627,7 +685,7 @@ public class OgnlRuntime {
      */
     public static SecurityManager getSecurityManager()
     {
-        return securityManager;
+        return _securityManager;
     }
 
     /**
@@ -637,7 +695,7 @@ public class OgnlRuntime {
      */
     public static void setSecurityManager(SecurityManager value)
     {
-        securityManager = value;
+        _securityManager = value;
     }
 
     /**
@@ -648,11 +706,11 @@ public class OgnlRuntime {
         Permission result = null;
         Class mc = method.getDeclaringClass();
 
-        synchronized (invokePermissionCache) {
-            Map permissions = (Map) invokePermissionCache.get(mc);
+        synchronized (_invokePermissionCache) {
+            Map permissions = (Map) _invokePermissionCache.get(mc);
 
             if (permissions == null) {
-                invokePermissionCache.put(mc, permissions = new HashMap(101));
+                _invokePermissionCache.put(mc, permissions = new HashMap(101));
             }
             if ((result = (Permission) permissions.get(method.getName())) == null) {
                 result = new OgnlInvokePermission("invoke." + mc.getName() + "." + method.getName());
@@ -670,9 +728,9 @@ public class OgnlRuntime {
 
         synchronized(method) {
 
-            if (securityManager != null) {
+            if (_securityManager != null) {
                 try {
-                    securityManager.checkPermission(getPermission(method));
+                    _securityManager.checkPermission(getPermission(method));
                 } catch (SecurityException ex) {
                     throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
                 }
@@ -815,7 +873,7 @@ public class OgnlRuntime {
     public static Class classForName(OgnlContext context, String className)
             throws ClassNotFoundException
     {
-        Class result = (Class) primitiveTypes.get(className);
+        Class result = (Class) _primitiveTypes.get(className);
 
         if (result == null) {
             ClassResolver resolver;
@@ -845,7 +903,7 @@ public class OgnlRuntime {
 
     public static Object getPrimitiveDefaultValue(Class forClass)
     {
-        return primitiveDefaults.get(forClass);
+        return _primitiveDefaults.get(forClass);
     }
 
     public static Object getNumericDefaultValue(Class forClass)
@@ -967,7 +1025,7 @@ public class OgnlRuntime {
             throws MethodFailedException
     {
         Throwable reason = null;
-        Object[] actualArgs = objectArrayPool.create(args.length);
+        Object[] actualArgs = _objectArrayPool.create(args.length);
 
         try {
             Method method = getAppropriateMethod(context, source, target, methodName, propertyName, methods, args,
@@ -995,7 +1053,7 @@ public class OgnlRuntime {
         } catch (InvocationTargetException e) {
             reason = e.getTargetException();
         } finally {
-            objectArrayPool.recycle(actualArgs);
+            _objectArrayPool.recycle(actualArgs);
         }
         throw new MethodFailedException(source, methodName, reason);
     }
@@ -1049,7 +1107,7 @@ public class OgnlRuntime {
                 }
             }
             if (ctor == null) {
-                actualArgs = objectArrayPool.create(args.length);
+                actualArgs = _objectArrayPool.create(args.length);
                 if ((ctor = getConvertedConstructorAndArgs(context, target, constructors, args, actualArgs)) == null) {
                     throw new NoSuchMethodException();
                 }
@@ -1071,7 +1129,7 @@ public class OgnlRuntime {
             reason = e;
         } finally {
             if (actualArgs != args) {
-                objectArrayPool.recycle(actualArgs);
+                _objectArrayPool.recycle(actualArgs);
             }
         }
 
@@ -1139,13 +1197,13 @@ public class OgnlRuntime {
         }
         if (result) {
             if (m != null) {
-                Object[] args = objectArrayPool.create(value);
+                Object[] args = _objectArrayPool.create(value);
 
                 try {
                     callAppropriateMethod(context, target, target, m.getName(), propertyName,
                                           Collections.nCopies(1, m), args);
                 } finally {
-                    objectArrayPool.recycle(args);
+                    _objectArrayPool.recycle(args);
                 }
             } else {
                 result = false;
@@ -1158,9 +1216,9 @@ public class OgnlRuntime {
     {
         List result;
 
-        synchronized (constructorCache) {
-            if ((result = (List) constructorCache.get(targetClass)) == null) {
-                constructorCache.put(targetClass, result = Arrays.asList(targetClass.getConstructors()));
+        synchronized (_constructorCache) {
+            if ((result = (List) _constructorCache.get(targetClass)) == null) {
+                _constructorCache.put(targetClass, result = Arrays.asList(targetClass.getConstructors()));
             }
         }
         return result;
@@ -1168,7 +1226,7 @@ public class OgnlRuntime {
 
     public static Map getMethods(Class targetClass, boolean staticMethods)
     {
-        ClassCache cache = (staticMethods ? staticMethodCache : instanceMethodCache);
+        ClassCache cache = (staticMethods ? _staticMethodCache : _instanceMethodCache);
         Map result;
 
         synchronized (cache) {
@@ -1201,8 +1259,8 @@ public class OgnlRuntime {
     {
         Map result;
 
-        synchronized (fieldCache) {
-            if ((result = (Map) fieldCache.get(targetClass)) == null) {
+        synchronized (_fieldCache) {
+            if ((result = (Map) _fieldCache.get(targetClass)) == null) {
                 Field fa[];
 
                 result = new HashMap(23);
@@ -1210,7 +1268,7 @@ public class OgnlRuntime {
                 for (int i = 0; i < fa.length; i++) {
                     result.put(fa[i].getName(), fa[i]);
                 }
-                fieldCache.put(targetClass, result);
+                _fieldCache.put(targetClass, result);
             }
         }
         return result;
@@ -1220,16 +1278,16 @@ public class OgnlRuntime {
     {
         Field result = null;
 
-        synchronized (fieldCache) {
+        synchronized (_fieldCache) {
             Object o = getFields(inClass).get(name);
 
             if (o == null) {
-                superclasses.clear();
+                _superclasses.clear();
                 for (Class sc = inClass; (sc != null); sc = sc.getSuperclass()) {
                     if ((o = getFields(sc).get(name)) == NotFound)
                         break;
 
-                    superclasses.add(sc);
+                    _superclasses.add(sc);
 
                     if ((result = (Field) o) != null)
                         break;
@@ -1238,8 +1296,8 @@ public class OgnlRuntime {
                  * Bubble the found value (either cache miss or actual field) to all supeclasses
                  * that we saw for quicker access next time.
                  */
-                for (int i = 0, icount = superclasses.size(); i < icount; i++) {
-                    getFields((Class) superclasses.get(i)).put(name, (result == null) ? NotFound : result);
+                for (int i = 0, icount = _superclasses.size(); i < icount; i++) {
+                    getFields((Class) _superclasses.get(i)).put(name, (result == null) ? NotFound : result);
                 }
             } else {
                 if (o instanceof Field) {
@@ -1375,7 +1433,7 @@ public class OgnlRuntime {
     public static List getDeclaredMethods(Class targetClass, String propertyName, boolean findSets)
     {
         List result = null;
-        ClassCache cache = declaredMethods[findSets ? 0 : 1];
+        ClassCache cache = _declaredMethods[findSets ? 0 : 1];
 
         synchronized (cache) {
             Map propertyCache = (Map) cache.get(targetClass);
@@ -1629,8 +1687,8 @@ public class OgnlRuntime {
     {
         Map result;
 
-        synchronized (propertyDescriptorCache) {
-            if ((result = (Map) propertyDescriptorCache.get(targetClass)) == null) {
+        synchronized (_propertyDescriptorCache) {
+            if ((result = (Map) _propertyDescriptorCache.get(targetClass)) == null) {
                 PropertyDescriptor[] pda = Introspector.getBeanInfo(targetClass).getPropertyDescriptors();
 
                 result = new HashMap(101);
@@ -1639,7 +1697,7 @@ public class OgnlRuntime {
                 }
 
                 findObjectIndexedPropertyDescriptors(targetClass, result);
-                propertyDescriptorCache.put(targetClass, result);
+                _propertyDescriptorCache.put(targetClass, result);
             }
         }
 
@@ -1665,9 +1723,9 @@ public class OgnlRuntime {
         PropertyDescriptor[] result = null;
 
         if (targetClass != null) {
-            synchronized (propertyDescriptorCache) {
-                if ((result = (PropertyDescriptor[]) propertyDescriptorCache.get(targetClass)) == null) {
-                    propertyDescriptorCache.put(targetClass, result = Introspector.getBeanInfo(targetClass)
+            synchronized (_propertyDescriptorCache) {
+                if ((result = (PropertyDescriptor[]) _propertyDescriptorCache.get(targetClass)) == null) {
+                    _propertyDescriptorCache.put(targetClass, result = Introspector.getBeanInfo(targetClass)
                             .getPropertyDescriptors());
                 }
             }
@@ -1699,15 +1757,15 @@ public class OgnlRuntime {
 
     public static void setMethodAccessor(Class cls, MethodAccessor accessor)
     {
-        synchronized (methodAccessors) {
-            methodAccessors.put(cls, accessor);
+        synchronized (_methodAccessors) {
+            _methodAccessors.put(cls, accessor);
         }
     }
 
     public static MethodAccessor getMethodAccessor(Class cls)
             throws OgnlException
     {
-        MethodAccessor answer = (MethodAccessor) getHandler(cls, methodAccessors);
+        MethodAccessor answer = (MethodAccessor) getHandler(cls, _methodAccessors);
         if (answer != null)
             return answer;
         throw new OgnlException("No method accessor for " + cls);
@@ -1715,15 +1773,15 @@ public class OgnlRuntime {
 
     public static void setPropertyAccessor(Class cls, PropertyAccessor accessor)
     {
-        synchronized (propertyAccessors) {
-            propertyAccessors.put(cls, accessor);
+        synchronized (_propertyAccessors) {
+            _propertyAccessors.put(cls, accessor);
         }
     }
 
     public static PropertyAccessor getPropertyAccessor(Class cls)
             throws OgnlException
     {
-        PropertyAccessor answer = (PropertyAccessor) getHandler(cls, propertyAccessors);
+        PropertyAccessor answer = (PropertyAccessor) getHandler(cls, _propertyAccessors);
         if (answer != null)
             return answer;
 
@@ -1733,7 +1791,7 @@ public class OgnlRuntime {
     public static ElementsAccessor getElementsAccessor(Class cls)
             throws OgnlException
     {
-        ElementsAccessor answer = (ElementsAccessor) getHandler(cls, elementsAccessors);
+        ElementsAccessor answer = (ElementsAccessor) getHandler(cls, _elementsAccessors);
         if (answer != null)
             return answer;
         throw new OgnlException("No elements accessor for class " + cls);
@@ -1741,15 +1799,15 @@ public class OgnlRuntime {
 
     public static void setElementsAccessor(Class cls, ElementsAccessor accessor)
     {
-        synchronized (elementsAccessors) {
-            elementsAccessors.put(cls, accessor);
+        synchronized (_elementsAccessors) {
+            _elementsAccessors.put(cls, accessor);
         }
     }
 
     public static NullHandler getNullHandler(Class cls)
             throws OgnlException
     {
-        NullHandler answer = (NullHandler) getHandler(cls, nullHandlers);
+        NullHandler answer = (NullHandler) getHandler(cls, _nullHandlers);
         if (answer != null)
             return answer;
         throw new OgnlException("No null handler for class " + cls);
@@ -1757,8 +1815,8 @@ public class OgnlRuntime {
 
     public static void setNullHandler(Class cls, NullHandler handler)
     {
-        synchronized (nullHandlers) {
-            nullHandlers.put(cls, handler);
+        synchronized (_nullHandlers) {
+            _nullHandlers.put(cls, handler);
         }
     }
 
@@ -1872,7 +1930,7 @@ public class OgnlRuntime {
     public static Object getIndexedProperty(OgnlContext context, Object source, String name, Object index)
             throws OgnlException
     {
-        Object[] args = objectArrayPool.create(index);
+        Object[] args = _objectArrayPool.create(index);
 
         try {
             PropertyDescriptor pd = getPropertyDescriptor((source == null) ? null : source.getClass(), name);
@@ -1895,7 +1953,7 @@ public class OgnlRuntime {
         } catch (Exception ex) {
             throw new OgnlException("getting indexed property descriptor for '" + name + "'", ex);
         } finally {
-            objectArrayPool.recycle(args);
+            _objectArrayPool.recycle(args);
         }
     }
 
@@ -1903,7 +1961,7 @@ public class OgnlRuntime {
                                           Object value)
             throws OgnlException
     {
-        Object[] args = objectArrayPool.create(index, value);
+        Object[] args = _objectArrayPool.create(index, value);
 
         try {
             PropertyDescriptor pd = getPropertyDescriptor((source == null) ? null : source.getClass(), name);
@@ -1926,18 +1984,39 @@ public class OgnlRuntime {
         } catch (Exception ex) {
             throw new OgnlException("getting indexed property descriptor for '" + name + "'", ex);
         } finally {
-            objectArrayPool.recycle(args);
+            _objectArrayPool.recycle(args);
         }
     }
 
     public static EvaluationPool getEvaluationPool()
     {
-        return evaluationPool;
+        return _evaluationPool;
     }
 
     public static ObjectArrayPool getObjectArrayPool()
     {
-        return objectArrayPool;
+        return _objectArrayPool;
+    }
+
+    /**
+     * Registers the specified {@link ClassCacheInspector} with all class reflection based internal
+     * caches.  This may have a significant performance impact so be careful using this in production scenarios.
+     *
+     * @param inspector
+     *          The inspector instance that will be registered with all internal cache instances.
+     */
+    public static void setClassCacheInspector(ClassCacheInspector inspector)
+    {
+        _cacheInspector = inspector;
+
+        _propertyDescriptorCache.setClassInspector(_cacheInspector);
+        _constructorCache.setClassInspector(_cacheInspector);
+        _staticMethodCache.setClassInspector(_cacheInspector);
+        _instanceMethodCache.setClassInspector(_cacheInspector);
+        _invokePermissionCache.setClassInspector(_cacheInspector);
+        _fieldCache.setClassInspector(_cacheInspector);
+        _declaredMethods[0].setClassInspector(_cacheInspector);
+        _declaredMethods[1].setClassInspector(_cacheInspector);
     }
 
     public static Method getMethod(OgnlContext context, Class target, String name, Node[] children, boolean includeStatic)
@@ -2180,7 +2259,7 @@ public class OgnlRuntime {
     {
         if (context.getCurrentType() == context.getPreviousType())
             return false;
-        
+
         return context.getCurrentType() != null && !context.getCurrentType().isArray()
                && context.getPreviousType() != null && !context.getPreviousType().isArray()
                && (!Number.class.isAssignableFrom(context.getCurrentType())

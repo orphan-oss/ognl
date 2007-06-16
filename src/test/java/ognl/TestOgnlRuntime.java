@@ -18,17 +18,17 @@ public class TestOgnlRuntime extends TestCase {
 
         Method m = OgnlRuntime.getReadMethod(list.getClass(), "total");
         assertNotNull(m);
-        
+
         assertEquals(ListSource.class, OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, list.getClass()));
     }
 
     public void test_Get_Private_Class() throws Exception
     {
         List list = Arrays.asList(new String[]{"hello", "world"});
-        
+
         Method m = OgnlRuntime.getReadMethod(list.getClass(), "iterator");
         assertNotNull(m);
-        
+
         assertEquals(Iterable.class, OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, list.getClass()));
     }
 
@@ -43,7 +43,7 @@ public class TestOgnlRuntime extends TestCase {
     }
 
     public void test_Get_Read_Method()
-     throws Exception
+            throws Exception
     {
         Method m = OgnlRuntime.getReadMethod(Bean2.class, "pageBreakAfter");
         assertNotNull(m);
@@ -61,14 +61,14 @@ public class TestOgnlRuntime extends TestCase {
 
             fail("ClassNotFoundException should have been thrown by previous reference to <made.up.Name> class.");
         } catch (Exception et) {
-            
+
             assertTrue(MethodFailedException.class.isInstance(et));
             assertTrue(et.getMessage().indexOf("made.up.Name") > -1);
         }
     }
 
     public void test_Setter_Returns()
-    throws Exception
+            throws Exception
     {
         OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
         SetterReturns root = new SetterReturns();
@@ -78,5 +78,44 @@ public class TestOgnlRuntime extends TestCase {
 
         Ognl.setValue("value", context, root, "12__");
         assertEquals(Ognl.getValue("value", context, root), "12__");
+    }
+
+    public void test_Class_Cache_Inspector()
+        throws Exception
+    {
+        OgnlRuntime.clearCache();
+        assertEquals(0, OgnlRuntime._propertyDescriptorCache.getSize());
+
+        Root root = new Root();
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        Node expr = Ognl.compileExpression(context, root, "property.bean3.value != null");
+
+        assertTrue((Boolean)expr.getAccessor().get(context, root));
+
+        int size = OgnlRuntime._propertyDescriptorCache.getSize();
+        assertTrue(size > 0);
+
+        OgnlRuntime.clearCache();
+        assertEquals(0, OgnlRuntime._propertyDescriptorCache.getSize());
+
+        // now register class cache prevention
+        
+        OgnlRuntime.setClassCacheInspector(new TestCacheInspector());
+
+        expr = Ognl.compileExpression(context, root, "property.bean3.value != null");
+        assertTrue((Boolean)expr.getAccessor().get(context, root));
+
+        assertEquals((size - 1), OgnlRuntime._propertyDescriptorCache.getSize());
+    }
+
+    class TestCacheInspector implements ClassCacheInspector {
+
+        public boolean shouldCache(Class type)
+        {
+            if (type == null || type == Root.class)
+                return false;
+
+            return true;
+        }
     }
 }
