@@ -146,7 +146,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     {
         if (ASTChain.class.isInstance(expression))
         {
-
+            
             if (ASTConst.class.isInstance(expression.jjtGetChild(0))
                 || ASTStaticMethod.class.isInstance(expression.jjtGetChild(0))
                 || ASTStaticField.class.isInstance(expression.jjtGetChild(0))
@@ -164,7 +164,9 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     public String castExpression(OgnlContext context, Node expression, String body)
     {
         // ok - so this looks really f-ed up ...and it is ..eh if you can do it better I'm all for it :)
+
         
+
         if (context.getCurrentAccessor() == null
             || context.getPreviousType() == null
             || context.getCurrentAccessor().isAssignableFrom(context.getPreviousType())
@@ -181,16 +183,16 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             || context.getCurrentAccessor() == Class.class
             || (context.get(ExpressionCompiler.PRE_CAST) != null && ((String) context.get(ExpressionCompiler.PRE_CAST)).startsWith("new"))
             || ASTStaticField.class.isInstance(expression)
+            || ASTStaticMethod.class.isInstance(expression)
             || (OrderedReturn.class.isInstance(expression) && ((OrderedReturn) expression).getLastExpression() != null))
             return body;
 
 
-        /* System.out.println("castExpression() with expression " + expression + " expr class: " + expression.getClass() + " currentType is: " + context.getCurrentType()
+/*         System.out.println("castExpression() with expression " + expression + " expr class: " + expression.getClass() + " currentType is: " + context.getCurrentType()
                       + " previousType: " + context.getPreviousType()
                       + "\n current Accessor: " + context.getCurrentAccessor()
                       + " previous Accessor: " + context.getPreviousAccessor()
-                      + " current object " + context.getCurrentObject());
-        */
+                      + " current object " + context.getCurrentObject());*/
 
         ExpressionCompiler.addCastString(context, "((" + ExpressionCompiler.getCastString(context.getCurrentAccessor()) + ")");
 

@@ -143,7 +143,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
 
     public String toGetSourceString(OgnlContext context, Object target)
     {
-       /* System.out.println("methodName is " + _methodName + " for target " + target + " target class: " + (target != null ? target.getClass() : null)
+      /*  System.out.println("methodName is " + _methodName + " for target " + target + " target class: " + (target != null ? target.getClass() : null)
                            + " current type: " + context.getCurrentType());*/
         if (target == null)
             throw new UnsupportedCompilationException("Target object is null.");
@@ -281,15 +281,20 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                 }
             }
             
-            Object contextObj = getValueBody(context, target);
-            
-            context.setCurrentObject(contextObj);
-
         } catch (Throwable t) {
             if (UnsupportedCompilationException.class.isInstance(t))
                 throw (UnsupportedCompilationException)t;
             else
                 throw new RuntimeException(t);
+        }
+
+        try {
+
+            Object contextObj = getValueBody(context, target);
+            context.setCurrentObject(contextObj);
+            
+        } catch (Throwable t) {
+            // ignore 
         }
 
         result += ")" + post;
@@ -432,10 +437,6 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                     context.put(ExpressionCompiler.PRE_CAST, prevCast);
                 }
             }
-
-            Object contextObj = getValueBody(context, target);
-            
-            context.setCurrentObject(contextObj);
             
         } catch (Throwable t) {
             if (UnsupportedCompilationException.class.isInstance(t))
@@ -443,7 +444,16 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
             else
                 throw new RuntimeException(t);
         }
-        
+
+        try {
+
+            Object contextObj = getValueBody(context, target);
+            context.setCurrentObject(contextObj);
+
+        } catch (Throwable t) {
+            // ignore
+        }
+
         context.setCurrentType(m.getReturnType());
         context.setCurrentAccessor(OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, m.getDeclaringClass()));
         

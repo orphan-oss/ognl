@@ -43,8 +43,22 @@ public class MethodTest extends OgnlTestCase
             { "getBooleanValue() ? \"here\" : \"\"", ""},
             { "getValueIsTrue(!false) ? \"\" : \"here\" ", ""},
             { "messages.format('ShowAllCount', one)", "foo"},
-            { "getTestValue(@org.ognl.test.objects.SimpleEnum@ONE.value)", new Integer(2)}
+            { "getTestValue(@org.ognl.test.objects.SimpleEnum@ONE.value)", new Integer(2)},
+            { "@org.ognl.test.MethodTest@getA().isProperty()", Boolean.FALSE}
     };
+
+    public static class A
+    {
+        public boolean isProperty()
+        {
+            return false;
+        }
+    }
+
+    public static A getA()
+    {
+        return new A();
+    }
 
     /*
     * =================================================================== Public static methods
