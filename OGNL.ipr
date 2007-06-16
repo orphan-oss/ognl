@@ -357,6 +357,25 @@
     <option name="GENERATE_IIOP_STUBS" value="false" />
     <option name="ADDITIONAL_OPTIONS_STRING" value="" />
   </component>
+  <component name="SvnBranchConfigurationManager">
+    <option name="myConfigurationMap">
+      <map>
+        <entry key="$PROJECT_DIR$">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <collection>
+                  <option value="https://jkuhnert@svn.opensymphony.com/svn/ognl/branches" />
+                  <option value="https://jkuhnert@svn.opensymphony.com/svn/ognl/tags" />
+                </collection>
+              </option>
+              <option name="trunkUrl" value="https://jkuhnert@svn.opensymphony.com/svn/ognl/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="svn" />
   </component>
