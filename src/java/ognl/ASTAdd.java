@@ -279,8 +279,14 @@ class ASTAdd extends NumericExpression
                 context.setCurrentType(_getterClass);
             }
 
-            //if (context.getCurrentType() == null)
-              //  context.setCurrentType(Double.TYPE);
+            try {
+
+                Object contextObj = getValueBody(context, target);
+                context.setCurrentObject(contextObj);
+
+            } catch (Throwable t) {
+                // ignore
+            }
 
             return result;
 

@@ -3,6 +3,7 @@
  */
 package ognl;
 
+import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.UnsupportedCompilationException;
 
 
@@ -79,7 +80,7 @@ public abstract class NumericExpression extends ExpressionNode implements NodeTy
         if (context.getCurrentType() != null && !context.getCurrentType().isPrimitive()
             && context.getCurrentObject() != null && Number.class.isInstance(context.getCurrentObject()))
         {
-            ret = "((" + OgnlRuntime.getCompiler().getClassName(context.getCurrentObject().getClass()) + ")" + ret + ")";
+            ret = "((" + ExpressionCompiler.getCastString(context.getCurrentObject().getClass()) + ")" + ret + ")";
             ret += "." + OgnlRuntime.getNumericValueGetter(context.getCurrentObject().getClass());
         } else if (context.getCurrentType() != null && context.getCurrentType().isPrimitive()) {
             

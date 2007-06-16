@@ -121,7 +121,8 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, " !(printDelivery || @Boolean@FALSE)", Boolean.FALSE},
             { ROOT, "openTransitionWin", Boolean.FALSE},
             { ROOT, "b.methodOfB(a.methodOfA(b)-1)", new Integer(0)},
-            { ROOT, "genericIndex-1", new Integer(1)}
+            { ROOT, "genericIndex-1", new Integer(1)},
+            { ROOT, "((renderNavigation ? 0 : 1) + map.size) * theInt", new Integer(((ROOT.getRenderNavigation() ? 0 : 1 ) + ROOT.getMap().size()) * ROOT.getTheInt())}
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)
