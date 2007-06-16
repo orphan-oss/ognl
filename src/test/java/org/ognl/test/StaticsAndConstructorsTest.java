@@ -115,6 +115,11 @@ public class StaticsAndConstructorsTest extends OgnlTestCase
         }
     }
 
+    public enum Animals {
+
+        Dog, Cat, Wallabee, Bear; 
+    }
+
     private static Object[][]       TESTS = {
             { "@java.lang.Class@forName(\"java.lang.Object\")", Object.class },
             { "@java.lang.Integer@MAX_VALUE", new Integer(Integer.MAX_VALUE) },
@@ -135,7 +140,8 @@ public class StaticsAndConstructorsTest extends OgnlTestCase
             { "map.test.getCurrentClass(@org.ognl.test.StaticsAndConstructorsTest@KEY.toString())", "size stop"},
             { "new org.ognl.test.StaticsAndConstructorsTest$IntWrapper(index)", new IntWrapper(ROOT.getIndex()) },
             { "new org.ognl.test.StaticsAndConstructorsTest$IntObjectWrapper(index)", new IntObjectWrapper(ROOT.getIndex()) },
-            { "new org.ognl.test.StaticsAndConstructorsTest$A(#root)", new A(ROOT)}
+            { "new org.ognl.test.StaticsAndConstructorsTest$A(#root)", new A(ROOT)},
+            {"@org.ognl.test.StaticsAndConstructorsTest$Animals@values().length != 2", Boolean.TRUE}
     };
 
     /*===================================================================

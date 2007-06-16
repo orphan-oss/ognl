@@ -202,9 +202,20 @@ public class ASTStaticMethod extends SimpleNode implements NodeType
                     result += parmString;
                 }
             }
+
             result += ")";
 
-            if (m != null) {
+            try {
+
+                Object contextObj = getValueBody(context, target);
+                context.setCurrentObject(contextObj);
+
+            } catch (Throwable t) {
+                // ignore
+            }
+
+            if (m != null)
+            {
                 _getterClass = m.getReturnType();
 
                 context.setCurrentType(m.getReturnType());
