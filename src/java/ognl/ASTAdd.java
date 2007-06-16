@@ -199,7 +199,6 @@ class ASTAdd extends NumericExpression
                                && ASTChain.class.isInstance(_children[i]))
                     {
                         String rootExpr = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context);
-                        //System.out.println("astadd rootExpr " + rootExpr + " and expr: " + expr);
 
                         if (!ASTProperty.class.isInstance(_children[i].jjtGetChild(0))
                             && rootExpr.endsWith(")") && expr.startsWith(")"))
@@ -279,6 +278,9 @@ class ASTAdd extends NumericExpression
             {
                 context.setCurrentType(_getterClass);
             }
+
+            //if (context.getCurrentType() == null)
+              //  context.setCurrentType(Double.TYPE);
 
             return result;
 

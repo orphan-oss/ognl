@@ -2178,6 +2178,9 @@ public class OgnlRuntime {
      */
     public static boolean shouldConvertNumericTypes(OgnlContext context)
     {
+        if (context.getCurrentType() == context.getPreviousType())
+            return false;
+        
         return context.getCurrentType() != null && !context.getCurrentType().isArray()
                && context.getPreviousType() != null && !context.getPreviousType().isArray()
                && (!Number.class.isAssignableFrom(context.getCurrentType())

@@ -41,8 +41,8 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
             // Double-valued arithmetic expressions
             { "-1d", new Double(-1) },
             { "+1d", new Double(1) },
-            { "--1f", new Float(1) },
-            { "2*2.0", new Double(4) },
+            { "--1f", new Double(1) },
+            { "2*2.0", new Double(4.0) },
             { "5/2.", new Double(2.5) },
             { "5+2D", new Double(7) },
             { "5f-2F", new Double(3.0) },
@@ -52,7 +52,7 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
             // BigDecimal-valued arithmetic expressions
             { "-1b", new Integer(-1) },
             { "+1b", new Integer(1) },
-            { "--1b", new Double(1) },
+            { "--1b", new Integer(1) },
             { "2*2.0b", new Double(4.0) }, 
             { "5/2.B", new Integer(2) },
             { "5.0B/2", new Double(2.5) },
@@ -76,12 +76,12 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
             { "5<<2", new Integer(20) },
             { "5>>2", new Integer(1) },
             { "5>>1+1", new Integer(1) },
-            { "-5>>>2", new Integer(-5 >>> 2) },
+            { "-5>>>2", new Integer(-5 >>> 2)},
             { "-5L>>>2", new Long(-5L >>> 2) },
-            { "5. & 3", new Double(1) },
+            { "5. & 3", new Long(1) },
             { "5 ^3", new Integer(6) },
             { "5l&3|5^3", new Long(7) },
-            { "5&(3|5^3)", new Integer(5) },
+            { "5&(3|5^3)", new Long(5) },
             { "true ? 1 : 1/0", new Integer(1) },
 
             // BigInteger-valued arithmetic expressions
@@ -100,10 +100,10 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
             { "5h>>2", Integer.valueOf(1) },
             { "5h>>1+1", Integer.valueOf(1) },
             { "-5h>>>2", Integer.valueOf(-2) },
-            { "5.b & 3", Integer.valueOf(1) },
+            { "5.b & 3", new Long(1) },
             { "5h ^3", Integer.valueOf(6) },
-            { "5h&3|5^3", Integer.valueOf(7) },
-            { "5H&(3|5^3)", Integer.valueOf(5) },
+            { "5h&3|5^3", new Long(7) },
+            { "5H&(3|5^3)", new Long(5) },
 
             // Logical expressions
             { "!1", Boolean.FALSE },
@@ -131,7 +131,7 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
             { "1 and 0", Integer.valueOf(0) },
             { "1 bor 0", new Integer(1) },
             { "true && 12", Integer.valueOf(12)},
-            { "1 xor 0", new Integer(1) }, { "1 band 0", new Integer(0) }, { "1 eq 1", Boolean.TRUE },
+            { "1 xor 0", new Integer(1) }, { "1 band 0", new Long(0) }, { "1 eq 1", Boolean.TRUE },
             { "1 neq 1", Boolean.FALSE }, { "1 lt 5", Boolean.TRUE }, { "1 lte 5", Boolean.TRUE },
             { "1 gt 5", Boolean.FALSE }, { "1 gte 5", Boolean.FALSE }, { "1 lt 5", Boolean.TRUE },
             { "1 shl 2", new Integer(4) }, { "4 shr 2", new Integer(1) }, { "4 ushr 2", new Integer(1) },

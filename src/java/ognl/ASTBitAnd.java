@@ -60,4 +60,9 @@ class ASTBitAnd extends NumericExpression
     {
         return "&";
     }
+    
+    public String coerceToNumeric(String source, OgnlContext context, Node child)
+    {
+        return "(long)" + super.coerceToNumeric(source, context, child);
+    }
 }

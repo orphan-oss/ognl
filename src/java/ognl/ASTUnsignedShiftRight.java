@@ -30,6 +30,8 @@
 //--------------------------------------------------------------------------
 package ognl;
 
+import ognl.enhance.UnsupportedCompilationException;
+
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
@@ -54,5 +56,41 @@ class ASTUnsignedShiftRight extends NumericExpression
     public String getExpressionOperator(int index)
     {
         return ">>>";
+    }
+
+    public String toGetSourceString(OgnlContext context, Object target)
+    {
+        String result = "";
+
+        try {
+
+            String child1 = OgnlRuntime.getChildSource(context, target, _children[0]);
+            child1 = coerceToNumeric(child1, context, _children[0]);
+
+            String child2 = OgnlRuntime.getChildSource(context, target, _children[1]);
+            child2 = coerceToNumeric(child2, context, _children[1]);
+            
+            Object v1 = _children[0].getValue(context, target);
+            int type = OgnlOps.getNumericType(v1);
+
+            if (type <= OgnlOps.INT)
+            {
+                child1 = "(int)" + child1;
+                child2 = "(int)" + child2;
+            }
+
+            result = child1 + " >>> " + child2;
+
+            context.setCurrentType(Integer.TYPE);
+            context.setCurrentObject(getValueBody(context, target));
+
+        } catch (Throwable t) {
+            if (UnsupportedCompilationException.class.isInstance(t))
+                throw (UnsupportedCompilationException)t;
+            else
+                throw new RuntimeException(t);
+        }
+
+        return result;
     }
 }

@@ -53,4 +53,17 @@ class ASTNegate extends NumericExpression
     {
         return "-" + _children[0];
     }
+
+    public String toGetSourceString(OgnlContext context, Object target)
+    {
+        String source = _children[0].toGetSourceString(context, target);
+
+        if (!ASTNegate.class.isInstance(_children[0]))
+        {
+            return "-" + source;
+        } else
+        {
+            return "-(" + source + ")";
+        }
+    }
 }
