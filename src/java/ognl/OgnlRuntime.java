@@ -2260,6 +2260,9 @@ public class OgnlRuntime {
         if (context.getCurrentType() == context.getPreviousType())
             return false;
 
+        if (context.getCurrentType() == null || context.getPreviousType() == null)
+            return true;
+
         return context.getCurrentType() != null && !context.getCurrentType().isArray()
                && context.getPreviousType() != null && !context.getPreviousType().isArray()
                && (!Number.class.isAssignableFrom(context.getCurrentType())

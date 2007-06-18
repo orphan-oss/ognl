@@ -31,7 +31,10 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import org.ognl.test.objects.*;
+import org.ognl.test.objects.BaseBean;
+import org.ognl.test.objects.Bean2;
+import org.ognl.test.objects.FirstBean;
+import org.ognl.test.objects.Root;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -45,12 +48,8 @@ public class PropertyTest extends OgnlTestCase
     
     private static Root ROOT = new Root();
     private static BaseBean BEAN = new FirstBean();
-    private static TestModel MODEL = new TestModel();
 
     private static Object[][]       TESTS = {
-            { ROOT, "objectIndex > 0", Boolean.TRUE},
-            { ROOT, "false", Boolean.FALSE},
-            { ROOT, "!false || true", Boolean.TRUE},
             { ROOT, "testString != null && !false", Boolean.TRUE},
             { ROOT, "!getRenderNavigation() and !getReadonly()", Boolean.TRUE },
             { ROOT, "!bean2.pageBreakAfter", Boolean.TRUE},
@@ -91,7 +90,6 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "disabled || readonly", Boolean.TRUE},
             { ROOT, "property.bean3.value != null", Boolean.TRUE},
             { ROOT, "\"background-color:blue; width:\" + (currentLocaleVerbosity / 2) + \"px\"", "background-color:blue; width:43px"},
-            { ROOT, "property.bean3.value >= 24", Boolean.TRUE},
             { ROOT, "renderNavigation ? '' : 'noborder'", "noborder" },
             { ROOT, "format('key', array)", "formatted" },
             { ROOT, "format('key', intValue)", "formatted" },
@@ -113,16 +111,11 @@ public class PropertyTest extends OgnlTestCase
             { BEAN, "two.hasChildren('a')", Boolean.FALSE},
             { ROOT, "sorted ? (readonly ? 'currentSortDesc' : 'currentSortAsc') : 'currentSortNone'", "currentSortAsc"},
             { ROOT, "getAsset( (width?'Yes':'No')+'Icon' )", "YesIcon"},
-            { MODEL, "(unassignedCopyModel.optionCount > 0 && canApproveCopy) || entry.copy.size() > 0", Boolean.TRUE },
             { ROOT, "flyingMonkey", Boolean.TRUE},
             { ROOT, "expiration == null ? '' : @org.ognl.test.PropertyTest@DATE_FORMAT.format(expiration)", ""},
             { ROOT, "printDelivery ? 'javascript:toggle(' + bean2.id + ');' : ''", "javascript:toggle(1);"},
-            { ROOT, "{theInt + 1}", Arrays.asList(new Integer(ROOT.getTheInt() + 1)) },
-            { ROOT, " !(printDelivery || @Boolean@FALSE)", Boolean.FALSE},
             { ROOT, "openTransitionWin", Boolean.FALSE},
             { ROOT, "b.methodOfB(a.methodOfA(b)-1)", new Integer(0)},
-            { ROOT, "genericIndex-1", new Integer(1)},
-            { ROOT, "((renderNavigation ? 0 : 1) + map.size) * theInt", new Integer(((ROOT.getRenderNavigation() ? 0 : 1 ) + ROOT.getMap().size()) * ROOT.getTheInt())}
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)

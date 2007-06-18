@@ -46,12 +46,12 @@ public abstract class ComparisonExpression extends BooleanExpression
 //            System.out.println("comparison expression currentType: " + context.getCurrentType() + " previousType: " + context.getPreviousType());
 
             boolean conversion = OgnlRuntime.shouldConvertNumericTypes(context);
-            
-            String result = conversion ? "(" + getComparisonFunction() + "( ($w) " : "(";
+
+            String result = conversion ? "(" + getComparisonFunction() + "( ($w) (" : "(";
             
             result += OgnlRuntime.getChildSource(context, target, _children[0], conversion)
-            + " " 
-            + (conversion ? ", ($w) " : getExpressionOperator(0)) + " " 
+            + " "
+            + (conversion ? "), ($w) " : getExpressionOperator(0)) + " " 
             + OgnlRuntime.getChildSource(context, target, _children[1], conversion);
             
             result += conversion ? ")" : "";
