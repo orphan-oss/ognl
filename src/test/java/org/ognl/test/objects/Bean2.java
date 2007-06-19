@@ -70,4 +70,21 @@ public class Bean2 extends Object
     {
         _pageBreakAfter ^= true;
     }
+
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Bean2 bean2 = (Bean2) o;
+
+        if (_pageBreakAfter != bean2._pageBreakAfter) return false;
+
+        return true;
+    }
+
+    public int hashCode()
+    {
+        return (_pageBreakAfter ? 1 : 0);
+    }
 }

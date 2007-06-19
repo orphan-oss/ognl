@@ -2257,11 +2257,12 @@ public class OgnlRuntime {
      */
     public static boolean shouldConvertNumericTypes(OgnlContext context)
     {
-        if (context.getCurrentType() == context.getPreviousType())
-            return false;
-
         if (context.getCurrentType() == null || context.getPreviousType() == null)
             return true;
+
+        if ((context.getCurrentType() == context.getPreviousType())
+            && context.getCurrentType().isPrimitive() && context.getPreviousType().isPrimitive())
+            return false;
 
         return context.getCurrentType() != null && !context.getCurrentType().isArray()
                && context.getPreviousType() != null && !context.getPreviousType().isArray()

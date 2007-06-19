@@ -138,7 +138,7 @@ public abstract class OgnlOps implements NumericTypes
             } else {
                 // Check for converted equivalence first, then equals() equivalence
                 result = (object1 != null) && (object2 != null)
-                        && ((compareWithConversion(object1, object2) == 0) || object1.equals(object2));
+                        && (object1.equals(object2) || (compareWithConversion(object1, object2) == 0));
             }
         }
         return result;
