@@ -999,7 +999,8 @@ public abstract class OgnlOps implements NumericTypes
             result = "\\\\";
             break;
         default:
-            if (Character.isISOControl(ch) || (ch > 255)) {
+            if (Character.isISOControl(ch)) {
+
                 String hc = Integer.toString((int) ch, 16);
                 int hcl = hc.length();
 
@@ -1015,7 +1016,7 @@ public abstract class OgnlOps implements NumericTypes
                         }
                     }
                 }
-
+                
                 result = result + hc;
             } else {
                 result = new String(ch + "");

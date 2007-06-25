@@ -135,7 +135,6 @@ public class ASTConst extends SimpleNode implements NodeType
         _getterClass = value.getClass();
 
         Object retval = value;
-        
         if (_parent != null && ASTProperty.class.isInstance(_parent)) {
             
             context.setCurrentObject(value);
@@ -154,7 +153,7 @@ public class ASTConst extends SimpleNode implements NodeType
             context.setCurrentType(String.class);
 
             retval = '\"' + OgnlOps.getEscapeString(value.toString()) + '\"';
-
+           
             context.setCurrentObject(retval.toString());
 
             return retval.toString();

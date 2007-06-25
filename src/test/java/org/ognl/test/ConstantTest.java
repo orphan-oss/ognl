@@ -39,7 +39,7 @@ public class ConstantTest extends OgnlTestCase
 {
 
     private static Object[][] TESTS = {
-           { "12345", new Integer(12345) },
+            { "12345", new Integer(12345) },
             { "0x100", new Integer(256) },
             { "0xfE", new Integer(254) },
             { "01000", new Integer(512) },
@@ -62,13 +62,12 @@ public class ConstantTest extends OgnlTestCase
             { "\"hello\\x world\"", ExpressionSyntaxException.class },
             { "null", null },
             { "true", Boolean.TRUE },
-            { "false", Boolean.FALSE }, 
+            { "false", Boolean.FALSE },
             { "{ false, true, null, 0, 1. }",
-                    Arrays.asList(new Object[] { Boolean.FALSE, Boolean.TRUE, null, new Integer(0), new Double(1) }) },
+              Arrays.asList(new Object[] { Boolean.FALSE, Boolean.TRUE, null, new Integer(0), new Double(1) }) },
             { "'HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"'",
-                    "HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"" },
-                    
-                    };
+              "HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"" },
+    };
 
     /*
      * =================================================================== Public static methods
@@ -80,7 +79,7 @@ public class ConstantTest extends OgnlTestCase
 
         for(int i = 0; i < TESTS.length; i++) {
             result.addTest(new ConstantTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", null,
-                    (String) TESTS[i][0], TESTS[i][1]));
+                                            (String) TESTS[i][0], TESTS[i][1]));
         }
         return result;
     }
@@ -100,7 +99,7 @@ public class ConstantTest extends OgnlTestCase
     }
 
     public ConstantTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-            Object expectedAfterSetResult)
+                        Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
