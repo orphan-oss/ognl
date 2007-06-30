@@ -27,17 +27,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ASTProperty.java" afterPath="$PROJECT_DIR$/src/java/ognl/ASTProperty.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/ObjectPropertyAccessor.java" afterPath="$PROJECT_DIR$/src/java/ognl/ObjectPropertyAccessor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Simple.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Simple.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/MethodTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/MethodTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" afterPath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iws" afterPath="$PROJECT_DIR$/OGNL.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Root.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/MethodAccessor.java" afterPath="$PROJECT_DIR$/src/java/ognl/MethodAccessor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/enhance/TestExpressionCompiler.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/enhance/TestExpressionCompiler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/IndexedPropertyTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/IndexedPropertyTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/PropertyTest.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/PropertyTest.java" />
     </list>
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
@@ -160,10 +151,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="ExpressionCompiler.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
+      <file leaf-file-name="pom.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="7" selection-start="533" selection-end="533" vertical-scroll-proportion="0.17602682">
+            <state line="44" column="0" selection-start="1401" selection-end="1401" vertical-scroll-proportion="0.41426146">
               <folding />
             </state>
           </provider>
@@ -235,114 +226,6 @@
         </PATH_ELEMENT>
         <PATH_ELEMENT>
           <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/org/ognl/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/org/ognl/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java/org/ognl/test/enhance" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src/test/java" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:$PROJECT_DIR$/src" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -872,22 +755,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/PropertyArithmeticTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="58" selection-start="1662" selection-end="1662" vertical-scroll-proportion="0.364627">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTOr.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="102" column="0" selection-start="3713" selection-end="3713" vertical-scroll-proportion="0.30176026">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ArithmeticAndLogicalOperatorsTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="36" column="13" selection-start="1827" selection-end="1827" vertical-scroll-proportion="0.062866725">
@@ -978,7 +845,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="7" selection-start="533" selection-end="533" vertical-scroll-proportion="0.17602682">
+        <state line="26" column="0" selection-start="687" selection-end="687" vertical-scroll-proportion="0.26404023">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USERPROFILE$/.IntelliJIdea60/system/extResources/cbe730b3_maven-v4_0_0.xsd">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="785" column="49" selection-start="39111" selection-end="39111" vertical-scroll-proportion="0.37096775">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="44" column="0" selection-start="1401" selection-end="1401" vertical-scroll-proportion="0.41426146">
           <folding />
         </state>
       </provider>
