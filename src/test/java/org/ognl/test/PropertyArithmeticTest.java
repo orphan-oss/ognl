@@ -30,6 +30,10 @@ public class PropertyArithmeticTest extends OgnlTestCase {
             { ROOT, "(getIndexedProperty('nested').size + 1) < genericIndex", Boolean.FALSE},
             { ROOT, "map.size * genericIndex", new Integer(ROOT.getMap().size() * ((Integer)ROOT.getGenericIndex()).intValue())},
             { ROOT, "property == property", Boolean.TRUE},
+            { ROOT, "property.bean3.value % 2 == 0", Boolean.TRUE},
+            { ROOT, "genericIndex % 3 == 0", Boolean.FALSE},
+            { ROOT, "genericIndex % theInt == property.bean3.value", Boolean.FALSE},
+            { ROOT, "theInt / 100.0", ROOT.getTheInt() / 100.0}
     };
 
     public static TestSuite suite()

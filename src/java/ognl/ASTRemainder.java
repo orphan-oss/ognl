@@ -30,8 +30,6 @@
 //--------------------------------------------------------------------------
 package ognl;
 
-import ognl.enhance.UnsupportedCompilationException;
-
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
@@ -56,35 +54,5 @@ class ASTRemainder extends NumericExpression
     public String getExpressionOperator(int index)
     {
         return "%";
-    }
-    
-    public Class getGetterClass()
-    {
-        return null;
-    }
-    
-    public String toGetSourceString(OgnlContext context, Object target)
-    {
-        try {
-            
-            String result = "ognl.OgnlOps.remainder(";
-            
-            result += " ($w) " + OgnlRuntime.getChildSource(context, target, _children[0]) + ", ($w) " + OgnlRuntime.getChildSource(context, target, _children[1]);
-            
-            result += ")";
-            
-            return result;
-        } catch (NullPointerException e) {
-            
-            // expected to happen in some instances
-            e.printStackTrace();
-            
-            throw new UnsupportedCompilationException("evaluation resulted in null expression.");
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
-        }
     }
 }
