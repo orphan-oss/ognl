@@ -44,7 +44,9 @@ public class MethodTest extends OgnlTestCase
             { "getValueIsTrue(!false) ? \"\" : \"here\" ", ""},
             { "messages.format('ShowAllCount', one)", "foo"},
             { "getTestValue(@org.ognl.test.objects.SimpleEnum@ONE.value)", new Integer(2)},
-            { "@org.ognl.test.MethodTest@getA().isProperty()", Boolean.FALSE}
+            { "@org.ognl.test.MethodTest@getA().isProperty()", Boolean.FALSE},
+            { "isDisabled()", Boolean.TRUE},
+            { "isEditorDisabled()", Boolean.FALSE},
     };
 
     public static class A

@@ -451,6 +451,16 @@ public class Root extends Object
         return list;
     }
 
+    public boolean isEditorDisabled()
+    {
+        return false;
+    }
+
+    public boolean isDisabled()
+    {
+        return true;
+    }
+
     public boolean isOpenTransitionWin()
     {
         return _openWindow;

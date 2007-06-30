@@ -116,6 +116,7 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "printDelivery ? 'javascript:toggle(' + bean2.id + ');' : ''", "javascript:toggle(1);"},
             { ROOT, "openTransitionWin", Boolean.FALSE},
             { ROOT, "b.methodOfB(a.methodOfA(b)-1)", new Integer(0)},
+            { ROOT, "disabled", Boolean.TRUE},
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)

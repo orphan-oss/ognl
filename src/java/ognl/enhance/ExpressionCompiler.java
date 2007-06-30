@@ -116,20 +116,20 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             Class castClass = OgnlRuntime.getCompiler().getRootExpressionClass(expression, context);
 
             if (castClass.isArray() || ASTRootVarRef.class.isInstance(expression)
-                || ASTThisVarRef.class.isInstance(expression)) {
-
+                || ASTThisVarRef.class.isInstance(expression))
+            {
                 rootExpr = "((" + getCastString(castClass) + ")$2)";
 
                 if (ASTProperty.class.isInstance(expression) && !((ASTProperty) expression).isIndexedAccess())
                     rootExpr += ".";
             } else if ((ASTProperty.class.isInstance(expression)
                         && ((ASTProperty) expression).isIndexedAccess())
-                       || ASTChain.class.isInstance(expression)) {
-
-                rootExpr = "((" + OgnlRuntime.getCompiler().getClassName(castClass) + ")$2)";
-            } else {
-
-                rootExpr = "((" + OgnlRuntime.getCompiler().getClassName(castClass) + ")$2).";
+                       || ASTChain.class.isInstance(expression))
+            {
+                rootExpr = "((" + getCastString(castClass) + ")$2)";
+            } else
+            {
+                rootExpr = "((" + getCastString(castClass) + ")$2).";
             }
         }
 
@@ -166,8 +166,6 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     public String castExpression(OgnlContext context, Node expression, String body)
     {
         // ok - so this looks really f-ed up ...and it is ..eh if you can do it better I'm all for it :)
-
-        
 
         if (context.getCurrentAccessor() == null
             || context.getPreviousType() == null
@@ -542,7 +540,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         body = body.replaceAll("\\.\\.", ".");
 
-//        System.out.println("Getter Body: ===================================\n" + body);
+        //System.out.println("Getter Body: ===================================\n" + body);
         valueGetter.setBody(body);
         newClass.addMethod(valueGetter);
 

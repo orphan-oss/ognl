@@ -198,6 +198,16 @@ public class Simple extends Object
         return val + 1;
     }
 
+    public boolean isEditorDisabled()
+    {
+        return false;
+    }
+
+    public boolean isDisabled()
+    {
+        return true;
+    }
+
     public boolean equals(Object other)
     {
         boolean     result = false;

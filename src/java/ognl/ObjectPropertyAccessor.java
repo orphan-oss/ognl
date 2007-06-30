@@ -196,7 +196,6 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
             String methodName = index.toString().replaceAll("\"", "");
             
             Method m = OgnlRuntime.getReadMethod(target.getClass(), methodName);
-
             // try to get field if no method could be found 
 
             if (m == null) {

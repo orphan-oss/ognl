@@ -12,12 +12,12 @@ import ognl.enhance.OgnlExpressionCompiler;
 import org.ognl.test.objects.*;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
  * Tests functionality of {@link ExpressionCompiler}.
- * 
- * @author jkuhnert
  */
 public class TestExpressionCompiler extends TestCase
 {
@@ -150,5 +150,20 @@ public class TestExpressionCompiler extends TestCase
         
         assertNotNull(ret);
         assertTrue(Collection.class.isAssignableFrom(ret.getClass()));
+    }
+
+    public String getKey()
+    {
+        return "key";
+    }
+
+    public void test_Indexed_Property()
+    throws Throwable
+    {
+        Map map = new HashMap();
+        map.put("key", "value");
+        
+        Node expression = Ognl.compileExpression(_context, this, "key");
+        assertEquals("key", expression.getAccessor().get(_context, this));
     }
 }
