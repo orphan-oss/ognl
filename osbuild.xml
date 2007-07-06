@@ -126,7 +126,7 @@
             </fileset>
         </path>
         <java classname="org.ognl.test.Performance" classpathref="perf.cp">
-            <arg value="-server"/>
+            <arg line="-iterations 100000"/>
         </java>
     </target>
 
