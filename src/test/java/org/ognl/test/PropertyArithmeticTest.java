@@ -33,7 +33,8 @@ public class PropertyArithmeticTest extends OgnlTestCase {
             { ROOT, "property.bean3.value % 2 == 0", Boolean.TRUE},
             { ROOT, "genericIndex % 3 == 0", Boolean.FALSE},
             { ROOT, "genericIndex % theInt == property.bean3.value", Boolean.FALSE},
-            { ROOT, "theInt / 100.0", ROOT.getTheInt() / 100.0}
+            { ROOT, "theInt / 100.0", ROOT.getTheInt() / 100.0},
+            { ROOT, "@java.lang.Long@valueOf('100') == @java.lang.Long@valueOf('100')", Boolean.TRUE}
     };
 
     public static TestSuite suite()

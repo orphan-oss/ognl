@@ -2292,15 +2292,12 @@ public class OgnlRuntime {
         if (context.getCurrentType() == null || context.getPreviousType() == null)
             return true;
 
-        if ((context.getCurrentType() == context.getPreviousType())
+        if (context.getCurrentType() == context.getPreviousType()
             && context.getCurrentType().isPrimitive() && context.getPreviousType().isPrimitive())
             return false;
 
         return context.getCurrentType() != null && !context.getCurrentType().isArray()
-               && context.getPreviousType() != null && !context.getPreviousType().isArray()
-               && (!Number.class.isAssignableFrom(context.getCurrentType())
-                   || !Number.class.isAssignableFrom(context.getPreviousType()));
-
+               && context.getPreviousType() != null && !context.getPreviousType().isArray();
     }
 
     /**
