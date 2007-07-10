@@ -46,7 +46,7 @@ public class ASTStaticField extends SimpleNode implements NodeType
     private String fieldName;
 
     private Class _getterClass;
-    
+
     public ASTStaticField(int id)
     {
         super(id);
@@ -65,31 +65,37 @@ public class ASTStaticField extends SimpleNode implements NodeType
     }
 
     protected Object getValueBody(OgnlContext context, Object source)
-        throws OgnlException
+            throws OgnlException
     {
         return OgnlRuntime.getStaticField(context, className, fieldName);
     }
 
     public boolean isNodeConstant(OgnlContext context)
-        throws OgnlException
+            throws OgnlException
     {
         boolean result = false;
         Exception reason = null;
 
         try {
             Class c = OgnlRuntime.classForName(context, className);
-            
+
             /*
-             * Check for virtual static field "class"; this cannot interfere with normal static
-             * fields because it is a reserved word. It is considered constant.
-             */
-            if (fieldName.equals("class")) {
+            * Check for virtual static field "class"; this cannot interfere with normal static
+            * fields because it is a reserved word. It is considered constant.
+            */
+            if (fieldName.equals("class"))
+            {
                 result = true;
-            } else {
+            } else if (OgnlRuntime.isJdk15() && c.isEnum())
+            {
+                result = true;
+            } else
+            {
                 Field f = c.getField(fieldName);
-                
-                if (!Modifier.isStatic(f.getModifiers())) { throw new OgnlException("Field " + fieldName + " of class "
-                        + className + " is not static"); }
+
+                if (!Modifier.isStatic(f.getModifiers()))
+                    throw new OgnlException("Field " + fieldName + " of class " + className + " is not static");
+
                 result = Modifier.isFinal(f.getModifiers());
             }
         } catch (ClassNotFoundException e) {
@@ -100,28 +106,35 @@ public class ASTStaticField extends SimpleNode implements NodeType
             reason = e;
         }
 
-        if (reason != null) { throw new OgnlException("Could not get static field " + fieldName + " from class "
-                + className, reason); }
+        if (reason != null)
+            throw new OgnlException("Could not get static field " + fieldName
+                                    + " from class " + className, reason);
+
         return result;
     }
-    
+
     Class getFieldClass(OgnlContext context)
-    throws OgnlException
+            throws OgnlException
     {
         Exception reason = null;
-        
+
         try {
             Class c = OgnlRuntime.classForName(context, className);
-            
+
             /*
-             * Check for virtual static field "class"; this cannot interfere with normal static
-             * fields because it is a reserved word. It is considered constant.
-             */
-            if (fieldName.equals("class")) {
+            * Check for virtual static field "class"; this cannot interfere with normal static
+            * fields because it is a reserved word. It is considered constant.
+            */
+            if (fieldName.equals("class"))
+            {
                 return c;
-            } else {
+            } else if (OgnlRuntime.isJdk15() && c.isEnum())
+            {
+                return c;
+            } else
+            {
                 Field f = c.getField(fieldName);
-                
+
                 return f.getType();
             }
         } catch (ClassNotFoundException e) {
@@ -131,23 +144,23 @@ public class ASTStaticField extends SimpleNode implements NodeType
         } catch (SecurityException e) {
             reason = e;
         }
-        
+
         if (reason != null) { throw new OgnlException("Could not get static field " + fieldName + " from class "
-                + className, reason); }
-        
+                                                      + className, reason); }
+
         return null;
     }
-    
+
     public Class getGetterClass()
     {
         return _getterClass;
     }
-    
+
     public Class getSetterClass()
     {
         return _getterClass;
     }
-    
+
     public String toString()
     {
         return "@" + className + "@" + fieldName;
@@ -156,9 +169,9 @@ public class ASTStaticField extends SimpleNode implements NodeType
     public String toGetSourceString(OgnlContext context, Object target)
     {
         try {
-            
+
             Object obj = OgnlRuntime.getStaticField(context, className, fieldName);
-            
+
             context.setCurrentObject(obj);
 
             _getterClass = getFieldClass(context);
@@ -171,18 +184,18 @@ public class ASTStaticField extends SimpleNode implements NodeType
             else
                 throw new RuntimeException(t);
         }
-        
+
         return className + "." + fieldName;
     }
-    
+
     public String toSetSourceString(OgnlContext context, Object target)
     {
         try {
-            
+
             Object obj = OgnlRuntime.getStaticField(context, className, fieldName);
-            
+
             context.setCurrentObject(obj);
-            
+
             _getterClass = getFieldClass(context);
 
             context.setCurrentType(_getterClass);
@@ -191,9 +204,9 @@ public class ASTStaticField extends SimpleNode implements NodeType
             if (UnsupportedCompilationException.class.isInstance(t))
                 throw (UnsupportedCompilationException)t;
             else
-                throw new RuntimeException(t); 
+                throw new RuntimeException(t);
         }
-        
+
         return className + "." + fieldName;
     }
 }

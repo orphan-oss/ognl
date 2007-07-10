@@ -471,6 +471,11 @@ public class Root extends Object
         _openWindow = value;
     }
 
+    public boolean isOk(SimpleEnum value, String otherValue)
+    {
+        return true;
+    }
+
     public static class A
     {
         public int methodOfA(B b)

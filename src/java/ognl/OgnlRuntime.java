@@ -110,6 +110,12 @@ public class OgnlRuntime {
      */
     private static final String NULL_OBJECT_STRING = "<null>";
 
+    /**
+     * Used to store the result of determining if current jvm is 1.5 language compatible.
+     */
+    private static boolean _jdk15 = false;
+    private static boolean _jdkChecked = false;
+
     static final ClassCache _methodAccessors = new ClassCache();
     static final ClassCache _propertyAccessors = new ClassCache();
     static final ClassCache _elementsAccessors = new ClassCache();
@@ -460,6 +466,26 @@ public class OgnlRuntime {
         _superclasses.clear();
         _declaredMethods[0].clear();
         _declaredMethods[1].clear();
+    }
+
+    /**
+     * Checks if the current jvm is java language >= 1.5 compatible.
+     *
+     * @return True if jdk15 features are present.
+     */
+    public static boolean isJdk15()
+    {
+        if (_jdkChecked)
+            return _jdk15;
+
+        try {
+            Class.forName("java.lang.annotation.Annotation");
+            _jdk15 = true;
+        } catch (Exception e) {}
+
+        _jdkChecked = true;
+
+        return _jdk15;
     }
 
     public static String getNumericValueGetter(Class type)
@@ -1409,12 +1435,18 @@ public class OgnlRuntime {
              * Check for virtual static field "class"; this cannot interfere with normal static
              * fields because it is a reserved word.
              */
-            if (fieldName.equals("class")) {
+            if (fieldName.equals("class"))
+            {
                 return c;
-            } else {
+            } else if (OgnlRuntime.isJdk15() && c.isEnum())
+            {
+                return Enum.valueOf(c, fieldName);
+            } else
+            {
                 Field f = c.getField(fieldName);
                 if (!Modifier.isStatic(f.getModifiers()))
                     throw new OgnlException("Field " + fieldName + " of class " + className + " is not static");
+                
                 return f.get(null);
             }
         } catch (ClassNotFoundException e) {

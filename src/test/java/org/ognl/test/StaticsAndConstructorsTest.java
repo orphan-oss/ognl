@@ -117,7 +117,7 @@ public class StaticsAndConstructorsTest extends OgnlTestCase
 
     public enum Animals {
 
-        Dog, Cat, Wallabee, Bear; 
+        Dog, Cat, Wallabee, Bear
     }
 
     private static Object[][]       TESTS = {
@@ -141,7 +141,8 @@ public class StaticsAndConstructorsTest extends OgnlTestCase
             { "new org.ognl.test.StaticsAndConstructorsTest$IntWrapper(index)", new IntWrapper(ROOT.getIndex()) },
             { "new org.ognl.test.StaticsAndConstructorsTest$IntObjectWrapper(index)", new IntObjectWrapper(ROOT.getIndex()) },
             { "new org.ognl.test.StaticsAndConstructorsTest$A(#root)", new A(ROOT)},
-            {"@org.ognl.test.StaticsAndConstructorsTest$Animals@values().length != 2", Boolean.TRUE}
+            {"@org.ognl.test.StaticsAndConstructorsTest$Animals@values().length != 2", Boolean.TRUE},
+            {"isOk(@org.ognl.test.objects.SimpleEnum@ONE, null)", Boolean.TRUE},
     };
 
     /*===================================================================
