@@ -138,7 +138,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
     {
         Object result = null;
         String name = oname.toString();
-        
+
         result = getPossibleProperty(context, target, name);
 
         if (result == OgnlRuntime.NotFound) {
@@ -153,7 +153,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         String name = oname.toString();
 
         Object result = setPossibleProperty(context, target, name, value);
-        
+
         if (result == OgnlRuntime.NotFound) {
             throw new NoSuchPropertyException(target, name);
         }
@@ -181,7 +181,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
                 return null;
             }
-            
+
             return m.getReturnType();
 
         } catch (Throwable t) {
@@ -194,26 +194,35 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         try {
 
             String methodName = index.toString().replaceAll("\"", "");
-            
             Method m = OgnlRuntime.getReadMethod(target.getClass(), methodName);
-            // try to get field if no method could be found 
 
-            if (m == null) {
+            // try last ditch effort of checking if they were trying to do reflection via a return method value
 
-                try {
-                    if (String.class.isAssignableFrom(index.getClass()) && !target.getClass().isArray()) {
-                        
+            if (m == null && context.getCurrentObject() != null)
+                m = OgnlRuntime.getReadMethod(target.getClass(), context.getCurrentObject().toString().replaceAll("\"", ""));
+
+            //System.out.println("tried to get read method from target: " + target.getClass() + " with methodName:" + methodName + " result: " + m);
+            // try to get field if no method could be found
+
+            if (m == null)
+            {
+                try
+                {
+                    if (String.class.isAssignableFrom(index.getClass()) && !target.getClass().isArray())
+                    {
                         Field f = target.getClass().getField(methodName);
-                        if (f != null) {
 
+                        if (f != null)
+                        {
                             context.setCurrentType(f.getType());
                             context.setCurrentAccessor(f.getDeclaringClass());
 
                             return "." + f.getName();
                         }
                     }
-                } catch (NoSuchFieldException e) {
-                    return "";
+                }
+                catch (NoSuchFieldException e) {
+                    // ignore
                 }
 
                 return "";
@@ -224,7 +233,8 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
             return "." + m.getName() + "()";
 
-        } catch (Throwable t) {
+        } catch (Throwable t)
+        {
             if (UnsupportedCompilationException.class.isInstance(t))
                 throw (UnsupportedCompilationException) t;
             else
@@ -237,8 +247,10 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         try {
 
             String methodName = index.toString().replaceAll("\"", "");
-            
             Method m = OgnlRuntime.getWriteMethod(target.getClass(), methodName);
+
+            if (m == null && context.getCurrentObject() != null)
+                m = OgnlRuntime.getWriteMethod(target.getClass(), context.getCurrentObject().toString().replaceAll("\"", ""));
 
             if (m == null)
                 return "";
@@ -248,35 +260,33 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
             Class parm = m.getParameterTypes()[0];
             String conversion = null;
-            
+
             if (m.getParameterTypes().length > 1)
                 throw new UnsupportedCompilationException("Object property accessors can only support single parameter setters.");
 
 
-            if (parm.isPrimitive()) {
-                
+            if (parm.isPrimitive())
+            {
                 Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(parm);
-
                 conversion = OgnlRuntime.getCompiler().createLocalReference(context,
-                        "((" + wrapClass.getName() + ")ognl.OgnlOps#convertValue($3," + wrapClass.getName()
-                        + ".class, true))." + OgnlRuntime.getNumericValueGetter(wrapClass),
-                        parm
-                );
+                                                                            "((" + wrapClass.getName() + ")ognl.OgnlOps#convertValue($3," + wrapClass.getName()
+                                                                            + ".class, true))." + OgnlRuntime.getNumericValueGetter(wrapClass),
+                                                                            parm);
 
-            } else if (parm.isArray()) {
-
+            } else if (parm.isArray())
+            {
                 conversion = OgnlRuntime.getCompiler().createLocalReference(context,
-                         "(" + ExpressionCompiler.getCastString(parm) + ")ognl.OgnlOps#toArray($3,"
-                        + parm.getComponentType().getName() + ".class)",
-                        parm);
-                
-            } else {
+                                                                            "(" + ExpressionCompiler.getCastString(parm) + ")ognl.OgnlOps#toArray($3,"
+                                                                            + parm.getComponentType().getName() + ".class)",
+                                                                            parm);
 
+            } else
+            {
                 conversion = OgnlRuntime.getCompiler().createLocalReference(context,
-                         "(" + parm.getName()+ ")ognl.OgnlOps#convertValue($3,"
-                        + parm.getName()
-                        + ".class)",
-                        parm);
+                                                                            "(" + parm.getName()+ ")ognl.OgnlOps#convertValue($3,"
+                                                                            + parm.getName()
+                                                                            + ".class)",
+                                                                            parm);
             }
 
             context.setCurrentType(m.getReturnType());
