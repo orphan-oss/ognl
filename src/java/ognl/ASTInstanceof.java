@@ -74,12 +74,18 @@ public class ASTInstanceof extends SimpleNode implements NodeType
     public String toGetSourceString(OgnlContext context, Object target)
     {
         try {
-            
+
+            String ret = "";
+
             if (ASTConst.class.isInstance(_children[0]))
-                return ((Boolean)getValueBody(context, target)).toString();
+                ret = ((Boolean)getValueBody(context, target)).toString();
             else
-                return _children[0].toGetSourceString(context, target) + " instanceof " + targetType;
+                ret = _children[0].toGetSourceString(context, target) + " instanceof " + targetType;
             
+            context.setCurrentType(Boolean.TYPE);
+
+            return ret;
+
         } catch (Throwable t)
         {
             throw OgnlOps.castToRuntime(t);

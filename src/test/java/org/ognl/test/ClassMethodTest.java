@@ -77,7 +77,7 @@ public class ClassMethodTest extends OgnlTestCase
     }
 
     public ClassMethodTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-            Object expectedAfterSetResult)
+                           Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }

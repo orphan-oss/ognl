@@ -37,7 +37,7 @@ import org.ognl.test.objects.*;
 import java.util.List;
 
 public class InterfaceInheritanceTest extends OgnlTestCase {
-    
+
     private static Root ROOT = new Root();
 
     static {
@@ -51,7 +51,6 @@ public class InterfaceInheritanceTest extends OgnlTestCase {
     }
 
     private static Object[][] TESTS = {
-            // Interface inheritence test
             {ROOT, "myMap", ROOT.getMyMap()},
             {ROOT, "myMap.test", ROOT},
             {ROOT.getMyMap(), "list", ROOT.getList()},
@@ -72,7 +71,8 @@ public class InterfaceInheritanceTest extends OgnlTestCase {
             {ROOT, "map.comp.getCount(genericIndex)", Integer.valueOf(0)},
             {ROOT, "map.customList.total", Integer.valueOf(1)},
             {ROOT, "myTest.theMap['key']", "value" },
-            {ROOT, "contentProvider.hasChildren(property)", Boolean.TRUE}
+            {ROOT, "contentProvider.hasChildren(property)", Boolean.TRUE},
+            {ROOT, "objectIndex instanceof java.lang.Object", Boolean.TRUE}
     };
 
     /*
@@ -86,15 +86,15 @@ public class InterfaceInheritanceTest extends OgnlTestCase {
         for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new InterfaceInheritanceTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
+                                                            TESTS[i][2]));
             } else {
                 if (TESTS[i].length == 4) {
                     result.addTest(new InterfaceInheritanceTest((String) TESTS[i][1], TESTS[i][0],
-                            (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
+                                                                (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
                 } else {
                     if (TESTS[i].length == 5) {
                         result.addTest(new InterfaceInheritanceTest((String) TESTS[i][1], TESTS[i][0],
-                                (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
+                                                                    (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
                     } else {
                         throw new RuntimeException("don't understand TEST format");
                     }
@@ -104,7 +104,7 @@ public class InterfaceInheritanceTest extends OgnlTestCase {
 
         return result;
     }
-    
+
     /*
     * =================================================================== Constructors
     * ===================================================================
