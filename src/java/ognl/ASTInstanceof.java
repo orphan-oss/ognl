@@ -30,8 +30,6 @@
 //--------------------------------------------------------------------------
 package ognl;
 
-import ognl.enhance.UnsupportedCompilationException;
-
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
@@ -82,11 +80,9 @@ public class ASTInstanceof extends SimpleNode implements NodeType
             else
                 return _children[0].toGetSourceString(context, target) + " instanceof " + targetType;
             
-        } catch (Throwable t) { 
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
     }
     

@@ -264,10 +264,11 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                         } else if ((NodeType.class.isInstance(_children[i])
                                 && ((NodeType)_children[i]).getGetterClass() != null 
                                 && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass()))
-                                || valueClass.isPrimitive()) {
-
+                                || (valueClass != null && valueClass.isPrimitive()))
+                        {
                             parmString = " ($w) " + parmString;
-                        } else if (valueClass.isPrimitive()) {
+                        } else if (valueClass != null && valueClass.isPrimitive())
+                        {
                             parmString = "($w) " + parmString;
                         }
                     }
@@ -281,11 +282,9 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                 }
             }
             
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         try {
@@ -420,11 +419,11 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                         } else if ((NodeType.class.isInstance(_children[i])
                                 && ((NodeType)_children[i]).getGetterClass() != null
                                 && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass()))
-                                || valueClass.isPrimitive()) {
-
+                                || (valueClass != null && valueClass.isPrimitive()))
+                        {
                             parmString = " ($w) " + parmString;
-                            
-                        } else if (valueClass.isPrimitive()) {
+                        } else if (valueClass != null && valueClass.isPrimitive()) 
+                        {
                             parmString = "($w) " + parmString;
                         }
                     }
@@ -432,17 +431,15 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                     result += parmString;
                 }
 
-                if (prevCast != null) {
-
+                if (prevCast != null)
+                {
                     context.put(ExpressionCompiler.PRE_CAST, prevCast);
                 }
             }
             
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         try {

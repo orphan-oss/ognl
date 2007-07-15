@@ -30,8 +30,6 @@
 //--------------------------------------------------------------------------
 package ognl;
 
-import ognl.enhance.UnsupportedCompilationException;
-
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
@@ -84,11 +82,9 @@ class ASTUnsignedShiftRight extends NumericExpression
             context.setCurrentType(Integer.TYPE);
             context.setCurrentObject(getValueBody(context, target));
 
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         return result;

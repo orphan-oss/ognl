@@ -198,11 +198,9 @@ public class ASTList extends SimpleNode implements NodeType
                 result += value;
             }
 
-        }catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         context.setCurrentType(List.class);

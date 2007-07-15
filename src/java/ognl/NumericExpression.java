@@ -4,7 +4,6 @@
 package ognl;
 
 import ognl.enhance.ExpressionCompiler;
-import ognl.enhance.UnsupportedCompilationException;
 
 
 /**
@@ -57,11 +56,9 @@ public abstract class NumericExpression extends ExpressionNode implements NodeTy
                 result += coerceToNumeric(str, context, _children[i]);
             }
             
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         return result;

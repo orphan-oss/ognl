@@ -184,8 +184,9 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
             return m.getReturnType();
 
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
     }
 
@@ -235,10 +236,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
         } catch (Throwable t)
         {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException) t;
-            else
-                throw new RuntimeException(t);
+            throw OgnlOps.castToRuntime(t);
         }
     }
 
@@ -294,11 +292,9 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
             return "." + m.getName() + "(" + conversion + ")";
 
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException) t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
     }
 }

@@ -86,11 +86,9 @@ class ASTNotIn extends SimpleNode implements NodeType
             e.printStackTrace();
             
             throw new UnsupportedCompilationException("evaluation resulted in null expression.");
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
     }
 }

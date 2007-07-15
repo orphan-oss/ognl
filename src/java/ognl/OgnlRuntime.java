@@ -2186,8 +2186,9 @@ public class OgnlRuntime {
             if (!name.startsWith("get"))
                 return OgnlRuntime.getReadMethod(target, "get" + name, numParms);
 
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         return null;
@@ -2243,8 +2244,9 @@ public class OgnlRuntime {
                 return OgnlRuntime.getReadMethod(target, "set" + name, numParms);
             }
 
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         return null;
@@ -2265,8 +2267,9 @@ public class OgnlRuntime {
                     return pds[i];
             }
 
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         return null;

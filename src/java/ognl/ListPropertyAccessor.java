@@ -30,15 +30,13 @@
 // --------------------------------------------------------------------------
 package ognl;
 
-import ognl.enhance.UnsupportedCompilationException;
-
 import java.lang.reflect.Method;
 import java.util.*;
 
 /**
  * Implementation of PropertyAccessor that uses numbers and dynamic subscripts as properties to
  * index into Lists.
- * 
+ *
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
@@ -46,13 +44,13 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
 {
 
     public Object getProperty(Map context, Object target, Object name)
-        throws OgnlException
+            throws OgnlException
     {
         List list = (List) target;
 
         if (name instanceof String) {
             Object result = null;
-            
+
             if (name.equals("size")) {
                 result = new Integer(list.size());
             } else {
@@ -66,24 +64,24 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
                     }
                 }
             }
-            
+
             return result;
         }
-        
-        if (name instanceof Number) 
+
+        if (name instanceof Number)
             return list.get(((Number) name).intValue());
-        
+
         if (name instanceof DynamicSubscript) {
             int len = list.size();
             switch(((DynamicSubscript) name).getFlag()) {
-            case DynamicSubscript.FIRST:
-                return len > 0 ? list.get(0) : null;
-            case DynamicSubscript.MID:
-                return len > 0 ? list.get(len / 2) : null;
-            case DynamicSubscript.LAST:
-                return len > 0 ? list.get(len - 1) : null;
-            case DynamicSubscript.ALL:
-                return new ArrayList(list);
+                case DynamicSubscript.FIRST:
+                    return len > 0 ? list.get(0) : null;
+                case DynamicSubscript.MID:
+                    return len > 0 ? list.get(len / 2) : null;
+                case DynamicSubscript.LAST:
+                    return len > 0 ? list.get(len - 1) : null;
+                case DynamicSubscript.ALL:
+                    return new ArrayList(list);
             }
         }
 
@@ -91,7 +89,7 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
     }
 
     public void setProperty(Map context, Object target, Object name, Object value)
-        throws OgnlException
+            throws OgnlException
     {
         if (name instanceof String && ((String)name).indexOf("$") < 0) {
             super.setProperty(context, target, name, value);
@@ -108,28 +106,28 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
         if (name instanceof DynamicSubscript) {
             int len = list.size();
             switch(((DynamicSubscript) name).getFlag()) {
-            case DynamicSubscript.FIRST:
-                if (len > 0) list.set(0, value);
-                return;
-            case DynamicSubscript.MID:
-                if (len > 0) list.set(len / 2, value);
-                return;
-            case DynamicSubscript.LAST:
-                if (len > 0) list.set(len - 1, value);
-                return;
-            case DynamicSubscript.ALL:
-            {
-                if (!(value instanceof Collection)) throw new OgnlException("Value must be a collection");
-                list.clear();
-                list.addAll((Collection) value);
-                return;
-            }
+                case DynamicSubscript.FIRST:
+                    if (len > 0) list.set(0, value);
+                    return;
+                case DynamicSubscript.MID:
+                    if (len > 0) list.set(len / 2, value);
+                    return;
+                case DynamicSubscript.LAST:
+                    if (len > 0) list.set(len - 1, value);
+                    return;
+                case DynamicSubscript.ALL:
+                {
+                    if (!(value instanceof Collection)) throw new OgnlException("Value must be a collection");
+                    list.clear();
+                    list.addAll((Collection) value);
+                    return;
+                }
             }
         }
-        
+
         throw new NoSuchPropertyException(target, name);
     }
-    
+
     public Class getPropertyClass(OgnlContext context, Object target, Object index)
     {
         if (index instanceof String) {
@@ -148,17 +146,17 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
                 }
             }
         }
-        
+
         if (index instanceof Number)
             return Object.class;
-        
+
         return null;
     }
-    
+
     public String getSourceAccessor(OgnlContext context, Object target, Object index)
     {
         String indexStr = index.toString().replaceAll("\"", "");
-        
+
         if (index instanceof String) {
 
             if (indexStr.equals("size")) {
@@ -179,10 +177,10 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
                 }
             }
         }
-        
+
         // TODO: This feels really inefficient, must be some better way
         // check if the index string represents a method on a custom class implementing java.util.List instead..
-        
+
         if (context.getCurrentObject() != null && !Number.class.isInstance(context.getCurrentObject())) {
 
             try {
@@ -190,12 +188,10 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
 
                 if (m != null)
                     return super.getSourceAccessor(context, target, index);
-                
-            } catch (Throwable t) {
-                if (UnsupportedCompilationException.class.isInstance(t))
-                    throw (UnsupportedCompilationException) t;
-                else
-                    throw new RuntimeException(t);
+
+            } catch (Throwable t)
+            {
+                throw OgnlOps.castToRuntime(t);
             }
         }
 
@@ -203,9 +199,9 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
 
         // need to convert to primitive for list index access
         // System.out.println("Curent type: " + context.getCurrentType() + " current object type " + context.getCurrentObject().getClass());
-        
+
         if (!context.getCurrentType().isPrimitive() && Number.class.isAssignableFrom(context.getCurrentType())) {
-            
+
             indexStr += "." + OgnlRuntime.getNumericValueGetter(context.getCurrentType());
         }  else if (context.getCurrentObject() != null && Number.class.isAssignableFrom(context.getCurrentObject().getClass())
                     && !context.getCurrentType().isPrimitive()) {
@@ -216,17 +212,17 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
 
             indexStr = "ognl.OgnlOps#getIntValue(" + indexStr + toString + ")";
         }
-        
+
         context.setCurrentType(Object.class);
-        
+
         return ".get(" + indexStr + ")";
     }
 
     public String getSourceSetter(OgnlContext context, Object target, Object index)
     {
-        
+
         String indexStr = index.toString().replaceAll("\"", "");
-        
+
         // TODO: This feels really inefficient, must be some better way
         // check if the index string represents a method on a custom class implementing java.util.List instead..
         if (context.getCurrentObject() != null && !Number.class.isInstance(context.getCurrentObject())) {
@@ -237,11 +233,9 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
                 if (m != null)
                     return super.getSourceSetter(context, target, index);
 
-            } catch (Throwable t) {
-                if (UnsupportedCompilationException.class.isInstance(t))
-                    throw (UnsupportedCompilationException) t;
-                else
-                    throw new RuntimeException(t);
+            } catch (Throwable t)
+            {
+                throw OgnlOps.castToRuntime(t);
             }
         }
 
@@ -266,9 +260,9 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
 
             indexStr = "ognl.OgnlOps#getIntValue(" + indexStr + toString + ")";
         }
-        
+
         context.setCurrentType(Object.class);
-        
+
         return ".set(" + indexStr + ", $3)";
     }
 }

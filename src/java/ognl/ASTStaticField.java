@@ -30,8 +30,6 @@
 // --------------------------------------------------------------------------
 package ognl;
 
-import ognl.enhance.UnsupportedCompilationException;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
@@ -178,11 +176,9 @@ public class ASTStaticField extends SimpleNode implements NodeType
 
             context.setCurrentType(_getterClass);
 
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         return className + "." + fieldName;
@@ -200,13 +196,11 @@ public class ASTStaticField extends SimpleNode implements NodeType
 
             context.setCurrentType(_getterClass);
 
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
-
+        
         return className + "." + fieldName;
     }
 }

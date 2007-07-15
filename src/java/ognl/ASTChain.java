@@ -321,11 +321,9 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                     context.put("_currentChain", result);
                 }
             }
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
         
         if (_lastType != null) {
@@ -399,11 +397,9 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                     context.put("_currentChain", result);
                 }
             }
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
         
         context.put("_lastChild", prevChild);

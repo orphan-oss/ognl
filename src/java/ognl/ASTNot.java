@@ -30,8 +30,6 @@
 //--------------------------------------------------------------------------
 package ognl;
 
-import ognl.enhance.UnsupportedCompilationException;
-
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
@@ -76,11 +74,9 @@ class ASTNot extends BooleanExpression
 
             return "(! ognl.OgnlOps.booleanValue(" + srcString + ") )";
             
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
     }
 }

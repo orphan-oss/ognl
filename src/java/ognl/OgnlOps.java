@@ -1030,4 +1030,20 @@ public abstract class OgnlOps implements NumericTypes
     {
         return returnValue;
     }
+
+    /**
+     * Utility method that converts incoming exceptions to {@link RuntimeException} 
+     * instances - or casts them if they already are.
+     *
+     * @param t
+     *      The exception to cast.
+     * @return The exception cast to a {@link RuntimeException}.
+     */
+    public static RuntimeException castToRuntime(Throwable t)
+    {
+        if (RuntimeException.class.isInstance(t))
+            return (RuntimeException)t;
+        
+        return new RuntimeException(t);
+    }
 }

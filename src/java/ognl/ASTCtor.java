@@ -31,7 +31,6 @@
 package ognl;
 
 import ognl.enhance.ExpressionCompiler;
-import ognl.enhance.UnsupportedCompilationException;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -175,11 +174,9 @@ public class ASTCtor extends SimpleNode
             if (isArray)
                 context.put("_ctorClass", clazz);
 
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         try {
@@ -308,11 +305,9 @@ public class ASTCtor extends SimpleNode
             context.setCurrentAccessor(clazz);
             context.setCurrentObject(ctorValue);
 
-        }catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         context.remove("_ctorClass");

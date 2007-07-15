@@ -31,7 +31,6 @@
 package ognl;
 
 import ognl.enhance.ExpressionCompiler;
-import ognl.enhance.UnsupportedCompilationException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -290,11 +289,9 @@ class ASTAdd extends NumericExpression
 
             return result;
 
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
     }
 }

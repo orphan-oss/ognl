@@ -133,11 +133,9 @@ public class ASTAnd extends BooleanExpression
         } catch (NullPointerException e) {
             
             throw new UnsupportedCompilationException("evaluation resulted in null expression.");
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
         
         return result;
@@ -180,11 +178,9 @@ public class ASTAnd extends BooleanExpression
             
             context.setCurrentType(Object.class);
             
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
         
         return result;

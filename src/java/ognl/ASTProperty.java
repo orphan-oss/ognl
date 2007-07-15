@@ -335,11 +335,9 @@ public class ASTProperty extends SimpleNode implements NodeType
                 }
             }
 
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         // set known property types for NodeType interface when possible
@@ -527,11 +525,9 @@ public class ASTProperty extends SimpleNode implements NodeType
                 }
             }
 
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         context.setCurrentObject(target);

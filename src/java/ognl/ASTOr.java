@@ -126,11 +126,9 @@ public class ASTOr extends BooleanExpression {
             context.setCurrentObject(target);
             context.setCurrentType(Boolean.TYPE);
 
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException) t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         return result;
@@ -176,11 +174,9 @@ public class ASTOr extends BooleanExpression {
 
             context.setCurrentType(Boolean.TYPE);
 
-        } catch (Throwable t) {
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException) t;
-            else
-                throw new RuntimeException(t);
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         return result;
