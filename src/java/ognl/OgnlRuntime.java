@@ -2123,6 +2123,20 @@ public class OgnlRuntime {
         return null;
     }
 
+    /**
+     * Finds the best possible match for a method on the specified target class with a matching
+     * name.
+     *
+     * <p>
+     *  The name matched will also try different combinations like <code>is + name, has + name, get + name, etc..</code>
+     * </p>
+     * 
+     * @param target
+     *          The class to find a matching method against.
+     * @param name
+     *          The name of the method.
+     * @return The most likely matching {@link Method}, or null if none could be found.
+     */
     public static Method getReadMethod(Class target, String name)
     {
         return getReadMethod(target, name, -1);
@@ -2131,20 +2145,22 @@ public class OgnlRuntime {
     public static Method getReadMethod(Class target, String name, int numParms)
     {
         try {
-            name = name.replaceAll("\"", "");
+            name = name.replaceAll("\"", "").toLowerCase();
 
             BeanInfo info = Introspector.getBeanInfo(target);
-
             MethodDescriptor[] methods = info.getMethodDescriptors();
 
             // exact matches first
-            for (int i = 0; i < methods.length; i++) {
 
+            for (int i = 0; i < methods.length; i++)
+            {
                 if ((methods[i].getName().equalsIgnoreCase(name)
-                     || methods[i].getName().toLowerCase().equals(name.toLowerCase())
-                     || methods[i].getName().toLowerCase().equals("get" + name.toLowerCase()))
-                    && !methods[i].getName().startsWith("set")) {
-
+                     || methods[i].getName().toLowerCase().equals(name)
+                     || methods[i].getName().toLowerCase().equals("get" + name)
+                     || methods[i].getName().toLowerCase().equals("has" + name)
+                     || methods[i].getName().toLowerCase().equals("is" + name))
+                    && !methods[i].getName().startsWith("set"))
+                {
                     if (numParms > 0 && methods[i].getMethod().getParameterTypes().length == numParms)
                         return methods[i].getMethod();
                     else if (numParms < 0)
@@ -2152,9 +2168,9 @@ public class OgnlRuntime {
                 }
             }
 
-            for (int i = 0; i < methods.length; i++) {
-
-                if (methods[i].getName().toLowerCase().endsWith(name.toLowerCase())
+            for (int i = 0; i < methods.length; i++)
+            {
+                if (methods[i].getName().toLowerCase().endsWith(name)
                     && !methods[i].getName().startsWith("set")
                     && methods[i].getMethod().getReturnType() != Void.TYPE) {
 
@@ -2167,10 +2183,8 @@ public class OgnlRuntime {
 
             // try one last time adding a get to beginning
 
-            if (!name.startsWith("get")) {
-
+            if (!name.startsWith("get"))
                 return OgnlRuntime.getReadMethod(target, "get" + name, numParms);
-            }
 
         } catch (Throwable t) {
             throw new RuntimeException(t);

@@ -34,7 +34,7 @@ public class TestExpressionCompiler extends TestCase
     {
         Node expr = (Node)Ognl.parseExpression("bean2");
         Bean1 root = new Bean1();
-        
+       
         _compiler.compileExpression(_context, expr, root);
         
         assertNotNull(expr.getAccessor().get(_context, root));

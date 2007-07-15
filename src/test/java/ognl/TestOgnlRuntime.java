@@ -51,6 +51,28 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals("isPageBreakAfter", m.getName());
     }
 
+    class TestGetters {
+
+        public boolean isEditorDisabled()
+        {
+            return false;
+        }
+
+        public boolean isDisabled()
+        {
+            return true;
+        }
+    }
+
+    public void test_Get_Read_Method_Multiple()
+            throws Exception
+    {
+        Method m = OgnlRuntime.getReadMethod(TestGetters.class, "disabled");
+        assertNotNull(m);
+
+        assertEquals("isDisabled", m.getName());
+    }
+
     public void test_Call_Static_Method_Invalid_Class()
     {
 
@@ -81,7 +103,7 @@ public class TestOgnlRuntime extends TestCase {
     }
 
     public void test_Class_Cache_Inspector()
-        throws Exception
+            throws Exception
     {
         OgnlRuntime.clearCache();
         assertEquals(0, OgnlRuntime._propertyDescriptorCache.getSize());
@@ -99,7 +121,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(0, OgnlRuntime._propertyDescriptorCache.getSize());
 
         // now register class cache prevention
-        
+
         OgnlRuntime.setClassCacheInspector(new TestCacheInspector());
 
         expr = Ognl.compileExpression(context, root, "property.bean3.value != null");

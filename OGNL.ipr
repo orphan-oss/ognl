@@ -364,10 +364,10 @@
           <value>
             <SvnBranchConfiguration>
               <option name="branchUrls">
-                <collection>
+                <list>
                   <option value="https://jkuhnert@svn.opensymphony.com/svn/ognl/branches" />
                   <option value="https://jkuhnert@svn.opensymphony.com/svn/ognl/tags" />
-                </collection>
+                </list>
               </option>
               <option name="trunkUrl" value="https://jkuhnert@svn.opensymphony.com/svn/ognl/trunk" />
             </SvnBranchConfiguration>

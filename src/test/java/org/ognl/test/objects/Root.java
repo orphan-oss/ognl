@@ -454,7 +454,7 @@ public class Root extends Object
     public boolean isEditorDisabled()
     {
         return false;
-    }
+    }    
 
     public boolean isDisabled()
     {
