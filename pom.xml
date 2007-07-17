@@ -41,13 +41,6 @@
             <version>3.4.ga</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.codehaus.mvel</groupId>
-            <artifactId>mvel</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/build/mvel.jar</systemPath>
-        </dependency>
     </dependencies>
 
     <build>

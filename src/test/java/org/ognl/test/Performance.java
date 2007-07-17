@@ -34,7 +34,6 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.SimpleNode;
-import org.mvel.MVEL;
 import org.ognl.test.objects.Bean1;
 
 import java.io.Serializable;
@@ -263,7 +262,7 @@ public class Performance extends Object
             _context.put("contextValue", "cvalue");
         } else
         {
-            _mvelCompiled = MVEL.compileExpression(expressionString);
+            //_mvelCompiled = MVEL.compileExpression(expressionString);
         }
     }
 
@@ -325,10 +324,11 @@ public class Performance extends Object
                     Ognl.getValue(_expression, _context, _root);
             } else
             {
+                /*
                 if (compiled)
                     MVEL.executeExpression(_mvelCompiled, _root);
                 else
-                    MVEL.eval(_expressionString, _root);
+                    MVEL.eval(_expressionString, _root);*/
             }
         } while(!done());
         return endTest();
