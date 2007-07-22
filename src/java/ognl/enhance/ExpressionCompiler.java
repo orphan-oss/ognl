@@ -162,7 +162,6 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         return true;
     }
 
-    
     public String castExpression(OgnlContext context, Node expression, String body)
     {
         // ok - so this looks really f-ed up ...and it is ..eh if you can do it better I'm all for it :)
