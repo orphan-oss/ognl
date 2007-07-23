@@ -20,4 +20,9 @@ public class ListSourceImpl extends ArrayList implements ListSource {
     {
         return super.add(value);
     }
+
+    public Object getName()
+    {
+        return null;
+    }
 }

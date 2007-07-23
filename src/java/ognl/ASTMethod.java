@@ -89,13 +89,14 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
             
             result = OgnlRuntime.callMethod(context, source, _methodName, null, args);
             
-            if (result == null) {
-
+            if (result == null)
+            {
                 NullHandler nh = OgnlRuntime.getNullHandler(OgnlRuntime.getTargetClass(source));
                 result = nh.nullMethodResult(context, source, _methodName, args);
             }
 
             return result;
+            
         } finally {
             OgnlRuntime.getObjectArrayPool().recycle(args);
         }

@@ -1020,29 +1020,38 @@ public class OgnlRuntime {
         Method result = null;
         Class[] resultParameterTypes = null;
 
-        if (methods != null) {
-            for (int i = 0, icount = methods.size(); i < icount; i++) {
+        if (methods != null)
+        {
+            for (int i = 0, icount = methods.size(); i < icount; i++)
+            {
                 Method m = (Method) methods.get(i);
                 Class[] mParameterTypes = getParameterTypes(m);
 
                 if (areArgsCompatible(args, mParameterTypes)
-                    && ((result == null) || isMoreSpecific(mParameterTypes, resultParameterTypes))) {
+                    && ((result == null) || isMoreSpecific(mParameterTypes, resultParameterTypes)))
+                {
                     result = m;
                     resultParameterTypes = mParameterTypes;
                     System.arraycopy(args, 0, actualArgs, 0, args.length);
-                    for (int j = 0; j < mParameterTypes.length; j++) {
+
+                    for (int j = 0; j < mParameterTypes.length; j++)
+                    {
                         Class type = mParameterTypes[j];
 
-                        if (type.isPrimitive() && (actualArgs[j] == null)) {
+                        if (type.isPrimitive() && (actualArgs[j] == null))
+                        {
                             actualArgs[j] = getConvertedType(context, source, result, propertyName, null, type);
                         }
                     }
                 }
             }
         }
-        if (result == null) {
+
+        if (result == null)
+        {
             result = getConvertedMethodAndArgs(context, target, propertyName, methods, args, actualArgs);
         }
+        
         return result;
     }
 
@@ -1054,24 +1063,35 @@ public class OgnlRuntime {
         Object[] actualArgs = _objectArrayPool.create(args.length);
 
         try {
-            Method method = getAppropriateMethod(context, source, target, methodName, propertyName, methods, args,
-                                                 actualArgs);
+            Method method = getAppropriateMethod(context, source, target, methodName,
+                                                 propertyName, methods, args, actualArgs);
 
-            if ((method == null) || !isMethodAccessible(context, source, method, propertyName)) {
+            if ((method == null) || !isMethodAccessible(context, source, method, propertyName))
+            {
                 StringBuffer buffer = new StringBuffer();
+                String className = "";
 
-                for (int i = 0, ilast = args.length - 1; i <= ilast; i++) {
+                if (target != null)
+                {
+                    className = target.getClass().getName() + ".";
+                }
+
+                for (int i = 0, ilast = args.length - 1; i <= ilast; i++)
+                {
                     Object arg = args[i];
-
+                    
                     buffer.append((arg == null) ? NULL_STRING : arg.getClass().getName());
-                    if (i < ilast) {
+                    if (i < ilast)
+                    {
                         buffer.append(", ");
                     }
                 }
 
-                throw new NoSuchMethodException(methodName + "(" + buffer + ")");
+                throw new NoSuchMethodException(className + methodName + "(" + buffer + ")");
             }
+            
             return invokeMethod(target, method, actualArgs);
+            
         } catch (NoSuchMethodException e) {
             reason = e;
         } catch (IllegalAccessException e) {
@@ -1081,6 +1101,7 @@ public class OgnlRuntime {
         } finally {
             _objectArrayPool.recycle(actualArgs);
         }
+        
         throw new MethodFailedException(source, methodName, reason);
     }
 

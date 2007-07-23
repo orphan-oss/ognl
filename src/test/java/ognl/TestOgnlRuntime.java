@@ -73,6 +73,17 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals("isDisabled", m.getName());
     }
 
+    public void test_Get_Appropriate_Method()
+            throws Exception
+    {
+        ListSource list = new ListSourceImpl();
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+
+        Object ret = OgnlRuntime.callMethod(context, list, "addValue", null, new String[] {null});
+        
+        assert ret != null;
+    }
+
     public void test_Call_Static_Method_Invalid_Class()
     {
 

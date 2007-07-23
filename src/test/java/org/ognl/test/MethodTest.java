@@ -31,12 +31,15 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
+import org.ognl.test.objects.ListSource;
+import org.ognl.test.objects.ListSourceImpl;
 import org.ognl.test.objects.Simple;
 
 public class MethodTest extends OgnlTestCase
 {
 
     private static Simple ROOT = new Simple();
+    private static ListSource LIST = new ListSourceImpl();
 
     private static Object[][] TESTS = {
             { "hashCode()", new Integer(ROOT.hashCode()) } ,
@@ -47,6 +50,7 @@ public class MethodTest extends OgnlTestCase
             { "@org.ognl.test.MethodTest@getA().isProperty()", Boolean.FALSE},
             { "isDisabled()", Boolean.TRUE},
             { "isEditorDisabled()", Boolean.FALSE},
+            { LIST, "addValue(name)", Boolean.TRUE},
     };
 
     public static class A
@@ -71,7 +75,13 @@ public class MethodTest extends OgnlTestCase
         TestSuite result = new TestSuite();
 
         for(int i = 0; i < TESTS.length; i++) {
-            result.addTest(new MethodTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", ROOT, (String) TESTS[i][0], TESTS[i][1]));
+            if (TESTS[i].length == 3)
+            {
+                result.addTest(new MethodTest((String) TESTS[i][1] + " (" + TESTS[i][2] + ")", TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
+            } else
+            {
+                result.addTest(new MethodTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", ROOT, (String) TESTS[i][0], TESTS[i][1]));
+            }
         }
         return result;
     }
