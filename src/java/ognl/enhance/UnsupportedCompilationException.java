@@ -21,5 +21,9 @@ public class UnsupportedCompilationException extends RuntimeException
     {
         super(message);
     }
-    
+
+    public UnsupportedCompilationException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
 }

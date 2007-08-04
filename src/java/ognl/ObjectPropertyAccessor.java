@@ -57,7 +57,8 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         OgnlContext ognlContext = (OgnlContext) context;
 
         try {
-            if ((result = OgnlRuntime.getMethodValue(ognlContext, target, name, true)) == OgnlRuntime.NotFound) {
+            if ((result = OgnlRuntime.getMethodValue(ognlContext, target, name, true)) == OgnlRuntime.NotFound)
+            {
                 result = OgnlRuntime.getFieldValue(ognlContext, target, name, true);
             }
         } catch (IntrospectionException ex) {
@@ -67,6 +68,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         } catch (Exception ex) {
             throw new OgnlException(name, ex);
         }
+        
         return result;
     }
 
@@ -141,9 +143,11 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
         result = getPossibleProperty(context, target, name);
 
-        if (result == OgnlRuntime.NotFound) {
+        if (result == OgnlRuntime.NotFound)
+        {
             throw new NoSuchPropertyException(target, name);
         }
+        
         return result;
     }
 
@@ -154,7 +158,8 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
         Object result = setPossibleProperty(context, target, name, value);
 
-        if (result == OgnlRuntime.NotFound) {
+        if (result == OgnlRuntime.NotFound)
+        {
             throw new NoSuchPropertyException(target, name);
         }
     }

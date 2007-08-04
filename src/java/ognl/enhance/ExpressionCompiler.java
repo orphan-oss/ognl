@@ -148,11 +148,11 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     {
         if (ASTChain.class.isInstance(expression))
         {
-            
-            if (ASTConst.class.isInstance(expression.jjtGetChild(0))
-                || ASTStaticMethod.class.isInstance(expression.jjtGetChild(0))
-                || ASTStaticField.class.isInstance(expression.jjtGetChild(0))
-                || (ASTVarRef.class.isInstance(expression.jjtGetChild(0)) && !ASTRootVarRef.class.isInstance(expression.jjtGetChild(0))))
+            Node child = expression.jjtGetChild(0);
+            if (ASTConst.class.isInstance(child)
+                || ASTStaticMethod.class.isInstance(child)
+                || ASTStaticField.class.isInstance(child)
+                || (ASTVarRef.class.isInstance(child) && !ASTRootVarRef.class.isInstance(child)))
                 return false;
         }
 
@@ -545,38 +545,11 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         return body;
     }
-
-    /**
-     * Key to the {@link Map} object placed in the {@link OgnlContext} for a given statement compilation run to
-     * hold {@link LocalReference} instances.
-     */
-    public static final String LOCAL_REFERENCE_MAP = "localReference";
     
-    /**
-     * Key to the {@link Integer} object instance stored in the {@link OgnlContext} to ensure
-     * unique method names are generated for {@link LocalReference} instances created.
-     */
-    public static final String LOCAL_REFERENCE_COUNTER = "localRefCounter";
-
     public String createLocalReference(OgnlContext context, String expression, Class type)
     {
-        Integer counter = (Integer) context.get(LOCAL_REFERENCE_COUNTER);
-        if (counter == null)
-        {
-            // first use of
-            counter = new Integer(0);
-            context.put(LOCAL_REFERENCE_COUNTER, counter);
-
-            context.put(LOCAL_REFERENCE_MAP, new LinkedHashMap());
-        }
-
-        counter = new Integer(counter.intValue() + 1);
-        context.put(LOCAL_REFERENCE_COUNTER, counter);
-
-        Map referenceMap = (Map) context.get(LOCAL_REFERENCE_MAP);
-        String referenceName = "ref" + counter;
-
-        referenceMap.put(referenceName, new LocalReferenceImpl(referenceName, expression, type));
+        String referenceName = "ref" + context.incrementLocalReferenceCounter();
+        context.addLocalReference(referenceName, new LocalReferenceImpl(referenceName, expression, type));
 
         String castString = "";
         if (!type.isPrimitive())
@@ -588,18 +561,15 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     void createLocalReferences(OgnlContext context, ClassPool pool, CtClass clazz, CtClass objClass, CtClass[] params)
             throws CannotCompileException, NotFoundException
     {
-        context.remove(LOCAL_REFERENCE_COUNTER);
-
-        Map referenceMap = (Map) context.remove(LOCAL_REFERENCE_MAP);
-        if (referenceMap == null)
+        Map referenceMap = context.getLocalReferences();
+        if (referenceMap == null || referenceMap.size() < 1)
             return;
 
-        Iterator it = referenceMap.keySet().iterator();
+        Iterator it = referenceMap.values().iterator();
 
         while (it.hasNext())
         {
-            String key = (String) it.next();
-            LocalReference ref = (LocalReference) referenceMap.get(key);
+            LocalReference ref = (LocalReference) it.next();
 
             String widener = ref.getType().isPrimitive() ? " " : " ($w) ";
 
@@ -615,6 +585,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             method.setBody(body);
 
             clazz.addMethod(method);
+            
+            it.remove();
         }
     }
 

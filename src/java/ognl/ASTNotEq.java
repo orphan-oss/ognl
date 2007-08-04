@@ -49,7 +49,8 @@ class ASTNotEq extends ComparisonExpression
     {
         Object v1 = _children[0].getValue( context, source );
         Object v2 = _children[1].getValue( context, source );
-        return OgnlOps.equal( v1, v2 )? Boolean.FALSE : Boolean.TRUE;
+        
+        return OgnlOps.equal( v1, v2 ) ? Boolean.FALSE : Boolean.TRUE;
     }
 
     public String getExpressionOperator(int index)

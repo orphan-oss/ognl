@@ -30,6 +30,8 @@
 // --------------------------------------------------------------------------
 package ognl;
 
+import ognl.enhance.LocalReference;
+
 import java.util.*;
 
 /**
@@ -102,9 +104,11 @@ public class OgnlContext extends Object implements Map
     }
 
     private List _typeStack = new ArrayList();
-
     private List _accessorStack = new ArrayList();
-    
+
+    private int _localReferenceCounter = 0;
+    private Map _localReferenceMap = null;
+
     /**
      * Constructs a new OgnlContext with the default class resolver, type converter and member
      * access.
@@ -431,6 +435,26 @@ public class OgnlContext extends Object implements Map
         return result;
     }
 
+    public int incrementLocalReferenceCounter()
+    {
+        return ++_localReferenceCounter;
+    }
+
+    public void addLocalReference(String key, LocalReference reference)
+    {
+        if (_localReferenceMap == null)
+        {
+            _localReferenceMap = new LinkedHashMap();
+        }
+
+        _localReferenceMap.put(key, reference);
+    }
+
+    public Map getLocalReferences()
+    {
+        return _localReferenceMap;
+    }
+
     /* ================= Map interface ================= */
     public int size()
     {
@@ -629,7 +653,13 @@ public class OgnlContext extends Object implements Map
         _values.clear();
         _typeStack.clear();
         _accessorStack.clear();
-        
+
+        _localReferenceCounter = 0;
+        if (_localReferenceMap != null)
+        {
+            _localReferenceMap.clear();
+        }
+
         setRoot(null);
         setCurrentObject(null);
         setRootEvaluation(null);

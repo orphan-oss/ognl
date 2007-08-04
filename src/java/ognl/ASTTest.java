@@ -80,7 +80,9 @@ class ASTTest extends ExpressionNode
             String first = OgnlRuntime.getChildSource(context, target, _children[0]);            
             if (!OgnlRuntime.isBoolean(first) && !context.getCurrentType().isPrimitive())
                 first = OgnlRuntime.getCompiler().createLocalReference(context, first, context.getCurrentType());
-            if (ExpressionNode.class.isInstance(_children[0])) {
+            
+            if (ExpressionNode.class.isInstance(_children[0]))
+            {
                 first = "(" + first + ")";
             }
             
@@ -89,7 +91,9 @@ class ASTTest extends ExpressionNode
 
             if (!OgnlRuntime.isBoolean(second) && !context.getCurrentType().isPrimitive())
                 second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());
-            if (ExpressionNode.class.isInstance(_children[1])) {
+
+            if (ExpressionNode.class.isInstance(_children[1])) 
+            {
                 second = "(" + second + ")";
             }
 
@@ -98,7 +102,8 @@ class ASTTest extends ExpressionNode
             
             if (!OgnlRuntime.isBoolean(third) && !context.getCurrentType().isPrimitive())
                 third = OgnlRuntime.getCompiler().createLocalReference(context, third, context.getCurrentType());
-            if (ExpressionNode.class.isInstance(_children[2])) {
+            if (ExpressionNode.class.isInstance(_children[2]))
+            {
                 third = "(" + third + ")";
             }
 

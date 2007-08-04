@@ -84,9 +84,11 @@ public abstract class SimpleNode implements Node, Serializable
 
     public void jjtAddChild(Node n, int i)
     {
-        if (_children == null) {
+        if (_children == null)
+        {
             _children = new Node[i + 1];
-        } else if (i >= _children.length) {
+        } else if (i >= _children.length)
+        {
             Node c[] = new Node[i + 1];
             System.arraycopy(_children, 0, c, 0, _children.length);
             _children = c;

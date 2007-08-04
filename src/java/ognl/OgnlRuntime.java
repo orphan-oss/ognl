@@ -32,7 +32,6 @@ package ognl;
 
 import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
-import ognl.enhance.UnsupportedCompilationException;
 
 import java.beans.*;
 import java.lang.reflect.*;
@@ -120,7 +119,7 @@ public class OgnlRuntime {
     static final ClassCache _propertyAccessors = new ClassCache();
     static final ClassCache _elementsAccessors = new ClassCache();
     static final ClassCache _nullHandlers = new ClassCache();
-    
+
     static final ClassCache _propertyDescriptorCache = new ClassCache();
     static final ClassCache _constructorCache = new ClassCache();
     static final ClassCache _staticMethodCache = new ClassCache();
@@ -378,7 +377,7 @@ public class OgnlRuntime {
         setPropertyAccessor(Enumeration.class, new EnumerationPropertyAccessor());
 
         ElementsAccessor e = new ArrayElementsAccessor();
-        
+
         setElementsAccessor(Object.class, new ObjectElementsAccessor());
         setElementsAccessor(byte[].class, e);
         setElementsAccessor(short[].class, e);
@@ -395,7 +394,7 @@ public class OgnlRuntime {
         setElementsAccessor(Number.class, new NumberElementsAccessor());
 
         NullHandler nh = new ObjectNullHandler();
-        
+
         setNullHandler(Object.class, nh);
         setNullHandler(byte[].class, nh);
         setNullHandler(short[].class, nh);
@@ -407,7 +406,7 @@ public class OgnlRuntime {
         setNullHandler(Object[].class, nh);
 
         MethodAccessor ma = new ObjectMethodAccessor();
-        
+
         setMethodAccessor(Object.class, ma);
         setMethodAccessor(byte[].class, ma);
         setMethodAccessor(short[].class, ma);
@@ -1051,7 +1050,7 @@ public class OgnlRuntime {
         {
             result = getConvertedMethodAndArgs(context, target, propertyName, methods, args, actualArgs);
         }
-        
+
         return result;
     }
 
@@ -1079,7 +1078,7 @@ public class OgnlRuntime {
                 for (int i = 0, ilast = args.length - 1; i <= ilast; i++)
                 {
                     Object arg = args[i];
-                    
+
                     buffer.append((arg == null) ? NULL_STRING : arg.getClass().getName());
                     if (i < ilast)
                     {
@@ -1089,9 +1088,9 @@ public class OgnlRuntime {
 
                 throw new NoSuchMethodException(className + methodName + "(" + buffer + ")");
             }
-            
+
             return invokeMethod(target, method, actualArgs);
-            
+
         } catch (NoSuchMethodException e) {
             reason = e;
         } catch (IllegalAccessException e) {
@@ -1101,7 +1100,7 @@ public class OgnlRuntime {
         } finally {
             _objectArrayPool.recycle(actualArgs);
         }
-        
+
         throw new MethodFailedException(source, methodName, reason);
     }
 
@@ -1467,7 +1466,7 @@ public class OgnlRuntime {
                 Field f = c.getField(fieldName);
                 if (!Modifier.isStatic(f.getModifiers()))
                     throw new OgnlException("Field " + fieldName + " of class " + className + " is not static");
-                
+
                 return f.get(null);
             }
         } catch (ClassNotFoundException e) {
@@ -2151,7 +2150,7 @@ public class OgnlRuntime {
      * <p>
      *  The name matched will also try different combinations like <code>is + name, has + name, get + name, etc..</code>
      * </p>
-     * 
+     *
      * @param target
      *          The class to find a matching method against.
      * @param name
@@ -2221,7 +2220,7 @@ public class OgnlRuntime {
 
             if (m != null)
                 return m;
-            
+
             // try one last time adding a get to beginning
 
             if (!name.startsWith("get"))
@@ -2394,33 +2393,30 @@ public class OgnlRuntime {
         if (pre == null)
             pre = "";
 
-        try {
-            
+        try
+        {
             child.getValue(context, target);
-        } catch (NullPointerException e) {
+        } catch (NullPointerException e)
+        {
             // ignore
-        } catch (ArithmeticException e) {
+        } catch (ArithmeticException e)
+        {
             context.setCurrentType(int.class);
             return "0";
-        } catch (Throwable t) {
-            
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-
-            throw new UnsupportedCompilationException("Error evaluating child source: " + t.getMessage());
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         String source = null;
 
-        try {
+        try
+        {
             source = child.toGetSourceString(context, target);
         }
-        catch (Throwable t) {
-            
-            if (UnsupportedCompilationException.class.isInstance(t))
-                throw (UnsupportedCompilationException)t;
-
-            throw new UnsupportedCompilationException("Error evaluating child source: " + t.getMessage());
+        catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         // handle root / method expressions that may not have proper root java source access

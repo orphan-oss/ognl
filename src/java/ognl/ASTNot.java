@@ -46,7 +46,7 @@ class ASTNot extends BooleanExpression
 
     protected Object getValueBody( OgnlContext context, Object source ) throws OgnlException
     {
-        return OgnlOps.booleanValue( _children[0].getValue(context, source) )? Boolean.FALSE : Boolean.TRUE;
+        return OgnlOps.booleanValue( _children[0].getValue(context, source) ) ? Boolean.FALSE : Boolean.TRUE;
     }
 
     public String getExpressionOperator(int index)
@@ -58,13 +58,6 @@ class ASTNot extends BooleanExpression
     {
         try {
             
-            Object value = getValueBody(context, target);
-            
-            if (value != null && Boolean.class.isAssignableFrom(value.getClass()))
-                _getterClass = Boolean.TYPE;
-            else if (value != null)
-                _getterClass = value.getClass();
-
             String srcString = super.toGetSourceString(context, target);
             
             if (srcString == null || srcString.trim().length() < 1)

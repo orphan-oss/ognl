@@ -52,7 +52,6 @@ public class TestOgnlRuntime extends TestCase {
     }
 
     class TestGetters {
-
         public boolean isEditorDisabled()
         {
             return false;
@@ -60,6 +59,14 @@ public class TestOgnlRuntime extends TestCase {
 
         public boolean isDisabled()
         {
+            return true;
+        }
+
+        public boolean isNotAvailable() {
+            return false;
+        }
+
+        public boolean isAvailable() {
             return true;
         }
     }
@@ -71,6 +78,20 @@ public class TestOgnlRuntime extends TestCase {
         assertNotNull(m);
 
         assertEquals("isDisabled", m.getName());
+    }
+
+    public void test_Get_Read_Method_Multiple_Boolean_Getters()
+            throws Exception
+    {
+        Method m = OgnlRuntime.getReadMethod(TestGetters.class, "available");
+        assertNotNull(m);
+
+        assertEquals("isAvailable", m.getName());
+
+        m = OgnlRuntime.getReadMethod(TestGetters.class, "notAvailable");
+        assertNotNull(m);
+
+        assertEquals("isNotAvailable", m.getName());
     }
 
     public void test_Find_Method_Mixed_Boolean_Getters()

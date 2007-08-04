@@ -98,11 +98,10 @@ public class ASTOr extends BooleanExpression {
             String first = OgnlRuntime.getChildSource(context, target, _children[0]);
             if (!OgnlRuntime.isBoolean(first))
                 first = OgnlRuntime.getCompiler().createLocalReference(context, first, context.getCurrentType());
-
+            
             Class firstType = context.getCurrentType();
 
             String second = OgnlRuntime.getChildSource(context, target, _children[1]);
-
             if (!OgnlRuntime.isBoolean(second))
                 second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());
 

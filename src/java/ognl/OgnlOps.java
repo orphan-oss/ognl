@@ -30,6 +30,8 @@
 // --------------------------------------------------------------------------
 package ognl;
 
+import ognl.enhance.UnsupportedCompilationException;
+
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -1043,6 +1045,9 @@ public abstract class OgnlOps implements NumericTypes
     {
         if (RuntimeException.class.isInstance(t))
             return (RuntimeException)t;
+
+        if (OgnlException.class.isInstance(t))
+            throw new UnsupportedCompilationException("Error evluating expression: " + t.getMessage(), t);
         
         return new RuntimeException(t);
     }

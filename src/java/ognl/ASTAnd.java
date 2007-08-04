@@ -51,26 +51,35 @@ public class ASTAnd extends BooleanExpression
         flattenTree();
     }
 
-    protected Object getValueBody( OgnlContext context, Object source ) throws OgnlException
+    protected Object getValueBody( OgnlContext context, Object source )
+            throws OgnlException
     {
         Object result = null;
         int last = _children.length - 1;
-        for ( int i=0; i <= last; ++i ) {
+        for ( int i=0; i <= last; ++i )
+        {
             result = _children[i].getValue( context, source );
+
             if ( i != last && ! OgnlOps.booleanValue(result) )
                 break;
         }
+        
         return result;
     }
 
-    protected void setValueBody( OgnlContext context, Object target, Object value ) throws OgnlException
+    protected void setValueBody( OgnlContext context, Object target, Object value )
+            throws OgnlException
     {
         int last = _children.length - 1;
-        for ( int i=0; i < last; ++i ) {
+        
+        for ( int i=0; i < last; ++i )
+        {
             Object v = _children[i].getValue( context, target );
+            
             if ( ! OgnlOps.booleanValue(v) )
                 return;
         }
+        
         _children[last].setValue( context, target, value );
     }
 
@@ -84,19 +93,6 @@ public class ASTAnd extends BooleanExpression
         return null;
     }
 
-    boolean allConditionsTrue(OgnlContext context, Object target) throws OgnlException
-    {
-        Object result;
-        int last = _children.length - 1;
-        for ( int i=0; i <= last; ++i ) {
-            result = _children[i].getValue( context, target );
-            if ( i != last && ! OgnlOps.booleanValue(result) )
-                return false;
-        }
-        
-        return true;
-    }
-
     public String toGetSourceString(OgnlContext context, Object target)
     {
         if (_children.length != 2)
@@ -106,10 +102,12 @@ public class ASTAnd extends BooleanExpression
         
         try {
 
-            if (!allConditionsTrue(context, target))
-                throw new UnsupportedCompilationException("And expression can't be compiled until all conditions are true.");
-
             String first = OgnlRuntime.getChildSource(context, target, _children[0]);
+            if (!OgnlOps.booleanValue(context.getCurrentObject()))
+            {
+                throw new UnsupportedCompilationException("And expression can't be compiled until all conditions are true.");
+            }
+
             if (!OgnlRuntime.isBoolean(first) && !context.getCurrentType().isPrimitive())
                 first = OgnlRuntime.getCompiler().createLocalReference(context, first, context.getCurrentType());
 
@@ -153,10 +151,11 @@ public class ASTAnd extends BooleanExpression
         String result = "";
         
         try {
-            if (!allConditionsTrue(context, target))
-                throw new UnsupportedCompilationException("And expression can't be compiled until all conditions are true.");
 
-            _children[0].getValue(context, target);
+            if (!OgnlOps.booleanValue(_children[0].getValue(context, target)))
+            {
+               throw new UnsupportedCompilationException("And expression can't be compiled until all conditions are true.");
+            }
             
             String first = ExpressionCompiler.getRootExpression(_children[0], context.getRoot(), context)
             + pre + _children[0].toGetSourceString(context, target);
@@ -175,7 +174,6 @@ public class ASTAnd extends BooleanExpression
             result += "; } ";
             
             context.setCurrentObject(target);
-            
             context.setCurrentType(Object.class);
             
         } catch (Throwable t)
