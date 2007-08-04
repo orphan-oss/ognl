@@ -30,11 +30,10 @@
 //--------------------------------------------------------------------------
 package org.ognl.test.objects;
 
-public class CorrectedObject extends Object
+public class CorrectedObject
 {
     public CorrectedObject()
     {
-        super();
     }
 
     public void setStringValue(String value)

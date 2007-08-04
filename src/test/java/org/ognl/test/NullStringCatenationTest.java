@@ -64,15 +64,15 @@ public class NullStringCatenationTest extends OgnlTestCase {
         for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new NullStringCatenationTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
+                                                            TESTS[i][2]));
             } else {
                 if (TESTS[i].length == 4) {
                     result.addTest(new NullStringCatenationTest((String) TESTS[i][1], TESTS[i][0],
-                            (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
+                                                                (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
                 } else {
                     if (TESTS[i].length == 5) {
                         result.addTest(new NullStringCatenationTest((String) TESTS[i][1], TESTS[i][0],
-                                (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
+                                                                    (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
                     } else {
                         throw new RuntimeException("don't understand TEST format");
                     }

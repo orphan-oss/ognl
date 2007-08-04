@@ -36,16 +36,15 @@ import org.ognl.test.objects.CorrectedObject;
 
 public class NullHandlerTest extends OgnlTestCase
 {
-
     private static CorrectedObject CORRECTED = new CorrectedObject();
 
     private static Object[][] TESTS = {
             // NullHandler
-            { CORRECTED, "stringValue", "corrected" }, 
+            { CORRECTED, "stringValue", "corrected" },
             { CORRECTED, "getStringValue()", "corrected" },
-            { CORRECTED, "#root.stringValue", "corrected" }, 
+            { CORRECTED, "#root.stringValue", "corrected" },
             { CORRECTED, "#root.getStringValue()", "corrected" },
-            };
+    };
 
     /*
      * =================================================================== Public static methods
@@ -59,15 +58,15 @@ public class NullHandlerTest extends OgnlTestCase
             if (TESTS[i].length == 3) {
                 result
                         .addTest(new NullHandlerTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                TESTS[i][2]));
+                                                     TESTS[i][2]));
             } else {
                 if (TESTS[i].length == 4) {
                     result.addTest(new NullHandlerTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                            TESTS[i][2], TESTS[i][3]));
+                                                       TESTS[i][2], TESTS[i][3]));
                 } else {
                     if (TESTS[i].length == 5) {
                         result.addTest(new NullHandlerTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                TESTS[i][2], TESTS[i][3], TESTS[i][4]));
+                                                           TESTS[i][2], TESTS[i][3], TESTS[i][4]));
                     } else {
                         throw new RuntimeException("don't understand TEST format");
                     }
@@ -92,7 +91,7 @@ public class NullHandlerTest extends OgnlTestCase
     }
 
     public NullHandlerTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-            Object expectedAfterSetResult)
+                           Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }

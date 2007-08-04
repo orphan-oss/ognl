@@ -247,8 +247,11 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
             String methodName = index.toString().replaceAll("\"", "");
             Method m = OgnlRuntime.getWriteMethod(target.getClass(), methodName);
 
-            if (m == null && context.getCurrentObject() != null)
+            if (m == null && context.getCurrentObject() != null
+                && context.getCurrentObject().toString() != null)
+            {
                 m = OgnlRuntime.getWriteMethod(target.getClass(), context.getCurrentObject().toString().replaceAll("\"", ""));
+            }
 
             if (m == null)
                 return "";

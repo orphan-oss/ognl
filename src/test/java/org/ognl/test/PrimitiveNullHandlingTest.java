@@ -44,19 +44,19 @@ public class PrimitiveNullHandlingTest extends OgnlTestCase
     }
 
     private static Object[][] TESTS = {
-    // Primitive null handling
+            // Primitive null handling
             { SIMPLE, "floatValue", new Float(10.56f), null, new Float(0f) }, // set float to
-                                                                                // null, should
-                                                                                // yield 0.0f
+            // null, should
+            // yield 0.0f
             { SIMPLE, "intValue", new Integer(34), null, new Integer(0) },// set int to null,
-                                                                            // should yield 0
+            // should yield 0
             { SIMPLE, "booleanValue", Boolean.FALSE, Boolean.TRUE, Boolean.TRUE },// set boolean
-                                                                                    // to TRUE,
-                                                                                    // should yield
-                                                                                    // true
+            // to TRUE,
+            // should yield
+            // true
             { SIMPLE, "booleanValue", Boolean.TRUE, null, Boolean.FALSE }, // set boolean to null,
-                                                                            // should yield false
-           
+            // should yield false
+
     };
 
     /*
@@ -70,15 +70,15 @@ public class PrimitiveNullHandlingTest extends OgnlTestCase
         for(int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new PrimitiveNullHandlingTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
+                                                             TESTS[i][2]));
             } else {
                 if (TESTS[i].length == 4) {
                     result.addTest(new PrimitiveNullHandlingTest((String) TESTS[i][1], TESTS[i][0],
-                            (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
+                                                                 (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
                 } else {
                     if (TESTS[i].length == 5) {
                         result.addTest(new PrimitiveNullHandlingTest((String) TESTS[i][1], TESTS[i][0],
-                                (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
+                                                                     (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
                     } else {
                         throw new RuntimeException("don't understand TEST format");
                     }
@@ -103,13 +103,13 @@ public class PrimitiveNullHandlingTest extends OgnlTestCase
     }
 
     public PrimitiveNullHandlingTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue, Object expectedAfterSetResult)
+                                     Object setValue, Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
     public PrimitiveNullHandlingTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue)
+                                     Object setValue)
     {
         super(name, root, expressionString, expectedResult, setValue);
     }

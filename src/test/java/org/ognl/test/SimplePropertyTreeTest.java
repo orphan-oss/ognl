@@ -36,19 +36,19 @@ import ognl.Ognl;
 public class SimplePropertyTreeTest extends OgnlTestCase
 {
     private static Object[][]       TESTS = {
-                                        { "name", Boolean.TRUE },
-                                        { "foo", Boolean.TRUE },
-                                        { "name[i]", Boolean.FALSE },
-                                        { "name + foo", Boolean.FALSE },
-                                        { "name.foo", Boolean.FALSE },
-                                        { "name.foo.bar", Boolean.FALSE },
-                                        { "name.{? foo }", Boolean.FALSE },
-                                        { "name.( foo )", Boolean.FALSE }
-                                    };
+            { "name", Boolean.TRUE },
+            { "foo", Boolean.TRUE },
+            { "name[i]", Boolean.FALSE },
+            { "name + foo", Boolean.FALSE },
+            { "name.foo", Boolean.FALSE },
+            { "name.foo.bar", Boolean.FALSE },
+            { "name.{? foo }", Boolean.FALSE },
+            { "name.( foo )", Boolean.FALSE }
+    };
 
-	/*===================================================================
-		Public static methods
-	  ===================================================================*/
+    /*===================================================================
+         Public static methods
+       ===================================================================*/
     public static TestSuite suite()
     {
         TestSuite       result = new TestSuite();
@@ -59,18 +59,18 @@ public class SimplePropertyTreeTest extends OgnlTestCase
         return result;
     }
 
-	/*===================================================================
-		Constructors
-	  ===================================================================*/
-	public SimplePropertyTreeTest()
-	{
-	    super();
-	}
+    /*===================================================================
+         Constructors
+       ===================================================================*/
+    public SimplePropertyTreeTest()
+    {
+        super();
+    }
 
-	public SimplePropertyTreeTest(String name)
-	{
-	    super(name);
-	}
+    public SimplePropertyTreeTest(String name)
+    {
+        super(name);
+    }
 
     public SimplePropertyTreeTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult)
     {
@@ -87,9 +87,9 @@ public class SimplePropertyTreeTest extends OgnlTestCase
         super(name, root, expressionString, expectedResult);
     }
 
-	/*===================================================================
-		Overridden methods
-	  ===================================================================*/
+    /*===================================================================
+         Overridden methods
+       ===================================================================*/
     protected void runTest() throws Exception
     {
         assertTrue(Ognl.isSimpleProperty(getExpression(), _context) == ((Boolean)getExpectedResult()).booleanValue());
