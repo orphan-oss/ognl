@@ -73,6 +73,15 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals("isDisabled", m.getName());
     }
 
+    public void test_Find_Method_Mixed_Boolean_Getters()
+    throws Exception
+    {
+        Method m = OgnlRuntime.getReadMethod(GetterMethods.class, "allowDisplay");
+        assertNotNull(m);
+
+        assertEquals("getAllowDisplay", m.getName());
+    }
+
     public void test_Get_Appropriate_Method()
             throws Exception
     {

@@ -2173,6 +2173,8 @@ public class OgnlRuntime {
 
             // exact matches first
 
+            Method m = null;
+
             for (int i = 0; i < methods.length; i++)
             {
                 if ((methods[i].getName().equalsIgnoreCase(name)
@@ -2185,9 +2187,18 @@ public class OgnlRuntime {
                     if (numParms > 0 && methods[i].getMethod().getParameterTypes().length == numParms)
                         return methods[i].getMethod();
                     else if (numParms < 0)
-                        return methods[i].getMethod();
+                    {
+                        if ((m != null && m.getParameterTypes().length > methods[i].getMethod().getParameterTypes().length)
+                            || m == null)
+                        {
+                            m = methods[i].getMethod();
+                        }
+                    }
                 }
             }
+
+            if (m != null)
+                return m;
 
             for (int i = 0; i < methods.length; i++)
             {
@@ -2198,10 +2209,19 @@ public class OgnlRuntime {
                     if (numParms > 0 && methods[i].getMethod().getParameterTypes().length == numParms)
                         return methods[i].getMethod();
                     else if (numParms < 0)
-                        return methods[i].getMethod();
+                    {
+                        if ((m != null && m.getParameterTypes().length > methods[i].getMethod().getParameterTypes().length)
+                            || m == null)
+                        {
+                            m = methods[i].getMethod();
+                        }
+                    }
                 }
             }
 
+            if (m != null)
+                return m;
+            
             // try one last time adding a get to beginning
 
             if (!name.startsWith("get"))

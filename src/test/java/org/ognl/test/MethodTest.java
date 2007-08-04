@@ -51,6 +51,7 @@ public class MethodTest extends OgnlTestCase
             { "isDisabled()", Boolean.TRUE},
             { "isEditorDisabled()", Boolean.FALSE},
             { LIST, "addValue(name)", Boolean.TRUE},
+            { "getDisplayValue(methodsTest.allowDisplay)", "test"},
     };
 
     public static class A

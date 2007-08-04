@@ -59,7 +59,7 @@ public class Simple extends Object
     {
         Map src = new HashMap();
         src.put("test", "This is a test");
-        
+
         _messages = new Messages(src);
     }
 
@@ -206,6 +206,16 @@ public class Simple extends Object
     public boolean isDisabled()
     {
         return true;
+    }
+
+    public GetterMethods getMethodsTest()
+    {
+        return new GetterMethods();
+    }
+
+    public String getDisplayValue(int val)
+    {
+        return "test";
     }
 
     public boolean equals(Object other)
