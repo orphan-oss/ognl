@@ -65,11 +65,11 @@ public class SelfReferenceReflectionTest extends TestCase {
         propertyKey = "integerProperty";
 
         // Succeeds
-        assertEquals(1, Ognl.getValue(expression, context, this)) ;
+        assertEquals(1, Ognl.getValue(expression.getAccessor(), context, this)) ;
 
         context.clear();
 
         // Fails with 2.7.1-20070723.185910-9
-        assertEquals(1, Ognl.getValue(expression, context, this)) ;
+        assertEquals(1, Ognl.getValue(expression2, context, this)) ;
     }
 }

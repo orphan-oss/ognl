@@ -204,8 +204,8 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
             // try last ditch effort of checking if they were trying to do reflection via a return method value
 
-            //if (m == null && context.getCurrentObject() != null)
-            //  m = OgnlRuntime.getReadMethod(target.getClass(), context.getCurrentObject().toString().replaceAll("\"", ""));
+            if (m == null && context.getCurrentObject() != null)
+                m = OgnlRuntime.getReadMethod(target.getClass(), context.getCurrentObject().toString().replaceAll("\"", ""));
 
             //System.out.println("tried to get read method from target: " + target.getClass() + " with methodName:" + methodName + " result: " + m);
             // try to get field if no method could be found
@@ -231,7 +231,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
                     // ignore
                 }
 
-                throw new UnsupportedCompilationException("Unable to find method used for object access with index : " + methodName + " on target class: " + target.getClass());
+                return "";
             }
 
             context.setCurrentType(m.getReturnType());
