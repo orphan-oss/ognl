@@ -57,6 +57,7 @@ public class IndexedPropertyTest extends OgnlTestCase {
             {ROOT, "indexer.line[index]", "line:1"},
             {INDEXED, "list[2].longValue()", new Long(3)},
             {ROOT, "map.value.id", new Long(1)},
+            {INDEXED, "property['hoodak']", null, "random string", "random string"}
     };
 
     /*

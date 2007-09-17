@@ -265,7 +265,7 @@ class ASTAdd extends NumericExpression
                     }
 
                     if (lastType != null)
-                        context.setCurrentAccessor(((NodeType)lastType).getGetterClass());
+                        context.setCurrentAccessor(lastType.getGetterClass());
                 }
             }
 

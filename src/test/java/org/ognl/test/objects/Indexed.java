@@ -30,9 +30,7 @@
 //--------------------------------------------------------------------------
 package org.ognl.test.objects;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class Indexed extends BaseIndexed
 {
@@ -40,6 +38,8 @@ public class Indexed extends BaseIndexed
 
     private List _list = new ArrayList();
     private ListSource _source = new ListSourceImpl();
+
+    private Map _props = new HashMap();
 
     public Indexed()
     {
@@ -97,5 +97,15 @@ public class Indexed extends BaseIndexed
     public ListSource getSource()
     {
         return _source;
+    }
+
+    public void setProperty(String property, Object value)
+    {
+        _props.put(property, value);
+    }
+
+    public Object getProperty(String property)
+    {
+        return _props.get(property);
     }
 }
