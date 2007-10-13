@@ -109,7 +109,7 @@ public class TestOgnlRuntime extends TestCase {
         ListSource list = new ListSourceImpl();
         OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
 
-        Object ret = OgnlRuntime.callMethod(context, list, "addValue", null, new String[] {null});
+        Object ret = OgnlRuntime.callMethod(context, list, "addValue", new String[] {null});
         
         assert ret != null;
     }

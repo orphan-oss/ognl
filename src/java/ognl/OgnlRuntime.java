@@ -750,6 +750,7 @@ public class OgnlRuntime {
     {
         Object result;
         boolean wasAccessible = true;
+        Object[] arguments = argsArray;
 
         synchronized(method) {
 
@@ -765,7 +766,12 @@ public class OgnlRuntime {
                     ((AccessibleObject) method).setAccessible(true);
                 }
             }
-            result = method.invoke(target, argsArray);
+
+            if (isJdk15() && method.isVarArgs()) {
+                arguments = new Object[] { argsArray };
+            }
+
+            result = method.invoke(target, arguments);
             if (!wasAccessible) {
                 ((AccessibleObject) method).setAccessible(false);
             }
@@ -834,12 +840,25 @@ public class OgnlRuntime {
      * is, whether the given array of objects can be passed as arguments to a method or constructor
      * whose parameter types are the given array of classes.
      */
-    public static final boolean areArgsCompatible(Object[] args, Class[] classes)
+    public static boolean areArgsCompatible(Object[] args, Class[] classes)
+    {
+        return areArgsCompatible(args, classes, null);
+    }
+
+    public static boolean areArgsCompatible(Object[] args, Class[] classes, Method m)
     {
         boolean result = true;
+        boolean varArgs = m != null && isJdk15() && m.isVarArgs();
 
-        if (args.length != classes.length) {
+        if (args.length != classes.length && !varArgs) {
             result = false;
+        } else if (varArgs) {
+            for (int index = 0, count = args.length; result && (index < count); ++index) {
+                if (index >= classes.length){
+                    break;
+                }
+                result = isTypeCompatible(args[index], classes[index]) || classes[index].isArray();
+            }
         } else {
             for (int index = 0, count = args.length; result && (index < count); ++index) {
                 result = isTypeCompatible(args[index], classes[index]);
@@ -1026,7 +1045,7 @@ public class OgnlRuntime {
                 Method m = (Method) methods.get(i);
                 Class[] mParameterTypes = getParameterTypes(m);
 
-                if (areArgsCompatible(args, mParameterTypes)
+                if (areArgsCompatible(args, mParameterTypes, m)
                     && ((result == null) || isMoreSpecific(mParameterTypes, resultParameterTypes)))
                 {
                     result = m;
@@ -1120,8 +1139,8 @@ public class OgnlRuntime {
         }
     }
 
-    public static Object callMethod(OgnlContext context, Object target, String methodName,
-                                    String propertyName, Object[] args)
+    public static Object callMethod(OgnlContext context, Object target,
+                                    String methodName, Object[] args)
             throws OgnlException
     {
         if (target == null)
@@ -1998,7 +2017,7 @@ public class OgnlRuntime {
                 }
             }
 
-            return callMethod(context, source, m.getName(), name, args);
+            return callMethod(context, source, m.getName(), args);
 
         } catch (OgnlException ex) {
             throw ex;
@@ -2029,7 +2048,7 @@ public class OgnlRuntime {
                 }
             }
 
-            callMethod(context, source, m.getName(), name, args);
+            callMethod(context, source, m.getName(), args);
 
         } catch (OgnlException ex) {
             throw ex;
@@ -2071,12 +2090,13 @@ public class OgnlRuntime {
         _declaredMethods[1].setClassInspector(_cacheInspector);
     }
 
-    public static Method getMethod(OgnlContext context, Class target, String name, Node[] children, boolean includeStatic)
+    public static Method getMethod(OgnlContext context, Class target, String name,
+                                   Node[] children, boolean includeStatic)
             throws Exception
     {
         Class[] parms = null;
-        if (children != null && children.length > 0) {
-
+        if (children != null && children.length > 0)
+        {
             parms = new Class[children.length];
 
             // used to reset context after loop
@@ -2089,8 +2109,8 @@ public class OgnlRuntime {
             context.setCurrentAccessor(null);
             context.setPreviousType(null);
 
-            for (int i=0; i < children.length; i++) {
-
+            for (int i=0; i < children.length; i++)
+            {
                 children[i].toGetSourceString(context, context.getRoot());
                 parms[i] = context.getCurrentType();
             }
@@ -2101,23 +2121,32 @@ public class OgnlRuntime {
             context.setCurrentAccessor(currAccessor);
             context.setCurrentObject(target);
         } else
+        {
             parms = new Class[0];
+        }
 
         List methods = OgnlRuntime.getMethods(target, name, includeStatic);
         if (methods == null)
             return null;
 
-        for (int i = 0; i < methods.size(); i++) {
+        for (int i = 0; i < methods.size(); i++)
+        {
             Method m = (Method) methods.get(i);
-
-            if (parms.length != m.getParameterTypes().length)
+            boolean varArgs = isJdk15() && m.isVarArgs();
+            
+            if (parms.length != m.getParameterTypes().length && !varArgs)
                 continue;
 
             Class[] mparms = m.getParameterTypes();
             boolean matched = true;
-            for (int p = 0; p < mparms.length; p++) {
-
-                if (parms[p] == null) {
+            for (int p = 0; p < mparms.length; p++)
+            {
+                if (varArgs && mparms[p].isArray()){
+                    continue;
+                }
+                
+                if (parms[p] == null)
+                {
                     matched = false;
                     break;
                 }
@@ -2128,7 +2157,8 @@ public class OgnlRuntime {
                 if (mparms[p].isPrimitive()
                     && Character.TYPE != mparms[p] && Byte.TYPE != mparms[p]
                     && Number.class.isAssignableFrom(parms[p])
-                    && OgnlRuntime.getPrimitiveWrapperClass(parms[p]) == mparms[p]) {
+                    && OgnlRuntime.getPrimitiveWrapperClass(parms[p]) == mparms[p])
+                {
                     continue;
                 }
 

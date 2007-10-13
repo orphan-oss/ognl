@@ -229,4 +229,9 @@ public class Simple extends Object
         }
         return result;
     }
+
+    public boolean isThisVarArgsWorking(Object...arguments)
+    {
+        return true;
+    }
 }

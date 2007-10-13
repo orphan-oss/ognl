@@ -33,9 +33,10 @@ package ognl;
 import java.util.Map;
 
 /**
- * This interface defines methods for callinig methods in a target object.
+ * This interface defines methods for calling methods in a target object.
  * Methods are broken up into static and instance methods for convenience.
  * indexes into the target object, which must be an array.
+ * 
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
