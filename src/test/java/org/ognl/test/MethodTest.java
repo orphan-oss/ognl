@@ -52,7 +52,7 @@ public class MethodTest extends OgnlTestCase
             { "isEditorDisabled()", Boolean.FALSE},
             { LIST, "addValue(name)", Boolean.TRUE},
             { "getDisplayValue(methodsTest.allowDisplay)", "test"},
-//            { "isThisVarArgsWorking(three, rootValue)", Boolean.TRUE}
+            { "isThisVarArgsWorking(three, rootValue)", Boolean.TRUE}
     };
 
     public static class A
