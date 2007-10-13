@@ -65,7 +65,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
     /**
      * Returns the appropriate casting expression (minus parens) for the specified class type.
-     * 
+     *
      * <p/>
      * For instance, if given an {@link Integer} object the string <code>"java.lang.Integer"</code>
      * would be returned. For an array of primitive ints <code>"int[]"</code> and so on..
@@ -185,7 +185,6 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             || ASTStaticMethod.class.isInstance(expression)
             || (OrderedReturn.class.isInstance(expression) && ((OrderedReturn) expression).getLastExpression() != null))
             return body;
-
 
 /*         System.out.println("castExpression() with expression " + expression + " expr class: " + expression.getClass() + " currentType is: " + context.getCurrentType()
                       + " previousType: " + context.getPreviousType()
@@ -545,7 +544,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         return body;
     }
-    
+
     public String createLocalReference(OgnlContext context, String expression, Class type)
     {
         String referenceName = "ref" + context.incrementLocalReferenceCounter();
@@ -585,7 +584,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             method.setBody(body);
 
             clazz.addMethod(method);
-            
+
             it.remove();
         }
     }
@@ -745,7 +744,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         _pool = ClassPool.getDefault();
         _pool.insertClassPath(new LoaderClassPath(loader.getParent()));
-        
+
         return _pool;
     }
 }

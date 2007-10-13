@@ -37,7 +37,8 @@ public class PropertyArithmeticAndLogicalOperatorsTest extends OgnlTestCase {
             { ROOT, "genericIndex % theInt == property.bean3.value", Boolean.FALSE},
             { ROOT, "theInt / 100.0", ROOT.getTheInt() / 100.0},
             { ROOT, "@java.lang.Long@valueOf('100') == @java.lang.Long@valueOf('100')", Boolean.TRUE},
-            { NUMERIC, "budget - timeBilled", new Double(NUMERIC.getBudget() - NUMERIC.getTimeBilled())}
+            { NUMERIC, "budget - timeBilled", new Double(NUMERIC.getBudget() - NUMERIC.getTimeBilled())},
+            { NUMERIC, "(budget % tableSize) == 0", Boolean.TRUE}
     };
 
     public static TestSuite suite()
@@ -81,7 +82,8 @@ public class PropertyArithmeticAndLogicalOperatorsTest extends OgnlTestCase {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public PropertyArithmeticAndLogicalOperatorsTest(String name, Object root, String expressionString, Object expectedResult)
+    public PropertyArithmeticAndLogicalOperatorsTest(String name, Object root,
+                                                     String expressionString, Object expectedResult)
     {
         super(name, root, expressionString, expectedResult);
     }

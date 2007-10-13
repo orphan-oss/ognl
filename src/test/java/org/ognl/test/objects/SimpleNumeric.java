@@ -14,4 +14,9 @@ public class SimpleNumeric {
     {
         return 24.12;
     }
+
+    public String getTableSize()
+    {
+        return "10";
+    }
 }
