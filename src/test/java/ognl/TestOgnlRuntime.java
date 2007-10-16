@@ -143,6 +143,20 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(Ognl.getValue("value", context, root), "12__");
     }
 
+    public void test_Call_Method_VarArgs()
+            throws Exception
+    {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        GenericService service = new GenericServiceImpl();
+
+        GameGenericObject argument = new GameGenericObject();
+
+        Object[] args = OgnlRuntime.getObjectArrayPool().create(2);
+        args[0] = argument;
+
+        assertEquals("Halo 3", OgnlRuntime.callMethod(context, service, "getFullMessageFor", args));
+    }
+
     public void test_Class_Cache_Inspector()
             throws Exception
     {

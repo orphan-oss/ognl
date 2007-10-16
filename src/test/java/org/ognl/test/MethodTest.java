@@ -31,15 +31,14 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import org.ognl.test.objects.ListSource;
-import org.ognl.test.objects.ListSourceImpl;
-import org.ognl.test.objects.Simple;
+import org.ognl.test.objects.*;
 
 public class MethodTest extends OgnlTestCase
 {
 
     private static Simple ROOT = new Simple();
     private static ListSource LIST = new ListSourceImpl();
+    private static BaseGeneric GENERIC = new GameGeneric();
 
     private static Object[][] TESTS = {
             { "hashCode()", new Integer(ROOT.hashCode()) } ,
@@ -52,7 +51,8 @@ public class MethodTest extends OgnlTestCase
             { "isEditorDisabled()", Boolean.FALSE},
             { LIST, "addValue(name)", Boolean.TRUE},
             { "getDisplayValue(methodsTest.allowDisplay)", "test"},
-            { "isThisVarArgsWorking(three, rootValue)", Boolean.TRUE}
+            { "isThisVarArgsWorking(three, rootValue)", Boolean.TRUE},
+            { GENERIC, "message + ' ' + service.getFullMessageFor(value, null)", "Message Halo 3"}
     };
 
     public static class A

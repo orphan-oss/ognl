@@ -750,7 +750,6 @@ public class OgnlRuntime {
     {
         Object result;
         boolean wasAccessible = true;
-        Object[] arguments = argsArray;
 
         synchronized(method) {
 
@@ -767,11 +766,7 @@ public class OgnlRuntime {
                 }
             }
 
-            if (isJdk15() && method.isVarArgs()) {
-                arguments = new Object[] { argsArray };
-            }
-
-            result = method.invoke(target, arguments);
+            result = method.invoke(target, argsArray);
             if (!wasAccessible) {
                 ((AccessibleObject) method).setAccessible(false);
             }
@@ -857,7 +852,14 @@ public class OgnlRuntime {
                 if (index >= classes.length){
                     break;
                 }
-                result = isTypeCompatible(args[index], classes[index]) || classes[index].isArray();
+
+                result = isTypeCompatible(args[index], classes[index]);
+
+                if (!result && classes[index].isArray()) {
+                    result = isTypeCompatible(args[index], classes[index].getComponentType());
+                }
+
+                //result = isTypeCompatible(args[index], classes[index]) || classes[index].isArray();
             }
         } else {
             for (int index = 0, count = args.length; result && (index < count); ++index) {
@@ -1108,7 +1110,51 @@ public class OgnlRuntime {
                 throw new NoSuchMethodException(className + methodName + "(" + buffer + ")");
             }
 
-            return invokeMethod(target, method, actualArgs);
+            Object[] convertedArgs = actualArgs;
+
+            if (isJdk15() && method.isVarArgs())
+            {
+                Class[] parmTypes = method.getParameterTypes();
+
+                // split arguments in to two dimensional array for varargs reflection invocation
+                // where it is expected that the parameter passed in to invoke the method
+                // will look like "new Object[] { arrayOfNonVarArgsArguments, arrayOfVarArgsArguments }"
+                
+                for (int i=0; i < parmTypes.length; i++)
+                {
+                    if (parmTypes[i].isArray())
+                    {
+                        convertedArgs = new Object[i + 1];
+                        System.arraycopy(actualArgs, 0, convertedArgs, 0, convertedArgs.length);
+
+                        Object[] varArgs;
+
+                        // if they passed in varargs arguments grab them and dump in to new varargs array
+                        
+                        if (actualArgs.length > i)
+                        {
+                            ArrayList varArgsList = new ArrayList();
+                            for (int j=i; j < actualArgs.length; j++)
+                            {
+                                if (actualArgs[j] != null)
+                                {
+                                    varArgsList.add(actualArgs[j]);
+                                }
+                            }
+                            
+                            varArgs = varArgsList.toArray();
+                        } else
+                        {
+                            varArgs = new Object[0];
+                        }
+
+                        convertedArgs[i] = varArgs;
+                        break;
+                    }
+                }
+            }
+
+            return invokeMethod(target, method, convertedArgs);
 
         } catch (NoSuchMethodException e) {
             reason = e;
