@@ -57,6 +57,7 @@ public class Root extends Object
     public int                      six = 6;
     private boolean _disabled;
     private Locale _selected = Locale.getDefault();
+    private List<List<Boolean>> _booleanValues = new ArrayList<List<Boolean>>();
 
     private boolean[] _booleanArray = {true, false, true, true};
     private List _list;
@@ -120,6 +121,20 @@ public class Root extends Object
 
         /* make myMap identical */
         myMap.putAll( map );
+
+        List<Boolean> bool1 = new ArrayList<Boolean>();
+        bool1.add(Boolean.TRUE);
+        bool1.add(Boolean.FALSE);
+        bool1.add(Boolean.TRUE);
+
+        _booleanValues.add(bool1);
+
+        List<Boolean> bool2 = new ArrayList<Boolean>();
+        bool2.add(Boolean.TRUE);
+        bool2.add(Boolean.FALSE);
+        bool2.add(Boolean.TRUE);
+
+        _booleanValues.add(bool2);
     }
 
     private boolean isPrivateAccessorBooleanValue()
@@ -474,6 +489,21 @@ public class Root extends Object
     public boolean isOk(SimpleEnum value, String otherValue)
     {
         return true;
+    }
+
+    public List<List<Boolean>> getBooleanValues()
+    {
+        return _booleanValues;
+    }
+
+    public int getIndex1()
+    {
+        return 1;
+    }
+
+    public int getIndex2()
+    {
+        return 1;
     }
 
     public static class A

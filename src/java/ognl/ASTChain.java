@@ -45,11 +45,11 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
 
     private Class _getterClass;
     private Class _setterClass;
-    
+
     private String _lastExpression;
-    
+
     private String _coreExpression;
-    
+
     public ASTChain(int id)
     {
         super(id);
@@ -59,24 +59,24 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
     {
         super(p, id);
     }
-    
+
     public String getLastExpression()
     {
         return _lastExpression;
     }
-    
+
     public String getCoreExpression()
     {
         return _coreExpression;
     }
-    
+
     public void jjtClose()
     {
         flattenTree();
     }
 
     protected Object getValueBody(OgnlContext context, Object source)
-        throws OgnlException
+            throws OgnlException
     {
         Object result = source;
 
@@ -90,7 +90,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
 
                     if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (_children[i + 1] instanceof ASTProperty)) {
                         ASTProperty indexNode = (ASTProperty) _children[i + 1];
-                        
+
                         if (indexNode.isIndexedAccess()) {
                             Object index = indexNode.getProperty(context, result);
 
@@ -100,27 +100,27 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                                     int len = Array.getLength(array);
 
                                     switch(((DynamicSubscript) index).getFlag()) {
-                                    case DynamicSubscript.ALL:
-                                        result = Array.newInstance(array.getClass().getComponentType(), len);
-                                        System.arraycopy(array, 0, result, 0, len);
-                                        handled = true;
-                                        i++;
-                                        break;
-                                    case DynamicSubscript.FIRST:
-                                        index = new Integer((len > 0) ? 0 : -1);
-                                        break;
-                                    case DynamicSubscript.MID:
-                                        index = new Integer((len > 0) ? (len / 2) : -1);
-                                        break;
-                                    case DynamicSubscript.LAST:
-                                        index = new Integer((len > 0) ? (len - 1) : -1);
-                                        break;
+                                        case DynamicSubscript.ALL:
+                                            result = Array.newInstance(array.getClass().getComponentType(), len);
+                                            System.arraycopy(array, 0, result, 0, len);
+                                            handled = true;
+                                            i++;
+                                            break;
+                                        case DynamicSubscript.FIRST:
+                                            index = new Integer((len > 0) ? 0 : -1);
+                                            break;
+                                        case DynamicSubscript.MID:
+                                            index = new Integer((len > 0) ? (len / 2) : -1);
+                                            break;
+                                        case DynamicSubscript.LAST:
+                                            index = new Integer((len > 0) ? (len - 1) : -1);
+                                            break;
                                     }
                                 } else {
                                     if (indexType == OgnlRuntime.INDEXED_PROPERTY_OBJECT) { throw new OgnlException(
                                             "DynamicSubscript '" + indexNode
-                                                    + "' not allowed for object indexed property '" + propertyNode
-                                                    + "'"); }
+                                            + "' not allowed for object indexed property '" + propertyNode
+                                            + "'"); }
                                 }
                             }
                             if (!handled) {
@@ -141,7 +141,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
     }
 
     protected void setValueBody(OgnlContext context, Object target, Object value)
-        throws OgnlException
+            throws OgnlException
     {
         boolean handled = false;
 
@@ -163,31 +163,31 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                                     int len = Array.getLength(array);
 
                                     switch(((DynamicSubscript) index).getFlag()) {
-                                    case DynamicSubscript.ALL:
-                                        System.arraycopy(target, 0, value, 0, len);
-                                        handled = true;
-                                        i++;
-                                        break;
-                                    case DynamicSubscript.FIRST:
-                                        index = new Integer((len > 0) ? 0 : -1);
-                                        break;
-                                    case DynamicSubscript.MID:
-                                        index = new Integer((len > 0) ? (len / 2) : -1);
-                                        break;
-                                    case DynamicSubscript.LAST:
-                                        index = new Integer((len > 0) ? (len - 1) : -1);
-                                        break;
+                                        case DynamicSubscript.ALL:
+                                            System.arraycopy(target, 0, value, 0, len);
+                                            handled = true;
+                                            i++;
+                                            break;
+                                        case DynamicSubscript.FIRST:
+                                            index = new Integer((len > 0) ? 0 : -1);
+                                            break;
+                                        case DynamicSubscript.MID:
+                                            index = new Integer((len > 0) ? (len / 2) : -1);
+                                            break;
+                                        case DynamicSubscript.LAST:
+                                            index = new Integer((len > 0) ? (len - 1) : -1);
+                                            break;
                                     }
                                 } else {
                                     if (indexType == OgnlRuntime.INDEXED_PROPERTY_OBJECT) { throw new OgnlException(
                                             "DynamicSubscript '" + indexNode
-                                                    + "' not allowed for object indexed property '" + propertyNode
-                                                    + "'"); }
+                                            + "' not allowed for object indexed property '" + propertyNode
+                                            + "'"); }
                                 }
                             }
                             if (!handled) {
                                 OgnlRuntime.setIndexedProperty(context, target, propertyNode.getProperty(context,
-                                        target).toString(), index, value);
+                                                                                                         target).toString(), index, value);
                                 handled = true;
                                 i++;
                             }
@@ -205,10 +205,10 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
     }
 
     public boolean isSimpleNavigationChain(OgnlContext context)
-        throws OgnlException
+            throws OgnlException
     {
         boolean result = false;
-        
+
         if ((_children != null) && (_children.length > 0)) {
             result = true;
             for(int i = 0; result && (i < _children.length); i++) {
@@ -226,12 +226,12 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
     {
         return _getterClass;
     }
-    
+
     public Class getSetterClass()
     {
         return _setterClass;
     }
-    
+
     public String toString()
     {
         String result = "";
@@ -248,75 +248,82 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
         }
         return result;
     }
-    
+
     public String toGetSourceString(OgnlContext context, Object target)
     {
         String prevChain = (String)context.get("_currentChain");
-        
-        if (target != null) {
+
+        if (target != null)
+        {
             context.setCurrentObject(target);
             context.setCurrentType(target.getClass());
         }
-        
+
         String result = "";
         NodeType _lastType = null;
         boolean ordered = false;
         boolean constructor = false;
         try {
-            if ((_children != null) && (_children.length > 0)) {
-                for(int i = 0; i < _children.length; i++) {
-                    
-                     /*System.out.println("astchain child: " + _children[i].getClass().getName()
+            if ((_children != null) && (_children.length > 0))
+            {
+                for(int i = 0; i < _children.length; i++)
+                {
+                    /* System.out.println("astchain child: " + _children[i].getClass().getName()
                                        + " with current object target " + context.getCurrentObject()
-                                       + " current type: " + context.getCurrentType());*/
+                                       + " current type: " + context.getCurrentType()); */
 
                     String value = _children[i].toGetSourceString(context, context.getCurrentObject());
-                    
+
 //                    System.out.println("astchain child returned >>  " + value + "  <<");
-                    
+
                     if (ASTCtor.class.isInstance(_children[i]))
                         constructor = true;
-                    
-                    if (NodeType.class.isInstance(_children[i]) 
-                            && ((NodeType)_children[i]).getGetterClass() != null) {
-                        
+
+                    if (NodeType.class.isInstance(_children[i])
+                        && ((NodeType)_children[i]).getGetterClass() != null)
+                    {
                         _lastType = (NodeType)_children[i];
                     }
 
 //                    System.out.println("Astchain i: " + i + " currentobj : " + context.getCurrentObject() + " and root: " + context.getRoot());
-                    if (!ASTVarRef.class.isInstance(_children[i]) && !constructor && !(OrderedReturn.class.isInstance(_children[i]) && ((OrderedReturn)_children[i]).getLastExpression() != null)
-                            && (_parent == null || !ASTSequence.class.isInstance(_parent))) {
-
+                    if (!ASTVarRef.class.isInstance(_children[i]) && !constructor
+                        && !(OrderedReturn.class.isInstance(_children[i]) && ((OrderedReturn)_children[i]).getLastExpression() != null)
+                        && (_parent == null || !ASTSequence.class.isInstance(_parent)))
+                    {
                         value = OgnlRuntime.getCompiler().castExpression(context, _children[i], value);
                     }
 
-                    /*System.out.println("astchain value now : " + value + " with index " + i
-                    + " current type " + context.getCurrentType() + " current accessor " + context.getCurrentAccessor()
-                    + " prev type " + context.getPreviousType() + " prev accessor " + context.getPreviousAccessor());*/
+                    /* System.out.println("astchain value now : " + value + " with index " + i
+                                       + " current type " + context.getCurrentType() + " current accessor " + context.getCurrentAccessor()
+                                       + " prev type " + context.getPreviousType() + " prev accessor " + context.getPreviousAccessor()); */
 
-                    if (OrderedReturn.class.isInstance(_children[i]) && ((OrderedReturn)_children[i]).getLastExpression() != null) {
-                        
+                    if (OrderedReturn.class.isInstance(_children[i]) && ((OrderedReturn)_children[i]).getLastExpression() != null)
+                    {
                         ordered = true;
                         OrderedReturn or = (OrderedReturn)_children[i];
-                        
+
                         if (or.getCoreExpression() == null || or.getCoreExpression().trim().length() <= 0)
                             result = "";
                         else
                             result += or.getCoreExpression();
-                        
+
                         _lastExpression = or.getLastExpression();
-                        
-                        if (context.get(ExpressionCompiler.PRE_CAST) != null) {
+
+                        if (context.get(ExpressionCompiler.PRE_CAST) != null)
+                        {
                             _lastExpression = context.remove(ExpressionCompiler.PRE_CAST) + _lastExpression;
                         }
                     } else if (ASTOr.class.isInstance(_children[i])
-                            || ASTAnd.class.isInstance(_children[i])
-                            || ASTCtor.class.isInstance(_children[i])
-                            || (ASTStaticField.class.isInstance(_children[i]) && _parent == null)) {
+                               || ASTAnd.class.isInstance(_children[i])
+                               || ASTCtor.class.isInstance(_children[i])
+                               || (ASTStaticField.class.isInstance(_children[i]) && _parent == null))
+                    {
                         context.put("_noRoot", "true");
                         result = value;
                     } else
+                    {
                         result += value;
+                    }
 
                     context.put("_currentChain", result);
                 }
@@ -325,29 +332,29 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
         {
             throw OgnlOps.castToRuntime(t);
         }
-        
+
         if (_lastType != null) {
             _getterClass = _lastType.getGetterClass();
             _setterClass = _lastType.getSetterClass();
         }
-        
+
         if (ordered) {
             _coreExpression = result;
         }
-        
+
         context.put("_currentChain", prevChain);
-        
+
         return result;
     }
-    
+
     public String toSetSourceString(OgnlContext context, Object target)
     {
         String prevChain = (String)context.get("_currentChain");
         String prevChild = (String)context.get("_lastChild");
-        
+
         if (prevChain != null)
             throw new UnsupportedCompilationException("Can't compile nested chain expressions.");
-        
+
         if (target != null) {
             context.setCurrentObject(target);
             context.setCurrentType(target.getClass());
@@ -360,40 +367,40 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
             if ((_children != null) && (_children.length > 0)) {
                 for(int i = 0; i < _children.length; i++) {
                     // System.out.println("astchain setsource child : " + _children[i].getClass().getName());
-                    
+
                     if (i == (_children.length -1)) {
-                        
+
                         context.put("_lastChild", "true");
                     }
-                    
+
                     String value = _children[i].toSetSourceString(context, context.getCurrentObject());
                     if (value == null || value.trim().length() <= 0)
                         return "";
-                    
+
                     if (ASTCtor.class.isInstance(_children[i]))
                         constructor = true;
-                    
-                    if (NodeType.class.isInstance(_children[i]) 
-                            && ((NodeType)_children[i]).getGetterClass() != null) {
-                        
+
+                    if (NodeType.class.isInstance(_children[i])
+                        && ((NodeType)_children[i]).getGetterClass() != null) {
+
                         _lastType = (NodeType)_children[i];
                     }
-                    
-                    if (!constructor && !OrderedReturn.class.isInstance(_children[i]) 
-                            && (_parent == null || !ASTSequence.class.isInstance(_parent))) {
-                        
+
+                    if (!constructor && !OrderedReturn.class.isInstance(_children[i])
+                        && (_parent == null || !ASTSequence.class.isInstance(_parent))) {
+
                         value = OgnlRuntime.getCompiler().castExpression(context, _children[i], value);
                     }
-                    
+
                     if (ASTOr.class.isInstance(_children[i])
-                            || ASTAnd.class.isInstance(_children[i])
-                            || ASTCtor.class.isInstance(_children[i])
-                            || ASTStaticField.class.isInstance(_children[i])) {
+                        || ASTAnd.class.isInstance(_children[i])
+                        || ASTCtor.class.isInstance(_children[i])
+                        || ASTStaticField.class.isInstance(_children[i])) {
                         context.put("_noRoot", "true");
                         result = value;
                     } else
                         result += value;
-                    
+
                     context.put("_currentChain", result);
                 }
             }
@@ -401,13 +408,13 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
         {
             throw OgnlOps.castToRuntime(t);
         }
-        
+
         context.put("_lastChild", prevChild);
         context.put("_currentChain", prevChain);
-        
+
         if (_lastType != null)
             _setterClass = _lastType.getSetterClass();
-        
+
         return result;
     }
 }

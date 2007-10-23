@@ -38,7 +38,7 @@ public class MethodTest extends OgnlTestCase
 
     private static Simple ROOT = new Simple();
     private static ListSource LIST = new ListSourceImpl();
-    private static BaseGeneric GENERIC = new GameGeneric();
+    private static BaseGeneric<GameGenericObject> GENERIC = new GameGeneric();
 
     private static Object[][] TESTS = {
             { "hashCode()", new Integer(ROOT.hashCode()) } ,
@@ -52,7 +52,7 @@ public class MethodTest extends OgnlTestCase
             { LIST, "addValue(name)", Boolean.TRUE},
             { "getDisplayValue(methodsTest.allowDisplay)", "test"},
             { "isThisVarArgsWorking(three, rootValue)", Boolean.TRUE},
-            { GENERIC, "message + ' ' + service.getFullMessageFor(value, null)", "Message Halo 3"}
+            { GENERIC, "service.getFullMessageFor(value, null)", "Halo 3"}
     };
 
     public static class A

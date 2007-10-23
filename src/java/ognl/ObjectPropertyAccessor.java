@@ -233,7 +233,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
                 return "";
             }
-
+            
             context.setCurrentType(m.getReturnType());
             context.setCurrentAccessor(OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, m.getDeclaringClass()));
 

@@ -159,7 +159,7 @@ public class ASTProperty extends SimpleNode implements NodeType
         Method m = null;
 
         try {
-            /*System.out.println("astproperty is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
+            /* System.out.println("astproperty is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
                                + " target: " + target.getClass().getName() + " current object: " + context.getCurrentObject().getClass().getName());*/
 
             if (isIndexedAccess())
@@ -174,7 +174,8 @@ public class ASTProperty extends SimpleNode implements NodeType
                 String srcString = _children[0].toGetSourceString(context, context.getRoot());
                 srcString = ExpressionCompiler.getRootExpression(_children[0], context.getRoot(), context) + srcString;
 
-                if (!ASTConst.class.isInstance(_children[0]))
+                //if (!ASTConst.class.isInstance(_children[0]) && !ASTProperty.class.isInstance(_children[0]))
+                if (ASTChain.class.isInstance(_children[0]))
                 {
                     String cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
                     if (cast != null)

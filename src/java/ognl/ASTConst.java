@@ -128,9 +128,14 @@ public class ASTConst extends SimpleNode implements NodeType
     public String toGetSourceString(OgnlContext context, Object target)
     {
         if (value == null && _parent != null && ExpressionNode.class.isInstance(_parent))
+        {
+            context.setCurrentType(null);
             return "null";
-        else if (value == null)
+        } else if (value == null)
+        {
+            context.setCurrentType(null);
             return "";
+        }
         
         _getterClass = value.getClass();
 

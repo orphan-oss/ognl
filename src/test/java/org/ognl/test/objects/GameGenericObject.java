@@ -19,4 +19,9 @@ public class GameGenericObject implements GenericObject {
     {
         return "Halo 3";
     }
+
+    public String getHappy()
+    {
+        return "happy";
+    }
 }

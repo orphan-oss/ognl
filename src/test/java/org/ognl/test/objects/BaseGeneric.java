@@ -27,4 +27,9 @@ public class BaseGeneric<E extends GenericObject> {
     {
         return _service;
     }
+
+    public String format(Object value)
+    {
+        return value.toString();
+    }
 }
