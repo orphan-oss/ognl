@@ -330,7 +330,17 @@ public class Root extends Object
     {
         return _beanProvider;
     }
-    
+
+    public boolean getBooleanValue()
+    {
+        return _disabled;
+    }
+
+    public void setBooleanValue(boolean value)
+    {
+        _disabled = value;
+    }
+
     public boolean getDisabled()
     {
         return _disabled;

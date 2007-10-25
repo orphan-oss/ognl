@@ -102,14 +102,12 @@ public class ASTProperty extends SimpleNode implements NodeType
     protected Object getValueBody(OgnlContext context, Object source)
             throws OgnlException
     {
-        Object result = null;
-        Object property = null;
-        result = property = getProperty(context, source);
+        Object property = getProperty(context, source);
+        
+        Object result = OgnlRuntime.getProperty(context, source, property);
 
-        result = OgnlRuntime.getProperty(context, source, property);
-
-        if (result == null) {
-
+        if (result == null)
+        {
             result = OgnlRuntime.getNullHandler(OgnlRuntime.getTargetClass(source)).nullPropertyValue(context, source, property);
         }
 
@@ -159,7 +157,7 @@ public class ASTProperty extends SimpleNode implements NodeType
         Method m = null;
 
         try {
-            /* System.out.println("astproperty is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
+            /*System.out.println("astproperty is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
                                + " target: " + target.getClass().getName() + " current object: " + context.getCurrentObject().getClass().getName());*/
 
             if (isIndexedAccess())
@@ -312,8 +310,11 @@ public class ASTProperty extends SimpleNode implements NodeType
                     }
                 } else
                 {
-
-                    if (pa != null)
+                    if (pd != null)
+                    {
+                        m = pd.getReadMethod();
+                        result = "." + m.getName() + "()";
+                    } else if (pa != null)
                     {
                         Object currObj = context.getCurrentObject();
                         Class currType = context.getCurrentType();
@@ -489,16 +490,17 @@ public class ASTProperty extends SimpleNode implements NodeType
                 if (target != null)
                     _setterClass = target.getClass();
 
-                if (_parent != null && pd != null && pa == null) {
-
+                if (_parent != null && pd != null && pa == null)
+                {
                     m = pd.getReadMethod();
                     result = m.getName() + "()";
                 } else {
 
-                    if (context.getCurrentObject().getClass().isArray()) {
+                    if (context.getCurrentObject().getClass().isArray())
+                    {
                         result = "";
-                    } else if (pa != null) {
-
+                    } else if (pa != null)
+                    {
                         Object currObj = context.getCurrentObject();
                         //Class currType = context.getCurrentType();
                         //Class prevType = context.getPreviousType();
@@ -513,11 +515,11 @@ public class ASTProperty extends SimpleNode implements NodeType
                         //context.setCurrentType(currType);
                         //context.setPreviousType(prevType);
 
-                        if (!lastChild(context)) {
-
+                        if (!lastChild(context))
+                        {
                             result = pa.getSourceAccessor(context, context.getCurrentObject(), srcString);
-                        } else {
-
+                        } else
+                        {
                             result = pa.getSourceSetter(context, context.getCurrentObject(), srcString);
                         }
 
@@ -533,8 +535,8 @@ public class ASTProperty extends SimpleNode implements NodeType
 
         context.setCurrentObject(target);
 
-        if (m != null) {
-
+        if (m != null)
+        {
             context.setCurrentType(m.getReturnType());
             context.setCurrentAccessor(OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, m.getDeclaringClass()));
         }

@@ -31,10 +31,7 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import org.ognl.test.objects.BaseBean;
-import org.ognl.test.objects.Bean2;
-import org.ognl.test.objects.FirstBean;
-import org.ognl.test.objects.Root;
+import org.ognl.test.objects.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -48,6 +45,7 @@ public class PropertyTest extends OgnlTestCase
     
     private static Root ROOT = new Root();
     private static BaseBean BEAN = new FirstBean();
+    private static PropertyHolder PROPERTY = new PropertyHolder();
 
     private static Object[][]       TESTS = {
             { ROOT, "testString != null && !false", Boolean.TRUE},
@@ -84,8 +82,8 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "getIndexedProperty(property.bean3.map[\"bar\"])", ROOT.getArray()},
             { ROOT, "getProperty().getBean3()", ((Bean2)ROOT.getProperty()).getBean3()},
             { ROOT, "intValue", new Integer(0), new Integer(2), new Integer(2) },
-            { ROOT, "! disabled", new Boolean(true)},
-            { ROOT, "disabled", new Boolean(false), new Boolean(true), new Boolean(true)},
+            { ROOT, "! booleanValue", Boolean.TRUE},
+            { ROOT, "booleanValue", Boolean.FALSE, Boolean.TRUE, Boolean.TRUE},
             { ROOT, "! disabled", new Boolean(false)},
             { ROOT, "disabled || readonly", Boolean.TRUE},
             { ROOT, "property.bean3.value != null", Boolean.TRUE},
@@ -117,6 +115,7 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "openTransitionWin", Boolean.FALSE},
             { ROOT, "b.methodOfB(a.methodOfA(b)-1)", new Integer(0)},
             { ROOT, "disabled", Boolean.TRUE},
+            { PROPERTY, "value", ""}
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)
