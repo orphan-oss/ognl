@@ -222,4 +222,16 @@ public class ASTPropertyTest extends TestCase {
         
         assertTrue(List.class.isAssignableFrom(node.getAccessor().get(context, root).getClass()));
     }
+
+    public void test_Set_Chain_Indexed_Property() throws Exception
+    {
+        Root root = new Root();
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+
+        context.setRoot(root);
+        context.setCurrentObject(root);
+
+        SimpleNode node = (SimpleNode) Ognl.parseExpression("tab.searchCriteriaSelections[index1][index2]");
+        node.setValue(context, root, Boolean.FALSE);
+    }
 }

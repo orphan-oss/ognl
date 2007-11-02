@@ -40,7 +40,6 @@ public class IndexAccessTest extends OgnlTestCase {
     private static Root ROOT = new Root();
 
     private static Object[][] TESTS = {
-            // indexed access of with navigation chain (should start back at root)
             {ROOT, "list[index]", ROOT.getList().get(ROOT.getIndex())},
             {ROOT, "list[objectIndex]", ROOT.getList().get(ROOT.getObjectIndex().intValue())},
             {ROOT, "array[objectIndex]", ROOT.getArray()[ROOT.getObjectIndex().intValue()] },
@@ -53,7 +52,10 @@ public class IndexAccessTest extends OgnlTestCase {
             {ROOT, "(index == (array.length - 3)) ? 'toggle toggleSelected' : 'toggle'", "toggle toggleSelected"},
             {ROOT, "\"return toggleDisplay('excdisplay\"+index+\"', this)\"", "return toggleDisplay('excdisplay1', this)"},
             {ROOT, "map[mapKey].split('=')[0]", "StringStuff"},
-            {ROOT, "booleanValues[index1][index2]", Boolean.FALSE}
+            {ROOT, "booleanValues[index1][index2]", Boolean.FALSE},
+            {ROOT, "tab.searchCriteria[index1].displayName", "Woodland creatures"},
+            {ROOT, "tab.searchCriteriaSelections[index1][index2]", Boolean.TRUE},
+            {ROOT, "tab.searchCriteriaSelections[index1][index2]", Boolean.TRUE, Boolean.FALSE, Boolean.FALSE},
     };
 
     /*
@@ -64,8 +66,16 @@ public class IndexAccessTest extends OgnlTestCase {
     {
         TestSuite result = new TestSuite();
 
-        for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new IndexAccessTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
+        for (int i = 0; i < TESTS.length; i++)
+        {
+            if (TESTS[i].length == 5)
+            {
+                result.addTest(new IndexAccessTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2],
+                                                   TESTS[i][3], TESTS[i][4]));
+            } else
+            {
+                result.addTest(new IndexAccessTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
+            }
         }
         return result;
     }
@@ -84,8 +94,8 @@ public class IndexAccessTest extends OgnlTestCase {
         super(name);
     }
 
-    public IndexAccessTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-                           Object expectedAfterSetResult)
+    public IndexAccessTest(String name, Object root, String expressionString, Object expectedResult,
+                           Object setValue, Object expectedAfterSetResult)
     {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }

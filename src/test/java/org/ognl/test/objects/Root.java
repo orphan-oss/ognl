@@ -72,6 +72,7 @@ public class Root extends Object
 
     private ITreeContentProvider _contentProvider = new TreeContentProvider();
     private Indexed _indexed = new Indexed();
+    private SearchTab _tab = new SearchTab();
     
     /*===================================================================
 		Public static methods
@@ -514,6 +515,16 @@ public class Root extends Object
     public int getIndex2()
     {
         return 1;
+    }
+
+    public SearchTab getTab()
+    {
+        return _tab;
+    }
+
+    public void setTab(SearchTab tab)
+    {
+        _tab = tab;
     }
 
     public static class A

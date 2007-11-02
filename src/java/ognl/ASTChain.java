@@ -145,24 +145,31 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
     {
         boolean handled = false;
 
-        for(int i = 0, ilast = _children.length - 2; i <= ilast; ++i) {
+        for(int i = 0, ilast = _children.length - 2; i <= ilast; ++i)
+        {
             if (i == ilast) {
-                if (_children[i] instanceof ASTProperty) {
+                if (_children[i] instanceof ASTProperty)
+                {
                     ASTProperty propertyNode = (ASTProperty) _children[i];
                     int indexType = propertyNode.getIndexedPropertyType(context, target);
 
-                    if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (_children[i + 1] instanceof ASTProperty)) {
+                    if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (_children[i + 1] instanceof ASTProperty))
+                    {
                         ASTProperty indexNode = (ASTProperty) _children[i + 1];
 
-                        if (indexNode.isIndexedAccess()) {
+                        if (indexNode.isIndexedAccess())
+                        {
                             Object index = indexNode.getProperty(context, target);
 
-                            if (index instanceof DynamicSubscript) {
-                                if (indexType == OgnlRuntime.INDEXED_PROPERTY_INT) {
+                            if (index instanceof DynamicSubscript)
+                            {
+                                if (indexType == OgnlRuntime.INDEXED_PROPERTY_INT)
+                                {
                                     Object array = propertyNode.getValue(context, target);
                                     int len = Array.getLength(array);
 
-                                    switch(((DynamicSubscript) index).getFlag()) {
+                                    switch(((DynamicSubscript) index).getFlag())
+                                    {
                                         case DynamicSubscript.ALL:
                                             System.arraycopy(target, 0, value, 0, len);
                                             handled = true;
@@ -178,16 +185,21 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                                             index = new Integer((len > 0) ? (len - 1) : -1);
                                             break;
                                     }
-                                } else {
-                                    if (indexType == OgnlRuntime.INDEXED_PROPERTY_OBJECT) { throw new OgnlException(
-                                            "DynamicSubscript '" + indexNode
-                                            + "' not allowed for object indexed property '" + propertyNode
-                                            + "'"); }
+                                } else
+                                {
+                                    if (indexType == OgnlRuntime.INDEXED_PROPERTY_OBJECT)
+                                    {
+                                        throw new OgnlException("DynamicSubscript '" + indexNode
+                                                                + "' not allowed for object indexed property '" + propertyNode
+                                                                + "'");
+                                    }
                                 }
                             }
-                            if (!handled) {
-                                OgnlRuntime.setIndexedProperty(context, target, propertyNode.getProperty(context,
-                                                                                                         target).toString(), index, value);
+                            if (!handled)
+                            {
+                                OgnlRuntime.setIndexedProperty(context, target,
+                                                               propertyNode.getProperty(context, target).toString(),
+                                                               index, value);
                                 handled = true;
                                 i++;
                             }
@@ -195,11 +207,13 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                     }
                 }
             }
-            if (!handled) {
+            if (!handled)
+            {
                 target = _children[i].getValue(context, target);
             }
         }
-        if (!handled) {
+        if (!handled)
+        {
             _children[_children.length - 1].setValue(context, target, value);
         }
     }

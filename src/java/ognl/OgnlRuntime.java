@@ -1989,13 +1989,15 @@ public class OgnlRuntime {
     {
         PropertyAccessor accessor;
 
-        if (source == null) {
+        if (source == null)
+        {
             throw new OgnlException("source is null for getProperty(null, \"" + name + "\")");
         }
-        if ((accessor = getPropertyAccessor(getTargetClass(source))) == null) {
-            throw new OgnlException(
-                    "No property accessor for " + getTargetClass(source).getName());
+        if ((accessor = getPropertyAccessor(getTargetClass(source))) == null)
+        {
+            throw new OgnlException("No property accessor for " + getTargetClass(source).getName());
         }
+        
         return accessor.getProperty(context, source, name);
     }
 

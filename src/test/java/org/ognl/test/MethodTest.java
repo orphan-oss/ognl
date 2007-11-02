@@ -38,7 +38,7 @@ public class MethodTest extends OgnlTestCase
 
     private static Simple ROOT = new Simple();
     private static ListSource LIST = new ListSourceImpl();
-    private static BaseGeneric<GameGenericObject> GENERIC = new GameGeneric();
+    private static BaseGeneric<GameGenericObject, Long> GENERIC = new GameGeneric();
 
     private static Object[][] TESTS = {
             { "hashCode()", new Integer(ROOT.hashCode()) } ,
