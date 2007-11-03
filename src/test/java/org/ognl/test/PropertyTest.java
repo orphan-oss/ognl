@@ -115,7 +115,8 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "openTransitionWin", Boolean.FALSE},
             { ROOT, "b.methodOfB(a.methodOfA(b)-1)", new Integer(0)},
             { ROOT, "disabled", Boolean.TRUE},
-            { PROPERTY, "value", ""}
+            { PROPERTY, "value", ""},
+            { PROPERTY, "search", "foo" }
     };
 
     public static String formatValue(int millis, boolean b1, boolean b2)
