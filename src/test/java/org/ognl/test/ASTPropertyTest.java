@@ -2,7 +2,8 @@ package org.ognl.test;
 
 import junit.framework.TestCase;
 import ognl.*;
-import org.ognl.test.objects.Root;
+import static org.ognl.test.OgnlTestCase.isEqual;
+import org.ognl.test.objects.*;
 
 import java.util.List;
 import java.util.Map;
@@ -233,5 +234,56 @@ public class ASTPropertyTest extends TestCase {
 
         SimpleNode node = (SimpleNode) Ognl.parseExpression("tab.searchCriteriaSelections[index1][index2]");
         node.setValue(context, root, Boolean.FALSE);
+    }
+
+    public void test_Set_Generic_Property() throws Exception
+    {
+        GenericRoot root = new GenericRoot();
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+
+        context.setRoot(root);
+        context.setCurrentObject(root);
+
+        SimpleNode node = (SimpleNode) Ognl.parseExpression("cracker.param");
+        node.setValue(context, root, "0");
+
+        assertEquals( new Integer(0), root.getCracker().getParam());
+
+        node.setValue(context, root, "10");
+
+        assertEquals(new Integer(10), root.getCracker().getParam());
+    }
+
+    public void test_Get_Generic_Property() throws Exception
+    {
+        GenericRoot root = new GenericRoot();
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+
+        context.setRoot(root);
+        context.setCurrentObject(root);
+
+        SimpleNode node = (SimpleNode) Ognl.parseExpression("cracker.param");
+        node.setValue(context, root, "0");
+
+        assertEquals(new Integer(0), node.getValue(context, root));
+
+        node.setValue(context, root, "10");
+
+        assertEquals(new Integer(10), node.getValue(context, root));
+    }
+
+    public void test_Set_Get_Multiple_Generic_Types_Property() throws Exception
+    {
+        BaseGeneric<GameGenericObject, Long> root = new GameGeneric();
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+
+        context.setRoot(root);
+        context.setCurrentObject(root);
+
+        SimpleNode node = (SimpleNode) Ognl.parseExpression("ids");
+        node.setValue(context, root, new String[] {"0", "20", "43"});
+
+        isEqual(new Long[] {new Long(0), new Long(20), new Long(43)}, root.getIds());
+        isEqual(node.getValue(context, root), root.getIds());
     }
 }

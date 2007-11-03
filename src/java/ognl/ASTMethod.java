@@ -154,7 +154,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
         Method m = null;
         
         try {
-            
+
             m = OgnlRuntime.getMethod(context, context.getCurrentType() != null ? context.getCurrentType() : target.getClass(), _methodName, _children, false);
             if (m == null)
                 m = OgnlRuntime.getReadMethod(target.getClass(), _methodName, _children != null ? _children.length : -1);
@@ -198,7 +198,6 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
             {    
                 Class[] parms = m.getParameterTypes();
                 String prevCast = (String)context.remove(ExpressionCompiler.PRE_CAST);
-                
 /*
                 System.out.println("before children methodName is " + _methodName + " for target " + target + " target class: " + (target != null ? target.getClass() : null)
                            + " current type: " + context.getCurrentType() + " and previous type: " + context.getPreviousType());*/
@@ -300,13 +299,13 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
             throw OgnlOps.castToRuntime(t);
         }
 
-        try {
-
+        try
+        {
             Object contextObj = getValueBody(context, target);
-            context.setCurrentObject(contextObj);
-            
-        } catch (Throwable t) {
-            // ignore 
+            context.setCurrentObject(contextObj);    
+        } catch (Throwable t)
+        {
+            throw OgnlOps.castToRuntime(t);
         }
 
         result += ")" + post;

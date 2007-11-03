@@ -33,7 +33,7 @@ public class ASTMethodTest extends TestCase {
         
         assertEquals(p.toGetSourceString(context, root.getMap()), ".get(\"value\")");
         assertEquals(context.getCurrentType(), Object.class);
-        assertEquals(context.getCurrentObject(), root.getMap().get("value"));
+        assertEquals(root.getMap().get("value"), context.getCurrentObject());
         assert Map.class.isAssignableFrom(context.getCurrentAccessor());
         assert Map.class.isAssignableFrom(context.getPreviousType());
         assert context.getPreviousAccessor() == null;

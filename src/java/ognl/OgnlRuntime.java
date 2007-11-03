@@ -32,6 +32,8 @@ package ognl;
 
 import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
+import ognl.internal.ClassCache;
+import ognl.internal.ClassCacheImpl;
 
 import java.beans.*;
 import java.lang.reflect.*;
@@ -83,6 +85,9 @@ public class OgnlRuntime {
      */
     public static int INDEXED_PROPERTY_OBJECT = 2;
 
+    /**
+     * Constant string representation of null string.
+     */
     public static final String NULL_STRING = "" + null;
 
     /**
@@ -104,6 +109,7 @@ public class OgnlRuntime {
     private static final Map HEX_PADDING = new HashMap();
 
     private static final int HEX_LENGTH = 8;
+
     /**
      * Returned by <CODE>getUniqueDescriptor()</CODE> when the object is <CODE>null</CODE>.
      */
@@ -115,23 +121,24 @@ public class OgnlRuntime {
     private static boolean _jdk15 = false;
     private static boolean _jdkChecked = false;
 
-    static final ClassCache _methodAccessors = new ClassCache();
-    static final ClassCache _propertyAccessors = new ClassCache();
-    static final ClassCache _elementsAccessors = new ClassCache();
-    static final ClassCache _nullHandlers = new ClassCache();
+    static final ClassCache _methodAccessors = new ClassCacheImpl();
+    static final ClassCache _propertyAccessors = new ClassCacheImpl();
+    static final ClassCache _elementsAccessors = new ClassCacheImpl();
+    static final ClassCache _nullHandlers = new ClassCacheImpl();
 
-    static final ClassCache _propertyDescriptorCache = new ClassCache();
-    static final ClassCache _constructorCache = new ClassCache();
-    static final ClassCache _staticMethodCache = new ClassCache();
-    static final ClassCache _instanceMethodCache = new ClassCache();
-    static final ClassCache _invokePermissionCache = new ClassCache();
-    static final ClassCache _fieldCache = new ClassCache();
+    static final ClassCache _propertyDescriptorCache = new ClassCacheImpl();
+    static final ClassCache _constructorCache = new ClassCacheImpl();
+    static final ClassCache _staticMethodCache = new ClassCacheImpl();
+    static final ClassCache _instanceMethodCache = new ClassCacheImpl();
+    static final ClassCache _invokePermissionCache = new ClassCacheImpl();
+    static final ClassCache _fieldCache = new ClassCacheImpl();
     static final List _superclasses = new ArrayList(); /* Used by fieldCache lookup */
-    static final ClassCache[] _declaredMethods = new ClassCache[]{new ClassCache(), new ClassCache()};
+    static final ClassCache[] _declaredMethods = new ClassCache[]{new ClassCacheImpl(), new ClassCacheImpl()};
 
     static final Map _primitiveTypes = new HashMap(101);
-    static final ClassCache _primitiveDefaults = new ClassCache();
+    static final ClassCache _primitiveDefaults = new ClassCacheImpl();
     static final Map _methodParameterTypesCache = new HashMap(101);
+    static final Map _genericMethodParameterTypesCache = new HashMap(101);
     static final Map _ctorParameterTypesCache = new HashMap(101);
     static SecurityManager _securityManager = System.getSecurityManager();
     static final EvaluationPool _evaluationPool = new EvaluationPool();
@@ -143,127 +150,6 @@ public class OgnlRuntime {
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
      */
     private static OgnlExpressionCompiler _compiler = new ExpressionCompiler();
-
-    /**
-     * This is a highly specialized map for storing values keyed by Class objects.
-     */
-    static class ClassCache {
-
-        /* this MUST be a power of 2 */
-        private static final int TABLE_SIZE = 512;
-
-        /* ...and now you see why. The table size is used as a mask for generating hashes */
-        private static final int TABLE_SIZE_MASK = TABLE_SIZE - 1;
-
-        private Entry[] table;
-
-        private ClassCacheInspector _classInspector;
-
-        private static class Entry {
-
-            protected Entry next;
-            protected Class key;
-            protected Object value;
-
-            public Entry(Class key, Object value)
-            {
-                super();
-                this.key = key;
-                this.value = value;
-            }
-        }
-
-        public ClassCache()
-        {
-            super();
-            this.table = new Entry[TABLE_SIZE];
-        }
-
-        public void setClassInspector(ClassCacheInspector inspector)
-        {
-            _classInspector = inspector;
-        }
-
-        public void clear()
-        {
-            for (int i=0; i < this.table.length; i++)
-            {
-                this.table[i] = null;
-            }
-        }
-
-        public int getSize()
-        {
-            int counter = 0;
-            for (int i=0; i < table.length; i++)
-            {
-                if (table[i] != null)
-                    counter++;
-            }
-
-            return counter;
-        }
-
-        public final Object get(Class key)
-        {
-            Object result = null;
-            int i = key.hashCode() & TABLE_SIZE_MASK;
-
-            for (Entry entry = table[i]; entry != null; entry = entry.next)
-            {
-                if (entry.key == key)
-                {
-                    result = entry.value;
-                    break;
-                }
-            }
-
-            return result;
-        }
-
-        public final Object put(Class key, Object value)
-        {
-            if (_classInspector != null && !_classInspector.shouldCache(key))
-                return value;
-
-            Object result = null;
-            int i = key.hashCode() & TABLE_SIZE_MASK;
-            Entry entry = table[i];
-
-            if (entry == null)
-            {
-                table[i] = new Entry(key, value);
-            } else {
-
-                if (entry.key == key)
-                {
-                    result = entry.value;
-                    entry.value = value;
-                } else {
-
-                    while (true)
-                    {
-                        if (entry.key == key)
-                        {
-                            /* replace value */
-                            result = entry.value;
-                            entry.value = value;
-                            break;
-                        } else {
-                            if (entry.next == null)
-                            {
-                                /* add value */
-                                entry.next = new Entry(key, value);
-                                break;
-                            }
-                        }
-                        entry = entry.next;
-                    }
-                }
-            }
-            return result;
-        }
-    }
 
     private static IdentityHashMap PRIMITIVE_WRAPPER_CLASSES = new IdentityHashMap();
 
@@ -477,10 +363,11 @@ public class OgnlRuntime {
         if (_jdkChecked)
             return _jdk15;
 
-        try {
+        try
+        {
             Class.forName("java.lang.annotation.Annotation");
             _jdk15 = true;
-        } catch (Exception e) {}
+        } catch (Exception e) { /* ignore */ }
 
         _jdkChecked = true;
 
@@ -554,9 +441,11 @@ public class OgnlRuntime {
 
     public static String getClassName(Object o, boolean fullyQualified)
     {
-        if (!(o instanceof Class)) {
+        if (!(o instanceof Class))
+        {
             o = o.getClass();
         }
+
         return getClassName((Class) o, fullyQualified);
     }
 
@@ -678,14 +567,148 @@ public class OgnlRuntime {
      */
     public static Class[] getParameterTypes(Method m)
     {
-        synchronized (_methodParameterTypesCache) {
+        synchronized (_methodParameterTypesCache)
+        {
             Class[] result;
 
-            if ((result = (Class[]) _methodParameterTypesCache.get(m)) == null) {
+            if ((result = (Class[]) _methodParameterTypesCache.get(m)) == null)
+            {
                 _methodParameterTypesCache.put(m, result = m.getParameterTypes());
             }
             return result;
         }
+    }
+
+    /**
+     * Finds the appropriate parameter types for the given {@link Method} and
+     * {@link Class} instance of the type the method is associated with.  Correctly
+     * finds generic types if running in >= 1.5 jre as well.
+     *
+     * @param type The class type the method is being executed against.
+     * @param m The method to find types for.
+     * @return Array of parameter types for the given method.
+     */
+    public static Class[] findParameterTypes(Class type, Method m)
+    {
+        if (type == null)
+        {
+            return getParameterTypes(m);
+        }
+
+        if (!isJdk15()
+            || type.getGenericSuperclass() == null
+            || !ParameterizedType.class.isInstance(type.getGenericSuperclass())
+            || m.getDeclaringClass().getTypeParameters() == null)
+        {
+            return getParameterTypes(m);
+        }
+
+        synchronized (_genericMethodParameterTypesCache)
+        {
+            Class[] types;
+
+            if ((types = (Class[]) _genericMethodParameterTypesCache.get(m)) != null)
+            {
+                return types;
+            }
+
+            ParameterizedType param = (ParameterizedType)type.getGenericSuperclass();
+            Type[] genTypes = m.getGenericParameterTypes();
+            TypeVariable[] declaredTypes = m.getDeclaringClass().getTypeParameters();
+            
+            types = new Class[genTypes.length];
+
+            typeSearch:
+            for (int i=0; i < genTypes.length; i++)
+            {
+                TypeVariable paramType = null;
+
+                if (TypeVariable.class.isInstance(genTypes[i]))
+                {
+                    paramType = (TypeVariable)genTypes[i];
+                } else if (GenericArrayType.class.isInstance(genTypes[i]))
+                {
+                    paramType = (TypeVariable) ((GenericArrayType)genTypes[i]).getGenericComponentType();
+                } else if (Class.class.isInstance(genTypes[i]))
+                {
+                    types[i] = (Class) genTypes[i];
+                    continue;
+                }
+
+                Class resolved = resolveType(param, paramType, declaredTypes);
+
+                if (resolved != null)
+                {
+                    if (GenericArrayType.class.isInstance(genTypes[i]))
+                    {
+                        resolved = Array.newInstance(resolved, 0).getClass();
+                    }
+
+                    types[i] = resolved;
+                    continue;
+                }
+
+                types[i] = m.getParameterTypes()[i];
+            }
+
+            _genericMethodParameterTypesCache.put(m, types);
+
+            return types;
+        }
+    } 
+
+    static Class resolveType(ParameterizedType param, TypeVariable var, TypeVariable[] declaredTypes)
+    {
+        if (param.getActualTypeArguments().length < 1)
+            return null;
+
+        for (int i=0; i < declaredTypes.length; i++)
+        {
+            if (!TypeVariable.class.isInstance( param.getActualTypeArguments()[i])
+                && declaredTypes[i].getName().equals(var.getName()))
+            {
+                return (Class) param.getActualTypeArguments()[i];
+            }
+        }
+
+        /*
+        for (int i=0; i < var.getBounds().length; i++)
+        {
+            Type t = var.getBounds()[i];
+            Class resolvedType = null;
+
+            if (ParameterizedType.class.isInstance(t))
+            {
+                ParameterizedType pparam = (ParameterizedType)t;
+                for (int e=0; e < pparam.getActualTypeArguments().length; e++)
+                {
+                    if (!TypeVariable.class.isInstance(pparam.getActualTypeArguments()[e]))
+                        continue;
+
+                    resolvedType = resolveType(pparam, (TypeVariable)pparam.getActualTypeArguments()[e], declaredTypes);
+                }
+            } else
+            {
+                resolvedType = findType(param.getActualTypeArguments(), (Class)t);
+            }
+
+            if (resolvedType != null)
+                return resolvedType;
+        }
+        */
+
+        return null;
+    }
+
+    static Class findType(Type[] types, Class type)
+    {
+        for (int i = 0; i < types.length; i++)
+        {
+            if (Class.class.isInstance(types[i]) && type.isAssignableFrom((Class)types[i]))
+                return (Class)types[i];
+        }
+
+        return null;
     }
 
     /**
@@ -753,21 +776,27 @@ public class OgnlRuntime {
 
         synchronized(method) {
 
-            if (_securityManager != null) {
+            if (_securityManager != null)
+            {
                 try {
                     _securityManager.checkPermission(getPermission(method));
                 } catch (SecurityException ex) {
                     throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
                 }
             }
-            if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-                if (!(wasAccessible = ((AccessibleObject) method).isAccessible())) {
+
+            if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
+            {
+                if (!(wasAccessible = ((AccessibleObject) method).isAccessible()))
+                {
                     ((AccessibleObject) method).setAccessible(true);
                 }
             }
 
             result = method.invoke(target, argsArray);
-            if (!wasAccessible) {
+
+            if (!wasAccessible)
+            {
                 ((AccessibleObject) method).setAccessible(false);
             }
         }
@@ -996,12 +1025,15 @@ public class OgnlRuntime {
         Method result = null;
         TypeConverter converter = context.getTypeConverter();
 
-        if ((converter != null) && (methods != null)) {
-            for (int i = 0, icount = methods.size(); (result == null) && (i < icount); i++) {
+        if ((converter != null) && (methods != null))
+        {
+            for (int i = 0, icount = methods.size(); (result == null) && (i < icount); i++)
+            {
                 Method m = (Method) methods.get(i);
-                Class[] parameterTypes = getParameterTypes(m);
+                Class[] parameterTypes = findParameterTypes(target != null ? target.getClass() : null, m);//getParameterTypes(m);
 
-                if (getConvertedTypes(context, target, m, propertyName, parameterTypes, args, newArgs)) {
+                if (getConvertedTypes(context, target, m, propertyName, parameterTypes, args, newArgs))
+                {
                     result = m;
                 }
             }
@@ -1033,9 +1065,19 @@ public class OgnlRuntime {
      * successful this method will return the Method within the target that can be called and the
      * converted arguments in actualArgs. If unsuccessful this method will return null and the
      * actualArgs will be empty.
+     *
+     * @param context The current execution context.
+     * @param source Target object to run against or method name.
+     * @param target Instance of object to be run against.
+     * @param propertyName Name of property to get method of.
+     * @param methods List of current known methods.
+     * @param args Arguments originally passed in.
+     * @param actualArgs Converted arguments.
+     *
+     * @return Best method match or null if none could be found.
      */
-    public static Method getAppropriateMethod(OgnlContext context, Object source, Object target, String methodName,
-                                              String propertyName, List methods, Object[] args, Object[] actualArgs)
+    public static Method getAppropriateMethod(OgnlContext context, Object source, Object target, String propertyName,
+                                              List methods, Object[] args, Object[] actualArgs)
     {
         Method result = null;
         Class[] resultParameterTypes = null;
@@ -1045,7 +1087,14 @@ public class OgnlRuntime {
             for (int i = 0, icount = methods.size(); i < icount; i++)
             {
                 Method m = (Method) methods.get(i);
-                Class[] mParameterTypes = getParameterTypes(m);
+
+                Class typeClass = target != null ? target.getClass() : null;
+                if (typeClass == null && source != null && Class.class.isInstance(source))
+                {
+                    typeClass = (Class)source;
+                }
+                
+                Class[] mParameterTypes = findParameterTypes(typeClass, m);//getParameterTypes(m);
 
                 if (areArgsCompatible(args, mParameterTypes, m)
                     && ((result == null) || isMoreSpecific(mParameterTypes, resultParameterTypes)))
@@ -1083,8 +1132,7 @@ public class OgnlRuntime {
         Object[] actualArgs = _objectArrayPool.create(args.length);
 
         try {
-            Method method = getAppropriateMethod(context, source, target, methodName,
-                                                 propertyName, methods, args, actualArgs);
+            Method method = getAppropriateMethod(context, source, target, propertyName, methods, args, actualArgs);
 
             if ((method == null) || !isMethodAccessible(context, source, method, propertyName))
             {
@@ -1119,7 +1167,7 @@ public class OgnlRuntime {
                 // split arguments in to two dimensional array for varargs reflection invocation
                 // where it is expected that the parameter passed in to invoke the method
                 // will look like "new Object[] { arrayOfNonVarArgsArguments, arrayOfVarArgsArguments }"
-                
+
                 for (int i=0; i < parmTypes.length; i++)
                 {
                     if (parmTypes[i].isArray())
@@ -1130,7 +1178,7 @@ public class OgnlRuntime {
                         Object[] varArgs;
 
                         // if they passed in varargs arguments grab them and dump in to new varargs array
-                        
+
                         if (actualArgs.length > i)
                         {
                             ArrayList varArgsList = new ArrayList();
@@ -1141,7 +1189,7 @@ public class OgnlRuntime {
                                     varArgsList.add(actualArgs[j]);
                                 }
                             }
-                            
+
                             varArgs = varArgsList.toArray();
                         } else
                         {
@@ -1170,7 +1218,7 @@ public class OgnlRuntime {
     }
 
     public static Object callStaticMethod(OgnlContext context, String className, String methodName, Object[] args)
-            throws OgnlException, MethodFailedException
+            throws OgnlException
     {
         try {
             Class targetClass = classForName(context, className);
@@ -1286,44 +1334,51 @@ public class OgnlRuntime {
         return result;
     }
 
-    public static final boolean setMethodValue(OgnlContext context, Object target, String propertyName, Object value)
-            throws OgnlException, IllegalAccessException, NoSuchMethodException, MethodFailedException,
-            IntrospectionException
+    public static boolean setMethodValue(OgnlContext context, Object target, String propertyName, Object value)
+            throws OgnlException, IllegalAccessException, NoSuchMethodException, IntrospectionException
     {
         return setMethodValue(context, target, propertyName, value, false);
     }
 
-    public static final boolean setMethodValue(OgnlContext context, Object target, String propertyName, Object value,
-                                               boolean checkAccessAndExistence)
-            throws OgnlException, IllegalAccessException, NoSuchMethodException, MethodFailedException,
-            IntrospectionException
+    public static boolean setMethodValue(OgnlContext context, Object target, String propertyName, Object value,
+                                         boolean checkAccessAndExistence)
+            throws OgnlException, IllegalAccessException, NoSuchMethodException, IntrospectionException
     {
         boolean result = true;
         Method m = getSetMethod(context, (target == null) ? null : target.getClass(), propertyName);
 
-        if (checkAccessAndExistence) {
-            if ((m == null) || !context.getMemberAccess().isAccessible(context, target, m, propertyName)) {
+        if (checkAccessAndExistence)
+        {
+            if ((m == null) || !context.getMemberAccess().isAccessible(context, target, m, propertyName))
+            {
                 result = false;
             }
         }
-        if (result) {
-            if (m != null) {
+
+        if (result)
+        {
+            if (m != null)
+            {
                 Object[] args = _objectArrayPool.create(value);
 
-                try {
+                try
+                {
                     callAppropriateMethod(context, target, target, m.getName(), propertyName,
                                           Collections.nCopies(1, m), args);
-                } finally {
+                } finally
+                {
                     _objectArrayPool.recycle(args);
                 }
-            } else {
+            } else
+            {
                 result = false;
             }
         }
+
         return result;
     }
 
-    public static final List getConstructors(Class targetClass)
+    public static List getConstructors(Class targetClass)
     {
         List result;
 
@@ -1598,28 +1653,31 @@ public class OgnlRuntime {
             throws IntrospectionException, OgnlException
     {
         Method result = null;
-        PropertyDescriptor pd = getPropertyDescriptor(targetClass, propertyName);
+        PropertyDescriptor pd = null; //getPropertyDescriptor(targetClass, propertyName);
 
-        if (pd == null) {
-            List methods = getDeclaredMethods(targetClass, propertyName, false /*
-                                                                                 * find 'get'
-                                                                                 * methods
-                                                                                 */);
+        if (pd == null)
+        {
+            List methods = getDeclaredMethods(targetClass, propertyName, false /* find 'get' methods */);
 
-            if (methods != null) {
-                for (int i = 0, icount = methods.size(); i < icount; i++) {
+            if (methods != null)
+            {
+                for (int i = 0, icount = methods.size(); i < icount; i++)
+                {
                     Method m = (Method) methods.get(i);
-                    Class[] mParameterTypes = getParameterTypes(m);
+                    Class[] mParameterTypes = findParameterTypes(targetClass, m); //getParameterTypes(m);
 
-                    if (mParameterTypes.length == 0) {
+                    if (mParameterTypes.length == 0)
+                    {
                         result = m;
                         break;
                     }
                 }
             }
-        } else {
+        } else
+        {
             result = pd.getReadMethod();
         }
+
         return result;
     }
 
@@ -1639,15 +1697,18 @@ public class OgnlRuntime {
             throws IntrospectionException, OgnlException
     {
         Method result = null;
-        PropertyDescriptor pd = getPropertyDescriptor(targetClass, propertyName);
+        PropertyDescriptor pd = null; //getPropertyDescriptor(targetClass, propertyName);
 
-        if (pd == null) {
+        if (pd == null)
+        {
             List methods = getDeclaredMethods(targetClass, propertyName, true /* find 'set' methods */);
 
-            if (methods != null) {
-                for (int i = 0, icount = methods.size(); i < icount; i++) {
+            if (methods != null)
+            {
+                for (int i = 0, icount = methods.size(); i < icount; i++)
+                {
                     Method m = (Method) methods.get(i);
-                    Class[] mParameterTypes = getParameterTypes(m);
+                    Class[] mParameterTypes = findParameterTypes(targetClass, m); //getParameterTypes(m);
 
                     if (mParameterTypes.length == 1) {
                         result = m;
@@ -1655,9 +1716,11 @@ public class OgnlRuntime {
                     }
                 }
             }
-        } else {
+        } else
+        {
             result = pd.getWriteMethod();
         }
+
         return result;
     }
 
@@ -1805,11 +1868,13 @@ public class OgnlRuntime {
         Map result;
 
         synchronized (_propertyDescriptorCache) {
-            if ((result = (Map) _propertyDescriptorCache.get(targetClass)) == null) {
+            if ((result = (Map) _propertyDescriptorCache.get(targetClass)) == null)
+            {
                 PropertyDescriptor[] pda = Introspector.getBeanInfo(targetClass).getPropertyDescriptors();
 
                 result = new HashMap(101);
-                for (int i = 0, icount = pda.length; i < icount; i++) {
+                for (int i = 0, icount = pda.length; i < icount; i++)
+                {
                     result.put(pda[i].getName(), pda[i]);
                 }
 
@@ -1997,7 +2062,7 @@ public class OgnlRuntime {
         {
             throw new OgnlException("No property accessor for " + getTargetClass(source).getName());
         }
-        
+
         return accessor.getProperty(context, source, name);
     }
 
@@ -2007,13 +2072,12 @@ public class OgnlRuntime {
         PropertyAccessor accessor;
 
         if (target == null) {
-            throw new OgnlException("target is null for setProperty(null, \"" + name + "\", " + value
-                                    + ")");
+            throw new OgnlException("target is null for setProperty(null, \"" + name + "\", " + value + ")");
         }
         if ((accessor = getPropertyAccessor(getTargetClass(target))) == null) {
-            throw new OgnlException(
-                    "No property accessor for " + getTargetClass(target).getName());
+            throw new OgnlException("No property accessor for " + getTargetClass(target).getName());
         }
+
         accessor.setProperty(context, target, name, value);
     }
 
@@ -2181,7 +2245,7 @@ public class OgnlRuntime {
         {
             Method m = (Method) methods.get(i);
             boolean varArgs = isJdk15() && m.isVarArgs();
-            
+
             if (parms.length != m.getParameterTypes().length && !varArgs)
                 continue;
 
@@ -2192,7 +2256,7 @@ public class OgnlRuntime {
                 if (varArgs && mparms[p].isArray()){
                     continue;
                 }
-                
+
                 if (parms[p] == null)
                 {
                     matched = false;

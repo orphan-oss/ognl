@@ -82,17 +82,19 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         OgnlContext ognlContext = (OgnlContext) context;
 
         try {
-            if (!OgnlRuntime.setMethodValue(ognlContext, target, name, value, true)) {
+            if (!OgnlRuntime.setMethodValue(ognlContext, target, name, value, true))
+            {
                 result = OgnlRuntime.setFieldValue(ognlContext, target, name, value) ? null : OgnlRuntime.NotFound;
             }
 
-            if (result == OgnlRuntime.NotFound) {
+            if (result == OgnlRuntime.NotFound)
+            {
                 Method m = OgnlRuntime.getWriteMethod(target.getClass(), name);
-                if (m != null) {
+                if (m != null)
+                {
                     result = m.invoke(target, new Object[] { value});
                 }
             }
-
         } catch (IntrospectionException ex) {
             throw new OgnlException(name, ex);
         } catch (OgnlException ex) {
@@ -100,6 +102,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         } catch (Exception ex) {
             throw new OgnlException(name, ex);
         }
+        
         return result;
     }
 

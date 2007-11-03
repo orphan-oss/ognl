@@ -3,6 +3,7 @@ package ognl;
 import junit.framework.TestCase;
 import org.ognl.test.objects.*;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  */
 public class TestOgnlRuntime extends TestCase {
 
+    
     public void test_Get_Super_Or_Interface_Class() throws Exception
     {
         ListSource list = new ListSourceImpl();
@@ -194,5 +196,55 @@ public class TestOgnlRuntime extends TestCase {
 
             return true;
         }
+    }
+
+    public void test_Set_Generic_Parameter_Types()
+        throws Exception
+    {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+
+        Method m = OgnlRuntime.getSetMethod(context, GenericCracker.class, "param");
+        assertNotNull(m);
+
+        Class[] types = m.getParameterTypes();
+        assertEquals(1, types.length);
+        assertEquals(Integer.class, types[0]);
+    }
+
+    public void test_Get_Generic_Parameter_Types()
+        throws Exception
+    {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+
+        Method m = OgnlRuntime.getGetMethod(context, GenericCracker.class, "param");
+        assertNotNull(m);
+
+        assertEquals(Integer.class, m.getReturnType());
+    }
+
+    public void test_Find_Parameter_Types()
+            throws Exception
+    {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+
+        Method m = OgnlRuntime.getSetMethod(context, GameGeneric.class, "ids");
+        assertNotNull(m);
+
+        Class[] types = OgnlRuntime.findParameterTypes(GameGeneric.class, m);
+        assertEquals(1, types.length);
+        assertEquals(new Long[0].getClass(), types[0]);
+    }
+
+    public void test_Find_Parameter_Types_Superclass()
+            throws Exception
+    {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+
+        Method m = OgnlRuntime.getSetMethod(context, BaseGeneric.class, "ids");
+        assertNotNull(m);
+
+        Class[] types = OgnlRuntime.findParameterTypes(BaseGeneric.class, m);
+        assertEquals(1, types.length);
+        assertEquals(new Serializable[0].getClass(), types[0]);
     }
 }

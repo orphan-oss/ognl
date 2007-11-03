@@ -192,4 +192,20 @@ public class TestExpressionCompiler extends TestCase
         expression = Ognl.compileExpression(_context, this, "object[propertyKey]");
         assertEquals("propertyValue", expression.getAccessor().get(_context, this));
     }
+
+    public void test_Set_Generic_Property() throws Exception
+    {
+        _context.clear();
+        
+        GenericRoot root = new GenericRoot();
+
+        Node node = Ognl.compileExpression(_context, root, "cracker.param");
+        assertEquals(null, node.getAccessor().get(_context, root));
+
+        node.getAccessor().set(_context, root, new Integer(0));
+        assertEquals(new Integer(0), node.getAccessor().get(_context, root));
+
+        node.getAccessor().set(_context, root, new Integer(12));
+        assertEquals(new Integer(12), node.getAccessor().get(_context, root));
+    }
 }

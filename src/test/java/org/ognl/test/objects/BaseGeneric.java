@@ -21,6 +21,11 @@ public class BaseGeneric<E extends GenericObject, I extends Serializable> {
         this.ids = ids;
     }
 
+    public I[] getIds()
+    {
+        return this.ids;
+    }
+
     public String getMessage()
     {
         return "Message";
