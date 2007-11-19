@@ -40,11 +40,9 @@ import ognl.enhance.OrderedReturn;
 public class ASTSequence extends SimpleNode implements NodeType, OrderedReturn
 {
     private Class _getterClass;
-    
     private String _lastExpression;
-    
     private String _coreExpression;
-    
+
     public ASTSequence(int id) {
         super(id);
     }
@@ -60,9 +58,11 @@ public class ASTSequence extends SimpleNode implements NodeType, OrderedReturn
     protected Object getValueBody( OgnlContext context, Object source ) throws OgnlException
     {
         Object result = null;
-        for ( int i=0; i < _children.length; ++i ) {
+        for ( int i=0; i < _children.length; ++i )
+        {
             result = _children[i].getValue( context, source );
         }
+        
         return result; // The result is just the last one we saw.
     }
 
@@ -78,26 +78,26 @@ public class ASTSequence extends SimpleNode implements NodeType, OrderedReturn
     {
         return _getterClass;
     }
-    
+
     public Class getSetterClass()
     {
         return null;
     }
-    
+
     public String getLastExpression()
     {
         return _lastExpression;
     }
-    
+
     public String getCoreExpression()
     {
         return _coreExpression;
     }
-    
+
     public String toString()
     {
         String      result = "";
-        
+
         for ( int i=0; i < _children.length; ++i ) {
             if (i > 0) {
                 result = result + ", ";
@@ -106,59 +106,61 @@ public class ASTSequence extends SimpleNode implements NodeType, OrderedReturn
         }
         return result;
     }
-    
+
     public String toSetSourceString(OgnlContext context, Object target)
     {
         return "";
     }
-    
+
     public String toGetSourceString(OgnlContext context, Object target)
     {
         String result = "";
-        
+
         NodeType _lastType = null;
-        
-        for (int i = 0; i < _children.length; ++i) {
+
+        for (int i = 0; i < _children.length; ++i)
+        {
             //System.out.println("astsequence child : " + _children[i].getClass().getName());
             String seqValue = _children[i].toGetSourceString(context, target);
-            
+
             if ((i + 1) < _children.length
-                    && ASTOr.class.isInstance(_children[i])) {
+                && ASTOr.class.isInstance(_children[i])) {
                 seqValue = "(" + seqValue + ")";
             }
-            
+
             if (i > 0 && ASTProperty.class.isInstance(_children[i])
-                    && seqValue != null && seqValue.trim().length() > 0) {
+                && seqValue != null && seqValue.trim().length() > 0)
+            {
                 String pre = (String)context.get("_currentChain");
                 if (pre == null)
                     pre = "";
-                
+
                 seqValue = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context) + pre + seqValue;
                 context.setCurrentAccessor(context.getRoot().getClass());
             }
-            
-            if ((i + 1) >= _children.length) {
+
+            if ((i + 1) >= _children.length)
+            {
                 _coreExpression = result;
                 _lastExpression = seqValue;
             }
-            
+
             if (seqValue != null && seqValue.trim().length() > 0 && (i + 1) < _children.length)
                 result += seqValue + ";";
             else if (seqValue != null && seqValue.trim().length() > 0)
                 result += seqValue;
-            
+
             // set last known type from last child with a type
-            
+
             if (NodeType.class.isInstance(_children[i]) && ((NodeType)_children[i]).getGetterClass() != null)
                 _lastType = (NodeType)_children[i];
-            
         }
-        
-        if (_lastType != null) {
-            
+
+        if (_lastType != null)
+        {
             _getterClass = _lastType.getGetterClass();
         }
-        
+
         return result;
     }
 }

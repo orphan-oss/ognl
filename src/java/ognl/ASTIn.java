@@ -51,6 +51,7 @@ class ASTIn extends SimpleNode implements NodeType
     {
         Object v1 = _children[0].getValue( context, source );
         Object v2 = _children[1].getValue( context, source );
+
         return OgnlOps.in( v1, v2 )? Boolean.TRUE : Boolean.FALSE;
     }
 

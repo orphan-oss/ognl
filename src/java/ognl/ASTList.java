@@ -42,9 +42,6 @@ import java.util.List;
  */
 public class ASTList extends SimpleNode implements NodeType
 {
-
-    private Class _getterClass;
-    
     public ASTList(int id)
     {
         super(id);
@@ -56,7 +53,7 @@ public class ASTList extends SimpleNode implements NodeType
     }
 
     protected Object getValueBody(OgnlContext context, Object source)
-        throws OgnlException
+            throws OgnlException
     {
         List answer = new ArrayList(jjtGetNumChildren());
         for(int i = 0; i < jjtGetNumChildren(); ++i)
@@ -66,14 +63,14 @@ public class ASTList extends SimpleNode implements NodeType
 
     public Class getGetterClass()
     {
-        return _getterClass;
+        return null;
     }
-    
+
     public Class getSetterClass()
     {
-        return _getterClass;
+        return null;
     }
-    
+
     public String toString()
     {
         String result = "{ ";
@@ -86,18 +83,18 @@ public class ASTList extends SimpleNode implements NodeType
         }
         return result + " }";
     }
-    
+
     public String toGetSourceString(OgnlContext context, Object target)
     {
         String result = "";
         boolean array = false;
 
         if (_parent != null && ASTCtor.class.isInstance(_parent)
-                && ((ASTCtor)_parent).isArray()) {
+            && ((ASTCtor)_parent).isArray()) {
 
             array = true;
         }
-        
+
         context.setCurrentType(List.class);
         context.setCurrentAccessor(List.class);
 
@@ -152,31 +149,31 @@ public class ASTList extends SimpleNode implements NodeType
                     if (valueClass != null && ctorClass.isArray()) {
 
                         value = OgnlRuntime.getCompiler().createLocalReference(context,
-                                "(" + ExpressionCompiler.getCastString(ctorClass)
-                                + ")ognl.OgnlOps.toArray(" + value + ", " + ctorClass.getComponentType().getName()
-                                + ".class, true)",
-                                ctorClass
+                                                                               "(" + ExpressionCompiler.getCastString(ctorClass)
+                                                                               + ")ognl.OgnlOps.toArray(" + value + ", " + ctorClass.getComponentType().getName()
+                                                                               + ".class, true)",
+                                                                               ctorClass
                         );
 
                     } else  if (ctorClass.isPrimitive()) {
 
                         Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(ctorClass);
-                        
+
                         value = OgnlRuntime.getCompiler().createLocalReference(context,
-                                "((" + wrapClass.getName()
-                                + ")ognl.OgnlOps.convertValue(" + value + ","
-                                + wrapClass.getName() + ".class, true))."
-                                + OgnlRuntime.getNumericValueGetter(wrapClass),
-                                ctorClass
+                                                                               "((" + wrapClass.getName()
+                                                                               + ")ognl.OgnlOps.convertValue(" + value + ","
+                                                                               + wrapClass.getName() + ".class, true))."
+                                                                               + OgnlRuntime.getNumericValueGetter(wrapClass),
+                                                                               ctorClass
                         );
 
                     } else if (ctorClass != Object.class) {
 
                         value = OgnlRuntime.getCompiler().createLocalReference(context,
-                                "(" + ctorClass.getName() + ")ognl.OgnlOps.convertValue(" + value + "," + ctorClass.getName() + ".class)",
-                                ctorClass
+                                                                               "(" + ctorClass.getName() + ")ognl.OgnlOps.convertValue(" + value + "," + ctorClass.getName() + ".class)",
+                                                                               ctorClass
                         );
-                        
+
                     } else if ((NodeType.class.isInstance(_children[i])
                                 && ((NodeType)_children[i]).getGetterClass() != null
                                 && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass()))
@@ -186,7 +183,7 @@ public class ASTList extends SimpleNode implements NodeType
                     } else if (valueClass.isPrimitive()) {
                         value = "($w) (" + value + ")";
                     }
-                    
+
                 } else if (ctorClass == null || !ctorClass.isPrimitive()) {
 
                     value = " ($w) (" + value + ")";
@@ -194,7 +191,7 @@ public class ASTList extends SimpleNode implements NodeType
 
                 if (objValue == null || value.length() <= 0)
                     value = "null";
-                
+
                 result += value;
             }
 
@@ -207,13 +204,13 @@ public class ASTList extends SimpleNode implements NodeType
         context.setCurrentAccessor(List.class);
 
         result += "}";
-        
+
         if (!array)
             result += ")";
-        
+
         return result;
     }
-    
+
     public String toSetSourceString(OgnlContext context, Object target)
     {
         throw new UnsupportedCompilationException("Can't generate setter for ASTList.");
