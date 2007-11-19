@@ -196,7 +196,8 @@ public class NumericConversionTest extends OgnlTestCase {
        ===================================================================*/
     public NumericConversionTest(Object value, Class toClass, Object expectedValue, int scale)
     {
-        super(value + " [" + value.getClass().getName() + "] -> " + toClass.getName() + " == " + expectedValue + " [" + expectedValue.getClass().getName() + "]" + ((scale >= 0) ? (" (to within " + scale + " decimal places)") : ""));
+        super(value + " [" + value.getClass().getName() + "] -> " + toClass.getName() + " == " + expectedValue
+              + " [" + expectedValue.getClass().getName() + "]" + ((scale >= 0) ? (" (to within " + scale + " decimal places)") : ""));
         this.value = value;
         this.toClass = toClass;
         this.expectedValue = expectedValue;

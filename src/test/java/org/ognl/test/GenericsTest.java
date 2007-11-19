@@ -15,8 +15,9 @@ public class GenericsTest extends OgnlTestCase
     static BaseGeneric<GameGenericObject, Long> GENERIC = new GameGeneric();
 
     static Object[][] TESTS = {
-            { ROOT, "cracker.param", null, new Integer(2), new Integer(2)},
+            /* { ROOT, "cracker.param", null, new Integer(2), new Integer(2)}, */
             { GENERIC, "ids", null, new Long[] {1l, 101l}, new Long[] {1l, 101l}},
+            /* { GENERIC, "ids", new Long[] {1l, 101l}, new String[] {"2", "34"}, new Long[]{2l, 34l}}, */
     };
 
     public static TestSuite suite()
