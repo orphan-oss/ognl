@@ -118,13 +118,20 @@ public class ASTStaticMethod extends SimpleNode implements NodeType
             if (clazz == null || m == null)
                 throw new UnsupportedCompilationException("Unable to find class/method combo " + _className + " / "  + _methodName);
 
-            if ((_children != null) && (_children.length > 0)) {
+            if (!context.getMemberAccess().isAccessible(context, clazz, m, _methodName))
+            {
+                throw new UnsupportedCompilationException("Method is not accessible, check your jvm runtime security settings. " +
+                                                          "For static class method " + _className + " / "  + _methodName);
+            }
 
+            if ((_children != null) && (_children.length > 0))
+            {
                 Class[] parms = m.getParameterTypes();
 
-                for(int i = 0; i < _children.length; i++) {
-
-                    if (i > 0) {
+                for(int i = 0; i < _children.length; i++)
+                {
+                    if (i > 0)
+                    {
                         result = result + ", ";
                     }
 
@@ -137,18 +144,19 @@ public class ASTStaticMethod extends SimpleNode implements NodeType
                         parmString = "null";
 
                     // to undo type setting of constants when used as method parameters
-                    if (ASTConst.class.isInstance(_children[i])) {
-
+                    if (ASTConst.class.isInstance(_children[i]))
+                    {
                         context.setCurrentType(prevType);
                     }
 
                     parmString = ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context) + parmString;
 
                     String cast = "";
-                    if (ExpressionCompiler.shouldCast(_children[i])) {
-
+                    if (ExpressionCompiler.shouldCast(_children[i]))
+                    {
                         cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
                     }
+
                     if (cast == null)
                         cast = "";
 
@@ -159,42 +167,45 @@ public class ASTStaticMethod extends SimpleNode implements NodeType
                     if (NodeType.class.isAssignableFrom(_children[i].getClass()))
                         valueClass = ((NodeType)_children[i]).getGetterClass();
 
-                    if (valueClass != parms[i]) {
+                    if (valueClass != parms[i])
+                    {
+                        if (parms[i].isArray())
+                        {
+                            parmString = OgnlRuntime.getCompiler()
+                                    .createLocalReference(context,
+                                                          "(" + ExpressionCompiler.getCastString(parms[i])
+                                                          + ")ognl.OgnlOps.toArray(" + parmString + ", " + parms[i].getComponentType().getName()
+                                                          + ".class, true)",
+                                                          parms[i]
+                                    );
 
-                        if (parms[i].isArray()) {
-
-                            parmString = OgnlRuntime.getCompiler().createLocalReference(context,
-                                    "(" + ExpressionCompiler.getCastString(parms[i])
-                                    + ")ognl.OgnlOps.toArray(" + parmString + ", " + parms[i].getComponentType().getName()
-                                    + ".class, true)",
-                                    parms[i]
-                            );
-                            
-                        } else  if (parms[i].isPrimitive()) {
-
+                        } else  if (parms[i].isPrimitive())
+                        {
                             Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(parms[i]);
-                            
-                            parmString = OgnlRuntime.getCompiler().createLocalReference(context,
-                                    "((" + wrapClass.getName()
-                                    + ")ognl.OgnlOps.convertValue(" + parmString + ","
-                                    + wrapClass.getName() + ".class, true))."
-                                    + OgnlRuntime.getNumericValueGetter(wrapClass),
-                                    parms[i]
-                            );
-
-                        } else if (parms[i] != Object.class) {
 
                             parmString = OgnlRuntime.getCompiler().createLocalReference(context,
-                                    "(" + parms[i].getName() + ")ognl.OgnlOps.convertValue(" + parmString + "," + parms[i].getName() + ".class)",
-                                    parms[i]
+                                                                                        "((" + wrapClass.getName()
+                                                                                        + ")ognl.OgnlOps.convertValue(" + parmString + ","
+                                                                                        + wrapClass.getName() + ".class, true))."
+                                                                                        + OgnlRuntime.getNumericValueGetter(wrapClass),
+                                                                                        parms[i]
                             );
+
+                        } else if (parms[i] != Object.class)
+                        {
+                            parmString = OgnlRuntime.getCompiler()
+                                    .createLocalReference(context,
+                                                          "(" + parms[i].getName() + ")ognl.OgnlOps.convertValue(" + parmString + "," + parms[i].getName() + ".class)",
+                                                          parms[i]
+                                    );
                         } else if ((NodeType.class.isInstance(_children[i])
-                                && ((NodeType)_children[i]).getGetterClass() != null
-                                && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass()))
-                                || valueClass.isPrimitive()) {
-
+                                    && ((NodeType)_children[i]).getGetterClass() != null
+                                    && Number.class.isAssignableFrom(((NodeType)_children[i]).getGetterClass()))
+                                   || valueClass.isPrimitive())
+                        {
                             parmString = " ($w) " + parmString;
-                        } else if (valueClass.isPrimitive()) {
+                        } else if (valueClass.isPrimitive())
+                        {
                             parmString = "($w) " + parmString;
                         }
                     }
@@ -205,12 +216,12 @@ public class ASTStaticMethod extends SimpleNode implements NodeType
 
             result += ")";
 
-            try {
-
+            try
+            {
                 Object contextObj = getValueBody(context, target);
                 context.setCurrentObject(contextObj);
-
-            } catch (Throwable t) {
+            } catch (Throwable t)
+            {
                 // ignore
             }
 

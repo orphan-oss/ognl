@@ -278,13 +278,13 @@ class ASTAdd extends NumericExpression
                 context.setCurrentType(_getterClass);
             }
 
-            try {
-
+            try
+            {
                 Object contextObj = getValueBody(context, target);
                 context.setCurrentObject(contextObj);
-
-            } catch (Throwable t) {
-                // ignore
+            } catch (Throwable t)
+            {
+                throw OgnlOps.castToRuntime(t);
             }
 
             return result;

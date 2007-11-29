@@ -42,7 +42,7 @@ import java.util.Map;
 public class MemberAccessTest extends OgnlTestCase {
 
     private static Simple ROOT = new Simple();
-    
+
     private static Object[][] TESTS = {
             {"@Runtime@getRuntime()", OgnlException.class},
             {"@System@getProperty('java.specification.version')", System.getProperty("java.specification.version")},
@@ -59,10 +59,12 @@ public class MemberAccessTest extends OgnlTestCase {
     {
         TestSuite result = new TestSuite();
 
-        for (int i = 0; i < TESTS.length; i++) {
+        for (int i = 0; i < TESTS.length; i++)
+        {
             result.addTest(new MemberAccessTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", ROOT,
-                    (String) TESTS[i][0], TESTS[i][1]));
+                                                (String) TESTS[i][0], TESTS[i][1]));
         }
+        
         return result;
     }
 
@@ -103,6 +105,7 @@ public class MemberAccessTest extends OgnlTestCase {
     public void setUp()
     {
         super.setUp();
+        
         /* Should allow access at all to the Simple class except for the bigIntValue property */
         _context.setMemberAccess(new DefaultMemberAccess(false) {
 

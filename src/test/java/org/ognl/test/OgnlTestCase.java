@@ -137,11 +137,13 @@ public class OgnlTestCase extends TestCase {
     public SimpleNode getExpression()
             throws Exception
     {
-        if (_expression == null) {
+        if (_expression == null)
+        {
             _expression = (SimpleNode) Ognl.parseExpression(_expressionString);
         }
 
-        if (_compileExpressions) {
+        if (_compileExpressions)
+        {
             _expression = (SimpleNode) Ognl.compileExpression(_context, _root, _expressionString);
         }
 
@@ -197,8 +199,8 @@ public class OgnlTestCase extends TestCase {
 
             assertEquals(_expectedResult, Ognl.getValue(expr, _context, _root));
 
-            if (hasSetValue) {
-
+            if (hasSetValue)
+            {
                 testedResult = hasExpectedAfterSetResult ? expectedAfterSetResult : setValue;
                 Ognl.setValue(expr, _context, _root, setValue);
 
@@ -206,6 +208,7 @@ public class OgnlTestCase extends TestCase {
             }
 
         } catch (Exception ex) {
+            System.out.println("Caught exception " + ex);
             if (NullPointerException.class.isInstance(ex))
                 ex.printStackTrace();
 
@@ -213,7 +216,8 @@ public class OgnlTestCase extends TestCase {
                 && Exception.class.isAssignableFrom(((RuntimeException) ex).getCause().getClass()))
                 ex = (Exception) ((RuntimeException) ex).getCause();
 
-            if (testedResult instanceof Class) {
+            if (testedResult instanceof Class)
+            {
                 assertTrue(Exception.class.isAssignableFrom((Class) testedResult));
             } else
                 throw ex;

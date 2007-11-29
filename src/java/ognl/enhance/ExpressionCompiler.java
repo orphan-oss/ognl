@@ -398,8 +398,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         // must evaluate expression value at least once if object isn't null
 
-        if (root != null)
-            Ognl.getValue(expression, context, root);
+        //if (root != null)
+            //Ognl.getValue(expression, context, root);
 
         CtClass nodeClass = getCtClass(Node.class);
         CtMethod setExpression = null;
@@ -538,7 +538,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         body = body.replaceAll("\\.\\.", ".");
 
-//        System.out.println("Getter Body: ===================================\n" + body);
+        //System.out.println("Getter Body: ===================================\n" + body);
         valueGetter.setBody(body);
         newClass.addMethod(valueGetter);
 

@@ -1315,8 +1315,10 @@ public class OgnlRuntime {
         if (m == null)
             m = getReadMethod((target == null) ? null : target.getClass(), propertyName, 0);
 
-        if (checkAccessAndExistence) {
-            if ((m == null) || !context.getMemberAccess().isAccessible(context, target, m, propertyName)) {
+        if (checkAccessAndExistence)
+        {
+            if ((m == null) || !context.getMemberAccess().isAccessible(context, target, m, propertyName))
+            {
                 result = NotFound;
             }
         }
@@ -1681,8 +1683,7 @@ public class OgnlRuntime {
         return result;
     }
 
-    public static boolean isMethodAccessible(OgnlContext context, Object target, Method method,
-                                             String propertyName)
+    public static boolean isMethodAccessible(OgnlContext context, Object target, Method method, String propertyName)
     {
         return (method != null) && context.getMemberAccess().isAccessible(context, target, method, propertyName);
     }
@@ -2206,7 +2207,7 @@ public class OgnlRuntime {
                                    Node[] children, boolean includeStatic)
             throws Exception
     {
-        Class[] parms = null;
+        Class[] parms;
         if (children != null && children.length > 0)
         {
             parms = new Class[children.length];
