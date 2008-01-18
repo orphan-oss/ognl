@@ -27,8 +27,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/ognl/TestOgnlRuntime.java" afterPath="$PROJECT_DIR$/src/test/java/ognl/TestOgnlRuntime.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/BaseSyntheticObject.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iws" afterPath="$PROJECT_DIR$/OGNL.iws" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" afterPath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/objects/SubclassSyntheticObject.java" />
     </list>
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
@@ -158,17 +161,7 @@
     </subPane>
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="OgnlRuntime.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="1324" column="5" selection-start="48330" selection-end="48330" vertical-scroll-proportion="0.40838125">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -306,24 +299,6 @@
         </PATH_ELEMENT>
         <PATH_ELEMENT>
           <option name="myItemId" value="PsiDirectory:/home/jkuhnert/projects/ognl" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="OGNL" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:/home/jkuhnert/projects/ognl" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:/home/jkuhnert/projects/ognl/src" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -525,14 +500,14 @@
       </UpdatedFiles>
     </UpdateInfo>
   </component>
-  <component name="RunManager" selected="JUnit.MemberAccessTest">
-    <tempConfiguration default="false" name="MemberAccessTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
-      <pattern value="org.ognl.test.*" />
+  <component name="RunManager" selected="JUnit.TestExpressionCompiler">
+    <tempConfiguration default="false" name="TestExpressionCompiler" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+      <pattern value="org.ognl.test.enhance.*" />
       <module name="OGNL" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="/usr/local/jdk1.6.0_02" />
-      <option name="PACKAGE_NAME" value="org.ognl.test" />
-      <option name="MAIN_CLASS_NAME" value="org.ognl.test.MemberAccessTest" />
+      <option name="PACKAGE_NAME" value="org.ognl.test.enhance" />
+      <option name="MAIN_CLASS_NAME" value="org.ognl.test.enhance.TestExpressionCompiler" />
       <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="" />
@@ -545,13 +520,7 @@
         <value defaultName="wholeProject" />
       </option>
       <envs />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="56466" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Run" />
       <method>
         <option name="Make" value="true" />
@@ -644,7 +613,7 @@
       </method>
     </configuration>
     <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="JUnit.MemberAccessTest" />
+      <item index="0" class="java.lang.String" itemvalue="JUnit.TestExpressionCompiler" />
     </list>
     <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local">
       <option name="WORKING_DIRECTORY" />
@@ -812,9 +781,9 @@
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32371795" order="1" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5040064" order="3" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.23557693" order="8" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2628205" order="8" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.28445512" order="8" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="7" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24943718" order="1" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24943617" order="1" />
       <window_info id="Maven projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18132612" order="3" />
       <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.26026163" order="0" />
@@ -856,7 +825,7 @@
     <option name="PERFORM_EDIT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Resolves OGNL-133.  Brought back old OgnlRuntime.callMethod method and added deprecated info  for it." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixes OGNL-136.  Added checks for volatile &amp;&amp; synthetic methods." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -867,7 +836,6 @@
     <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="Slightly better exception reporting for methods that can't be found." />
     <MESSAGE value="Fixes OGNL-112.  OgnlRuntime was incorrectly returning reader methods for simple property getters with parameters when non parameter methods with the same name should have been preferred in the method finding loop." />
     <MESSAGE value="Fixes OGNL-113.  ObjectPropertyAccessor wasn't handling the case where an object would return null from toString().  This is questionable but whatever.." />
     <MESSAGE value="Performance enhancements for source compilations." />
@@ -892,6 +860,7 @@
     <MESSAGE value="Resolves OGNL-141.  Added runtime optimization for method invocations such that knowledge of whether or not the method" />
     <MESSAGE value="Resolves OGNL-141.  Added runtime optimization for method invocations such that knowledge of whether or not the method needs synchronized invocations because of private access (or whether or not security checks needs to be done) is cached - thus avoiding synchronized blocks altogether on methods that have been invoked at least once already." />
     <MESSAGE value="Resolves OGNL-133.  Brought back old OgnlRuntime.callMethod method and added deprecated info  for it." />
+    <MESSAGE value="Fixes OGNL-136.  Added checks for volatile &amp;&amp; synthetic methods." />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -996,48 +965,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ObjectPropertyAccessor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="59" column="49" selection-start="2650" selection-end="2650" vertical-scroll-proportion="0.18488085">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Simple.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="192" column="17" selection-start="4671" selection-end="4671" vertical-scroll-proportion="1.4264585">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="707" column="19" selection-start="25589" selection-end="25589" vertical-scroll-proportion="0.43303204">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///usr/local/jdk1.5.0_12/src.zip!/java/security/BasicPermission.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="24" selection-start="845" selection-end="845" vertical-scroll-proportion="0.14790468">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlInvokePermission.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="52" selection-start="2258" selection-end="2258" vertical-scroll-proportion="0.17255546">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///usr/local/jdk1.5.0_12/src.zip!/java/security/Permission.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="173" column="7" selection-start="6052" selection-end="6052" vertical-scroll-proportion="0.40838125">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/internal/ClassCacheImpl.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="23" column="5" selection-start="606" selection-end="606" vertical-scroll-proportion="0.2588332">
@@ -1080,13 +1007,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/ognl/TestOgnlRuntime.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="91" column="0" selection-start="2439" selection-end="2439" vertical-scroll-proportion="0.23418242">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="140" column="28" selection-start="4957" selection-end="4957" vertical-scroll-proportion="0.8372287">
@@ -1101,10 +1021,61 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/ListSource.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="0" selection-start="176" selection-end="176" vertical-scroll-proportion="0.16023007">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTCtor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="248" column="40" selection-start="9218" selection-end="9218" vertical-scroll-proportion="0.6116625">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlOps.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1039" column="34" selection-start="36570" selection-end="36570" vertical-scroll-proportion="0.6254682">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/enhance/TestExpressionCompiler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="162" column="32" selection-start="4600" selection-end="4600" vertical-scroll-proportion="0.5439606">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/ognl/TestOgnlRuntime.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="224" column="0" selection-start="6727" selection-end="6727" vertical-scroll-proportion="0.3467543">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/SubclassSyntheticObject.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="8" column="0" selection-start="156" selection-end="156" vertical-scroll-proportion="0.09860312">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/BaseSyntheticObject.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="5" selection-start="191" selection-end="191" vertical-scroll-proportion="0.123253904">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1324" column="5" selection-start="48330" selection-end="48330" vertical-scroll-proportion="0.40838125">
-          <folding />
+        <state line="2457" column="0" selection-start="90952" selection-end="90952" vertical-scroll-proportion="0.5439606">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

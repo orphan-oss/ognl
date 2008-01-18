@@ -1495,6 +1495,11 @@ public class OgnlRuntime {
 
                     for (int i = 0, icount = ma.length; i < icount; i++)
                     {
+                        // skip over synthetic methods
+                        
+                        if (!isMethodCallable(ma[i]))
+                            continue;
+
                         if (Modifier.isStatic(ma[i].getModifiers()) == staticMethods)
                         {
                             List ml = (List) result.get(ma[i].getName());
@@ -1714,6 +1719,10 @@ public class OgnlRuntime {
                     Method[] methods = c.getDeclaredMethods();
 
                     for (int i = 0; i < methods.length; i++) {
+
+                        if (!isMethodCallable(methods[i]))
+                            continue;
+
                         String ms = methods[i].getName();
 
                         if (ms.endsWith(baseName)) {
@@ -1745,33 +1754,42 @@ public class OgnlRuntime {
         }
     }
 
+    /**
+     * Convenience used to check if a method is volatile or synthetic so as to avoid
+     * calling un-callable methods.
+     *
+     * @param m The method to check.
+     * @return True if the method should be callable, false otherwise.
+     */
+    static boolean isMethodCallable(Method m)
+    {
+        if ((isJdk15() && m.isSynthetic()) || Modifier.isVolatile(m.getModifiers()))
+            return false;
+
+        return true;
+    }
+
     public static Method getGetMethod(OgnlContext context, Class targetClass, String propertyName)
             throws IntrospectionException, OgnlException
     {
         Method result = null;
-        PropertyDescriptor pd = null; //getPropertyDescriptor(targetClass, propertyName);
 
-        if (pd == null)
+
+        List methods = getDeclaredMethods(targetClass, propertyName, false /* find 'get' methods */);
+
+        if (methods != null)
         {
-            List methods = getDeclaredMethods(targetClass, propertyName, false /* find 'get' methods */);
-
-            if (methods != null)
+            for (int i = 0, icount = methods.size(); i < icount; i++)
             {
-                for (int i = 0, icount = methods.size(); i < icount; i++)
-                {
-                    Method m = (Method) methods.get(i);
-                    Class[] mParameterTypes = findParameterTypes(targetClass, m); //getParameterTypes(m);
+                Method m = (Method) methods.get(i);
+                Class[] mParameterTypes = findParameterTypes(targetClass, m); //getParameterTypes(m);
 
-                    if (mParameterTypes.length == 0)
-                    {
-                        result = m;
-                        break;
-                    }
+                if (mParameterTypes.length == 0)
+                {
+                    result = m;
+                    break;
                 }
             }
-        } else
-        {
-            result = pd.getReadMethod();
         }
 
         return result;
@@ -1792,28 +1810,21 @@ public class OgnlRuntime {
             throws IntrospectionException, OgnlException
     {
         Method result = null;
-        PropertyDescriptor pd = null; //getPropertyDescriptor(targetClass, propertyName);
 
-        if (pd == null)
+        List methods = getDeclaredMethods(targetClass, propertyName, true /* find 'set' methods */);
+
+        if (methods != null)
         {
-            List methods = getDeclaredMethods(targetClass, propertyName, true /* find 'set' methods */);
-
-            if (methods != null)
+            for (int i = 0, icount = methods.size(); i < icount; i++)
             {
-                for (int i = 0, icount = methods.size(); i < icount; i++)
-                {
-                    Method m = (Method) methods.get(i);
-                    Class[] mParameterTypes = findParameterTypes(targetClass, m); //getParameterTypes(m);
+                Method m = (Method) methods.get(i);
+                Class[] mParameterTypes = findParameterTypes(targetClass, m); //getParameterTypes(m);
 
-                    if (mParameterTypes.length == 1) {
-                        result = m;
-                        break;
-                    }
+                if (mParameterTypes.length == 1) {
+                    result = m;
+                    break;
                 }
             }
-        } else
-        {
-            result = pd.getWriteMethod();
         }
 
         return result;
@@ -1955,7 +1966,13 @@ public class OgnlRuntime {
     }
 
     /**
-     * This method returns the property descriptors for the given class as a Map
+     * This method returns the property descriptors for the given class as a Map.
+     *
+     * @param targetClass The class to get the descriptors for.
+     * @return Map map of property descriptors for class.
+     *
+     * @throws IntrospectionException on errors using {@link Introspector}.
+     * @throws OgnlException On general errors.
      */
     public static Map getPropertyDescriptors(Class targetClass)
             throws IntrospectionException, OgnlException
@@ -1970,6 +1987,18 @@ public class OgnlRuntime {
                 result = new HashMap(101);
                 for (int i = 0, icount = pda.length; i < icount; i++)
                 {
+                    // workaround for Introspector bug 6528714 (bugs.sun.com)
+                    if (pda[i].getReadMethod() != null && !isMethodCallable(pda[i].getReadMethod()))
+                    {
+                        pda[i].setReadMethod(findClosestMatchingMethod(targetClass, pda[i].getReadMethod(), pda[i].getName(),
+                                                                       pda[i].getPropertyType(), true));
+                    }
+                    if (pda[i].getWriteMethod() != null && !isMethodCallable(pda[i].getWriteMethod()))
+                    {
+                        pda[i].setWriteMethod(findClosestMatchingMethod(targetClass, pda[i].getWriteMethod(), pda[i].getName(),
+                                                                        pda[i].getPropertyType(), false));
+                    }
+
                     result.put(pda[i].getName(), pda[i]);
                 }
 
@@ -1992,6 +2021,26 @@ public class OgnlRuntime {
             return null;
 
         return (PropertyDescriptor) getPropertyDescriptors(targetClass).get(propertyName);
+    }
+
+    static Method findClosestMatchingMethod(Class targetClass, Method m, String propertyName,
+                                            Class propertyType, boolean isReadMethod)
+    {
+        List methods = getDeclaredMethods(targetClass, propertyName, !isReadMethod);
+
+        for (int i=0; i < methods.size(); i++)
+        {
+            Method method = (Method) methods.get(i);
+
+            if (method.getName().equals(m.getName())
+                    && m.getReturnType().isAssignableFrom(m.getReturnType())
+                    && method.getReturnType() == propertyType
+                    && method.getParameterTypes().length == m.getParameterTypes().length) {
+                return method;
+            }
+        }
+
+        return m;
     }
 
     public static PropertyDescriptor[] getPropertyDescriptorsArray(Class targetClass)
@@ -2413,6 +2462,9 @@ public class OgnlRuntime {
 
             for (int i = 0; i < methods.length; i++)
             {
+                if (!isMethodCallable(methods[i].getMethod()))
+                    continue;
+                
                 if ((methods[i].getName().equalsIgnoreCase(name)
                      || methods[i].getName().toLowerCase().equals(name)
                      || methods[i].getName().toLowerCase().equals("get" + name)
@@ -2438,6 +2490,9 @@ public class OgnlRuntime {
 
             for (int i = 0; i < methods.length; i++)
             {
+                if (!isMethodCallable(methods[i].getMethod()))
+                    continue;
+                
                 if (methods[i].getName().toLowerCase().endsWith(name)
                     && !methods[i].getName().startsWith("set")
                     && methods[i].getMethod().getReturnType() != Void.TYPE) {
@@ -2485,7 +2540,9 @@ public class OgnlRuntime {
             MethodDescriptor[] methods = info.getMethodDescriptors();
 
             for (int i = 0; i < methods.length; i++) {
-
+                if (!isMethodCallable(methods[i].getMethod()))
+                    continue;
+                
                 if ((methods[i].getName().equalsIgnoreCase(name)
                      || methods[i].getName().toLowerCase().equals(name.toLowerCase())
                      || methods[i].getName().toLowerCase().equals("set" + name.toLowerCase()))
@@ -2502,6 +2559,8 @@ public class OgnlRuntime {
 
             Method[] cmethods = target.getClass().getMethods();
             for (int i = 0; i < cmethods.length; i++) {
+                if (!isMethodCallable(cmethods[i]))
+                    continue;
 
                 if ((cmethods[i].getName().equalsIgnoreCase(name)
                      || cmethods[i].getName().toLowerCase().equals(name.toLowerCase())
