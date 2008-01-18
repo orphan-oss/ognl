@@ -1281,8 +1281,46 @@ public class OgnlRuntime {
         }
     }
 
-    public static Object callMethod(OgnlContext context, Object target,
-                                    String methodName, Object[] args)
+    /**
+     * Invokes the specified method against the target object.
+     *
+     * @param context
+     *          The current execution context.
+     * @param target
+     *          The object to invoke the method on.
+     * @param methodName
+     *          Name of the method - as in "getValue" or "add", etc..
+     * @param propertyName
+     *          Name of the property to call instead?
+     * @param args
+     *          Optional arguments needed for method.
+     * @return Result of invoking method.
+     *
+     * @deprecated Use {@link #callMethod(OgnlContext, Object, String, Object[])} instead. 
+     * @throws OgnlException For lots of different reasons. 
+     */
+    public static Object callMethod(OgnlContext context, Object target, String methodName, String propertyName, Object[] args)
+            throws OgnlException
+    {
+        return callMethod(context, target, methodName == null ? propertyName : methodName, args);
+    }
+
+    /**
+     * Invokes the specified method against the target object.
+     *
+     * @param context
+     *          The current execution context.
+     * @param target
+     *          The object to invoke the method on.
+     * @param methodName
+     *          Name of the method - as in "getValue" or "add", etc..
+     * @param args
+     *          Optional arguments needed for method.
+     * @return Result of invoking method.
+     *
+     * @throws OgnlException For lots of different reasons.
+     */
+    public static Object callMethod(OgnlContext context, Object target, String methodName, Object[] args)
             throws OgnlException
     {
         if (target == null)
