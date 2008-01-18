@@ -144,6 +144,9 @@ public class OgnlRuntime {
     static final EvaluationPool _evaluationPool = new EvaluationPool();
     static final ObjectArrayPool _objectArrayPool = new ObjectArrayPool();
 
+    static final IntHashMap _methodAccessCache = new IntHashMap();
+    static final IntHashMap _methodPermCache = new IntHashMap();
+
     static ClassCacheInspector _cacheInspector;
 
     /**
@@ -351,6 +354,7 @@ public class OgnlRuntime {
         _superclasses.clear();
         _declaredMethods[0].clear();
         _declaredMethods[1].clear();
+        _methodAccessCache.clear();
     }
 
     /**
@@ -615,7 +619,7 @@ public class OgnlRuntime {
             ParameterizedType param = (ParameterizedType)type.getGenericSuperclass();
             Type[] genTypes = m.getGenericParameterTypes();
             TypeVariable[] declaredTypes = m.getDeclaringClass().getTypeParameters();
-            
+
             types = new Class[genTypes.length];
 
             typeSearch:
@@ -655,7 +659,7 @@ public class OgnlRuntime {
 
             return types;
         }
-    } 
+    }
 
     static Class resolveType(ParameterizedType param, TypeVariable var, TypeVariable[] declaredTypes)
     {
@@ -771,34 +775,80 @@ public class OgnlRuntime {
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException
     {
+        boolean syncInvoke = false;
+        boolean checkPermission = false;
+        int mHash = method.hashCode();
+
+        // only synchronize method invocation if it actually requires it
+
+        synchronized(method) {
+            if (_methodAccessCache.get(mHash) == null
+                || _methodAccessCache.get(mHash) == Boolean.TRUE) {
+                syncInvoke = true;
+            }
+
+            if (_securityManager != null && _methodPermCache.get(mHash) == null
+                || _methodPermCache.get(mHash) == Boolean.FALSE) {
+                checkPermission = true;
+            }
+        }
+
         Object result;
         boolean wasAccessible = true;
 
-        synchronized(method) {
-
-            if (_securityManager != null)
+        if (syncInvoke)
+        {
+            synchronized(method)
             {
-                try {
+                if (checkPermission)
+                {
+                    try
+                    {
+                        _securityManager.checkPermission(getPermission(method));
+                        _methodPermCache.put(mHash, Boolean.TRUE);
+                    } catch (SecurityException ex) {
+                        _methodPermCache.put(mHash, Boolean.FALSE);
+                        throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
+                    }
+                }
+
+                if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
+                {
+                    if (!(wasAccessible = ((AccessibleObject) method).isAccessible()))
+                    {
+                        ((AccessibleObject) method).setAccessible(true);
+                        _methodAccessCache.put(mHash, Boolean.TRUE);
+                    } else
+                    {
+                        _methodAccessCache.put(mHash, Boolean.FALSE);
+                    }
+                } else
+                {
+                    _methodAccessCache.put(mHash, Boolean.FALSE);
+                }
+
+                result = method.invoke(target, argsArray);
+
+                if (!wasAccessible)
+                {
+                    ((AccessibleObject) method).setAccessible(false);
+                }
+            }
+        } else
+        {
+            if (checkPermission)
+            {
+                try
+                {
                     _securityManager.checkPermission(getPermission(method));
+                    _methodPermCache.put(mHash, Boolean.TRUE);
                 } catch (SecurityException ex) {
+                    _methodPermCache.put(mHash, Boolean.FALSE);
                     throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
                 }
             }
 
-            if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
-            {
-                if (!(wasAccessible = ((AccessibleObject) method).isAccessible()))
-                {
-                    ((AccessibleObject) method).setAccessible(true);
-                }
-            }
-
             result = method.invoke(target, argsArray);
-
-            if (!wasAccessible)
-            {
-                ((AccessibleObject) method).setAccessible(false);
-            }
         }
 
         return result;
@@ -887,8 +937,6 @@ public class OgnlRuntime {
                 if (!result && classes[index].isArray()) {
                     result = isTypeCompatible(args[index], classes[index].getComponentType());
                 }
-
-                //result = isTypeCompatible(args[index], classes[index]) || classes[index].isArray();
             }
         } else {
             for (int index = 0, count = args.length; result && (index < count); ++index) {
@@ -1093,8 +1141,8 @@ public class OgnlRuntime {
                 {
                     typeClass = (Class)source;
                 }
-                
-                Class[] mParameterTypes = findParameterTypes(typeClass, m);//getParameterTypes(m);
+
+                Class[] mParameterTypes = findParameterTypes(typeClass, m);
 
                 if (areArgsCompatible(args, mParameterTypes, m)
                     && ((result == null) || isMoreSpecific(mParameterTypes, resultParameterTypes)))
@@ -1397,24 +1445,32 @@ public class OgnlRuntime {
         ClassCache cache = (staticMethods ? _staticMethodCache : _instanceMethodCache);
         Map result;
 
-        synchronized (cache) {
-            if ((result = (Map) cache.get(targetClass)) == null) {
+        synchronized (cache)
+        {
+            if ((result = (Map) cache.get(targetClass)) == null)
+            {
                 cache.put(targetClass, result = new HashMap(23));
-                for (Class c = targetClass; c != null; c = c.getSuperclass()) {
+
+                for (Class c = targetClass; c != null; c = c.getSuperclass())
+                {
                     Method[] ma = c.getDeclaredMethods();
 
-                    for (int i = 0, icount = ma.length; i < icount; i++) {
-                        if (Modifier.isStatic(ma[i].getModifiers()) == staticMethods) {
+                    for (int i = 0, icount = ma.length; i < icount; i++)
+                    {
+                        if (Modifier.isStatic(ma[i].getModifiers()) == staticMethods)
+                        {
                             List ml = (List) result.get(ma[i].getName());
 
                             if (ml == null)
                                 result.put(ma[i].getName(), ml = new ArrayList());
+
                             ml.add(ma[i]);
                         }
                     }
                 }
             }
         }
+
         return result;
     }
 

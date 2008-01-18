@@ -141,25 +141,19 @@ public class Performance extends Object
         try {
             Performance[] tests = new Performance[] {
                     new Performance("Constant", "100 + 20 * 5", "testConstantExpression"),
-                    new Performance("Constant", "100 + 20 * 5", "testConstantExpression", true),
+                    //new Performance("Constant", "100 + 20 * 5", "testConstantExpression", false),
                     new Performance("Single Property", "bean2", "testSinglePropertyExpression"),
-                    new Performance("Single Property", "bean2", "testSinglePropertyExpression", true),
                     new Performance("Property Navigation", "bean2.bean3.value", "testPropertyNavigationExpression"),
-                    new Performance("Property Navigation", "bean2.bean3.value", "testPropertyNavigationExpression", true),
                     /*new Performance("Property Setting with context key", "bean2.bean3.nullValue", "testPropertyNavigationSetting"),
                     new Performance("Property Setting with context key", "bean2.bean3.nullValue", "testPropertyNavigationSetting", true), */                    
                     new Performance("Property Navigation and Comparison", "bean2.bean3.value <= 24",
                                     "testPropertyNavigationAndComparisonExpression"),
-                    new Performance("Property Navigation and Comparison", "bean2.bean3.value <= 24",
-                                    "testPropertyNavigationAndComparisonExpression", true),
                     /* new Performance("Property Navigation with Indexed Access", "bean2.bean3.indexedValue[25]",
                                     "testIndexedPropertyNavigationExpression"),
                     new Performance("Property Navigation with Indexed Access", "bean2.bean3.indexedValue[25]",
                                     "testIndexedPropertyNavigationExpression", true), */
                     new Performance("Property Navigation with Map Access", "bean2.bean3.map['foo']",
                                     "testPropertyNavigationWithMapExpression"),
-                    new Performance("Property Navigation with Map Access", "bean2.bean3.map['foo']",
-                                    "testPropertyNavigationWithMapExpression", true),
                     /* new Performance("Property Navigation with Map value set", "bean2.bean3.map['foo']",
                                     "testPropertyNavigationWithMapSetting"),
                     new Performance("Property Navigation with Map value set", "bean2.bean3.map['foo']",

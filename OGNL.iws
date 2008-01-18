@@ -27,10 +27,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iml" afterPath="$PROJECT_DIR$/OGNL.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.iws" afterPath="$PROJECT_DIR$/OGNL.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OGNL.ipr" afterPath="$PROJECT_DIR$/OGNL.ipr" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" afterPath="$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" afterPath="$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/org/ognl/test/Performance.java" afterPath="$PROJECT_DIR$/src/test/java/org/ognl/test/Performance.java" />
     </list>
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
@@ -160,7 +159,17 @@
     </subPane>
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="OgnlRuntime.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="820" column="26" selection-start="29711" selection-end="29711" vertical-scroll-proportion="0.45193097">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -737,7 +746,7 @@
     <option name="PERFORM_EDIT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Minor improvements to remove redundant expression evaluations during compilation." />
+    <option name="LAST_COMMIT_MESSAGE" value="Resolves OGNL-141.  Added runtime optimization for method invocations such that knowledge of whether or not the method needs synchronized invocations because of private access (or whether or not security checks needs to be done) is cached - thus avoiding synchronized blocks altogether on methods that have been invoked at least once already." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -748,8 +757,6 @@
     <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="Fixes OGNL-106.  Wasn't checking for null in ASTMethod.&#10;&#10;Also refactored exception catching logic so that more exceptions aren't needlessly added on to the exception stack when catching Throwables." />
-    <MESSAGE value="Fixes OGNL-108. ASTInstanceof wasn't setting the context type before returning." />
     <MESSAGE value="Fixes OGNL-110.  Numeric literals were being added to non literal expressions. (such as property getters)" />
     <MESSAGE value="Slightly better exception reporting for methods that can't be found." />
     <MESSAGE value="Fixes OGNL-112.  OgnlRuntime was incorrectly returning reader methods for simple property getters with parameters when non parameter methods with the same name should have been preferred in the method finding loop." />
@@ -773,6 +780,8 @@
     <MESSAGE value="Testing list expressions." />
     <MESSAGE value="Reduced some overhead with unneccesarily getting values from expressions when compiling." />
     <MESSAGE value="Minor improvements to remove redundant expression evaluations during compilation." />
+    <MESSAGE value="Resolves OGNL-141.  Added runtime optimization for method invocations such that knowledge of whether or not the method" />
+    <MESSAGE value="Resolves OGNL-141.  Added runtime optimization for method invocations such that knowledge of whether or not the method needs synchronized invocations because of private access (or whether or not security checks needs to be done) is cached - thus avoiding synchronized blocks altogether on methods that have been invoked at least once already." />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -877,62 +886,6 @@
     <option name="myLastEditedConfigurable" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTAdd.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="118" column="5" selection-start="4496" selection-end="4496" vertical-scroll-proportion="1.5243446">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTStaticField.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="180" column="43" selection-start="5754" selection-end="5785" vertical-scroll-proportion="0.6741573">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/NullStringCatenationTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="55" column="6" selection-start="2895" selection-end="2895" vertical-scroll-proportion="0.4681648">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/MethodAccessor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="44" column="7" selection-start="2136" selection-end="2136" vertical-scroll-proportion="0.18488085">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ObjectMethodAccessor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="38" selection-start="2422" selection-end="2422" vertical-scroll-proportion="0.39325842">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/ASTStaticMethod.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="118" column="48" selection-start="4062" selection-end="4062" vertical-scroll-proportion="0.25093633">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/MemberAccessTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="6" selection-start="2528" selection-end="2528" vertical-scroll-proportion="0.28089887">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/DefaultMemberAccess.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="133" column="54" selection-start="4957" selection-end="4957" vertical-scroll-proportion="0.716516">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/ArrayCreationTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="53" column="19" selection-start="2705" selection-end="2705" vertical-scroll-proportion="0.24650781">
@@ -963,13 +916,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1869" column="0" selection-start="69574" selection-end="69574" vertical-scroll-proportion="0.23171733">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/objects/Simple.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="192" column="17" selection-start="4671" selection-end="4671" vertical-scroll-proportion="1.4264585">
@@ -987,6 +933,69 @@
     <entry file="file://$PROJECT_DIR$/src/java/ognl/enhance/ExpressionCompiler.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="707" column="19" selection-start="25589" selection-end="25589" vertical-scroll-proportion="0.43303204">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/local/jdk1.5.0_12/src.zip!/java/security/BasicPermission.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="28" column="24" selection-start="845" selection-end="845" vertical-scroll-proportion="0.14790468">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlInvokePermission.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="43" column="52" selection-start="2258" selection-end="2258" vertical-scroll-proportion="0.17255546">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/local/jdk1.5.0_12/src.zip!/java/security/Permission.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="173" column="7" selection-start="6052" selection-end="6052" vertical-scroll-proportion="0.40838125">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/internal/ClassCacheImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="23" column="5" selection-start="606" selection-end="606" vertical-scroll-proportion="0.2588332">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/ObjectArrayPool.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="34" column="23" selection-start="1802" selection-end="1817" vertical-scroll-proportion="0.061626952">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/IntHashMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="141" column="0" selection-start="5050" selection-end="5050" vertical-scroll-proportion="0.45603943">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/org/ognl/test/Performance.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="140" column="13" selection-start="5286" selection-end="5286" vertical-scroll-proportion="0.17255546">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/local/jdk1.5.0_12/src.zip!/java/lang/SecurityManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="530" column="16" selection-start="21132" selection-end="21132" vertical-scroll-proportion="0.33278555">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/ognl/OgnlRuntime.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="820" column="26" selection-start="29711" selection-end="29711" vertical-scroll-proportion="0.45193097">
           <folding />
         </state>
       </provider>
