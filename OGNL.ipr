@@ -369,6 +369,11 @@
       </value>
     </option>
   </component>
+  <component name="copyright">
+    <Base>
+      <setting name="state" value="2" />
+    </Base>
+  </component>
   <UsedPathMacros>
     <macro name="USERPROFILE" />
   </UsedPathMacros>

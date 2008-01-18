@@ -156,10 +156,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                 return false;
         }
 
-        if (ASTConst.class.isInstance(expression))
-            return false;
-
-        return true;
+        return !ASTConst.class.isInstance(expression);
     }
 
     public String castExpression(OgnlContext context, Node expression, String body)
