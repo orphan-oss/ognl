@@ -393,11 +393,6 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
         CtField nodeMember = null; // will only be set if uncompilable exception is thrown
 
-        // must evaluate expression value at least once if object isn't null
-
-        //if (root != null)
-            //Ognl.getValue(expression, context, root);
-
         CtClass nodeClass = getCtClass(Node.class);
         CtMethod setExpression = null;
 
@@ -405,8 +400,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
             getBody = generateGetter(context, newClass, objClass, pool, valueGetter, expression, root);
 
-        } catch (UnsupportedCompilationException uc) {
-
+        } catch (UnsupportedCompilationException uc)
+        {
             //uc.printStackTrace();
 
             nodeMember = new CtField(nodeClass, "_node", newClass);
@@ -425,7 +420,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
             setBody = generateSetter(context, newClass, objClass, pool,  valueSetter, expression, root);
 
-        } catch (UnsupportedCompilationException uc) {
+        } catch (UnsupportedCompilationException uc)
+        {
 
             //uc.printStackTrace();
 
@@ -437,8 +433,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
             setBody = generateOgnlSetter(newClass, valueSetter, nodeMember);
 
-            if (setExpression == null) {
-
+            if (setExpression == null)
+            {
                 setExpression = CtNewMethod.setter("setExpression", nodeMember);
                 newClass.addMethod(setExpression);
             }

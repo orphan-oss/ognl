@@ -39,24 +39,13 @@ public class BeanProviderAccessor extends ObjectPropertyAccessor implements Prop
         return provider.getBean(beanName) != null;
     }
     
-    public Class getPropertyClass(OgnlContext context, Object target, Object name)
-    {
-        BeanProvider provider = (BeanProvider)target;
-        String beanName = ((String)name).replaceAll("\"", "");
-
-        if (provider.getBean(beanName) != null)
-            return provider.getBean(beanName).getClass();
-        else
-            return super.getPropertyClass(context, target, name);
-    }
-    
     public String getSourceAccessor(OgnlContext context, Object target, Object name)
     {
         BeanProvider provider = (BeanProvider)target;
         String beanName = ((String)name).replaceAll("\"", "");
         
-        if (provider.getBean(beanName) != null) {
-            
+        if (provider.getBean(beanName) != null)
+        {    
             context.setCurrentAccessor(BeanProvider.class);
             context.setCurrentType(provider.getBean(beanName).getClass());
 

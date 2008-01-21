@@ -92,35 +92,6 @@ public class MapPropertyAccessor implements PropertyAccessor
         map.put(name, value);
     }
 
-    public Class getPropertyClass(OgnlContext context, Object target, Object index)
-    {
-        Node currentNode = ((OgnlContext) context).getCurrentNode().jjtGetParent();
-        boolean indexedAccess = false;
-
-        if (currentNode == null) { throw new RuntimeException("node is null for '" + index + "'"); }
-        if (!(currentNode instanceof ASTProperty)) {
-            currentNode = currentNode.jjtGetParent();
-        }
-        if (currentNode instanceof ASTProperty) {
-            indexedAccess = ((ASTProperty) currentNode).isIndexedAccess();
-        }
-
-        if (String.class.isAssignableFrom(index.getClass()) && !indexedAccess) {
-            String key = ((String)index).replaceAll("\"", "");
-
-            if (key.equals("size"))
-                return int.class;
-            else if (key.equals("keys") || key.equals("keySet"))
-                return Set.class;
-            else if (key.equals("values"))
-                return Collection.class;
-            else if (key.equals("isEmpty"))
-                return boolean.class;
-        }
-
-        return Object.class;
-    }
-
     public String getSourceAccessor(OgnlContext context, Object target, Object index)
     {
         Node currentNode = ((OgnlContext) context).getCurrentNode().jjtGetParent();
