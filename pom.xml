@@ -39,7 +39,6 @@
             <groupId>jboss</groupId>
             <artifactId>javassist</artifactId>
             <version>3.6.ga</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
