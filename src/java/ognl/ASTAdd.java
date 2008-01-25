@@ -42,23 +42,28 @@ import java.math.BigInteger;
  */
 class ASTAdd extends NumericExpression
 {
-    public ASTAdd(int id) {
+    public ASTAdd(int id)
+    {
         super(id);
     }
 
-    public ASTAdd(OgnlParser p, int id) {
+    public ASTAdd(OgnlParser p, int id)
+    {
         super(p, id);
     }
 
-    public void jjtClose() {
+    public void jjtClose()
+    {
         flattenTree();
     }
 
     protected Object getValueBody( OgnlContext context, Object source ) throws OgnlException
     {
         Object result = _children[0].getValue( context, source );
+
         for ( int i=1; i < _children.length; ++i )
             result = OgnlOps.add( result, _children[i].getValue(context, source) );
+
         return result;
     }
 
@@ -252,8 +257,8 @@ class ASTAdd extends NumericExpression
                          && !NumericExpression.class.isAssignableFrom(_children[i].getClass()))
                     {
                         if (context.getCurrentType() != null && Number.class.isAssignableFrom(context.getCurrentType())
-                            && !ASTMethod.class.isInstance(_children[i])) {
-
+                            && !ASTMethod.class.isInstance(_children[i]))
+                        {
                             if (ASTVarRef.class.isInstance(_children[i])
                                 || ASTProperty.class.isInstance(_children[i])
                                 || ASTChain.class.isInstance(_children[i]))
