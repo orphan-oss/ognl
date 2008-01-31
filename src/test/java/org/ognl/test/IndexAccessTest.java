@@ -56,6 +56,7 @@ public class IndexAccessTest extends OgnlTestCase {
             {ROOT, "tab.searchCriteria[index1].displayName", "Woodland creatures"},
             {ROOT, "tab.searchCriteriaSelections[index1][index2]", Boolean.TRUE},
             {ROOT, "tab.searchCriteriaSelections[index1][index2]", Boolean.TRUE, Boolean.FALSE, Boolean.FALSE},
+            {ROOT, "map['bar'].value", 100, 50, 50}
     };
 
     /*

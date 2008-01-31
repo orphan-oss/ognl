@@ -86,11 +86,6 @@ public class PropertyNotFoundTest extends OgnlTestCase {
             return null;
         }
 
-        public Class getPropertyClass(OgnlContext context, Object target, Object index)
-        {
-            return null;
-        }
-
         public String getSourceAccessor(OgnlContext context, Object target, Object index)
         {
             return index.toString();

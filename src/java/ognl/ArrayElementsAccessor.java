@@ -45,10 +45,14 @@ public class ArrayElementsAccessor implements ElementsAccessor
         return new Enumeration() {
             private int count = Array.getLength( target );
             private int index = 0;
-            public boolean hasMoreElements() {
+
+            public boolean hasMoreElements()
+            {
                 return index < count;
             }
-            public Object nextElement() {
+
+            public Object nextElement()
+            {
                 return Array.get( target, index++ );
             }
         };

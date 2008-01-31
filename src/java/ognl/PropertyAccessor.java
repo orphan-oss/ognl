@@ -89,22 +89,7 @@ public interface PropertyAccessor
      */
     void setProperty(Map context, Object target, Object name, Object value)
         throws OgnlException;
-    
-    /**
-     * Expected to return the actual class type that would be returned by this property
-     * accessor in a native java call. Ie sometimes it may be primitive.
-     * 
-     * @param context
-     *          The standard ognl context.
-     * @param target
-     *          The object whos property is being accessed.
-     * @param index
-     *          The index identifier for the property.
-     * @return
-     *          The class type that would result from a property access.
-     */
-    Class getPropertyClass(OgnlContext context, Object target, Object index);
-    
+
     /**
      * Returns a java string representing the textual method that should be called to access a
      * particular element. (ie "get")

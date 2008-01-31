@@ -81,6 +81,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
         Object result = source;
 
         for(int i = 0, ilast = _children.length - 1; i <= ilast; ++i) {
+            
             boolean handled = false;
 
             if (i < ilast) {

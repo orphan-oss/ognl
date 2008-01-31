@@ -3,6 +3,7 @@ package ognl;
 import junit.framework.TestCase;
 import org.ognl.test.objects.*;
 
+import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -246,5 +247,25 @@ public class TestOgnlRuntime extends TestCase {
         Class[] types = OgnlRuntime.findParameterTypes(BaseGeneric.class, m);
         assertEquals(1, types.length);
         assertEquals(new Serializable[0].getClass(), types[0]);
+    }
+
+    public void test_Get_Declared_Methods_With_Synthetic_Methods()
+        throws Exception
+    {
+        List result = OgnlRuntime.getDeclaredMethods(SubclassSyntheticObject.class, "list", false);
+
+        // synthetic method would be "public volatile java.util.List org.ognl.test.objects.SubclassSyntheticObject.getList()",
+        // causing method return size to be 3
+        
+        assertEquals(2, result.size());
+    }
+
+    public void test_Get_Property_Descriptors_With_Synthetic_Methods()
+        throws Exception
+    {
+        PropertyDescriptor pd = OgnlRuntime.getPropertyDescriptor(SubclassSyntheticObject.class, "list");
+
+        assert pd != null;
+        assert OgnlRuntime.isMethodCallable(pd.getReadMethod());
     }
 }
