@@ -208,7 +208,7 @@ public class ArrayPropertyAccessor extends ObjectPropertyAccessor implements Pro
         {
             Class wrapClass = OgnlRuntime.getPrimitiveWrapperClass(type);
             
-            return "[" + indexStr + "]=((" + wrapClass.getName() + ")ognl.OgnlOps.convertValue($3," + wrapClass.getName()
+            return  "[" + indexStr + "]=((" + wrapClass.getName() + ")ognl.OgnlOps.convertValue($3," + wrapClass.getName()
                    + ".class, true))." + OgnlRuntime.getNumericValueGetter(wrapClass);
         } else
         {

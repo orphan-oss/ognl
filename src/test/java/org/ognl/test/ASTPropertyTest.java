@@ -29,7 +29,7 @@ public class ASTPropertyTest extends TestCase {
         context.setCurrentObject(root);
         context.setCurrentNode(pRef);
 
-        assertEquals(null, context.getCurrentType());
+        assertEquals(root.getClass(), context.getCurrentType());
         assertEquals(null, context.getPreviousType());
         assertEquals(root, context.getCurrentObject());
         assertEquals(null, context.getCurrentAccessor());
@@ -38,7 +38,7 @@ public class ASTPropertyTest extends TestCase {
         int type = p.getIndexedPropertyType(context, root);
 
         assertEquals(OgnlRuntime.INDEXED_PROPERTY_NONE, type);
-        assertEquals(null, context.getCurrentType());
+        assertEquals(root.getClass(), context.getCurrentType());
         assertEquals(null, context.getPreviousType());
         assertEquals(null, context.getCurrentAccessor());
         assertEquals(null, context.getPreviousAccessor());
@@ -60,7 +60,7 @@ public class ASTPropertyTest extends TestCase {
         context.setCurrentObject(root);
         context.setCurrentNode(pRef);
 
-        assertEquals(null, context.getCurrentType());
+        assertEquals(root.getClass(), context.getCurrentType());
         assertEquals(null, context.getPreviousType());
         assertEquals(root, context.getCurrentObject());
         assertEquals(null, context.getCurrentAccessor());
@@ -69,7 +69,7 @@ public class ASTPropertyTest extends TestCase {
         Object value = p.getValue(context, root);
 
         assertEquals(root.get("nested"), value);
-        assertEquals(null, context.getCurrentType());
+        assertEquals(root.getClass(), context.getCurrentType());
         assertEquals(null, context.getPreviousType());
         assertEquals(null, context.getCurrentAccessor());
         assertEquals(null, context.getPreviousAccessor());
@@ -95,14 +95,14 @@ public class ASTPropertyTest extends TestCase {
         assertEquals(".get(\"nested\")", p.toGetSourceString(context, root));
         assertEquals(Object.class, context.getCurrentType());
         assertEquals(Map.class, context.getCurrentAccessor());
-        assertEquals(null, context.getPreviousType());
+        assertEquals(root.getClass(), context.getPreviousType());
         assertEquals(null, context.getPreviousAccessor());
 
         assertEquals(root.get("nested"), context.getCurrentObject());
 
         assert Map.class.isAssignableFrom(context.getCurrentAccessor());
 
-        assertEquals(null, context.getPreviousType());
+        assertEquals(root.getClass(), context.getPreviousType());
         assertEquals(null, context.getPreviousAccessor());
     }
 
@@ -129,7 +129,7 @@ public class ASTPropertyTest extends TestCase {
 
         assert Map.class.isAssignableFrom(context.getCurrentAccessor());
 
-        assertEquals(null, context.getPreviousType());
+        assertEquals(root.getClass(), context.getPreviousType());
         assertEquals(null, context.getPreviousAccessor());
     }
 
@@ -173,9 +173,8 @@ public class ASTPropertyTest extends TestCase {
         assertEquals(List.class, context.getCurrentType());
         assertEquals(Root.class, context.getCurrentAccessor());
         assertEquals(null, context.getPreviousAccessor());
-        assertEquals(null, context.getPreviousType());
+        assertEquals(root.getClass(), context.getPreviousType());
         assertEquals(root.getList(), context.getCurrentObject());
-
 
         // re test with chain
         

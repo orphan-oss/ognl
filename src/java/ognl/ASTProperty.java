@@ -385,13 +385,13 @@ public class ASTProperty extends SimpleNode implements NodeType
         if (context.getCurrentObject() == null)
             throw new UnsupportedCompilationException("Current target is null.");
 
-        //System.out.println("astproperty(setter) is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
-        //      + " target: " + target.getClass().getName());
+//        System.out.println("astproperty(setter) is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
+//              + " target: " + target.getClass().getName());
 
         try {
 
-            if (isIndexedAccess()) {
-
+            if (isIndexedAccess())
+            {
                 //System.out.println("ast set source property is indexed");
 
                 Object value = _children[0].getValue(context, context.getRoot());
@@ -403,20 +403,22 @@ public class ASTProperty extends SimpleNode implements NodeType
 
                 srcString = ExpressionCompiler.getRootExpression(_children[0], context.getRoot(), context) + srcString;
 
-                if (!ASTConst.class.isInstance(_children[0])) {
+                if (!ASTConst.class.isInstance(_children[0]))
+                {
                     String cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
                     if (cast != null)
                         srcString = cast + srcString;
                 }
 
-                if (ASTConst.class.isInstance(_children[0]) && String.class.isInstance(context.getCurrentObject())) {
+                if (ASTConst.class.isInstance(_children[0]) && String.class.isInstance(context.getCurrentObject()))
+                {
                     srcString = "\"" + srcString + "\"";
                 }
 
                 //System.out.println("astproperty setter using indexed value " + value + " and srcString: " + srcString);
 
-                if (context.get("_indexedMethod") != null) {
-
+                if (context.get("_indexedMethod") != null)
+                {
                     m = (Method)context.remove("_indexedMethod");
 
                     _setterClass = m.getParameterTypes()[0];
@@ -426,11 +428,14 @@ public class ASTProperty extends SimpleNode implements NodeType
                     context.setCurrentObject(target);
 
                     return m.getName() + "(" + srcString + ")";
-                } else {
+                } else
+                {
                     PropertyAccessor p = OgnlRuntime.getPropertyAccessor(target.getClass());
 
                     if (ASTConst.class.isInstance(_children[0]) && Number.class.isInstance(context.getCurrentObject()))
+                    {
                         context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(context.getCurrentObject().getClass()));
+                    }
 
                     result = p.getSourceSetter(context, target, srcString);
 

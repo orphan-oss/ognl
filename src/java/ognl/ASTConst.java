@@ -41,9 +41,9 @@ public class ASTConst extends SimpleNode implements NodeType
 {
 
     private Object value;
-    
+
     private Class _getterClass;
-    
+
     public ASTConst(int id)
     {
         super(id);
@@ -59,61 +59,74 @@ public class ASTConst extends SimpleNode implements NodeType
     {
         this.value = value;
     }
-    
+
     public Object getValue()
     {
         return value;
     }
 
     protected Object getValueBody(OgnlContext context, Object source)
-        throws OgnlException
+            throws OgnlException
     {
         return this.value;
     }
 
     public boolean isNodeConstant(OgnlContext context)
-        throws OgnlException
+            throws OgnlException
     {
         return true;
     }
-    
+
     public Class getGetterClass()
     {
         if (_getterClass == null)
             return null;
-        
+
         return _getterClass;
     }
-    
+
     public Class getSetterClass()
     {
         return null;
     }
-    
+
     public String toString()
     {
         String result;
 
-        if (value == null) {
+        if (value == null)
+        {
             result = "null";
-        } else {
-            if (value instanceof String) {
+        } else
+        {
+            if (value instanceof String)
+            {
                 result = '\"' + OgnlOps.getEscapeString(value.toString()) + '\"';
             } else {
-                if (value instanceof Character) {
+                if (value instanceof Character)
+                {
                     result = '\'' + OgnlOps.getEscapedChar(((Character) value).charValue()) + '\'';
-                } else {
+                } else
+                {
                     result = value.toString();
-                    if (value instanceof Long) {
+
+                    if (value instanceof Long)
+                    {
                         result = result + "L";
-                    } else {
-                        if (value instanceof BigDecimal) {
+                    } else
+                    {
+                        if (value instanceof BigDecimal)
+                        {
                             result = result + "B";
-                        } else {
-                            if (value instanceof BigInteger) {
+                        } else
+                        {
+                            if (value instanceof BigInteger)
+                            {
                                 result = result + "H";
-                            } else {
-                                if (value instanceof Node) {
+                            } else
+                            {
+                                if (value instanceof Node)
+                                {
                                     result = ":[ " + result + " ]";
                                 }
                             }
@@ -124,7 +137,7 @@ public class ASTConst extends SimpleNode implements NodeType
         }
         return result;
     }
-    
+
     public String toGetSourceString(OgnlContext context, Object target)
     {
         if (value == null && _parent != null && ExpressionNode.class.isInstance(_parent))
@@ -136,40 +149,40 @@ public class ASTConst extends SimpleNode implements NodeType
             context.setCurrentType(null);
             return "";
         }
-        
+
         _getterClass = value.getClass();
 
         Object retval = value;
-        if (_parent != null && ASTProperty.class.isInstance(_parent)) {
-            
+        if (_parent != null && ASTProperty.class.isInstance(_parent))
+        {
             context.setCurrentObject(value);
 
             return value.toString();
-        } else if (value != null && Number.class.isAssignableFrom(value.getClass())) {
-
+        } else if (value != null && Number.class.isAssignableFrom(value.getClass()))
+        {
             context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(value.getClass()));
             context.setCurrentObject(value);
 
             return value.toString();
         } else if (!(_parent != null && value != null
-                && NumericExpression.class.isAssignableFrom(_parent.getClass()))
-                && String.class.isAssignableFrom(value.getClass())) {
-
+                     && NumericExpression.class.isAssignableFrom(_parent.getClass()))
+                   && String.class.isAssignableFrom(value.getClass()))
+        {
             context.setCurrentType(String.class);
 
             retval = '\"' + OgnlOps.getEscapeString(value.toString()) + '\"';
-           
+
             context.setCurrentObject(retval.toString());
 
             return retval.toString();
-        } else if (Character.class.isInstance(value)) {
-
+        } else if (Character.class.isInstance(value))
+        {
             Character val = (Character)value;
 
             context.setCurrentType(Character.class);
 
             if (Character.isLetterOrDigit(val.charValue()))
-               retval = "'" + ((Character) value).charValue() + "'";
+                retval = "'" + ((Character) value).charValue() + "'";
             else
                 retval = "'" + OgnlOps.getEscapedChar(((Character) value).charValue()) + "'";
 
@@ -177,7 +190,8 @@ public class ASTConst extends SimpleNode implements NodeType
             return retval.toString();
         }
 
-        if (Boolean.class.isAssignableFrom(value.getClass())) {
+        if (Boolean.class.isAssignableFrom(value.getClass()))
+        {
             _getterClass = Boolean.TYPE;
 
             context.setCurrentType(Boolean.TYPE);
@@ -187,5 +201,10 @@ public class ASTConst extends SimpleNode implements NodeType
         }
 
         return value.toString();
+    }
+
+    public String toSetSourceString(OgnlContext context, Object target)
+    {
+        return toGetSourceString(context, target);
     }
 }

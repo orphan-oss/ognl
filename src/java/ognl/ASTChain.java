@@ -283,9 +283,9 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
             {
                 for(int i = 0; i < _children.length; i++)
                 {
-                    /* System.out.println("astchain child: " + _children[i].getClass().getName()
+                   /* System.out.println("astchain child: " + _children[i].getClass().getName()
                                        + " with current object target " + context.getCurrentObject()
-                                       + " current type: " + context.getCurrentType()); */
+                                       + " current type: " + context.getCurrentType());*/
 
                     String value = _children[i].toGetSourceString(context, context.getCurrentObject());
 
@@ -370,7 +370,8 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
         if (prevChain != null)
             throw new UnsupportedCompilationException("Can't compile nested chain expressions.");
 
-        if (target != null) {
+        if (target != null)
+        {
             context.setCurrentObject(target);
             context.setCurrentType(target.getClass());
         }
@@ -379,12 +380,19 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
         NodeType _lastType = null;
         boolean constructor = false;
         try {
-            if ((_children != null) && (_children.length > 0)) {
-                for(int i = 0; i < _children.length; i++) {
-                    // System.out.println("astchain setsource child : " + _children[i].getClass().getName());
+            if ((_children != null) && (_children.length > 0))
+            {
+                if (ASTConst.class.isInstance(_children[0]))
+                {
+                    throw new UnsupportedCompilationException("Can't modify constant values.");
+                }
+                
+                for(int i = 0; i < _children.length; i++)
+                {
+                    //System.out.println("astchain setsource child[" + i + "] : " + _children[i].getClass().getName());
 
-                    if (i == (_children.length -1)) {
-
+                    if (i == (_children.length -1))
+                    {
                         context.put("_lastChild", "true");
                     }
 

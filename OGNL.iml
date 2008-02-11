@@ -15,24 +15,12 @@
       <excludeFolder url="file://$MODULE_DIR$/extlib" />
       <excludeFolder url="file://$MODULE_DIR$/target/apidocs" />
       <excludeFolder url="file://$MODULE_DIR$/target/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/target/maven-archiver" />
       <excludeFolder url="file://$MODULE_DIR$/target/surefire-reports" />
       <excludeFolder url="file://$MODULE_DIR$/target/test-classes" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library name="jboss:javassist:3.6.ga">
-        <CLASSES>
-          <root url="jar://$USERPROFILE$/.m2/repository/jboss/javassist/3.6.ga/javassist-3.6.ga.jar!/" />
-        </CLASSES>
-        <JAVADOC>
-          <root url="jar://$USERPROFILE$/.m2/repository/jboss/javassist/3.6.ga/javassist-3.6.ga-javadoc.jar!/" />
-        </JAVADOC>
-        <SOURCES>
-          <root url="jar://$USERPROFILE$/.m2/repository/jboss/javassist/3.6.ga/javassist-3.6.ga-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
     <orderEntry type="module-library">
       <library name="junit:junit:3.8.1">
         <CLASSES>
@@ -47,15 +35,28 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.easymock:easymock:2.2">
+      <library name="org.easymock:easymock:2.3">
         <CLASSES>
-          <root url="jar://$USERPROFILE$/.m2/repository/org/easymock/easymock/2.2/easymock-2.2.jar!/" />
+          <root url="jar://$USERPROFILE$/.m2/repository/org/easymock/easymock/2.3/easymock-2.3.jar!/" />
         </CLASSES>
         <JAVADOC>
-          <root url="jar://$USERPROFILE$/.m2/repository/org/easymock/easymock/2.2/easymock-2.2-javadoc.jar!/" />
+          <root url="jar://$USERPROFILE$/.m2/repository/org/easymock/easymock/2.3/easymock-2.3-javadoc.jar!/" />
         </JAVADOC>
         <SOURCES>
-          <root url="jar://$USERPROFILE$/.m2/repository/org/easymock/easymock/2.2/easymock-2.2-sources.jar!/" />
+          <root url="jar://$USERPROFILE$/.m2/repository/org/easymock/easymock/2.3/easymock-2.3-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="jboss:javassist:3.6.ga">
+        <CLASSES>
+          <root url="jar://$USERPROFILE$/.m2/repository/jboss/javassist/3.6.ga/javassist-3.6.ga.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://$USERPROFILE$/.m2/repository/jboss/javassist/3.6.ga/javassist-3.6.ga-javadoc.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$USERPROFILE$/.m2/repository/jboss/javassist/3.6.ga/javassist-3.6.ga-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

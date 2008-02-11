@@ -78,7 +78,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     {
         if (type == null)
             return null;
-
+        
         return type.isArray() ? type.getComponentType().getName() + "[]" : type.getName();
     }
 
@@ -114,7 +114,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
              && root != null) || (root != null && ASTRootVarRef.class.isInstance(expression))) {
 
             Class castClass = OgnlRuntime.getCompiler().getRootExpressionClass(expression, context);
-
+            
             if (castClass.isArray() || ASTRootVarRef.class.isInstance(expression)
                 || ASTThisVarRef.class.isInstance(expression))
             {
@@ -361,7 +361,9 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         Class ret = context.getRoot().getClass();
 
         if (context.getFirstAccessor() != null && context.getFirstAccessor().isInstance(context.getRoot()))
+        {
             ret = context.getFirstAccessor();
+        }
 
         return ret;
     }
@@ -415,7 +417,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                 newClass.addMethod(setExpression);
             }
         }
-
+        
         try {
 
             setBody = generateSetter(context, newClass, objClass, pool,  valueSetter, expression, root);
@@ -474,7 +476,6 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         String body;
 
         context.setRoot(root);
-        context.setCurrentObject(root);
 
         // the ExpressionAccessor API has to reference the generic Object class for get/set operations, so this sets up that known
         // type beforehand
@@ -591,7 +592,6 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             throw new UnsupportedCompilationException("Can't compile expression/constant setters.");
 
         context.setRoot(root);
-        context.setCurrentObject(root);
         context.remove(PRE_CAST);
 
         String body;

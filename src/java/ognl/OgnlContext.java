@@ -197,6 +197,14 @@ public class OgnlContext extends Object implements Map
     public void setRoot(Object value)
     {
         _root = value;
+        _accessorStack.clear();
+        _typeStack.clear();
+        _currentObject = value;
+
+        if (_currentObject != null)
+        {
+            setCurrentType(_currentObject.getClass());
+        }
     }
 
     public Object getRoot()
