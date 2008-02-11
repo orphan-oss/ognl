@@ -30,6 +30,8 @@
 // --------------------------------------------------------------------------
 package ognl;
 
+import ognl.enhance.UnsupportedCompilationException;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -205,6 +207,9 @@ public class ASTConst extends SimpleNode implements NodeType
 
     public String toSetSourceString(OgnlContext context, Object target)
     {
+        if (_parent == null)
+            throw new UnsupportedCompilationException("Can't modify constant values.");
+        
         return toGetSourceString(context, target);
     }
 }
