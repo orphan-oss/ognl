@@ -325,7 +325,7 @@ public class ASTProperty extends SimpleNode implements NodeType
                     }
                 } else
                 {
-                    if (pd != null)
+                    if (pd != null && pd.getReadMethod() != null)
                     {
                         m = pd.getReadMethod();
                         result = "." + m.getName() + "()";
