@@ -102,7 +102,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         } catch (Exception ex) {
             throw new OgnlException(name, ex);
         }
-        
+
         return result;
     }
 
@@ -236,7 +236,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
                 return "";
             }
-            
+
             context.setCurrentType(m.getReturnType());
             context.setCurrentAccessor(OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, m.getDeclaringClass()));
 
@@ -261,14 +261,12 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
                 m = OgnlRuntime.getWriteMethod(target.getClass(), context.getCurrentObject().toString().replaceAll("\"", ""));
             }
 
-            if (m == null)
-                return "";
-
-            if (m.getParameterTypes() == null || m.getParameterTypes().length <= 0)
-                return "";
+            if (m == null || m.getParameterTypes() == null || m.getParameterTypes().length <= 0)
+                throw new UnsupportedCompilationException("Unable to determine setting expression on " + context.getCurrentObject()
+                                                          + " with index of " + index);
 
             Class parm = m.getParameterTypes()[0];
-            String conversion = null;
+            String conversion;
 
             if (m.getParameterTypes().length > 1)
                 throw new UnsupportedCompilationException("Object property accessors can only support single parameter setters.");

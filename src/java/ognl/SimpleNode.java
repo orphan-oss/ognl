@@ -343,6 +343,11 @@ public abstract class SimpleNode implements Node, Serializable {
         return isSimpleProperty(context);
     }
 
+    protected boolean lastChild(OgnlContext context)
+    {
+        return _parent == null || context.get("_lastChild") !=  null;
+    }
+
     /**
      * This method may be called from subclasses' jjtClose methods. It flattens the tree under this node by eliminating any children that are of the same class as this
      * node and copying their children to this node.

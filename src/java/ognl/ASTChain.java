@@ -80,8 +80,8 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
     {
         Object result = source;
 
-        for(int i = 0, ilast = _children.length - 1; i <= ilast; ++i) {
-            
+        for(int i = 0, ilast = _children.length - 1; i <= ilast; ++i)
+        {
             boolean handled = false;
 
             if (i < ilast) {
@@ -124,9 +124,11 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                                             + "'"); }
                                 }
                             }
-                            if (!handled) {
-                                result = OgnlRuntime.getIndexedProperty(context, result, propertyNode.getProperty(
-                                        context, result).toString(), index);
+                            if (!handled) 
+                            {
+                                result = OgnlRuntime.getIndexedProperty(context, result,
+                                                                        propertyNode.getProperty(context, result).toString(),
+                                                                        index);
                                 handled = true;
                                 i++;
                             }
@@ -134,7 +136,8 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                     }
                 }
             }
-            if (!handled) {
+            if (!handled)
+            {
                 result = _children[i].getValue(context, result);
             }
         }
@@ -148,7 +151,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
 
         for(int i = 0, ilast = _children.length - 2; i <= ilast; ++i)
         {
-            if (i == ilast) {
+            if (i <= ilast) {
                 if (_children[i] instanceof ASTProperty)
                 {
                     ASTProperty propertyNode = (ASTProperty) _children[i];
@@ -196,13 +199,19 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                                     }
                                 }
                             }
-                            if (!handled)
+                            if (!handled && i == ilast)
                             {
                                 OgnlRuntime.setIndexedProperty(context, target,
                                                                propertyNode.getProperty(context, target).toString(),
                                                                index, value);
                                 handled = true;
                                 i++;
+                            } else if (!handled) {
+                                target = OgnlRuntime.getIndexedProperty(context, target,
+                                                                        propertyNode.getProperty(context, target).toString(),
+                                                                        index);
+                                i++;
+                                continue;
                             }
                         }
                     }
@@ -283,9 +292,9 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
             {
                 for(int i = 0; i < _children.length; i++)
                 {
-                   /* System.out.println("astchain child: " + _children[i].getClass().getName()
-                                       + " with current object target " + context.getCurrentObject()
-                                       + " current type: " + context.getCurrentType());*/
+              /*      System.out.println("astchain child: " + _children[i].getClass().getName()
+              + " with current object target " + context.getCurrentObject()
+              + " current type: " + context.getCurrentType());*/
 
                     String value = _children[i].toGetSourceString(context, context.getCurrentObject());
 
@@ -308,9 +317,9 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                         value = OgnlRuntime.getCompiler().castExpression(context, _children[i], value);
                     }
 
-                    /* System.out.println("astchain value now : " + value + " with index " + i
+                    /*System.out.println("astchain value now : " + value + " with index " + i
                                        + " current type " + context.getCurrentType() + " current accessor " + context.getCurrentAccessor()
-                                       + " prev type " + context.getPreviousType() + " prev accessor " + context.getPreviousAccessor()); */
+                                       + " prev type " + context.getPreviousType() + " prev accessor " + context.getPreviousAccessor());*/
 
                     if (OrderedReturn.class.isInstance(_children[i]) && ((OrderedReturn)_children[i]).getLastExpression() != null)
                     {
@@ -348,12 +357,14 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
             throw OgnlOps.castToRuntime(t);
         }
 
-        if (_lastType != null) {
+        if (_lastType != null)
+        {
             _getterClass = _lastType.getGetterClass();
             _setterClass = _lastType.getSetterClass();
         }
 
-        if (ordered) {
+        if (ordered)
+        {
             _coreExpression = result;
         }
 
@@ -386,10 +397,10 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                 {
                     throw new UnsupportedCompilationException("Can't modify constant values.");
                 }
-                
+
                 for(int i = 0; i < _children.length; i++)
                 {
-                    //System.out.println("astchain setsource child[" + i + "] : " + _children[i].getClass().getName());
+//                    System.out.println("astchain setsource child[" + i + "] : " + _children[i].getClass().getName());
 
                     if (i == (_children.length -1))
                     {
@@ -397,23 +408,34 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                     }
 
                     String value = _children[i].toSetSourceString(context, context.getCurrentObject());
-                    if (value == null || value.trim().length() <= 0)
-                        return "";
+                    //if (value == null || value.trim().length() <= 0)
+                      //  return "";
+
+//                    System.out.println("astchain setter child returned >>  " + value + "  <<");
 
                     if (ASTCtor.class.isInstance(_children[i]))
                         constructor = true;
 
                     if (NodeType.class.isInstance(_children[i])
-                        && ((NodeType)_children[i]).getGetterClass() != null) {
-
+                        && ((NodeType)_children[i]).getGetterClass() != null)
+                    {
                         _lastType = (NodeType)_children[i];
                     }
 
-                    if (!constructor && !OrderedReturn.class.isInstance(_children[i])
-                        && (_parent == null || !ASTSequence.class.isInstance(_parent))) {
-
+                    if (!ASTVarRef.class.isInstance(_children[i]) && !constructor
+                        && !(OrderedReturn.class.isInstance(_children[i]) && ((OrderedReturn)_children[i]).getLastExpression() != null)
+                        && (_parent == null || !ASTSequence.class.isInstance(_parent)))
+                    {
                         value = OgnlRuntime.getCompiler().castExpression(context, _children[i], value);
                     }
+
+//                    System.out.println("astchain setter after cast value is: " + value);
+
+                    /*if (!constructor && !OrderedReturn.class.isInstance(_children[i])
+                        && (_parent == null || !ASTSequence.class.isInstance(_parent)))
+                    {
+                        value = OgnlRuntime.getCompiler().castExpression(context, _children[i], value);
+                    }*/
 
                     if (ASTOr.class.isInstance(_children[i])
                         || ASTAnd.class.isInstance(_children[i])

@@ -323,13 +323,14 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
 
     public String toSetSourceString(OgnlContext context, Object target)
     {
-        //System.out.println("current type: " + context.getCurrentType() + " target:" + target + " " + context.getCurrentObject());
+        /*System.out.println("current type: " + context.getCurrentType() + " target:" + target + " " + context.getCurrentObject()
+                           + " last child? " + lastChild(context));*/
         Method m = OgnlRuntime.getWriteMethod(context.getCurrentType() != null ?
                 context.getCurrentType() : target.getClass(),
                                               _methodName, _children != null ? _children.length : -1);
         if (m == null)
         {
-            return "";
+            throw new UnsupportedCompilationException("Unable to determine setter method generation for " + _methodName);
         }
 
         String post = "";
@@ -353,6 +354,8 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
         }
 
         try {
+            /* if (lastChild(context) && m.getParameterTypes().length > 0 && _children.length <= 0)
+                throw new UnsupportedCompilationException("Unable to determine setter method generation for " + m); */
 
             if ((_children != null) && (_children.length > 0))
             {

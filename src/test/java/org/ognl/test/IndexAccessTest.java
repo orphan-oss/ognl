@@ -33,11 +33,13 @@ package org.ognl.test;
 import junit.framework.TestSuite;
 import ognl.MethodFailedException;
 import ognl.NoSuchPropertyException;
+import org.ognl.test.objects.IndexedSetObject;
 import org.ognl.test.objects.Root;
 
 public class IndexAccessTest extends OgnlTestCase {
 
     private static Root ROOT = new Root();
+    private static IndexedSetObject INDEXED_SET = new IndexedSetObject();
 
     private static Object[][] TESTS = {
             {ROOT, "list[index]", ROOT.getList().get(ROOT.getIndex())},
@@ -56,7 +58,8 @@ public class IndexAccessTest extends OgnlTestCase {
             {ROOT, "tab.searchCriteria[index1].displayName", "Woodland creatures"},
             {ROOT, "tab.searchCriteriaSelections[index1][index2]", Boolean.TRUE},
             {ROOT, "tab.searchCriteriaSelections[index1][index2]", Boolean.TRUE, Boolean.FALSE, Boolean.FALSE},
-            {ROOT, "map['bar'].value", 100, 50, 50}
+            {ROOT, "map['bar'].value", 100, 50, 50},
+            {INDEXED_SET, "thing[\"x\"].val", 1, 2, 2}
     };
 
     /*

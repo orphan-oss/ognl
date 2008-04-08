@@ -111,7 +111,8 @@ public class MapPropertyAccessor implements PropertyAccessor
         context.setCurrentAccessor(Map.class);
         context.setCurrentType(Object.class);
         
-        if (String.class.isAssignableFrom(index.getClass()) && !indexedAccess) {
+        if (String.class.isInstance(index) && !indexedAccess)
+        {
             String key = indexStr.replaceAll("\"", "");
 
             if (key.equals("size")) {
@@ -139,9 +140,10 @@ public class MapPropertyAccessor implements PropertyAccessor
 
         String indexStr = index.toString();
 
-        if (String.class.isAssignableFrom(index.getClass())) {
+        if (String.class.isInstance(index))
+        {
             String key = indexStr.replaceAll("\"", "");
-
+            
             if (key.equals("size"))
                 return "";
             else if (key.equals("keys") || key.equals("keySet"))

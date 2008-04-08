@@ -36,9 +36,34 @@ import org.ognl.test.objects.Simple;
 
 public class StaticsAndConstructorsTest extends OgnlTestCase
 {
-    public static final String KEY = "size";
-
     private static Root ROOT = new Root();
+
+    private static Object[][]       TESTS = {
+            { "@java.lang.Class@forName(\"java.lang.Object\")", Object.class },
+            { "@java.lang.Integer@MAX_VALUE", new Integer(Integer.MAX_VALUE) },
+            { "@@max(3,4)", new Integer(4) },
+            { "new java.lang.StringBuffer().append(55).toString()", "55" },
+            { "class", ROOT.getClass() },
+            { "@org.ognl.test.objects.Root@class", ROOT.getClass() },
+            { "class.getName()", ROOT.getClass().getName() },
+            { "@org.ognl.test.objects.Root@class.getName()", ROOT.getClass().getName() },
+            { "@org.ognl.test.objects.Root@class.name", ROOT.getClass().getName() },
+            { "class.getSuperclass()", ROOT.getClass().getSuperclass() },
+            { "class.superclass", ROOT.getClass().getSuperclass() },
+            { "class.name", ROOT.getClass().getName() },
+            { "getStaticInt()", new Integer(Root.getStaticInt()) },
+            { "@org.ognl.test.objects.Root@getStaticInt()", new Integer(Root.getStaticInt()) },
+            { "new org.ognl.test.objects.Simple(property).getStringValue()", new Simple().getStringValue() },
+            { "new org.ognl.test.objects.Simple(map['test'].property).getStringValue()", new Simple().getStringValue() },
+            { "map.test.getCurrentClass(@org.ognl.test.StaticsAndConstructorsTest@KEY.toString())", "size stop"},
+            { "new org.ognl.test.StaticsAndConstructorsTest$IntWrapper(index)", new IntWrapper(ROOT.getIndex()) },
+            { "new org.ognl.test.StaticsAndConstructorsTest$IntObjectWrapper(index)", new IntObjectWrapper(ROOT.getIndex()) },
+            { "new org.ognl.test.StaticsAndConstructorsTest$A(#root)", new A(ROOT)},
+            {"@org.ognl.test.StaticsAndConstructorsTest$Animals@values().length != 2", Boolean.TRUE},
+            {"isOk(@org.ognl.test.objects.SimpleEnum@ONE, null)", Boolean.TRUE},
+    };
+
+    public static final String KEY = "size";
 
     public static class IntWrapper {
         public IntWrapper(int value)
@@ -119,31 +144,6 @@ public class StaticsAndConstructorsTest extends OgnlTestCase
 
         Dog, Cat, Wallabee, Bear
     }
-
-    private static Object[][]       TESTS = {
-            { "@java.lang.Class@forName(\"java.lang.Object\")", Object.class },
-            { "@java.lang.Integer@MAX_VALUE", new Integer(Integer.MAX_VALUE) },
-            { "@@max(3,4)", new Integer(4) },
-            { "new java.lang.StringBuffer().append(55).toString()", "55" },
-            { "class", ROOT.getClass() },
-            { "@org.ognl.test.objects.Root@class", ROOT.getClass() },
-            { "class.getName()", ROOT.getClass().getName() },
-            { "@org.ognl.test.objects.Root@class.getName()", ROOT.getClass().getName() },
-            { "@org.ognl.test.objects.Root@class.name", ROOT.getClass().getName() },
-            { "class.getSuperclass()", ROOT.getClass().getSuperclass() },
-            { "class.superclass", ROOT.getClass().getSuperclass() },
-            { "class.name", ROOT.getClass().getName() },
-            { "getStaticInt()", new Integer(Root.getStaticInt()) },
-            { "@org.ognl.test.objects.Root@getStaticInt()", new Integer(Root.getStaticInt()) },
-            { "new org.ognl.test.objects.Simple(property).getStringValue()", new Simple().getStringValue() },
-            { "new org.ognl.test.objects.Simple(map['test'].property).getStringValue()", new Simple().getStringValue() },
-            { "map.test.getCurrentClass(@org.ognl.test.StaticsAndConstructorsTest@KEY.toString())", "size stop"},
-            { "new org.ognl.test.StaticsAndConstructorsTest$IntWrapper(index)", new IntWrapper(ROOT.getIndex()) },
-            { "new org.ognl.test.StaticsAndConstructorsTest$IntObjectWrapper(index)", new IntObjectWrapper(ROOT.getIndex()) },
-            { "new org.ognl.test.StaticsAndConstructorsTest$A(#root)", new A(ROOT)},
-            {"@org.ognl.test.StaticsAndConstructorsTest$Animals@values().length != 2", Boolean.TRUE},
-            {"isOk(@org.ognl.test.objects.SimpleEnum@ONE, null)", Boolean.TRUE},
-    };
 
     /*===================================================================
          Public static methods
