@@ -633,6 +633,11 @@ public class OgnlRuntime {
                 } else if (GenericArrayType.class.isInstance(genTypes[i]))
                 {
                     paramType = (TypeVariable) ((GenericArrayType)genTypes[i]).getGenericComponentType();
+                }
+                else if (ParameterizedType.class.isInstance(genTypes[i]))
+                {
+                	 types[i] = (Class) ((ParameterizedType) genTypes[i]).getRawType();
+                	 continue;
                 } else if (Class.class.isInstance(genTypes[i]))
                 {
                     types[i] = (Class) genTypes[i];
