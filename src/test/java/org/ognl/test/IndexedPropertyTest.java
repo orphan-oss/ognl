@@ -41,7 +41,7 @@ public class IndexedPropertyTest extends OgnlTestCase {
 
     private static Object[][] TESTS = {
             // Indexed properties
-            {INDEXED, "values", INDEXED.getValues()}, // gets String[]
+            {INDEXED, "getValues", INDEXED.getValues()}, // gets String[]
             {INDEXED, "[\"values\"]", INDEXED.getValues()}, // String[]
             {INDEXED.getValues(), "[0]", INDEXED.getValues()[0]}, // "foo"
             {INDEXED, "getValues()[0]", INDEXED.getValues()[0]}, // "foo" directly from array
@@ -55,8 +55,8 @@ public class IndexedPropertyTest extends OgnlTestCase {
             {INDEXED, "getTitle(list.size)", "Title count 3"},
             {INDEXED, "source.total", 1},
             {ROOT, "indexer.line[index]", "line:1"},
-            {INDEXED, "list[2].longValue()", new Long(3)},
-            {ROOT, "map.value.id", new Long(1)},
+            {INDEXED, "list[2].longValue()", (long) 3},
+            {ROOT, "map.value.id", (long) 1},
             {INDEXED, "property['hoodak']", null, "random string", "random string"}
     };
 
@@ -92,14 +92,6 @@ public class IndexedPropertyTest extends OgnlTestCase {
      * =================================================================== Constructors
      * ===================================================================
      */
-    public IndexedPropertyTest() {
-        super();
-    }
-
-    public IndexedPropertyTest(String name) {
-        super(name);
-    }
-
     public IndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult,
                                Object setValue, Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
