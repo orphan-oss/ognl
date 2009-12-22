@@ -152,7 +152,19 @@ public class OgnlRuntime {
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
      */
-    private static OgnlExpressionCompiler _compiler = new ExpressionCompiler();
+    private static OgnlExpressionCompiler _compiler;
+
+    /**
+     * Lazy loading of Javassist library
+     */
+    static {
+        try {
+            Class.forName("javassist.ClassPool");
+            _compiler = new ExpressionCompiler();
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Javassist library is missing in classpath! Please add missed dependency!",e);
+        }
+    }
 
     private static IdentityHashMap PRIMITIVE_WRAPPER_CLASSES = new IdentityHashMap();
 
@@ -1301,8 +1313,8 @@ public class OgnlRuntime {
      *          Optional arguments needed for method.
      * @return Result of invoking method.
      *
-     * @deprecated Use {@link #callMethod(OgnlContext, Object, String, Object[])} instead. 
-     * @throws OgnlException For lots of different reasons. 
+     * @deprecated Use {@link #callMethod(OgnlContext, Object, String, Object[])} instead.
+     * @throws OgnlException For lots of different reasons.
      */
     public static Object callMethod(OgnlContext context, Object target, String methodName, String propertyName, Object[] args)
             throws OgnlException
@@ -1501,7 +1513,7 @@ public class OgnlRuntime {
                     for (int i = 0, icount = ma.length; i < icount; i++)
                     {
                         // skip over synthetic methods
-                        
+
                         if (!isMethodCallable(ma[i]))
                             continue;
 
@@ -2469,7 +2481,7 @@ public class OgnlRuntime {
             {
                 if (!isMethodCallable(methods[i].getMethod()))
                     continue;
-                
+
                 if ((methods[i].getName().equalsIgnoreCase(name)
                      || methods[i].getName().toLowerCase().equals(name)
                      || methods[i].getName().toLowerCase().equals("get" + name)
@@ -2497,7 +2509,7 @@ public class OgnlRuntime {
             {
                 if (!isMethodCallable(methods[i].getMethod()))
                     continue;
-                
+
                 if (methods[i].getName().toLowerCase().endsWith(name)
                     && !methods[i].getName().startsWith("set")
                     && methods[i].getMethod().getReturnType() != Void.TYPE) {
@@ -2547,7 +2559,7 @@ public class OgnlRuntime {
             for (int i = 0; i < methods.length; i++) {
                 if (!isMethodCallable(methods[i].getMethod()))
                     continue;
-                
+
                 if ((methods[i].getName().equalsIgnoreCase(name)
                      || methods[i].getName().toLowerCase().equals(name.toLowerCase())
                      || methods[i].getName().toLowerCase().equals("set" + name.toLowerCase()))
