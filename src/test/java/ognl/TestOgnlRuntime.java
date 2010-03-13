@@ -268,4 +268,40 @@ public class TestOgnlRuntime extends TestCase {
         assert pd != null;
         assert OgnlRuntime.isMethodCallable(pd.getReadMethod());
     }
+
+    private static class GenericParent<T>
+     {
+         public void save(T entity)
+         {
+
+         }
+     }
+
+     private static class StringChild extends GenericParent<String>
+     {
+
+     }
+
+     private static class LongChild extends GenericParent<Long>
+     {
+
+     }
+
+     /**
+      * Tests OGNL parameter discovery.
+      */
+     public void testOGNLParameterDiscovery() throws NoSuchMethodException
+     {
+         Method saveMethod = GenericParent.class.getMethod("save", Object.class);
+         System.out.println(saveMethod);
+
+         Class[] longClass = OgnlRuntime.findParameterTypes(LongChild.class, saveMethod);
+         assertNotSame(longClass[0], String.class);
+         assertSame(longClass[0], Long.class);
+
+         Class[] stringClass = OgnlRuntime.findParameterTypes(StringChild.class, saveMethod);
+         assertNotSame("The cached parameter types from previous calls are used", stringClass[0], Long.class);
+         assertSame(stringClass[0], String.class);
+     }
+
 }

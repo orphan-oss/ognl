@@ -625,7 +625,10 @@ public class OgnlRuntime {
 
             if ((types = (Class[]) _genericMethodParameterTypesCache.get(m)) != null)
             {
-                return types;
+                ParameterizedType genericSuperclass = (ParameterizedType) type.getGenericSuperclass();
+                if (Arrays.equals(types, genericSuperclass.getActualTypeArguments())) {
+                    return types;
+                }
             }
 
             ParameterizedType param = (ParameterizedType)type.getGenericSuperclass();
