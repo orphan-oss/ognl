@@ -36,10 +36,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>jboss</groupId>
+            <groupId>javassist</groupId>
             <artifactId>javassist</artifactId>
-            <version>3.7.ga</version>
-            <scope>provided</scope>
+            <version>3.11.0.GA</version>
         </dependency>
     </dependencies>
 
