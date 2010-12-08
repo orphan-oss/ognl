@@ -6,7 +6,7 @@
     <artifactId>ognl</artifactId>
     <packaging>jar</packaging>
     <version>3.0.1</version>
-
+    <description>OGNL - Object Graph Navigation Library</description>
     <name>OGNL - Object Graph Navigation Library</name>
     <inceptionYear>1997</inceptionYear>
 
