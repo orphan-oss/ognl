@@ -6,11 +6,26 @@
     <artifactId>ognl</artifactId>
     <packaging>jar</packaging>
     <version>3.0.1</version>
-    <description>OGNL - Object Graph Navigation Library</description>
     <name>OGNL - Object Graph Navigation Library</name>
+    <description>OGNL - Object Graph Navigation Library</description>
+
     <inceptionYear>1997</inceptionYear>
 
     <url>http://ognl.org</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git://github.com/jkuhnert/ognl.git</connection>
+        <url>scm:git:git://github.com/jkuhnert/ognl.git</url>
+        <developerConnection>scm:git:git://github.com/jkuhnert/ognl.git</developerConnection>
+    </scm>
 
     <organization>
         <name>OpenSymphony</name>
@@ -139,7 +154,8 @@
         </repository>
         <snapshotRepository>
             <id>opencomponentry.com</id>
-            <url>scpexe://opencomponentry.com/var/www/vhosts/opencomponentry.com/httpdocs/repository/m2-snapshot-repo</url>
+            <url>scpexe://opencomponentry.com/var/www/vhosts/opencomponentry.com/httpdocs/repository/m2-snapshot-repo
+            </url>
         </snapshotRepository>
     </distributionManagement>
 
