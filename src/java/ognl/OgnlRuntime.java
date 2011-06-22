@@ -2496,7 +2496,12 @@ public class OgnlRuntime {
                         return methods[i].getMethod();
                     else if (numParms < 0)
                     {
-                        if ((m != null && m.getParameterTypes().length > methods[i].getMethod().getParameterTypes().length)
+                        if ( methods[i].getName().equals( name ) )
+                        {
+                            return methods[i].getMethod();
+	 	                }
+	 	                else if ( ( m != null
+	 	                     && m.getParameterTypes().length > methods[i].getMethod().getParameterTypes().length )
                             || m == null)
                         {
                             m = methods[i].getMethod();
