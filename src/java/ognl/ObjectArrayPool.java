@@ -30,133 +30,25 @@
 //--------------------------------------------------------------------------
 package ognl;
 
-import java.util.*;
-
+/**
+ * This class was previously intended to produce performance improvment.<br>
+ * This hand-made object pooling is now a bottleneck under high load.<br>
+ * We now rely on the new jvm garbage collection improvments to handle object allocation efficiently.
+ * @deprecated object-pooling now relies on the jvm garbage collection
+ */
 public final class ObjectArrayPool extends Object
 {
-    private IntHashMap      pools = new IntHashMap(23);
-
-    public static class SizePool extends Object
-    {
-        private List        arrays = new ArrayList();
-        private int         arraySize;
-        private int         size;
-        private int         created = 0;
-        private int         recovered = 0;
-        private int         recycled = 0;
-
-        public SizePool(int arraySize)
-        {
-            this(arraySize, 0);
-        }
-
-        public SizePool(int arraySize, int initialSize)
-        {
-            super();
-            this.arraySize = arraySize;
-            for (int i = 0; i < initialSize; i++) {
-                arrays.add(new Object[arraySize]);
-            }
-            created = size = initialSize;
-        }
-
-        public int getArraySize()
-        {
-            return arraySize;
-        }
-
-        public Object[] create()
-        {
-            Object[]        result;
-
-            if (size > 0) {
-                result = (Object[])arrays.remove(size - 1);
-                size--;
-                recovered++;
-            } else {
-                result = new Object[arraySize];
-                created++;
-            }
-            return result;
-        }
-
-        public synchronized void recycle(Object[] value)
-        {
-            if (value != null) {
-                if (value.length != arraySize) {
-                    throw new IllegalArgumentException("recycled array size " + value.length + " inappropriate for pool array size " + arraySize);
-                }
-                Arrays.fill(value, null);
-                arrays.add(value);
-                size++;
-                recycled++;
-            } else {
-                throw new IllegalArgumentException("cannot recycle null object");
-            }
-        }
-
-        /**
-            Returns the number of items in the pool
-         */
-        public int getSize()
-        {
-            return size;
-        }
-
-        /**
-            Returns the number of items this pool has created since
-            it's construction.
-         */
-        public int getCreatedCount()
-        {
-            return created;
-        }
-
-        /**
-            Returns the number of items this pool has recovered from
-            the pool since its construction.
-         */
-        public int getRecoveredCount()
-        {
-            return recovered;
-        }
-
-        /**
-            Returns the number of items this pool has recycled since
-            it's construction.
-         */
-        public int getRecycledCount()
-        {
-            return recycled;
-        }
-    }
-
     public ObjectArrayPool()
     {
         super();
     }
 
-    public IntHashMap getSizePools()
+    public Object[] create(int arraySize)
     {
-        return pools;
+        return new Object[arraySize];
     }
 
-    public synchronized SizePool getSizePool(int arraySize)
-    {
-        SizePool     result = (SizePool)pools.get(arraySize);
-
-        if (result == null) {
-            pools.put(arraySize, result = new SizePool(arraySize));
-        }
-        return result;
-    }
-
-    public synchronized Object[] create(int arraySize)
-    {
-        return getSizePool(arraySize).create();
-    }
-
-    public synchronized Object[] create(Object singleton)
+    public Object[] create(Object singleton)
     {
         Object[]        result = create(1);
 
@@ -164,7 +56,7 @@ public final class ObjectArrayPool extends Object
         return result;
     }
 
-    public synchronized Object[] create(Object object1, Object object2)
+    public Object[] create(Object object1, Object object2)
     {
         Object[]        result = create(2);
 
@@ -173,7 +65,7 @@ public final class ObjectArrayPool extends Object
         return result;
     }
 
-    public synchronized Object[] create(Object object1, Object object2, Object object3)
+    public Object[] create(Object object1, Object object2, Object object3)
     {
         Object[]        result = create(3);
 
@@ -183,7 +75,7 @@ public final class ObjectArrayPool extends Object
         return result;
     }
 
-    public synchronized Object[] create(Object object1, Object object2, Object object3, Object object4)
+    public Object[] create(Object object1, Object object2, Object object3, Object object4)
     {
         Object[]        result = create(4);
 
@@ -194,7 +86,7 @@ public final class ObjectArrayPool extends Object
         return result;
     }
 
-    public synchronized Object[] create(Object object1, Object object2, Object object3, Object object4, Object object5)
+    public Object[] create(Object object1, Object object2, Object object3, Object object4, Object object5)
     {
         Object[]        result = create(5);
 
@@ -206,10 +98,11 @@ public final class ObjectArrayPool extends Object
         return result;
     }
 
-    public synchronized void recycle(Object[] value)
+    /**
+     * @deprecated object-pooling now relies on the jvm garbage collection
+     */
+    public void recycle(Object[] value)
     {
-        if (value != null) {
-            getSizePool(value.length).recycle(value);
-        }
+        // no need of recycling, we rely on the garbage collection efficiency
     }
 }
