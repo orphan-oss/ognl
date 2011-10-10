@@ -28,9 +28,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/jkuhnert/ognl.git</connection>
-        <url>scm:git:git://github.com/jkuhnert/ognl.git</url>
-        <developerConnection>scm:git:git://github.com/jkuhnert/ognl.git</developerConnection>
+        <connection>scm:git:git@github.com:jkuhnert/ognl.git</connection>
+        <url>git@github.com:jkuhnert/ognl.git</url>
+        <developerConnection>scm:git:git@github.com:jkuhnert/ognl.git</developerConnection>
     </scm>
 
     <organization>
