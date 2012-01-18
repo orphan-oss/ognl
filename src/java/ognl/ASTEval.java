@@ -82,6 +82,11 @@ class ASTEval extends SimpleNode
         }
     }
 
+    @Override
+    public boolean isEvalChain(OgnlContext context) throws OgnlException {
+        return true;
+    }
+
     public String toString()
     {
         return "(" + _children[0] + ")(" + _children[1] + ")";

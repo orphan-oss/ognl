@@ -343,6 +343,21 @@ public abstract class SimpleNode implements Node, Serializable {
         return isSimpleProperty(context);
     }
 
+    public boolean isEvalChain(OgnlContext context)
+            throws OgnlException {
+        if (_children == null) {
+            return false;
+        }
+        for (Node child : _children) {
+            if (child instanceof SimpleNode) {
+                if (((SimpleNode) child).isEvalChain(context)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     protected boolean lastChild(OgnlContext context)
     {
         return _parent == null || context.get("_lastChild") !=  null;
