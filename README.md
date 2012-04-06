@@ -16,4 +16,7 @@ and this source code is used just to maintenance 3.x branch. The new version fro
  * small fix to improve performance [WW-3580](https://issues.apache.org/jira/browse/WW-3580 "Critical performance issue in production environment as thread dumps are leading to OGNL 3.0 thread blocking! Website could be backed out!")
 
 ### Release notes - version 3.0.4
+ * Adds possibility to discover eval chain
+
+### Release notes - version 3.0.5
  * partially reverts previous changes to allow OGNL to work in environment with Security Manager enabled [WW-3746](https://issues.apache.org/jira/browse/WW-3746 "Struts 2.3.1.1 OGNL crashes on WebSphere 7")
