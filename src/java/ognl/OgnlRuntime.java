@@ -779,21 +779,18 @@ public class OgnlRuntime {
      */
     public static Permission getPermission(Method method)
     {
-        Permission result = null;
+        Permission result;
         Class mc = method.getDeclaringClass();
 
-        Map permissions = (Map) _invokePermissionCache.get(mc);
-        if (permissions == null) {
-            synchronized (_invokePermissionCache) {
-                permissions = (Map) _invokePermissionCache.get(mc);
+        synchronized (_invokePermissionCache) {
+            Map permissions = (Map) _invokePermissionCache.get(mc);
 
-                if (permissions == null) {
-                    _invokePermissionCache.put(mc, permissions = new HashMap(101));
-                }
-                if ((result = (Permission) permissions.get(method.getName())) == null) {
-                    result = new OgnlInvokePermission("invoke." + mc.getName() + "." + method.getName());
-                    permissions.put(method.getName(), result);
-                }
+            if (permissions == null) {
+                _invokePermissionCache.put(mc, permissions = new HashMap(101));
+            }
+            if ((result = (Permission) permissions.get(method.getName())) == null) {
+                result = new OgnlInvokePermission("invoke." + mc.getName() + "." + method.getName());
+                permissions.put(method.getName(), result);
             }
         }
         return result;
