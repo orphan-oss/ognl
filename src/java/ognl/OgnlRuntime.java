@@ -611,79 +611,93 @@ public class OgnlRuntime {
      */
     public static Class[] findParameterTypes(Class type, Method m)
     {
-        if (type == null)
+        Type[] genTypes = m.getGenericParameterTypes();
+        Class[] types = new Class[genTypes.length];;
+        boolean noGenericParameter = true;
+        for (int i=0; i < genTypes.length; i++)
+        {
+            if (Class.class.isInstance(genTypes[i]))
+            {
+                types[i] = (Class) genTypes[i];
+                continue;
+            }
+            noGenericParameter = false;
+            break;
+        }
+        if (noGenericParameter)
+        {
+            return types;
+        }
+
+        if (type == null || !isJdk15())
         {
             return getParameterTypes(m);
         }
 
-        if (!isJdk15()
-            || type.getGenericSuperclass() == null
-            || !ParameterizedType.class.isInstance(type.getGenericSuperclass())
+        final Type typeGenericSuperclass = type.getGenericSuperclass();
+        if (typeGenericSuperclass == null
+            || !ParameterizedType.class.isInstance(typeGenericSuperclass)
             || m.getDeclaringClass().getTypeParameters() == null)
         {
             return getParameterTypes(m);
         }
 
-        Class[] types;
-
         if ((types = (Class[]) _genericMethodParameterTypesCache.get(m)) != null)
         {
-            ParameterizedType genericSuperclass = (ParameterizedType) type.getGenericSuperclass();
+            ParameterizedType genericSuperclass = (ParameterizedType) typeGenericSuperclass;
             if (Arrays.equals(types, genericSuperclass.getActualTypeArguments())) {
                 return types;
             }
         }
 
-        synchronized (_genericMethodParameterTypesCache)
+        ParameterizedType param = (ParameterizedType)typeGenericSuperclass;
+        TypeVariable[] declaredTypes = m.getDeclaringClass().getTypeParameters();
+
+        types = new Class[genTypes.length];
+
+        for (int i=0; i < genTypes.length; i++)
         {
-            ParameterizedType param = (ParameterizedType)type.getGenericSuperclass();
-            Type[] genTypes = m.getGenericParameterTypes();
-            TypeVariable[] declaredTypes = m.getDeclaringClass().getTypeParameters();
+            TypeVariable paramType = null;
 
-            types = new Class[genTypes.length];
-
-            typeSearch:
-            for (int i=0; i < genTypes.length; i++)
+            if (TypeVariable.class.isInstance(genTypes[i]))
             {
-                TypeVariable paramType = null;
-
-                if (TypeVariable.class.isInstance(genTypes[i]))
-                {
-                    paramType = (TypeVariable)genTypes[i];
-                } else if (GenericArrayType.class.isInstance(genTypes[i]))
-                {
-                    paramType = (TypeVariable) ((GenericArrayType)genTypes[i]).getGenericComponentType();
-                }
-                else if (ParameterizedType.class.isInstance(genTypes[i]))
-                {
-                	 types[i] = (Class) ((ParameterizedType) genTypes[i]).getRawType();
-                	 continue;
-                } else if (Class.class.isInstance(genTypes[i]))
-                {
-                    types[i] = (Class) genTypes[i];
-                    continue;
-                }
-
-                Class resolved = resolveType(param, paramType, declaredTypes);
-
-                if (resolved != null)
-                {
-                    if (GenericArrayType.class.isInstance(genTypes[i]))
-                    {
-                        resolved = Array.newInstance(resolved, 0).getClass();
-                    }
-
-                    types[i] = resolved;
-                    continue;
-                }
-
-                types[i] = m.getParameterTypes()[i];
+                paramType = (TypeVariable)genTypes[i];
+            } else if (GenericArrayType.class.isInstance(genTypes[i]))
+            {
+                paramType = (TypeVariable) ((GenericArrayType)genTypes[i]).getGenericComponentType();
+            }
+            else if (ParameterizedType.class.isInstance(genTypes[i]))
+            {
+                 types[i] = (Class) ((ParameterizedType) genTypes[i]).getRawType();
+                 continue;
+            } else if (Class.class.isInstance(genTypes[i]))
+            {
+                types[i] = (Class) genTypes[i];
+                continue;
             }
 
-            _genericMethodParameterTypesCache.put(m, types);
+            Class resolved = resolveType(param, paramType, declaredTypes);
 
-            return types;
+            if (resolved != null)
+            {
+                if (GenericArrayType.class.isInstance(genTypes[i]))
+                {
+                    resolved = Array.newInstance(resolved, 0).getClass();
+                }
+
+                types[i] = resolved;
+                continue;
+            }
+
+            types[i] = m.getParameterTypes()[i];
         }
+
+        synchronized (_genericMethodParameterTypesCache)
+        {
+            _genericMethodParameterTypesCache.put(m, types);
+        }
+
+        return types;
     }
 
     static Class resolveType(ParameterizedType param, TypeVariable var, TypeVariable[] declaredTypes)
@@ -2572,9 +2586,9 @@ public class OgnlRuntime {
                         if ( methods[i].getName().equals( name ) )
                         {
                             return methods[i].getMethod();
-	 	                }
-	 	                else if ( ( m != null
-	 	                     && m.getParameterTypes().length > methods[i].getMethod().getParameterTypes().length )
+                        }
+                        else if ( ( m != null
+                             && m.getParameterTypes().length > methods[i].getMethod().getParameterTypes().length )
                             || m == null)
                         {
                             m = methods[i].getMethod();
