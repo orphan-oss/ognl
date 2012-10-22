@@ -169,6 +169,8 @@ public class OgnlRuntime {
         }
     }
 
+    private static final Class[] EMPTY_CLASS_ARRAY = new Class[0];
+
     private static IdentityHashMap PRIMITIVE_WRAPPER_CLASSES = new IdentityHashMap();
 
     /**
@@ -2468,7 +2470,7 @@ public class OgnlRuntime {
             context.setCurrentObject(target);
         } else
         {
-            parms = new Class[0];
+            parms = EMPTY_CLASS_ARRAY;
         }
 
         List methods = OgnlRuntime.getMethods(target, name, includeStatic);
