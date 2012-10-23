@@ -23,3 +23,7 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ### Release notes - version 3.0.5
  * partially reverts previous changes to allow OGNL to work in environment with Security Manager enabled [WW-3746](https://issues.apache.org/jira/browse/WW-3746 "Struts 2.3.1.1 OGNL crashes on WebSphere 7")
+
+### Release notes - version 3.0.6
+ * important performance improvement [OGNL-224](https://issues.apache.org/jira/browse/OGNL-224) - thanks to Pelladi Gabor
+ * race condition fix [OGNL-226](https://issues.apache.org/jira/browse/OGNL-226) - thanks to Johno Crawford
