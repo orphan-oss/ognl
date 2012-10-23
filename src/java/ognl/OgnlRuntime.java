@@ -1513,7 +1513,7 @@ public class OgnlRuntime {
             {
                 if ((result = (Map) cache.get(targetClass)) == null)
                 {
-                    cache.put(targetClass, result = new HashMap(23));
+                    result = new HashMap(23);
 
                     for (Class c = targetClass; c != null; c = c.getSuperclass())
                     {
@@ -1537,6 +1537,7 @@ public class OgnlRuntime {
                             }
                         }
                     }
+                    cache.put(targetClass, result);
                 }
             }
         }
