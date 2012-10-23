@@ -1,7 +1,7 @@
 package ognl;
 
-import junit.framework.TestCase;
 import org.junit.Assert;
+import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ class ExampleStringClass extends GenericClass<String> {
 class ExampleStringSubclass extends ExampleStringClass {
 }
 
-public class OgnlRuntimeTest extends TestCase {
+public class OgnlRuntimeTest {
 
     class Worker implements Callable<Class<?>[]> {
 
@@ -60,31 +60,37 @@ public class OgnlRuntimeTest extends TestCase {
         }
     }
 
+    @Test
     public void testPerformanceRealGenericSingleThread() throws Exception {
         final Method barMethod = ExampleStringClass.class.getMethod("bar", Object.class);
         runTest(ExampleStringClass.class, barMethod, 10000000, 1, new Class[] { String.class });
     }
 
+    @Test
     public void testPerformanceFakeGenericSingleThread() throws Exception {
         final Method fooMethod = ExampleStringClass.class.getMethod("foo", Integer.class, Date.class);
         runTest(ExampleStringClass.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
     }
 
+    @Test
     public void testPerformanceNonGenericSingleThread() throws Exception {
         final Method fooMethod = ExampleStringSubclass.class.getMethod("foo", Integer.class, Date.class);
         runTest(ExampleStringSubclass.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
     }
 
+    @Test
     public void testPerformanceRealGenericMultipleThreads() throws Exception {
         final Method barMethod = ExampleStringClass.class.getMethod("bar", Object.class);
         runTest(ExampleStringClass.class, barMethod, 100000, 100, new Class[] { String.class });
     }
 
+    @Test
     public void testPerformanceFakeGenericMultipleThreads() throws Exception {
         final Method fooMethod = ExampleStringClass.class.getMethod("foo", Integer.class, Date.class);
         runTest(ExampleStringClass.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
     }
 
+    @Test
     public void testPerformanceNotGenericMultipleThreads() throws Exception {
         final Method fooMethod = ExampleStringSubclass.class.getMethod("foo", Integer.class, Date.class);
         runTest(ExampleStringSubclass.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
