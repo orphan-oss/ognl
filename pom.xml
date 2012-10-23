@@ -56,7 +56,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>3.8.1</version>
+            <version>4.9</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -107,6 +107,10 @@
                         <exclude>**/OgnlTestCase.java</exclude>
                         <exclude>**/*$*</exclude>
                     </excludes>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/TestOgnlRuntime.java</include>
+                    </includes>
                 </configuration>
             </plugin>
             <plugin>
