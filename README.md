@@ -1,8 +1,11 @@
 # Object-Graph Navigation Language - OGNL
 
-It's a simple Expression Language (EL) for Java, the code base sometime ago  was migrated to the [Apache](http://incubator.apache.org/projects/ognl.html)
+It's a simple Expression Language (EL) for Java, the code base sometime ago was migrated to the [Apache commons ognl](http://commons.apache.org/ognl/)
 and this source code is used just to maintenance 3.x branch. The new version from Apache will start from 4.x
 
+## New! Apache commons ognl project
+
+Out of incubator and now officially found here [http://commons.apache.org/ognl/](http://commons.apache.org/ognl/)
 
 ## Development activity
 
