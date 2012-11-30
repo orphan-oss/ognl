@@ -2131,18 +2131,20 @@ public class OgnlRuntime {
     {
         List methods = getDeclaredMethods(targetClass, propertyName, !isReadMethod);
 
-        for (int i=0; i < methods.size(); i++)
+        if (methods != null)
         {
-            Method method = (Method) methods.get(i);
+            for (Object method1 : methods)
+            {
+                Method method = (Method) method1;
 
-            if (method.getName().equals(m.getName())
-                    && m.getReturnType().isAssignableFrom(m.getReturnType())
-                    && method.getReturnType() == propertyType
-                    && method.getParameterTypes().length == m.getParameterTypes().length) {
-                return method;
+                if (method.getName().equals(m.getName())
+                        && m.getReturnType().isAssignableFrom(m.getReturnType())
+                        && method.getReturnType() == propertyType
+                        && method.getParameterTypes().length == m.getParameterTypes().length) {
+                    return method;
+                }
             }
         }
-
         return m;
     }
 
