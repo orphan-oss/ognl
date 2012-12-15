@@ -2,4 +2,5 @@
 *.ipr
 *.iws
 target
+.idea
 
