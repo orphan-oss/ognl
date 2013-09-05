@@ -1832,7 +1832,7 @@ public class OgnlRuntime {
      * cache get methods
      */
     public static Method getGetMethod(OgnlContext context, Class targetClass, String propertyName) throws IntrospectionException, OgnlException {
-        Integer cacheKey = new Integer(targetClass.hashCode() * 31 + propertyName.hashCode());
+	String cacheKey = targetClass.getCanonicalName() + "." + propertyName;
         if (cacheGetMethod.containsKey(cacheKey)) {
             return (Method) cacheGetMethod.get(cacheKey);
         } else {
@@ -1890,7 +1890,7 @@ public class OgnlRuntime {
      * cache set methods method 
      */
     public static Method getSetMethod(OgnlContext context, Class targetClass, String propertyName) throws IntrospectionException, OgnlException {
-        Integer cacheKey = new Integer(targetClass.hashCode() * 27 + propertyName.hashCode());
+	String cacheKey = targetClass.getCanonicalName() + "." + propertyName;
         if (cacheSetMethod.containsKey(cacheKey)) {
             return (Method) cacheSetMethod.get(cacheKey);
         } else {
