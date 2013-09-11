@@ -27,3 +27,6 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 ### Release notes - version 3.0.6
  * important performance improvement [OGNL-224](https://issues.apache.org/jira/browse/OGNL-224) - thanks to Pelladi Gabor
  * race condition fix [OGNL-226](https://issues.apache.org/jira/browse/OGNL-226) - thanks to Johno Crawford
+
+### Release notes - version 3.0.7
+  * uses better method to calculate method's cache key [WW-4113](https://issues.apache.org/jira/browse/WW-4113) - thanks to Kevin Su
