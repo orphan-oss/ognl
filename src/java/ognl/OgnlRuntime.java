@@ -1759,6 +1759,21 @@ public class OgnlRuntime {
         throw new OgnlException("Could not get static field " + fieldName + " from class " + className, reason);
     }
 
+    private static String capitalizeBeanPropertyName(String propertyName) {
+        if (propertyName.length() == 1) {
+            return propertyName.toUpperCase();
+        }
+        char first = propertyName.charAt(0);
+        char second = propertyName.charAt(1);
+        if (Character.isLowerCase(first) && Character.isUpperCase(second)) {
+            return propertyName;
+        } else {
+            char[] chars = propertyName.toCharArray();
+            chars[0] = Character.toUpperCase(chars[0]);
+            return new String(chars);
+        }
+    }
+
     public static List getDeclaredMethods(Class targetClass, String propertyName, boolean findSets)
     {
         List result = null;
@@ -1771,7 +1786,7 @@ public class OgnlRuntime {
 
                 if ((propertyCache == null) || ((result = (List) propertyCache.get(propertyName)) == null)) {
 
-                    String baseName = Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
+                    String baseName = capitalizeBeanPropertyName(propertyName);
 
                     for (Class c = targetClass; c != null; c = c.getSuperclass()) {
                         Method[] methods = c.getDeclaredMethods();
