@@ -30,3 +30,7 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ### Release notes - version 3.0.7
   * uses better method to calculate method's cache key [WW-4113](https://issues.apache.org/jira/browse/WW-4113) - thanks to Kevin Su
+
+### Release notes - version 3.0.8
+ * added better capitalization logic for methods [WW-3909](https://issues.apache.org/jira/browse/WW-3909) - thanks to Iwen.ma
+ 
