@@ -41,6 +41,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Permission;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility class used by internal OGNL API to do various things like:
@@ -147,8 +148,8 @@ public class OgnlRuntime {
     static final IntHashMap _methodAccessCache = new IntHashMap();
     static final IntHashMap _methodPermCache = new IntHashMap();
     
-    static final Map cacheSetMethod = new HashMap();
-    static final Map cacheGetMethod = new HashMap();
+    static final Map cacheSetMethod = new ConcurrentHashMap();
+    static final Map cacheGetMethod = new ConcurrentHashMap();
 
     static ClassCacheInspector _cacheInspector;
 
@@ -1852,13 +1853,11 @@ public class OgnlRuntime {
             return (Method) cacheGetMethod.get(cacheKey);
         } else {
             Method result = null;
-            synchronized (cacheGetMethod) {
-                if (!cacheGetMethod.containsKey(cacheKey)) {
-                    result = _getGetMethod(context, targetClass, propertyName);
-                    cacheGetMethod.put(cacheKey, result);
-                } else {
-                    result = (Method) cacheGetMethod.get(cacheKey);
-                }
+            if (!cacheGetMethod.containsKey(cacheKey)) {
+                result = _getGetMethod(context, targetClass, propertyName);
+                cacheGetMethod.put(cacheKey, result);
+            } else {
+                result = (Method) cacheGetMethod.get(cacheKey);
             }
             return result;
         }
@@ -1910,13 +1909,11 @@ public class OgnlRuntime {
             return (Method) cacheSetMethod.get(cacheKey);
         } else {
             Method result = null;
-            synchronized (cacheSetMethod) { //PATCHED
-                if (!cacheSetMethod.containsKey(cacheKey)) {
-                    result = _getSetMethod(context, targetClass, propertyName);
-                    cacheSetMethod.put(cacheKey, result);
-                } else {
-                    result = (Method) cacheSetMethod.get(cacheKey);
-                }
+            if (!cacheSetMethod.containsKey(cacheKey)) {
+                result = _getSetMethod(context, targetClass, propertyName);
+                cacheSetMethod.put(cacheKey, result);
+            } else {
+                result = (Method) cacheSetMethod.get(cacheKey);
             }
             return result;
         }
