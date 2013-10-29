@@ -13,6 +13,14 @@ import java.util.List;
 
 public class ReflectionCaches {
 
+    public static LazyCache<Class, String> canonicalName() {
+        return new LazyCache<Class, String>(new Function<Class, String>() {
+            public String apply(Class clazz) {
+                return clazz.getCanonicalName();
+            }
+        });
+    }
+
     public static LazyCache<Class, List<Class<?>>> interfaces() {
         return new LazyCache<Class, List<Class<?>>>(new Function<Class, List<Class<?>>>() {
             public List<Class<?>> apply(Class clazz) {

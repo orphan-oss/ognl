@@ -34,6 +34,8 @@ import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
 import ognl.internal.ClassCache;
 import ognl.internal.ClassCacheImpl;
+import ognl.internal.LazyCache;
+import ognl.internal.ReflectionCaches;
 
 import java.beans.*;
 import java.lang.reflect.*;
@@ -148,8 +150,10 @@ public class OgnlRuntime {
     static final IntHashMap _methodAccessCache = new IntHashMap();
     static final IntHashMap _methodPermCache = new IntHashMap();
     
-    static final Map cacheSetMethod = new ConcurrentHashMap();
-    static final Map cacheGetMethod = new ConcurrentHashMap();
+    static final Map<String, Method> cacheSetMethod = new ConcurrentHashMap<String, Method>();
+    static final Map<String, Method> cacheGetMethod = new ConcurrentHashMap<String, Method>();
+    private static final LazyCache<Class, String> canonicalNameCache = ReflectionCaches.canonicalName();
+
 
     static ClassCacheInspector _cacheInspector;
 
@@ -1848,18 +1852,15 @@ public class OgnlRuntime {
      * cache get methods
      */
     public static Method getGetMethod(OgnlContext context, Class targetClass, String propertyName) throws IntrospectionException, OgnlException {
-	String cacheKey = targetClass.getCanonicalName() + "." + propertyName;
-        if (cacheGetMethod.containsKey(cacheKey)) {
-            return (Method) cacheGetMethod.get(cacheKey);
+	String cacheKey = canonicalNameCache.get(targetClass) + "." + propertyName;
+        Method getMethod = cacheGetMethod.get(cacheKey);
+        if (getMethod != null) {
+            return getMethod;
         } else {
-            Method result = null;
-            if (!cacheGetMethod.containsKey(cacheKey)) {
-                result = _getGetMethod(context, targetClass, propertyName);
-                cacheGetMethod.put(cacheKey, result);
-            } else {
-                result = (Method) cacheGetMethod.get(cacheKey);
-            }
-            return result;
+            getMethod = _getGetMethod(context, targetClass, propertyName);
+            if(getMethod != null)
+                cacheGetMethod.put(cacheKey, getMethod);
+            return getMethod;
         }
     }
 
@@ -1904,18 +1905,15 @@ public class OgnlRuntime {
      * cache set methods method 
      */
     public static Method getSetMethod(OgnlContext context, Class targetClass, String propertyName) throws IntrospectionException, OgnlException {
-	String cacheKey = targetClass.getCanonicalName() + "." + propertyName;
-        if (cacheSetMethod.containsKey(cacheKey)) {
-            return (Method) cacheSetMethod.get(cacheKey);
+	String cacheKey = canonicalNameCache.get(targetClass) + "." + propertyName;
+        Method setMethod = cacheSetMethod.get(cacheKey);
+        if (setMethod != null) {
+            return setMethod;
         } else {
-            Method result = null;
-            if (!cacheSetMethod.containsKey(cacheKey)) {
-                result = _getSetMethod(context, targetClass, propertyName);
-                cacheSetMethod.put(cacheKey, result);
-            } else {
-                result = (Method) cacheSetMethod.get(cacheKey);
-            }
-            return result;
+            setMethod = _getSetMethod(context, targetClass, propertyName);
+            if(setMethod != null)
+                cacheSetMethod.put(cacheKey, setMethod);
+            return setMethod;
         }
     }
 
