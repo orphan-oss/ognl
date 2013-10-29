@@ -153,6 +153,7 @@ public class OgnlRuntime {
     static final Map<String, Method> cacheSetMethod = new ConcurrentHashMap<String, Method>();
     static final Map<String, Method> cacheGetMethod = new ConcurrentHashMap<String, Method>();
     private static final LazyCache<Class, String> canonicalNameCache = ReflectionCaches.canonicalName();
+    private static final LazyCache<Method, Boolean> accessibleAccessHackCache = ReflectionCaches.accessibleAccessHackCache();
 
 
     static ClassCacheInspector _cacheInspector;
@@ -820,83 +821,8 @@ public class OgnlRuntime {
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException
     {
-        boolean syncInvoke = false;
-        boolean checkPermission = false;
-        int mHash = method.hashCode();
-
-        // only synchronize method invocation if it actually requires it
-
-        synchronized(method) {
-            if (_methodAccessCache.get(mHash) == null
-                || _methodAccessCache.get(mHash) == Boolean.TRUE) {
-                syncInvoke = true;
-            }
-
-            if (_securityManager != null && _methodPermCache.get(mHash) == null
-                || _methodPermCache.get(mHash) == Boolean.FALSE) {
-                checkPermission = true;
-            }
-        }
-
-        Object result;
-        boolean wasAccessible = true;
-
-        if (syncInvoke)
-        {
-            synchronized(method)
-            {
-                if (checkPermission)
-                {
-                    try
-                    {
-                        _securityManager.checkPermission(getPermission(method));
-                        _methodPermCache.put(mHash, Boolean.TRUE);
-                    } catch (SecurityException ex) {
-                        _methodPermCache.put(mHash, Boolean.FALSE);
-                        throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-                    }
-                }
-
-                if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
-                {
-                    if (!(wasAccessible = ((AccessibleObject) method).isAccessible()))
-                    {
-                        ((AccessibleObject) method).setAccessible(true);
-                        _methodAccessCache.put(mHash, Boolean.TRUE);
-                    } else
-                    {
-                        _methodAccessCache.put(mHash, Boolean.FALSE);
-                    }
-                } else
-                {
-                    _methodAccessCache.put(mHash, Boolean.FALSE);
-                }
-
-                result = method.invoke(target, argsArray);
-
-                if (!wasAccessible)
-                {
-                    ((AccessibleObject) method).setAccessible(false);
-                }
-            }
-        } else
-        {
-            if (checkPermission)
-            {
-                try
-                {
-                    _securityManager.checkPermission(getPermission(method));
-                    _methodPermCache.put(mHash, Boolean.TRUE);
-                } catch (SecurityException ex) {
-                    _methodPermCache.put(mHash, Boolean.FALSE);
-                    throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-                }
-            }
-
-            result = method.invoke(target, argsArray);
-        }
-
-        return result;
+        accessibleAccessHackCache.get(method);
+        return method.invoke(target, argsArray);
     }
 
     /**

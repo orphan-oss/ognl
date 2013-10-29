@@ -92,4 +92,14 @@ public class ReflectionCaches {
             }
         });
     }
+
+    public static LazyCache<Method,Boolean> accessibleAccessHackCache() {
+        return new LazyCache<Method, Boolean>(new Function<Method, Boolean>() {
+            public Boolean apply(Method method) {
+                if(!method.isAccessible())
+                    method.setAccessible(true);
+                return true;
+            }
+        });
+    }
 }
