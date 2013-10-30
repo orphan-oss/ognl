@@ -35,10 +35,10 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     protected int _classCounter = 0;
 
     private LazyCache<Class, Boolean> isPublicInterfaceCache = ReflectionCaches.isPublicInterface();
-    private LazyCache<Class, List<Class<?>>> interfacesCache = ReflectionCaches.interfaces();
+    private LazyCache<Class, Set<Class>> interfacesCache = ReflectionCaches.interfaces();
     private LazyCache<Class, Class> superclassCache = ReflectionCaches.superClass();
-    private LazyCache<Method, List<Class<?>>> exceptionTypesCache = ReflectionCaches.exceptionTypes();
-    private LazyCache<Class, List<Method>> methodsCache = ReflectionCaches.methods();
+    private LazyCache<Method, Set<Class<?>>> exceptionTypesCache = ReflectionCaches.exceptionTypes();
+    private LazyCache<Class, Set<Method>> methodsCache = ReflectionCaches.methods();
     private LazyCache<Method, List<Class<?>>> methodParameterTypesCache = ReflectionCaches.methodParameterTypes();
     private LazyCache<Class, Boolean> isPrimitiveCache = ReflectionCaches.isPrimitive();
 
@@ -213,7 +213,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         if(isPublicInterfaceCache.get(clazz))
             return clazz.getName();
 
-        List<Class<?>> intfs = interfacesCache.get(clazz);
+        Set<Class> intfs = interfacesCache.get(clazz);
         for(Class intf : intfs)
         {
             if (intf.getName().indexOf("util.List") > 0)
@@ -230,7 +230,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
 
     public Class getSuperOrInterfaceClass(Method m, Class clazz)
     {
-        List<Class<?>> intfs = interfacesCache.get(clazz);
+        Set<Class> intfs = interfacesCache.get(clazz);
         if (intfs != null && intfs.size() > 0)
         {
             for(Class intf : intfs)
@@ -270,10 +270,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      */
     public boolean containsMethod(Method m, Class clazz)
     {
-        List<Method> methods = methodsCache.get(clazz);
-
-        if (methods == null)
-            return false;
+        Set<Method> methods = methodsCache.get(clazz);
 
         for (Method method : methods)
         {
@@ -298,15 +295,15 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                 if (!parmsMatch)
                     continue;
 
-                List<Class<?>> exceptions = exceptionTypesCache.get(m);
-                List<Class<?>> mexceptions = exceptionTypesCache.get(method);
+                Set<Class<?>> exceptions = exceptionTypesCache.get(m);
+                Set<Class<?>> mexceptions = exceptionTypesCache.get(method);
                 if (mexceptions.size() != exceptions.size())
                     continue;
 
                 boolean exceptionsMatch = true;
-                for (int ee = 0; ee < exceptions.size(); ee++)
+                for(Iterator<Class<?>> it = exceptions.iterator(), eit = mexceptions.iterator() ; it.hasNext() && eit.hasNext() ; )
                 {
-                    if (exceptions.get(ee).equals(mexceptions.get(ee)))
+                    if (it.next().equals(eit.next()))
                     {
                         exceptionsMatch = false;
                         break;
@@ -331,7 +328,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         if (isPublicInterfaceCache.get(clazz)|| isPrimitiveCache.get(clazz))
             return clazz;
 
-        List<Class<?>> intfs = interfacesCache.get(clazz);
+        Set<Class> intfs = interfacesCache.get(clazz);
 
         for(Class intf : intfs)
         {
