@@ -821,8 +821,13 @@ public class OgnlRuntime {
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException
     {
-        accessibleAccessHackCache.get(method);
-        return method.invoke(target, argsArray);
+        try
+        {
+            method.setAccessible(true);
+            return method.invoke(target, argsArray);
+        } catch(IllegalAccessException error) {
+            throw error;
+        }
     }
 
     /**

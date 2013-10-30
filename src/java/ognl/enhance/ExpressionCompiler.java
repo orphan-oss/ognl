@@ -235,9 +235,9 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         {
             for(Class intf : intfs)
             {
-                intf = getSuperOrInterfaceClass(m, intf);
-                if (intf != null)
-                    return intf;
+                Class superOrInterfaceClass = getSuperOrInterfaceClass(m, intf);
+                if (superOrInterfaceClass != null)
+                    return superOrInterfaceClass;
 
                 if (Modifier.isPublic(intf.getModifiers()) && containsMethod(m, intf))
                     return intf;
@@ -288,7 +288,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                 boolean parmsMatch = true;
                 for (int pp = 0; pp < parms.size(); pp++)
                 {
-                    if (parms.get(pp).equals(mparms.get(pp)))
+                    if (!parms.get(pp).equals(mparms.get(pp)))
                     {
                         parmsMatch = false;
                         break;

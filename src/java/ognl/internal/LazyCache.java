@@ -17,6 +17,8 @@ public class LazyCache<KK, VV> {
     public VV get(KK key) {
         Optional<VV> value = cache.get(key);
         if(value != null) {
+            if(!value.isPresent())
+                return null;
             return value.get();
         }
 
