@@ -34,6 +34,8 @@ import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
 import ognl.internal.ClassCache;
 import ognl.internal.ClassCacheImpl;
+import ognl.internal.LazyCache;
+import ognl.internal.ReflectionCaches;
 
 import java.beans.*;
 import java.lang.reflect.*;
@@ -41,6 +43,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Permission;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility class used by internal OGNL API to do various things like:
@@ -147,8 +150,9 @@ public class OgnlRuntime {
     static final IntHashMap _methodAccessCache = new IntHashMap();
     static final IntHashMap _methodPermCache = new IntHashMap();
     
-    static final Map cacheSetMethod = new HashMap();
-    static final Map cacheGetMethod = new HashMap();
+    static final Map<String, Method> cacheSetMethod = new ConcurrentHashMap<String, Method>();
+    static final Map<String, Method> cacheGetMethod = new ConcurrentHashMap<String, Method>();
+    private static final LazyCache<Class, String> canonicalNameCache = ReflectionCaches.canonicalName();
 
     static ClassCacheInspector _cacheInspector;
 
@@ -815,83 +819,8 @@ public class OgnlRuntime {
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException
     {
-        boolean syncInvoke = false;
-        boolean checkPermission = false;
-        int mHash = method.hashCode();
-
-        // only synchronize method invocation if it actually requires it
-
-        synchronized(method) {
-            if (_methodAccessCache.get(mHash) == null
-                || _methodAccessCache.get(mHash) == Boolean.TRUE) {
-                syncInvoke = true;
-            }
-
-            if (_securityManager != null && _methodPermCache.get(mHash) == null
-                || _methodPermCache.get(mHash) == Boolean.FALSE) {
-                checkPermission = true;
-            }
-        }
-
-        Object result;
-        boolean wasAccessible = true;
-
-        if (syncInvoke)
-        {
-            synchronized(method)
-            {
-                if (checkPermission)
-                {
-                    try
-                    {
-                        _securityManager.checkPermission(getPermission(method));
-                        _methodPermCache.put(mHash, Boolean.TRUE);
-                    } catch (SecurityException ex) {
-                        _methodPermCache.put(mHash, Boolean.FALSE);
-                        throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-                    }
-                }
-
-                if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
-                {
-                    if (!(wasAccessible = ((AccessibleObject) method).isAccessible()))
-                    {
-                        ((AccessibleObject) method).setAccessible(true);
-                        _methodAccessCache.put(mHash, Boolean.TRUE);
-                    } else
-                    {
-                        _methodAccessCache.put(mHash, Boolean.FALSE);
-                    }
-                } else
-                {
-                    _methodAccessCache.put(mHash, Boolean.FALSE);
-                }
-
-                result = method.invoke(target, argsArray);
-
-                if (!wasAccessible)
-                {
-                    ((AccessibleObject) method).setAccessible(false);
-                }
-            }
-        } else
-        {
-            if (checkPermission)
-            {
-                try
-                {
-                    _securityManager.checkPermission(getPermission(method));
-                    _methodPermCache.put(mHash, Boolean.TRUE);
-                } catch (SecurityException ex) {
-                    _methodPermCache.put(mHash, Boolean.FALSE);
-                    throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-                }
-            }
-
-            result = method.invoke(target, argsArray);
-        }
-
-        return result;
+        method.setAccessible(true);
+        return method.invoke(target, argsArray);
     }
 
     /**
@@ -1847,20 +1776,15 @@ public class OgnlRuntime {
      * cache get methods
      */
     public static Method getGetMethod(OgnlContext context, Class targetClass, String propertyName) throws IntrospectionException, OgnlException {
-	String cacheKey = targetClass.getCanonicalName() + "." + propertyName;
-        if (cacheGetMethod.containsKey(cacheKey)) {
-            return (Method) cacheGetMethod.get(cacheKey);
+	String cacheKey = canonicalNameCache.get(targetClass) + "." + propertyName;
+        Method getMethod = cacheGetMethod.get(cacheKey);
+        if (getMethod != null) {
+            return getMethod;
         } else {
-            Method result = null;
-            synchronized (cacheGetMethod) {
-                if (!cacheGetMethod.containsKey(cacheKey)) {
-                    result = _getGetMethod(context, targetClass, propertyName);
-                    cacheGetMethod.put(cacheKey, result);
-                } else {
-                    result = (Method) cacheGetMethod.get(cacheKey);
-                }
-            }
-            return result;
+            getMethod = _getGetMethod(context, targetClass, propertyName);
+            if(getMethod != null)
+                cacheGetMethod.put(cacheKey, getMethod);
+            return getMethod;
         }
     }
 
@@ -1905,20 +1829,15 @@ public class OgnlRuntime {
      * cache set methods method 
      */
     public static Method getSetMethod(OgnlContext context, Class targetClass, String propertyName) throws IntrospectionException, OgnlException {
-	String cacheKey = targetClass.getCanonicalName() + "." + propertyName;
-        if (cacheSetMethod.containsKey(cacheKey)) {
-            return (Method) cacheSetMethod.get(cacheKey);
+	String cacheKey = canonicalNameCache.get(targetClass) + "." + propertyName;
+        Method setMethod = cacheSetMethod.get(cacheKey);
+        if (setMethod != null) {
+            return setMethod;
         } else {
-            Method result = null;
-            synchronized (cacheSetMethod) { //PATCHED
-                if (!cacheSetMethod.containsKey(cacheKey)) {
-                    result = _getSetMethod(context, targetClass, propertyName);
-                    cacheSetMethod.put(cacheKey, result);
-                } else {
-                    result = (Method) cacheSetMethod.get(cacheKey);
-                }
-            }
-            return result;
+            setMethod = _getSetMethod(context, targetClass, propertyName);
+            if(setMethod != null)
+                cacheSetMethod.put(cacheKey, setMethod);
+            return setMethod;
         }
     }
 

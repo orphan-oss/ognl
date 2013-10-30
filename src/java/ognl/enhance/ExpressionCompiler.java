@@ -2,6 +2,8 @@ package ognl.enhance;
 
 import javassist.*;
 import ognl.*;
+import ognl.internal.LazyCache;
+import ognl.internal.ReflectionCaches;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -31,6 +33,15 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     protected ClassPool _pool;
 
     protected int _classCounter = 0;
+
+    private LazyCache<Class, Boolean> isPublicInterfaceCache = ReflectionCaches.isPublicInterface();
+    private LazyCache<Class, Set<Class>> interfacesCache = ReflectionCaches.interfaces();
+    private LazyCache<Class, Class> superclassCache = ReflectionCaches.superClass();
+    private LazyCache<Method, Set<Class<?>>> exceptionTypesCache = ReflectionCaches.exceptionTypes();
+    private LazyCache<Class, Set<Method>> methodsCache = ReflectionCaches.methods();
+    private LazyCache<Method, List<Class<?>>> methodParameterTypesCache = ReflectionCaches.methodParameterTypes();
+    private LazyCache<Class, Boolean> isPrimitiveCache = ReflectionCaches.isPrimitive();
+
 
     /**
      * Default constructor, does nothing.
@@ -199,45 +210,41 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         if (clazz.getName().equals("java.util.AbstractList$Itr"))
             return Iterator.class.getName();
 
-        if (Modifier.isPublic(clazz.getModifiers()) && clazz.isInterface())
+        if(isPublicInterfaceCache.get(clazz))
             return clazz.getName();
 
-        Class[] intf = clazz.getInterfaces();
-
-        for (int i = 0; i < intf.length; i++)
+        Set<Class> intfs = interfacesCache.get(clazz);
+        for(Class intf : intfs)
         {
-            if (intf[i].getName().indexOf("util.List") > 0)
-                return intf[i].getName();
-            else if (intf[i].getName().indexOf("Iterator") > 0)
-                return intf[i].getName();
+            if (intf.getName().indexOf("util.List") > 0)
+                return intf.getName();
+            else if (intf.getName().indexOf("Iterator") > 0)
+                return intf.getName();
         }
 
-        if (clazz.getSuperclass() != null && clazz.getSuperclass().getInterfaces().length > 0)
-            return getClassName(clazz.getSuperclass());
+        if (superclassCache.get(clazz) != null && interfacesCache.get(superclassCache.get(clazz)).size() > 0)
+            return getClassName(superclassCache.get(clazz));
 
         return clazz.getName();
     }
 
     public Class getSuperOrInterfaceClass(Method m, Class clazz)
     {
-        if (clazz.getInterfaces() != null && clazz.getInterfaces().length > 0)
+        Set<Class> intfs = interfacesCache.get(clazz);
+        if (intfs != null && intfs.size() > 0)
         {
-            Class[] intfs = clazz.getInterfaces();
-            Class intClass;
-
-            for (int i = 0; i < intfs.length; i++)
+            for(Class intf : intfs)
             {
-                intClass = getSuperOrInterfaceClass(m, intfs[i]);
+                Class superOrInterfaceClass = getSuperOrInterfaceClass(m, intf);
+                if (superOrInterfaceClass != null)
+                    return superOrInterfaceClass;
 
-                if (intClass != null)
-                    return intClass;
-
-                if (Modifier.isPublic(intfs[i].getModifiers()) && containsMethod(m, intfs[i]))
-                    return intfs[i];
+                if (Modifier.isPublic(intf.getModifiers()) && containsMethod(m, intf))
+                    return intf;
             }
         }
 
-        if (clazz.getSuperclass() != null)
+        if (superclassCache.get(clazz) != null)
         {
             Class superClass = getSuperOrInterfaceClass(m, clazz.getSuperclass());
 
@@ -263,28 +270,22 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      */
     public boolean containsMethod(Method m, Class clazz)
     {
-        Method[] methods = clazz.getMethods();
+        Set<Method> methods = methodsCache.get(clazz);
 
-        if (methods == null)
-            return false;
-
-        for (int i = 0; i < methods.length; i++)
+        for (Method method : methods)
         {
-            if (methods[i].getName().equals(m.getName())
-                && methods[i].getReturnType() == m.getReturnType())
+            if (method.getName().equals(m.getName())
+                && method.getReturnType() == m.getReturnType())
             {
-                Class[] parms = m.getParameterTypes();
-                if (parms == null)
-                    continue;
-
-                Class[] mparms = methods[i].getParameterTypes();
-                if (mparms == null || mparms.length != parms.length)
+                List<Class<?>> parms = methodParameterTypesCache.get(m);
+                List<Class<?>> mparms = methodParameterTypesCache.get(method);
+                if (mparms.size() != parms.size())
                     continue;
 
                 boolean parmsMatch = true;
-                for (int p = 0; p < parms.length; p++)
+                for (int pp = 0; pp < parms.size(); pp++)
                 {
-                    if (parms[p] != mparms[p])
+                    if (!parms.get(pp).equals(mparms.get(pp)))
                     {
                         parmsMatch = false;
                         break;
@@ -294,18 +295,15 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                 if (!parmsMatch)
                     continue;
 
-                Class[] exceptions = m.getExceptionTypes();
-                if (exceptions == null)
-                    continue;
-
-                Class[] mexceptions = methods[i].getExceptionTypes();
-                if (mexceptions == null || mexceptions.length != exceptions.length)
+                Set<Class<?>> exceptions = exceptionTypesCache.get(m);
+                Set<Class<?>> mexceptions = exceptionTypesCache.get(method);
+                if (mexceptions.size() != exceptions.size())
                     continue;
 
                 boolean exceptionsMatch = true;
-                for (int e = 0; e < exceptions.length; e++)
+                for(Iterator<Class<?>> it = exceptions.iterator(), eit = mexceptions.iterator() ; it.hasNext() && eit.hasNext() ; )
                 {
-                    if (exceptions[e] != mexceptions[e])
+                    if (it.next().equals(eit.next()))
                     {
                         exceptionsMatch = false;
                         break;
@@ -327,28 +325,28 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         if (clazz.getName().equals("java.util.AbstractList$Itr"))
             return Iterator.class;
 
-        if (Modifier.isPublic(clazz.getModifiers())
-            && clazz.isInterface() || clazz.isPrimitive())
+        if (isPublicInterfaceCache.get(clazz)|| isPrimitiveCache.get(clazz))
             return clazz;
 
-        Class[] intf = clazz.getInterfaces();
+        Set<Class> intfs = interfacesCache.get(clazz);
 
-        for (int i = 0; i < intf.length; i++)
+        for(Class intf : intfs)
         {
-            if (List.class.isAssignableFrom(intf[i]))
+            if (List.class.isAssignableFrom(intf))
                 return List.class;
-            else if (Iterator.class.isAssignableFrom(intf[i]))
+            else if (Iterator.class.isAssignableFrom(intf))
                 return Iterator.class;
-            else if (Map.class.isAssignableFrom(intf[i]))
+            else if (Map.class.isAssignableFrom(intf))
                 return Map.class;
-            else if (Set.class.isAssignableFrom(intf[i]))
+            else if (Set.class.isAssignableFrom(intf))
                 return Set.class;
-            else if (Collection.class.isAssignableFrom(intf[i]))
+            else if (Collection.class.isAssignableFrom(intf))
                 return Collection.class;
         }
 
-        if (clazz.getSuperclass() != null && clazz.getSuperclass().getInterfaces().length > 0)
-            return getInterfaceClass(clazz.getSuperclass());
+        Class superClass = superclassCache.get(clazz);
+        if (superClass != null && interfacesCache.get(superClass).size() > 0)
+            return getInterfaceClass(superClass);
 
         return clazz;
     }
