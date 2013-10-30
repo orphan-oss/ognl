@@ -153,8 +153,6 @@ public class OgnlRuntime {
     static final Map<String, Method> cacheSetMethod = new ConcurrentHashMap<String, Method>();
     static final Map<String, Method> cacheGetMethod = new ConcurrentHashMap<String, Method>();
     private static final LazyCache<Class, String> canonicalNameCache = ReflectionCaches.canonicalName();
-    private static final LazyCache<Method, Boolean> accessibleAccessHackCache = ReflectionCaches.accessibleAccessHackCache();
-
 
     static ClassCacheInspector _cacheInspector;
 
@@ -821,13 +819,8 @@ public class OgnlRuntime {
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException
     {
-        try
-        {
-            method.setAccessible(true);
-            return method.invoke(target, argsArray);
-        } catch(IllegalAccessException error) {
-            throw error;
-        }
+        method.setAccessible(true);
+        return method.invoke(target, argsArray);
     }
 
     /**
