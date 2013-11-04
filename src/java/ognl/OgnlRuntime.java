@@ -1763,6 +1763,17 @@ public class OgnlRuntime {
         if (propertyName.length() == 1) {
             return propertyName.toUpperCase();
         }
+        // don't capitalize getters/setters
+        if (propertyName.startsWith(GET_PREFIX) || propertyName.startsWith(SET_PREFIX)) {
+            if (Character.isUpperCase(propertyName.substring(3,4).charAt(0))) {
+                return propertyName;
+            }
+        }
+        if (propertyName.startsWith(IS_PREFIX)) {
+            if (Character.isUpperCase(propertyName.substring(2,3).charAt(0))) {
+                return propertyName;
+            }
+        }
         char first = propertyName.charAt(0);
         char second = propertyName.charAt(1);
         if (Character.isLowerCase(first) && Character.isUpperCase(second)) {
@@ -1847,7 +1858,7 @@ public class OgnlRuntime {
      * cache get methods
      */
     public static Method getGetMethod(OgnlContext context, Class targetClass, String propertyName) throws IntrospectionException, OgnlException {
-	String cacheKey = targetClass.getCanonicalName() + "." + propertyName;
+	    Object cacheKey = buildCacheKey(targetClass, propertyName);
         if (cacheGetMethod.containsKey(cacheKey)) {
             return (Method) cacheGetMethod.get(cacheKey);
         } else {
@@ -1862,6 +1873,14 @@ public class OgnlRuntime {
             }
             return result;
         }
+    }
+
+    private static Object buildCacheKey(Class targetClass, String propertyName) {
+        String canonicalName = targetClass.getCanonicalName();
+        if (canonicalName != null) {
+            return canonicalName + "." + propertyName;
+        }
+        return targetClass.getName() + "." + propertyName;
     }
 
     private static Method _getGetMethod(OgnlContext context, Class targetClass, String propertyName)
@@ -1905,7 +1924,7 @@ public class OgnlRuntime {
      * cache set methods method 
      */
     public static Method getSetMethod(OgnlContext context, Class targetClass, String propertyName) throws IntrospectionException, OgnlException {
-	String cacheKey = targetClass.getCanonicalName() + "." + propertyName;
+	    Object cacheKey = buildCacheKey(targetClass, propertyName);
         if (cacheSetMethod.containsKey(cacheKey)) {
             return (Method) cacheSetMethod.get(cacheKey);
         } else {
