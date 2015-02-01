@@ -1421,6 +1421,10 @@ public class OgnlRuntime {
         throw new MethodFailedException(className, "new", reason);
     }
 
+    /**
+     * Don't use this method as it doesn't check member access rights via {@link MemberAccess} interface
+     */
+    @Deprecated
     public static final Object getMethodValue(OgnlContext context, Object target, String propertyName)
             throws OgnlException, IllegalAccessException, NoSuchMethodException, IntrospectionException
     {
@@ -1462,6 +1466,10 @@ public class OgnlRuntime {
         return result;
     }
 
+    /**
+     * Don't use this method as it doesn't check member access rights via {@link MemberAccess} interface
+     */
+    @Deprecated
     public static boolean setMethodValue(OgnlContext context, Object target, String propertyName, Object value)
             throws OgnlException, IllegalAccessException, NoSuchMethodException, IntrospectionException
     {
@@ -1634,6 +1642,10 @@ public class OgnlRuntime {
         return result;
     }
 
+    /**
+     * Don't use this method as it doesn't check member access rights via {@link MemberAccess} interface
+     */
+    @Deprecated
     public static Object getFieldValue(OgnlContext context, Object target, String propertyName)
             throws NoSuchFieldException
     {
