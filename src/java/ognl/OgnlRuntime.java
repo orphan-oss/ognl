@@ -41,6 +41,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Permission;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility class used by internal OGNL API to do various things like:
@@ -144,8 +145,8 @@ public class OgnlRuntime {
     static final EvaluationPool _evaluationPool = new EvaluationPool();
     static final ObjectArrayPool _objectArrayPool = new ObjectArrayPool();
 
-    static final IntHashMap _methodAccessCache = new IntHashMap();
-    static final IntHashMap _methodPermCache = new IntHashMap();
+    static final ConcurrentHashMap<Integer, Boolean> _methodAccessCache = new ConcurrentHashMap<Integer, Boolean>();
+    static final ConcurrentHashMap<Integer, Boolean> _methodPermCache = new ConcurrentHashMap<Integer, Boolean>();
     
     static final Map cacheSetMethod = new HashMap();
     static final Map cacheGetMethod = new HashMap();
