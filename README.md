@@ -1,5 +1,7 @@
 # Object-Graph Navigation Language - OGNL
 
+[![Build Status](https://travis-ci.org/jkuhnert/ognl.svg?branch=master)](https://travis-ci.org/jkuhnert/ognl)
+
 It's a simple Expression Language (EL) for Java, the code base sometime ago was migrated to the [Apache commons ognl](http://commons.apache.org/ognl/)
 and this source code is used just to maintenance 3.x branch. The new version from Apache will start from 4.x
 
@@ -33,4 +35,3 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ### Release notes - version 3.0.8
  * added better capitalization logic for methods [WW-3909](https://issues.apache.org/jira/browse/WW-3909) - thanks to Iwen.ma
- 
