@@ -373,6 +373,7 @@ public class OgnlRuntime {
         _declaredMethods[0].clear();
         _declaredMethods[1].clear();
         _methodAccessCache.clear();
+        _methodPermCache.clear();
     }
 
     /**
