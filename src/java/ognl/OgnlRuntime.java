@@ -1543,7 +1543,7 @@ public class OgnlRuntime {
 
                     for (Class c = targetClass; c != null; c = c.getSuperclass())
                     {
-                        Method[] ma = c.getDeclaredMethods();
+                        Method[] ma = c.getMethods();
 
                         for (int i = 0, icount = ma.length; i < icount; i++)
                         {

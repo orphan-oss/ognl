@@ -105,6 +105,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/OgnlTestCase.java</exclude>
+                        <exclude>**/Java8Test.java</exclude>
                         <exclude>**/*$*</exclude>
                     </excludes>
                     <includes>
