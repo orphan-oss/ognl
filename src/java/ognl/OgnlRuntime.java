@@ -1543,6 +1543,47 @@ public class OgnlRuntime {
 
                     for (Class c = targetClass; c != null; c = c.getSuperclass())
                     {
+                        Method[] ma = c.getDeclaredMethods();
+
+                        for (int i = 0, icount = ma.length; i < icount; i++)
+                        {
+                            // skip over synthetic methods
+
+                            if (!isMethodCallable(ma[i]))
+                                continue;
+
+                            if (Modifier.isStatic(ma[i].getModifiers()) == staticMethods)
+                            {
+                                List ml = (List) result.get(ma[i].getName());
+
+                                if (ml == null)
+                                    result.put(ma[i].getName(), ml = new ArrayList());
+
+                                ml.add(ma[i]);
+                            }
+                        }
+                    }
+                    cache.put(targetClass, result);
+                }
+            }
+        }
+        return result;
+    }
+
+    public static Map getAllMethods(Class targetClass, boolean staticMethods)
+    {
+        ClassCache cache = (staticMethods ? _staticMethodCache : _instanceMethodCache);
+        Map result;
+
+        if ((result = (Map) cache.get(targetClass)) == null) {
+            synchronized (cache)
+            {
+                if ((result = (Map) cache.get(targetClass)) == null)
+                {
+                    result = new HashMap(23);
+
+                    for (Class c = targetClass; c != null; c = c.getSuperclass())
+                    {
                         Method[] ma = c.getMethods();
 
                         for (int i = 0, icount = ma.length; i < icount; i++)
@@ -1573,6 +1614,11 @@ public class OgnlRuntime {
     public static List getMethods(Class targetClass, String name, boolean staticMethods)
     {
         return (List) getMethods(targetClass, staticMethods).get(name);
+    }
+
+    public static List getAllMethods(Class targetClass, String name, boolean staticMethods)
+    {
+        return (List) getAllMethods(targetClass, staticMethods).get(name);
     }
 
     public static Map getFields(Class targetClass)
