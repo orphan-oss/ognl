@@ -208,6 +208,10 @@ public class Simple extends Object
         return true;
     }
 
+    public boolean getIsTruck() {
+        return true;
+    }
+
     public GetterMethods getMethodsTest()
     {
         return new GetterMethods();

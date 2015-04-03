@@ -51,6 +51,7 @@ public class MethodTest extends OgnlTestCase
             { "getTestValue(@org.ognl.test.objects.SimpleEnum@ONE.value)", new Integer(2)},
             { "@org.ognl.test.MethodTest@getA().isProperty()", Boolean.FALSE},
             { "isDisabled()", Boolean.TRUE},
+            { "isTruck", Boolean.TRUE},
             { "isEditorDisabled()", Boolean.FALSE},
             { LIST, "addValue(name)", Boolean.TRUE},
             { "getDisplayValue(methodsTest.allowDisplay)", "test"},

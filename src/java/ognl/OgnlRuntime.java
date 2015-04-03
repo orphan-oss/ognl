@@ -1824,12 +1824,17 @@ public class OgnlRuntime {
             return propertyName.toUpperCase();
         }
         // don't capitalize getters/setters
-        if (propertyName.startsWith(GET_PREFIX) || propertyName.startsWith(SET_PREFIX)) {
+        if (propertyName.startsWith(GET_PREFIX) && propertyName.endsWith("()")) {
             if (Character.isUpperCase(propertyName.substring(3,4).charAt(0))) {
                 return propertyName;
             }
         }
-        if (propertyName.startsWith(IS_PREFIX)) {
+        if (propertyName.startsWith(SET_PREFIX) && propertyName.endsWith(")")) {
+            if (Character.isUpperCase(propertyName.substring(3,4).charAt(0))) {
+                return propertyName;
+            }
+        }
+        if (propertyName.startsWith(IS_PREFIX) && propertyName.endsWith("()")) {
             if (Character.isUpperCase(propertyName.substring(2,3).charAt(0))) {
                 return propertyName;
             }
