@@ -43,3 +43,8 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 ### Release notes - version 3.0.9
  * replaced IntHashMap with ConcurrentMap to avoid deadlocks [WW-4451](https://issues.apache.org/jira/browse/WW-4451) -
    thanks to Jasper Rosenberg
+
+### Release notes - version 3.0.10
+ * regression bug in ognl for "is..." property getters [WW-4462](https://issues.apache.org/jira/browse/WW-4462) -
+   if expression doesn't end with `()` is considered as a name of property a not the method itself
+   thanks to Jasper Rosenberg
