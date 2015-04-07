@@ -1941,11 +1941,27 @@ public class OgnlRuntime {
     }
 
     private static Object buildCacheKey(Class targetClass, String propertyName) {
-        String canonicalName = targetClass.getCanonicalName();
-        if (canonicalName != null) {
-            return canonicalName + "." + propertyName;
+        return new CacheKey(targetClass, propertyName);
+    }
+
+    private static final class CacheKey {
+        private final Class clazz;
+        private final String propertyName;
+
+        public CacheKey(Class clazz, String propertyName) {
+            this.clazz = clazz;
+            this.propertyName = propertyName;
         }
-        return targetClass.getName() + "." + propertyName;
+
+        public boolean equals(Object obj) {
+            CacheKey cacheKey = (CacheKey) obj;
+            return clazz.equals(cacheKey.clazz)
+                    && propertyName.equals(cacheKey.propertyName);
+        }
+
+        public int hashCode() {
+            return clazz.hashCode() * 31 + propertyName.hashCode();
+        }
     }
 
     private static Method _getGetMethod(OgnlContext context, Class targetClass, String propertyName)
