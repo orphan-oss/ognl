@@ -148,8 +148,8 @@ public class OgnlRuntime {
     static final ConcurrentHashMap<Integer, Boolean> _methodAccessCache = new ConcurrentHashMap<Integer, Boolean>();
     static final ConcurrentHashMap<Integer, Boolean> _methodPermCache = new ConcurrentHashMap<Integer, Boolean>();
     
-    static final Map cacheSetMethod = new HashMap();
-    static final Map cacheGetMethod = new HashMap();
+    static final ClassPropertyMethodCache cacheSetMethod = new ClassPropertyMethodCache();
+    static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
 
     static ClassCacheInspector _cacheInspector;
 
@@ -1922,46 +1922,22 @@ public class OgnlRuntime {
     /**
      * cache get methods
      */
-    public static Method getGetMethod(OgnlContext context, Class targetClass, String propertyName) throws IntrospectionException, OgnlException {
-	    Object cacheKey = buildCacheKey(targetClass, propertyName);
-        if (cacheGetMethod.containsKey(cacheKey)) {
-            return (Method) cacheGetMethod.get(cacheKey);
-        } else {
-            Method result = null;
-            synchronized (cacheGetMethod) {
-                if (!cacheGetMethod.containsKey(cacheKey)) {
-                    result = _getGetMethod(context, targetClass, propertyName);
-                    cacheGetMethod.put(cacheKey, result);
-                } else {
-                    result = (Method) cacheGetMethod.get(cacheKey);
-                }
-            }
-            return result;
-        }
-    }
+    public static Method getGetMethod(OgnlContext context, Class targetClass, String propertyName)
+            throws IntrospectionException, OgnlException
+    {
+        // Cache is a map in two levels, so we provide two keys (see comments in ClassPropertyMethodCache below)
+        Method method = cacheGetMethod.get(targetClass, propertyName);
+        if (method != null)
+            return method;
 
-    private static Object buildCacheKey(Class targetClass, String propertyName) {
-        return new CacheKey(targetClass, propertyName);
-    }
+        // By checking key existence now and not before calling 'get', we will save a map resolution 90% of the times
+        if (cacheGetMethod.containsKey(targetClass, propertyName))
+            return null;
 
-    private static final class CacheKey {
-        private final Class clazz;
-        private final String propertyName;
+        method = _getGetMethod(context, targetClass, propertyName); // will be null if not found - will cache it anyway
+        cacheGetMethod.put(targetClass, propertyName, method);
 
-        public CacheKey(Class clazz, String propertyName) {
-            this.clazz = clazz;
-            this.propertyName = propertyName;
-        }
-
-        public boolean equals(Object obj) {
-            CacheKey cacheKey = (CacheKey) obj;
-            return clazz.equals(cacheKey.clazz)
-                    && propertyName.equals(cacheKey.propertyName);
-        }
-
-        public int hashCode() {
-            return clazz.hashCode() * 31 + propertyName.hashCode();
-        }
+        return method;
     }
 
     private static Method _getGetMethod(OgnlContext context, Class targetClass, String propertyName)
@@ -2004,22 +1980,22 @@ public class OgnlRuntime {
     /**
      * cache set methods method 
      */
-    public static Method getSetMethod(OgnlContext context, Class targetClass, String propertyName) throws IntrospectionException, OgnlException {
-	    Object cacheKey = buildCacheKey(targetClass, propertyName);
-        if (cacheSetMethod.containsKey(cacheKey)) {
-            return (Method) cacheSetMethod.get(cacheKey);
-        } else {
-            Method result = null;
-            synchronized (cacheSetMethod) { //PATCHED
-                if (!cacheSetMethod.containsKey(cacheKey)) {
-                    result = _getSetMethod(context, targetClass, propertyName);
-                    cacheSetMethod.put(cacheKey, result);
-                } else {
-                    result = (Method) cacheSetMethod.get(cacheKey);
-                }
-            }
-            return result;
-        }
+    public static Method getSetMethod(OgnlContext context, Class targetClass, String propertyName)
+            throws IntrospectionException, OgnlException
+    {
+        // Cache is a map in two levels, so we provide two keys (see comments in ClassPropertyMethodCache below)
+        Method method = cacheSetMethod.get(targetClass, propertyName);
+        if (method != null)
+            return method;
+
+        // By checking key existence now and not before calling 'get', we will save a map resolution 90% of the times
+        if (cacheSetMethod.containsKey(targetClass, propertyName))
+            return null;
+
+        method = _getSetMethod(context, targetClass, propertyName); // will be null if not found - will cache it anyway
+        cacheSetMethod.put(targetClass, propertyName, method);
+
+        return method;
     }
 
     private static Method _getSetMethod(OgnlContext context, Class targetClass, String propertyName)
@@ -2972,4 +2948,84 @@ public class OgnlRuntime {
 
         return source;
     }
+
+
+
+    /*
+     * The idea behind this class is to provide a very fast way to cache getter/setter methods indexed by their class
+     * and property name.
+     *
+     * Instead of creating any kind of complex key object (or a String key by appending class name and property), this
+     * class directly uses the Class clazz and the String propertyName as keys of two levels of ConcurrentHashMaps,
+     * so that it takes advantage of the fact that these two classes are immutable and that their respective hashCode()
+     * and equals() methods are extremely fast and optimized. These two aspects should improve Map access performance.
+     *
+     * Also, using these structure instead of any other kind of key on a single-level map should save a lot of memory
+     * given no specialized cache objects (be them of a specific CacheKey class or mere Strings) ever have to be created
+     * for simply accessing the cache in search for a getter/setter method.
+     *
+     */
+    private static final class ClassPropertyMethodCache {
+
+        // ConcurrentHashMaps do not allow null keys or values, so we will use one of this class's own methods as
+        // a replacement for signaling when the true cached value is 'null'
+        private static final Method NULL_REPLACEMENT;
+
+        private final ConcurrentHashMap<Class<?>,ConcurrentHashMap<String,Method>> cache =
+                new ConcurrentHashMap<Class<?>,ConcurrentHashMap<String,Method>>();
+
+        static
+        {
+            try
+            {
+                NULL_REPLACEMENT =
+                        ClassPropertyMethodCache.class.getDeclaredMethod("get", new Class[] {Class.class,String.class});
+            } catch (NoSuchMethodException e)
+            {
+                throw new RuntimeException(e); // Will never happen, it's our own method, we know it exists
+            }
+        }
+
+        ClassPropertyMethodCache()
+        {
+            super();
+        }
+
+        Method get(Class clazz, String propertyName)
+        {
+            ConcurrentHashMap<String,Method> methodsByPropertyName = this.cache.get(clazz);
+            if (methodsByPropertyName == null)
+            {
+                methodsByPropertyName = new ConcurrentHashMap<String, Method>();
+                this.cache.put(clazz, methodsByPropertyName);
+            }
+            Method method = methodsByPropertyName.get(propertyName);
+            if (method == NULL_REPLACEMENT)
+                return null;
+            return method;
+        }
+
+        void put(Class clazz, String propertyName, Method method)
+        {
+            ConcurrentHashMap<String,Method> methodsByPropertyName = this.cache.get(clazz);
+            if (methodsByPropertyName == null)
+            {
+                methodsByPropertyName = new ConcurrentHashMap<String, Method>();
+                this.cache.put(clazz, methodsByPropertyName);
+            }
+            methodsByPropertyName.put(propertyName, (method == null? NULL_REPLACEMENT : method));
+        }
+
+        boolean containsKey(Class clazz, String propertyName)
+        {
+            ConcurrentHashMap<String,Method> methodsByPropertyName = this.cache.get(clazz);
+            if (methodsByPropertyName == null)
+                return false;
+
+            return methodsByPropertyName.containsKey(propertyName);
+        }
+
+    }
+
+
 }
