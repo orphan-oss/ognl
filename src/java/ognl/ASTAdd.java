@@ -223,7 +223,8 @@ class ASTAdd extends NumericExpression
                     if (context.getCurrentType() != null && context.getCurrentType() == Character.class
                         && ASTConst.class.isInstance(_children[i]))
                     {
-                        expr = expr.replaceAll("'", "\"");
+                        if (expr.indexOf('\'') >= 0)
+                            expr = expr.replaceAll("'", "\"");
                         context.setCurrentType(String.class);
                     } else {
 
@@ -240,8 +241,10 @@ class ASTAdd extends NumericExpression
                             if (lastType != null && String.class.isAssignableFrom(lastType.getGetterClass()))
                             {
                                 //System.out.println("Input expr >>" + expr + "<<");
-                                expr = expr.replaceAll("&quot;", "\"");
-                                expr = expr.replaceAll("\"", "'");
+                                if (expr.indexOf("&quot;") >= 0)
+                                    expr = expr.replaceAll("&quot;", "\"");
+                                if (expr.indexOf('"') >= 0)
+                                    expr = expr.replaceAll("\"", "'");
                                 expr = "\"" + expr + "\"";
                                 //System.out.println("Expr now >>" + expr + "<<");
                             }

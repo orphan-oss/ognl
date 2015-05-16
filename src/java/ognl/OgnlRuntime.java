@@ -2675,7 +2675,10 @@ public class OgnlRuntime {
     public static Method getReadMethod(Class target, String name, int numParms)
     {
         try {
-            name = name.replaceAll("\"", "").toLowerCase();
+            if (name.indexOf('"') >= 0)
+                name = name.replaceAll("\"", "");
+
+            name = name.toLowerCase();
 
             BeanInfo info = Introspector.getBeanInfo(target);
             MethodDescriptor[] methods = info.getMethodDescriptors();
@@ -2763,7 +2766,8 @@ public class OgnlRuntime {
     public static Method getWriteMethod(Class target, String name, int numParms)
     {
         try {
-            name = name.replaceAll("\"", "");
+            if (name.indexOf('"') >= 0)
+                name = name.replaceAll("\"", "");
 
             BeanInfo info = Introspector.getBeanInfo(target);
             MethodDescriptor[] methods = info.getMethodDescriptors();

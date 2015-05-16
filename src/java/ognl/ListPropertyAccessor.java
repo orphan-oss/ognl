@@ -131,7 +131,8 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
     public Class getPropertyClass(OgnlContext context, Object target, Object index)
     {
         if (index instanceof String) {
-            String key = ((String)index).replaceAll("\"", "");
+            String indexStr = (String)index;
+            String key = (indexStr.indexOf('"') >= 0? indexStr.replaceAll("\"", "") : indexStr);
             if (key.equals("size")) {
                 return int.class;
             } else {
@@ -155,7 +156,9 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
 
     public String getSourceAccessor(OgnlContext context, Object target, Object index)
     {
-        String indexStr = index.toString().replaceAll("\"", "");
+        String indexStr = index.toString();
+        if (indexStr.indexOf('"') >= 0)
+            indexStr = indexStr.replaceAll("\"", "");
 
         if (String.class.isInstance(index)) 
         {
@@ -225,7 +228,9 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
 
     public String getSourceSetter(OgnlContext context, Object target, Object index)
     {
-        String indexStr = index.toString().replaceAll("\"", "");
+        String indexStr = index.toString();
+        if (indexStr.indexOf('"') >= 0)
+            indexStr = indexStr.replaceAll("\"", "");
 
         // TODO: This feels really inefficient, must be some better way
         // check if the index string represents a method on a custom class implementing java.util.List instead..
