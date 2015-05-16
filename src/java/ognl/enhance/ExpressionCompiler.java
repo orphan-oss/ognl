@@ -202,8 +202,11 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         if (Modifier.isPublic(clazz.getModifiers()) && clazz.isInterface())
             return clazz.getName();
 
-        Class[] intf = clazz.getInterfaces();
+        return _getClassName(clazz, clazz.getInterfaces());
+    }
 
+    private String _getClassName(Class clazz, Class[] intf)
+    {
         for (int i = 0; i < intf.length; i++)
         {
             if (intf[i].getName().indexOf("util.List") > 0)
@@ -212,17 +215,22 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                 return intf[i].getName();
         }
 
-        if (clazz.getSuperclass() != null && clazz.getSuperclass().getInterfaces().length > 0)
-            return getClassName(clazz.getSuperclass());
+        final Class superclazz = clazz.getSuperclass();
+        if (superclazz != null)
+        {
+            final Class[] superclazzIntf = superclazz.getInterfaces();
+            if (superclazzIntf.length > 0)
+                return _getClassName(superclazz, superclazzIntf);
+        }
 
         return clazz.getName();
     }
 
     public Class getSuperOrInterfaceClass(Method m, Class clazz)
     {
-        if (clazz.getInterfaces() != null && clazz.getInterfaces().length > 0)
+        Class[] intfs = clazz.getInterfaces();
+        if (intfs != null && intfs.length > 0)
         {
-            Class[] intfs = clazz.getInterfaces();
             Class intClass;
 
             for (int i = 0; i < intfs.length; i++)
@@ -331,8 +339,11 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             && clazz.isInterface() || clazz.isPrimitive())
             return clazz;
 
-        Class[] intf = clazz.getInterfaces();
+        return _getInterfaceClass(clazz, clazz.getInterfaces());
+    }
 
+    private Class _getInterfaceClass(Class clazz, Class[] intf)
+    {
         for (int i = 0; i < intf.length; i++)
         {
             if (List.class.isAssignableFrom(intf[i]))
@@ -347,8 +358,13 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                 return Collection.class;
         }
 
-        if (clazz.getSuperclass() != null && clazz.getSuperclass().getInterfaces().length > 0)
-            return getInterfaceClass(clazz.getSuperclass());
+        final Class superclazz = clazz.getSuperclass();
+        if (superclazz != null)
+        {
+            final Class[] superclazzIntf = superclazz.getInterfaces();
+            if (superclazzIntf.length > 0)
+                return _getInterfaceClass(superclazz, superclazzIntf);
+        }
 
         return clazz;
     }
