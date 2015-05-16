@@ -72,7 +72,7 @@ public class OgnlContext extends Object implements Map
     private Evaluation _lastEvaluation;
     private boolean _keepLastEvaluation = DEFAULT_KEEP_LAST_EVALUATION;
     
-    private Map _values = new HashMap(23);
+    private final Map _values;
     
     private ClassResolver _classResolver = DEFAULT_CLASS_RESOLVER;
     private TypeConverter _typeConverter = DEFAULT_TYPE_CONVERTER;
@@ -103,8 +103,8 @@ public class OgnlContext extends Object implements Map
         }
     }
 
-    private List _typeStack = new ArrayList();
-    private List _accessorStack = new ArrayList();
+    private final List _typeStack = new ArrayList(3);     // size 3 should be enough stack for most expressions
+    private final List _accessorStack = new ArrayList(3); // size 3 should be enough stack for most expressions
 
     private int _localReferenceCounter = 0;
     private Map _localReferenceMap = null;
@@ -115,6 +115,8 @@ public class OgnlContext extends Object implements Map
      */
     public OgnlContext()
     {
+        // nulls will prevent overriding the default class resolver, type converter and member access
+        this(null, null, null);
     }
 
     /**
@@ -123,7 +125,20 @@ public class OgnlContext extends Object implements Map
      */
     public OgnlContext(ClassResolver classResolver, TypeConverter typeConverter, MemberAccess memberAccess)
     {
-        this();
+        // No 'values' map has been specified, so we create one of the default size: 23 entries
+        this(classResolver, typeConverter, memberAccess, new HashMap(23));
+    }
+
+    public OgnlContext(Map values)
+    {
+        // nulls will prevent overriding the default class resolver, type converter and member access
+        this(null, null, null, values);
+    }
+
+    public OgnlContext(ClassResolver classResolver, TypeConverter typeConverter, MemberAccess memberAccess, Map values)
+    {
+        super();
+        this._values = values;
         if (classResolver != null) {
             this._classResolver = classResolver;
         }
@@ -133,18 +148,6 @@ public class OgnlContext extends Object implements Map
         if (memberAccess != null) {
             this._memberAccess = memberAccess;
         }
-    }
-
-    public OgnlContext(Map values)
-    {
-        super();
-        this._values = values;
-    }
-
-    public OgnlContext(ClassResolver classResolver, TypeConverter typeConverter, MemberAccess memberAccess, Map values)
-    {
-        this(classResolver, typeConverter, memberAccess);
-        this._values = values;
     }
 
     public void setValues(Map value)
