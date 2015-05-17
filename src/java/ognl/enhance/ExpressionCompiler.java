@@ -546,7 +546,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                    + ";}";
         }
 
-        body = body.replaceAll("\\.\\.", ".");
+        if (body.indexOf("..") >= 0)
+            body = body.replaceAll("\\.\\.", ".");
 
 //        System.out.println("Getter Body: ===================================\n" + body);
         valueGetter.setBody(body);
@@ -586,7 +587,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             body += " return  " + widener + ref.getExpression() + ";";
             body += "}";
 
-            body = body.replaceAll("\\.\\.", ".");
+            if (body.indexOf("..") >= 0)
+                body = body.replaceAll("\\.\\.", ".");
 
 //            System.out.println("adding method " + ref.getName() + " with body:\n" + body + " and return type: " + ref.getType());
 
@@ -634,7 +636,8 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                + pre
                + setterCode + ";}";
 
-        body = body.replaceAll("\\.\\.", ".");
+        if (body.indexOf("..") >= 0)
+            body = body.replaceAll("\\.\\.", ".");
 
 //        System.out.println("Setter Body: ===================================\n" + body);
 

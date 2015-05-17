@@ -175,7 +175,8 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
             if (m == null) {
 
                 if (String.class.isAssignableFrom(index.getClass()) && !target.getClass().isArray()) {
-                    String key = ((String) index).replaceAll("\"", "");
+                    String indexStr = (String)index;
+                    String key = (indexStr.indexOf('"') >= 0)? indexStr.replaceAll("\"", "") : indexStr;
                     try {
                         Field f = target.getClass().getField(key);
                         if (f != null) {
@@ -202,13 +203,17 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
     {
         try {
 
-            String methodName = index.toString().replaceAll("\"", "");
+            String indexStr = index.toString();
+            String methodName = (indexStr.indexOf('"') >= 0? indexStr.replaceAll("\"", "") : indexStr);
             Method m = OgnlRuntime.getReadMethod(target.getClass(), methodName);
 
             // try last ditch effort of checking if they were trying to do reflection via a return method value
 
             if (m == null && context.getCurrentObject() != null)
-                m = OgnlRuntime.getReadMethod(target.getClass(), context.getCurrentObject().toString().replaceAll("\"", ""));
+            {
+                String currentObjectStr = context.getCurrentObject().toString();
+                m = OgnlRuntime.getReadMethod(target.getClass(), (currentObjectStr.indexOf('"') >= 0? currentObjectStr.replaceAll("\"", "") : currentObjectStr));
+            }
 
             //System.out.println("tried to get read method from target: " + target.getClass() + " with methodName:" + methodName + " result: " + m);
             // try to get field if no method could be found
@@ -252,13 +257,15 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
     {
         try {
 
-            String methodName = index.toString().replaceAll("\"", "");
+            String indexStr = index.toString();
+            String methodName = (indexStr.indexOf('"') >= 0? indexStr.replaceAll("\"", "") : indexStr);
             Method m = OgnlRuntime.getWriteMethod(target.getClass(), methodName);
 
             if (m == null && context.getCurrentObject() != null
                 && context.getCurrentObject().toString() != null)
             {
-                m = OgnlRuntime.getWriteMethod(target.getClass(), context.getCurrentObject().toString().replaceAll("\"", ""));
+                String currentObjectStr = context.getCurrentObject().toString();
+                m = OgnlRuntime.getWriteMethod(target.getClass(), (currentObjectStr.indexOf('"') >= 0? currentObjectStr.replaceAll("\"", "") : currentObjectStr));
             }
 
             if (m == null || m.getParameterTypes() == null || m.getParameterTypes().length <= 0)

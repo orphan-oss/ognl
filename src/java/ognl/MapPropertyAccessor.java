@@ -113,7 +113,7 @@ public class MapPropertyAccessor implements PropertyAccessor
         
         if (String.class.isInstance(index) && !indexedAccess)
         {
-            String key = indexStr.replaceAll("\"", "");
+            String key = (indexStr.indexOf('"') >= 0? indexStr.replaceAll("\"", "") : indexStr);
 
             if (key.equals("size")) {
                 context.setCurrentType(int.class);
@@ -142,7 +142,7 @@ public class MapPropertyAccessor implements PropertyAccessor
 
         if (String.class.isInstance(index))
         {
-            String key = indexStr.replaceAll("\"", "");
+            String key = (indexStr.indexOf('"') >= 0? indexStr.replaceAll("\"", "") : indexStr);
             
             if (key.equals("size"))
                 return "";
