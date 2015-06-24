@@ -1541,7 +1541,15 @@ public class OgnlRuntime {
                 {
                     result = new HashMap(23);
 
+                    List<Class> toExamined = new LinkedList<Class>();
                     for (Class c = targetClass; c != null; c = c.getSuperclass())
+                    {
+                        toExamined.add(c);
+                    }
+                    // Including interfaces is needed as from Java 8 intefaces can implement defaul methods
+                    toExamined.addAll(Arrays.asList(targetClass.getInterfaces()));
+
+                    for (Class c : toExamined)
                     {
                         Method[] ma = c.getDeclaredMethods();
 
