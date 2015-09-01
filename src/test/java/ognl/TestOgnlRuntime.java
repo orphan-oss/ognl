@@ -304,4 +304,8 @@ public class TestOgnlRuntime extends TestCase {
          assertSame(stringClass[0], String.class);
      }
 
+    public void testBangOperator() throws Exception {
+        Object value = Ognl.getValue("!'false'", new Object());
+        assertEquals(Boolean.TRUE, value);
+    }
 }

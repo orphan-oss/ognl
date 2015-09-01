@@ -108,7 +108,7 @@ public class PropertyTest extends OgnlTestCase
             { BEAN, "two.hasChildren('aa')", Boolean.FALSE},
             { BEAN, "two.hasChildren('a')", Boolean.FALSE},
             { ROOT, "sorted ? (readonly ? 'currentSortDesc' : 'currentSortAsc') : 'currentSortNone'", "currentSortAsc"},
-            { ROOT, "getAsset( (width?'Yes':'No')+'Icon' )", "YesIcon"},
+            { ROOT, "getAsset( (width?'Yes':'No')+'Icon' )", "NoIcon"},
             { ROOT, "flyingMonkey", Boolean.TRUE},
             { ROOT, "expiration == null ? '' : @org.ognl.test.PropertyTest@DATE_FORMAT.format(expiration)", ""},
             { ROOT, "printDelivery ? 'javascript:toggle(' + bean2.id + ');' : ''", "javascript:toggle(1);"},

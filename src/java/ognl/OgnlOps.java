@@ -189,8 +189,8 @@ public abstract class OgnlOps implements NumericTypes
         if (c == Boolean.class)
             return ((Boolean) value).booleanValue();
 
-        // if ( c == String.class )
-        // return ((String)value).length() > 0;
+        if ( c == String.class )
+            return Boolean.parseBoolean(String.valueOf(value));
 
         if (c == Character.class)
             return ((Character) value).charValue() != 0;
