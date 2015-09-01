@@ -52,3 +52,8 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 ### Release notes - version 3.0.11
  * fixes problem with cacheKey too expensive to create [WW-4485 ](https://issues.apache.org/jira/browse/WW-4485 ) -
    thanks to Jasper Rosenberg
+
+### Release notes - version 3.0.12
+ * lots of optimizations which should improve overall performance [#9](pull/9), [#10](pull/10), [#11](pull/11), [#12](pull/12) - 
+   thanks to Daniel Fernández
+ * OGNL supports default methods in interfaces (Java 8) [OGNL-249](https://issues.apache.org/jira/browse/OGNL-249)
