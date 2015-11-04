@@ -11,6 +11,10 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
+### Release notes - version 3.1.1, 3.0.13
+ * OgnlRuntime.invokeMethod can throw IllegalAccessException because of hash collisions was fixed [OGNL-252](https://issues.apache.org/jira/browse/OGNL-252) - 
+   thanks to Carlos Saona
+
 ### Release notes - version 3.1
  * support for boolean expression in Strings was added, this can break backward compatibility [#8](../../issues/8) - 
    thanks to Daniel Fernández
