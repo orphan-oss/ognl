@@ -145,8 +145,8 @@ public class OgnlRuntime {
     static final EvaluationPool _evaluationPool = new EvaluationPool();
     static final ObjectArrayPool _objectArrayPool = new ObjectArrayPool();
 
-    static final ConcurrentHashMap<Integer, Boolean> _methodAccessCache = new ConcurrentHashMap<Integer, Boolean>();
-    static final ConcurrentHashMap<Integer, Boolean> _methodPermCache = new ConcurrentHashMap<Integer, Boolean>();
+    static final Map<Method, Boolean> _methodAccessCache = new ConcurrentHashMap<Method, Boolean>();
+    static final Map<Method, Boolean> _methodPermCache = new ConcurrentHashMap<Method, Boolean>();
     
     static final ClassPropertyMethodCache cacheSetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
@@ -819,18 +819,17 @@ public class OgnlRuntime {
     {
         boolean syncInvoke = false;
         boolean checkPermission = false;
-        int mHash = method.hashCode();
 
         // only synchronize method invocation if it actually requires it
 
         synchronized(method) {
-            if (_methodAccessCache.get(mHash) == null
-                || _methodAccessCache.get(mHash) == Boolean.TRUE) {
+            if (_methodAccessCache.get(method) == null
+                || _methodAccessCache.get(method) == Boolean.TRUE) {
                 syncInvoke = true;
             }
 
-            if (_securityManager != null && _methodPermCache.get(mHash) == null
-                || _methodPermCache.get(mHash) == Boolean.FALSE) {
+            if (_securityManager != null && _methodPermCache.get(method) == null
+                || _methodPermCache.get(method) == Boolean.FALSE) {
                 checkPermission = true;
             }
         }
@@ -847,9 +846,9 @@ public class OgnlRuntime {
                     try
                     {
                         _securityManager.checkPermission(getPermission(method));
-                        _methodPermCache.put(mHash, Boolean.TRUE);
+                        _methodPermCache.put(method, Boolean.TRUE);
                     } catch (SecurityException ex) {
-                        _methodPermCache.put(mHash, Boolean.FALSE);
+                        _methodPermCache.put(method, Boolean.FALSE);
                         throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
                     }
                 }
@@ -859,14 +858,14 @@ public class OgnlRuntime {
                     if (!(wasAccessible = ((AccessibleObject) method).isAccessible()))
                     {
                         ((AccessibleObject) method).setAccessible(true);
-                        _methodAccessCache.put(mHash, Boolean.TRUE);
+                        _methodAccessCache.put(method, Boolean.TRUE);
                     } else
                     {
-                        _methodAccessCache.put(mHash, Boolean.FALSE);
+                        _methodAccessCache.put(method, Boolean.FALSE);
                     }
                 } else
                 {
-                    _methodAccessCache.put(mHash, Boolean.FALSE);
+                    _methodAccessCache.put(method, Boolean.FALSE);
                 }
 
                 result = method.invoke(target, argsArray);
@@ -883,9 +882,9 @@ public class OgnlRuntime {
                 try
                 {
                     _securityManager.checkPermission(getPermission(method));
-                    _methodPermCache.put(mHash, Boolean.TRUE);
+                    _methodPermCache.put(method, Boolean.TRUE);
                 } catch (SecurityException ex) {
-                    _methodPermCache.put(mHash, Boolean.FALSE);
+                    _methodPermCache.put(method, Boolean.FALSE);
                     throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
                 }
             }
