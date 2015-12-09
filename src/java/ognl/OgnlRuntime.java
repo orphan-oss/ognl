@@ -1804,15 +1804,18 @@ public class OgnlRuntime {
                 return c;
             } else if (OgnlRuntime.isJdk15() && c.isEnum())
             {
-                return Enum.valueOf(c, fieldName);
-            } else
-            {
-                Field f = c.getField(fieldName);
-                if (!Modifier.isStatic(f.getModifiers()))
-                    throw new OgnlException("Field " + fieldName + " of class " + className + " is not static");
-
-                return f.get(null);
+                try {
+                    return Enum.valueOf(c, fieldName);
+                } catch (IllegalArgumentException e) {
+                    // ignore it, try static field
+                }
             }
+
+            Field f = c.getField(fieldName);
+            if (!Modifier.isStatic(f.getModifiers()))
+                throw new OgnlException("Field " + fieldName + " of class " + className + " is not static");
+
+            return f.get(null);
         } catch (ClassNotFoundException e) {
             reason = e;
         } catch (NoSuchFieldException e) {

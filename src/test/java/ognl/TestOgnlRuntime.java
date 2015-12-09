@@ -308,4 +308,22 @@ public class TestOgnlRuntime extends TestCase {
         Object value = Ognl.getValue("!'false'", new Object());
         assertEquals(Boolean.TRUE, value);
     }
+
+    public void testGetStaticField() throws Exception {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        Object obj = OgnlRuntime.getStaticField(context, "org.ognl.test.objects.Root", "SIZE_STRING");
+        assertEquals(Root.SIZE_STRING, obj);
+    }
+
+    public void testGetStaticFieldEnum() throws Exception {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        Object obj = OgnlRuntime.getStaticField(context, "org.ognl.test.objects.OtherEnum", "ONE");
+        assertEquals(OtherEnum.ONE, obj);
+    }
+
+    public void testGetStaticFieldEnumStatic() throws Exception {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        Object obj = OgnlRuntime.getStaticField(context, "org.ognl.test.objects.OtherEnum", "STATIC_STRING");
+        assertEquals(OtherEnum.STATIC_STRING, obj);
+    }
 }
