@@ -11,6 +11,10 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
+### Release notes - version 3.1.2
+ * Fixes accessing statics within Enums [OGNL-158](https://issues.apache.org/jira/browse/OGNL-158) - 
+   thanks to Aleksandr Mashchenko
+
 ### Release notes - version 3.1.1, 3.0.13
  * OgnlRuntime.invokeMethod can throw IllegalAccessException because of hash collisions was fixed [OGNL-252](https://issues.apache.org/jira/browse/OGNL-252) - 
    thanks to Carlos Saona
