@@ -928,26 +928,109 @@ public class OgnlRuntime {
         return c;
     }
 
+    public static Class[] getArgClasses(Object[] args) {
+        if (args == null)
+            return null;
+        Class[] argClasses = new Class[args.length];
+        for (int i=0; i<args.length; i++)
+            argClasses[i] = getArgClass(args[i]);
+        return argClasses;
+    }
+
     /**
      * Tells whether the given object is compatible with the given class ---that is, whether the
      * given object can be passed as an argument to a method or constructor whose parameter type is
      * the given class. If object is null this will return true because null is compatible with any
      * type.
      */
-    public static final boolean isTypeCompatible(Object object, Class c)
+    public static final boolean isTypeCompatible(Object object, Class c) {
+        if (object == null)
+            return true;
+        ArgsCompatbilityReport report = new ArgsCompatbilityReport(0, new boolean[1]);
+        if (!isTypeCompatible(getArgClass(object), c, 0, report))
+            return false;
+        if (report.conversionNeeded[0])
+            return false; // we don't allow conversions during this path...
+        return true;
+    }
+
+    public static final boolean isTypeCompatible(Class parameterClass, Class methodArgumentClass, int index, ArgsCompatbilityReport report)
     {
+        if (parameterClass == null) {
+            // happens when we cannot determine parameter...
+            report.score += 500;
+            return true;
+        }
+        if (parameterClass == methodArgumentClass)
+            return true;  // exact match, no additional score
+        //if (methodArgumentClass.isPrimitive())
+        //    return false; // really? int can be assigned to long... *hmm*
+        if (methodArgumentClass.isArray()) {
+            if (parameterClass.isArray()) {
+                Class pct = parameterClass.getComponentType();
+                Class mct = methodArgumentClass.getComponentType();
+                if (mct.isAssignableFrom(pct)) {
+                    // two arrays are better then a array and a list or other conversions...
+                    report.score += 25;
+                    return true;
+                }
+                //return isTypeCompatible(pct, mct, index, report); // check inner classes
+            }
+            if (Collection.class.isAssignableFrom(parameterClass)) {
+                // TODO get generics type here and do further evaluations...
+                report.conversionNeeded[index]=true;
+                report.score += 10;
+                return true;
+            }
+        } else if (Collection.class.isAssignableFrom(methodArgumentClass)) {
+            if (parameterClass.isArray()) {
+                // TODO get generics type here and do further evaluations...
+                report.conversionNeeded[index]=true;
+                report.score += 10;
+                return true;
+            }
+            if (Collection.class.isAssignableFrom(parameterClass)) {
+                if (methodArgumentClass.isAssignableFrom(parameterClass)) {
+                    // direct possible List assignment - good match...
+                    report.score += 2;
+                    return true;
+                }
+                // TODO get generics type here and do further evaluations...
+                report.conversionNeeded[index]=true;
+                report.score += 10;
+                return true;
+            }
+        }
+        if (methodArgumentClass.isAssignableFrom(parameterClass)) {
+            report.score += 50;  // works but might not the best match - weight of 50..
+            return true;
+        }
+        if (parameterClass.isPrimitive()) {
+            Class ptc = (Class)PRIMITIVE_WRAPPER_CLASSES.get(parameterClass);
+            if (methodArgumentClass == ptc) {
+                report.score += 2;   // quite an good match
+                return true;
+            }
+            if (methodArgumentClass.isAssignableFrom(ptc)) {
+                report.score += 10;  // works but might not the best match - weight of 10..
+                return true;
+            }
+        }
+        return false;  // dosn't match.
+        /*
         boolean result = true;
 
-        if (object != null) {
-            if (c.isPrimitive()) {
-                if (getArgClass(object) != c) {
+        if (parameterClass != null) {
+            if (methodArgumentClass.isPrimitive()) {
+                if (parameterClass != methodArgumentClass) {
                     result = false;
                 }
-            } else if (!c.isInstance(object)) {
+            } else if (!methodArgumentClass.isAssignableFrom(parameterClass)) {
                 result = false;
             }
         }
         return result;
+        */
     }
 
     /**
@@ -955,36 +1038,76 @@ public class OgnlRuntime {
      * is, whether the given array of objects can be passed as arguments to a method or constructor
      * whose parameter types are the given array of classes.
      */
-    public static boolean areArgsCompatible(Object[] args, Class[] classes)
-    {
-        return areArgsCompatible(args, classes, null);
+    public static class ArgsCompatbilityReport {
+        int score;
+        boolean[] conversionNeeded;
+        public ArgsCompatbilityReport(int score, boolean[] conversionNeeded) {
+            this.score = score;
+            this.conversionNeeded = conversionNeeded;
+        }
     }
 
-    public static boolean areArgsCompatible(Object[] args, Class[] classes, Method m)
+    public static final ArgsCompatbilityReport	NoArgsReport = new ArgsCompatbilityReport(0, new boolean[0]);
+
+    public static boolean areArgsCompatible(Object[] args, Class[] classes)
     {
-        boolean result = true;
+        ArgsCompatbilityReport report = areArgsCompatible(getArgClasses(args), classes, null);
+        if (report == null)
+            return false;
+        for (boolean conversionNeeded : report.conversionNeeded)
+            if (conversionNeeded)
+                return false;
+        return true;
+    }
+
+    public static ArgsCompatbilityReport areArgsCompatible(Class[] args, Class[] classes, Method m)
+    {
         boolean varArgs = m != null && isJdk15() && m.isVarArgs();
 
-        if (args.length != classes.length && !varArgs) {
-            result = false;
-        } else if (varArgs) {
-            for (int index = 0, count = args.length; result && (index < count); ++index) {
-                if (index >= classes.length){
-                    break;
-                }
-
-                result = isTypeCompatible(args[index], classes[index]);
-
-                if (!result && classes[index].isArray()) {
-                    result = isTypeCompatible(args[index], classes[index].getComponentType());
-                }
-            }
-        } else {
-            for (int index = 0, count = args.length; result && (index < count); ++index) {
-                result = isTypeCompatible(args[index], classes[index]);
-            }
+        if ( args==null || args.length == 0 ) {	// handle methods without arguments
+            if ( classes == null || classes.length == 0 )
+                return NoArgsReport;
+            else
+                return null;
         }
-        return result;
+        if (args.length != classes.length && !varArgs) {
+            return null;
+        } else if (varArgs) {
+            /*
+             *  varArg's start with a penalty of 1000.
+             *  There are some java compiler rules that are hopefully reflectet by this penalty:
+             *  * Legacy beats Varargs
+             *  * Widening beats Varargs
+             *  * Boxing beats Varargs
+             */
+            ArgsCompatbilityReport report = new ArgsCompatbilityReport(1000, new boolean[args.length]);
+            /*
+             *  varargs signature is: method(type1, type2, typeN, typeV ...)
+             *  This means: All arguments up to typeN needs exact matching, all varargs need to match typeV
+             */
+            if (classes.length - 1 > args.length)
+                // we don't have enough arguments to provide the required 'fixed' arguments
+                return null;
+
+            // type check on fixed arguments
+            for (int index = 0, count = classes.length - 1; index < count; ++index)
+                if (!isTypeCompatible(args[index], classes[index], index, report))
+                    return null;
+
+            // type check on varargs
+            Class varArgsType = classes[classes.length - 1].getComponentType();
+            for (int index = classes.length - 1, count = args.length; index < count; ++index)
+                if (!isTypeCompatible(args[index], varArgsType, index, report))
+                    return null;
+
+            return report;
+        } else {
+            ArgsCompatbilityReport report = new ArgsCompatbilityReport(0, new boolean[args.length]);
+            for (int index = 0, count = args.length; index < count; ++index)
+                if (!isTypeCompatible(args[index], classes[index], index, report))
+                    return null;
+            return report;
+        }
     }
 
     /**
@@ -1108,28 +1231,6 @@ public class OgnlRuntime {
         return result;
     }
 
-    public static Method getConvertedMethodAndArgs(OgnlContext context, Object target, String propertyName,
-                                                   List methods, Object[] args, Object[] newArgs)
-    {
-        Method result = null;
-        TypeConverter converter = context.getTypeConverter();
-
-        if ((converter != null) && (methods != null))
-        {
-            for (int i = 0, icount = methods.size(); (result == null) && (i < icount); i++)
-            {
-                Method m = (Method) methods.get(i);
-                Class[] parameterTypes = findParameterTypes(target != null ? target.getClass() : null, m);//getParameterTypes(m);
-
-                if (getConvertedTypes(context, target, m, propertyName, parameterTypes, args, newArgs))
-                {
-                    result = m;
-                }
-            }
-        }
-        return result;
-    }
-
     public static Constructor getConvertedConstructorAndArgs(OgnlContext context, Object target, List constructors,
                                                              Object[] args, Object[] newArgs)
     {
@@ -1166,40 +1267,32 @@ public class OgnlRuntime {
      * @return Best method match or null if none could be found.
      */
     public static Method getAppropriateMethod(OgnlContext context, Object source, Object target, String propertyName,
-                                              List methods, Object[] args, Object[] actualArgs)
+                                              String methodName, List methods, Object[] args, Object[] actualArgs)
     {
         Method result = null;
-        Class[] resultParameterTypes = null;
 
         if (methods != null)
         {
-            for (int i = 0, icount = methods.size(); i < icount; i++)
+            Class typeClass = target != null ? target.getClass() : null;
+            if (typeClass == null && source != null && Class.class.isInstance(source))
             {
-                Method m = (Method) methods.get(i);
+                typeClass = (Class)source;
+            }
+            Class[] argClasses = getArgClasses(args);
 
-                Class typeClass = target != null ? target.getClass() : null;
-                if (typeClass == null && source != null && Class.class.isInstance(source))
+            MatchingMethod mm = findBestMethod(methods, typeClass, methodName, argClasses);
+            if (mm != null) {
+                result = mm.mMethod;
+                Class[] mParameterTypes = mm.mParameterTypes;
+                System.arraycopy(args, 0, actualArgs, 0, args.length);
+
+                for (int j = 0; j < mParameterTypes.length; j++)
                 {
-                    typeClass = (Class)source;
-                }
+                    Class type = mParameterTypes[j];
 
-                Class[] mParameterTypes = findParameterTypes(typeClass, m);
-
-                if (areArgsCompatible(args, mParameterTypes, m)
-                    && ((result == null) || isMoreSpecific(mParameterTypes, resultParameterTypes)))
-                {
-                    result = m;
-                    resultParameterTypes = mParameterTypes;
-                    System.arraycopy(args, 0, actualArgs, 0, args.length);
-
-                    for (int j = 0; j < mParameterTypes.length; j++)
+                    if (mm.report.conversionNeeded[j] || (type.isPrimitive() && (actualArgs[j] == null)))
                     {
-                        Class type = mParameterTypes[j];
-
-                        if (type.isPrimitive() && (actualArgs[j] == null))
-                        {
-                            actualArgs[j] = getConvertedType(context, source, result, propertyName, null, type);
-                        }
+                        actualArgs[j] = getConvertedType(context, source, result, propertyName, args[j], type);
                     }
                 }
             }
@@ -1213,7 +1306,142 @@ public class OgnlRuntime {
         return result;
     }
 
-    public static Object callAppropriateMethod(OgnlContext context, Object source, Object target, String methodName,
+    public static Method getConvertedMethodAndArgs(OgnlContext context, Object target, String propertyName,
+            List methods, Object[] args, Object[] newArgs) {
+        Method result = null;
+        TypeConverter converter = context.getTypeConverter();
+
+        if ((converter != null) && (methods != null)) {
+            for (int i = 0, icount = methods.size(); (result == null) && (i < icount); i++) {
+                Method m = (Method) methods.get(i);
+                Class[] parameterTypes = findParameterTypes(target != null ? target.getClass() : null, m);//getParameterTypes(m);
+
+                if (getConvertedTypes(context, target, m, propertyName, parameterTypes, args, newArgs)) {
+                    result = m;
+                }
+            }
+        }
+        return result;
+    }
+
+    private static class MatchingMethod {
+        Method                  mMethod;
+        int                     score;
+        ArgsCompatbilityReport  report;
+        Class[]                 mParameterTypes;
+
+        private MatchingMethod(Method method, int score, ArgsCompatbilityReport report, Class[] mParameterTypes) {
+            this.mMethod = method;
+            this.score = score;
+            this.report = report;
+            this.mParameterTypes = mParameterTypes;
+        }
+    }
+
+    private static MatchingMethod findBestMethod(List methods, Class typeClass, String name, Class[] argClasses) {
+        MatchingMethod mm = null;
+        for (int i = 0, icount = methods.size(); i < icount; i++) {
+            Method m = (Method) methods.get(i);
+
+            Class[] mParameterTypes = findParameterTypes(typeClass, m);
+            ArgsCompatbilityReport report = areArgsCompatible(argClasses, mParameterTypes, m);
+            if (report == null)
+                continue;
+
+            String methodName = m.getName();
+            int score = report.score;
+            if (name.equals(methodName)) {
+                // exact match - no additinal score...
+            } else if (name.equalsIgnoreCase(methodName)) {
+                // minimal penalty..
+                score += 200;
+            } else if (methodName.toLowerCase().endsWith(name.toLowerCase())) {
+                // has a prefix...
+                score += 500;
+            } else {
+                // just in case...
+                score += 5000;
+            }
+            if (mm == null || mm.score > score) {
+                mm = new MatchingMethod(m, score, report, mParameterTypes);
+            } else if (mm.score == score) {
+                // it happens that we see the same method signature multiple times - for the current class or interfaces ...
+                // TODO why are all of them on the list and not only the most specific one?
+                // check for same signature
+                if (Arrays.equals(mm.mMethod.getParameterTypes(), m.getParameterTypes()) && mm.mMethod.getName().equals(m.getName())) {
+                    boolean retsAreEqual = mm.mMethod.getReturnType().equals(m.getReturnType());
+                    // it is the same method. we use the most specific one...
+                    if (mm.mMethod.getDeclaringClass().isAssignableFrom(m.getDeclaringClass())) {
+                        if (!retsAreEqual && !mm.mMethod.getReturnType().isAssignableFrom(m.getReturnType()))
+                            System.err.println("Two methods with same method signature but return types conflict? \""+mm.mMethod+"\" and \""+m+"\" please report!");
+
+                        mm = new MatchingMethod(m, score, report, mParameterTypes);
+                    } else if (!m.getDeclaringClass().isAssignableFrom(mm.mMethod.getDeclaringClass())) {
+                        // this should't happen
+                        System.err.println("Two methods with same method signature but not providing classes assignable? \""+mm.mMethod+"\" and \""+m+"\" please report!");
+                    } else if (!retsAreEqual && !m.getReturnType().isAssignableFrom(mm.mMethod.getReturnType()))
+                        System.err.println("Two methods with same method signature but return types conflict? \""+mm.mMethod+"\" and \""+m+"\" please report!");
+                } else {
+                    // two methods with same score - direct compare to find the better one...
+                    // legacy wins over varargs
+                    if (isJdk15() && (m.isVarArgs() || mm.mMethod.isVarArgs())) {
+                        if (m.isVarArgs() && !mm.mMethod.isVarArgs()) {
+                            // keep with current
+                        } else if (!m.isVarArgs() && mm.mMethod.isVarArgs()) {
+                            // legacy wins...
+                            mm = new MatchingMethod(m, score, report, mParameterTypes);
+                        } else {
+                            // both arguments are varargs...
+                            System.err.println("Two vararg methods with same score("+score+"): \""+mm.mMethod+"\" and \""+m+"\" please report!");
+                        }
+                    } else {
+                        int scoreCurr = 0;
+                        int scoreOther = 0;
+                        for (int j=0; j<argClasses.length; j++) {
+                            Class argClass = argClasses[j];
+                            Class mcClass = mm.mParameterTypes[j];
+                            Class moClass = mParameterTypes[j];
+                            if (argClass == null) {	// TODO can we avoid this case?
+                                // we don't know the class. use the most generic implementation...
+                                if (mcClass == moClass) {
+                                    // equal args - no winner...
+                                } else if (mcClass.isAssignableFrom(moClass)) {
+                                    scoreOther += 1000;	// current wins...
+                                } else if (moClass.isAssignableFrom(moClass)) {
+                                    scoreCurr += 1000;	// other wins...
+                                } else {
+                                    // both items can't be assigned to each other..
+                                    throw new IllegalArgumentException("Can't decide wich method to use: \""+mm.mMethod+"\" or \""+m+"\"");
+                                }
+                            } else {
+                                // we try to find the more specific implementation
+                                if (mcClass == moClass) {
+                                    // equal args - no winner...
+                                } else if (mcClass == argClass) {
+                                    scoreOther += 100;	// current wins...
+                                } else if (moClass == argClass) {
+                                    scoreCurr += 100;	// other wins...
+                                } else {
+                                    // both items can't be assigned to each other..
+                                    // TODO: if this happens we have to put some weight on the inheritance...
+                                    throw new IllegalArgumentException("Can't decide wich method to use: \""+mm.mMethod+"\" or \""+m+"\"");
+                                }
+                            }
+                        }
+                        if (scoreCurr == scoreOther) {
+                            System.err.println("Two methods with same score("+score+"): \""+mm.mMethod+"\" and \""+m+"\" please report!");
+                        } else if (scoreCurr > scoreOther) {
+                            // other wins...
+                            mm = new MatchingMethod(m, score, report, mParameterTypes);
+                        } // else current one wins...
+                    }
+                }
+            }
+        }
+        return mm;
+    }
+
+	public static Object callAppropriateMethod(OgnlContext context, Object source, Object target, String methodName,
                                                String propertyName, List methods, Object[] args)
             throws MethodFailedException
     {
@@ -1221,7 +1449,7 @@ public class OgnlRuntime {
         Object[] actualArgs = _objectArrayPool.create(args.length);
 
         try {
-            Method method = getAppropriateMethod(context, source, target, propertyName, methods, args, actualArgs);
+            Method method = getAppropriateMethod(context, source, target, propertyName, methodName, methods, args, actualArgs);
 
             if ((method == null) || !isMethodAccessible(context, source, method, propertyName))
             {
@@ -1444,7 +1672,7 @@ public class OgnlRuntime {
         Object result = null;
         Method m = getGetMethod(context, (target == null) ? null : target.getClass() , propertyName);
         if (m == null)
-            m = getReadMethod((target == null) ? null : target.getClass(), propertyName, 0);
+            m = getReadMethod((target == null) ? null : target.getClass(), propertyName, null);
 
         if (checkAccessAndExistence)
         {
@@ -2655,10 +2883,10 @@ public class OgnlRuntime {
      */
     public static Method getReadMethod(Class target, String name)
     {
-        return getReadMethod(target, name, -1);
+        return getReadMethod(target, name, null);
     }
 
-    public static Method getReadMethod(Class target, String name, int numParms)
+    public static Method getReadMethod(Class target, String name, Class[] argClasses)
     {
         try {
             if (name.indexOf('"') >= 0)
@@ -2670,8 +2898,7 @@ public class OgnlRuntime {
             MethodDescriptor[] methods = info.getMethodDescriptors();
 
             // exact matches first
-
-            Method m = null;
+            ArrayList<Method> candidates = new ArrayList<Method>();
 
             for (int i = 0; i < methods.length; i++)
             {
@@ -2685,26 +2912,14 @@ public class OgnlRuntime {
                      || methods[i].getName().toLowerCase().equals("is" + name))
                     && !methods[i].getName().startsWith("set"))
                 {
-                    if (numParms > 0 && methods[i].getMethod().getParameterTypes().length == numParms)
-                        return methods[i].getMethod();
-                    else if (numParms < 0)
-                    {
-                        if ( methods[i].getName().equals( name ) )
-                        {
-                            return methods[i].getMethod();
-                        }
-                        else if ( ( m != null
-                             && m.getParameterTypes().length > methods[i].getMethod().getParameterTypes().length )
-                            || m == null)
-                        {
-                            m = methods[i].getMethod();
-                        }
-                    }
+                    candidates.add(methods[i].getMethod());
                 }
             }
-
-            if (m != null)
-                return m;
+            if (!candidates.isEmpty()) {
+                MatchingMethod mm = findBestMethod(candidates, target, name, argClasses);
+                if (mm != null)
+                    return mm.mMethod;
+            }
 
             for (int i = 0; i < methods.length; i++)
             {
@@ -2715,26 +2930,35 @@ public class OgnlRuntime {
                     && !methods[i].getName().startsWith("set")
                     && methods[i].getMethod().getReturnType() != Void.TYPE) {
 
-                    if (numParms > 0 && methods[i].getMethod().getParameterTypes().length == numParms)
-                        return methods[i].getMethod();
-                    else if (numParms < 0)
-                    {
-                        if ((m != null && m.getParameterTypes().length > methods[i].getMethod().getParameterTypes().length)
-                            || m == null)
-                        {
-                            m = methods[i].getMethod();
-                        }
-                    }
+                    Method m = methods[i].getMethod();
+                    if (!candidates.contains(m))
+                        candidates.add(m);
                 }
             }
 
-            if (m != null)
-                return m;
+            if (!candidates.isEmpty()) {
+                MatchingMethod mm = findBestMethod(candidates, target, name, argClasses);
+                if (mm != null)
+                    return mm.mMethod;
+            }
 
             // try one last time adding a get to beginning
 
-            if (!name.startsWith("get"))
-                return OgnlRuntime.getReadMethod(target, "get" + name, numParms);
+            if (!name.startsWith("get")) {
+                Method ret = OgnlRuntime.getReadMethod(target, "get" + name, argClasses);
+                if (ret != null)
+                    return ret;
+            }
+
+            if (!candidates.isEmpty()) {
+                // we need to do conversions.
+                // TODO we have to find out which conversions are possible!
+                int reqArgCount = argClasses==null?0:argClasses.length;
+                for (Method m : candidates) {
+                    if (m.getParameterTypes().length == reqArgCount)
+                        return m;
+                }
+            }
 
         } catch (Throwable t)
         {
@@ -2746,10 +2970,10 @@ public class OgnlRuntime {
 
     public static Method getWriteMethod(Class target, String name)
     {
-        return getWriteMethod(target, name, -1);
+        return getWriteMethod(target, name, null);
     }
 
-    public static Method getWriteMethod(Class target, String name, int numParms)
+    public static Method getWriteMethod(Class target, String name, Class[] argClasses)
     {
         try {
             if (name.indexOf('"') >= 0)
@@ -2757,6 +2981,8 @@ public class OgnlRuntime {
 
             BeanInfo info = Introspector.getBeanInfo(target);
             MethodDescriptor[] methods = info.getMethodDescriptors();
+
+            ArrayList<Method> candidates = new ArrayList<Method>();
 
             for (int i = 0; i < methods.length; i++) {
                 if (!isMethodCallable(methods[i].getMethod()))
@@ -2767,13 +2993,15 @@ public class OgnlRuntime {
                      || methods[i].getName().toLowerCase().equals("set" + name.toLowerCase()))
                     && !methods[i].getName().startsWith("get")) {
 
-                    if (numParms > 0 && methods[i].getMethod().getParameterTypes().length == numParms)
-                        return methods[i].getMethod();
-                    else if (numParms < 0)
-                        return methods[i].getMethod();
+                    candidates.add(methods[i].getMethod());
                 }
             }
 
+            if (!candidates.isEmpty()) {
+                MatchingMethod mm = findBestMethod(candidates, target, name, argClasses);
+                if (mm != null)
+                    return mm.mMethod;
+            }
             // try again on pure class
 
             Method[] cmethods = target.getClass().getMethods();
@@ -2786,19 +3014,39 @@ public class OgnlRuntime {
                      || cmethods[i].getName().toLowerCase().equals("set" + name.toLowerCase()))
                     && !cmethods[i].getName().startsWith("get")) {
 
-                    if (numParms > 0 && cmethods[i].getParameterTypes().length == numParms)
-                        return cmethods[i];
-                    else if (numParms < 0)
-                        return cmethods[i];
+                    Method m = methods[i].getMethod();
+                    if (!candidates.contains(m))
+                        candidates.add(m);
                 }
             }
 
+            if (!candidates.isEmpty()) {
+                MatchingMethod mm = findBestMethod(candidates, target, name, argClasses);
+                if (mm != null)
+                    return mm.mMethod;
+            }
             // try one last time adding a set to beginning
 
             if (!name.startsWith("set")) {
-                return OgnlRuntime.getReadMethod(target, "set" + name, numParms);
+                Method ret = OgnlRuntime.getReadMethod(target, "set" + name, argClasses);
+                if (ret != null)
+                    return ret;
             }
 
+            if (!candidates.isEmpty()) {
+                // we need to do conversions.
+                // TODO we have to find out which conversions are possible!
+                int reqArgCount = argClasses==null?0:argClasses.length;
+                for (Method m : candidates) {
+                    if (m.getParameterTypes().length == reqArgCount)
+                        return m;
+                }
+
+                if ( argClasses == null && candidates.size() == 1 ) {
+                    // this seems to be the TestCase TestOgnlRuntime.test_Complicated_Inheritance() - is this a real world use case?
+                    return candidates.get(0);
+                }
+            }
         } catch (Throwable t)
         {
             throw OgnlOps.castToRuntime(t);
