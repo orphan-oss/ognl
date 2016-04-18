@@ -9,6 +9,10 @@ and this source code is used just to maintenance 3.x branch. The new version fro
 
 Out of incubator and now officially found here [http://commons.apache.org/ognl/](http://commons.apache.org/ognl/)
 
+## FAQ
+ - How to run OGNL in Google AppEngine?
+   - you need to tell OGNL to not do security manager permission checks, which will fail since GAE has a security manager and you don't have the ability to add the OGNL-specific permissions. Therefore, somewhere in your initialization code, add this `OgnlRuntime.setSecurityManager(null);`
+
 ## Development activity
 
 ### Release notes - version 3.1.3, 3.0.14, 3.0.6.1
