@@ -11,8 +11,12 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
+### Release notes - version 3.1.3, 3.0.14, 3.0.6.1
+ * Exposes flag to allow check if an expression is a sequence of simple expressions -
+   thanks to Łukasz Lenart
+
 ### Release notes - version 3.1.2
- * Fixes accessing statics within Enums [OGNL-158](https://issues.apache.org/jira/browse/OGNL-158) - 
+ * Fixes accessing statics within Enums [OGNL-158](https://issues.apache.org/jira/browse/OGNL-158) -
    thanks to Aleksandr Mashchenko
 
 ### Release notes - version 3.1.1, 3.0.13
