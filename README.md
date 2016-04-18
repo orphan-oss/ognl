@@ -1,6 +1,8 @@
 # Object-Graph Navigation Language - OGNL
 
 [![Build Status](https://travis-ci.org/jkuhnert/ognl.svg?branch=master)](https://travis-ci.org/jkuhnert/ognl)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/ognl/ognl/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ognl/ognl/)
+[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 It's a simple Expression Language (EL) for Java, the code base sometime ago was migrated to the [Apache commons ognl](http://commons.apache.org/ognl/)
 and this source code is used just to maintenance 3.x branch. The new version from Apache will start from 4.x
