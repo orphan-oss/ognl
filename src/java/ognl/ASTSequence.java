@@ -163,4 +163,9 @@ public class ASTSequence extends SimpleNode implements NodeType, OrderedReturn
 
         return result;
     }
+
+    public boolean isSequence(OgnlContext context) {
+        return true;
+    }
+
 }
