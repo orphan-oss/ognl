@@ -62,6 +62,11 @@ public class ASTCtor extends SimpleNode
         this.className = className;
     }
 
+    Class getCreatedClass(OgnlContext context) throws ClassNotFoundException {
+        return OgnlRuntime.classForName(context, className);
+    }
+
+
     void setArray(boolean value)
     {
         isArray = value;

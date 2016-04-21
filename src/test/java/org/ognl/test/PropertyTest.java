@@ -89,9 +89,9 @@ public class PropertyTest extends OgnlTestCase
             { ROOT, "property.bean3.value != null", Boolean.TRUE},
             { ROOT, "\"background-color:blue; width:\" + (currentLocaleVerbosity / 2) + \"px\"", "background-color:blue; width:43px"},
             { ROOT, "renderNavigation ? '' : 'noborder'", "noborder" },
-            { ROOT, "format('key', array)", "formatted" },
-            { ROOT, "format('key', intValue)", "formatted" },
-            { ROOT, "format('key', map.size)", "formatted" },
+            { ROOT, "format('key', array)", ROOT.format("key", ROOT.getArray()) },
+            { ROOT, "format('key', intValue)", ROOT.format("key", /*ROOT.getIntValue()*/ 2) }, // getIntValue() is 0 during startup, but set to 2 during tests!
+            { ROOT, "format('key', map.size)", ROOT.format("key", ROOT.getMap().size()) },
             { ROOT, "'disableButton(this,\"' + map.get('button-testing') + '\");clearElement(&quot;testFtpMessage&quot;)'",
                     "disableButton(this,'null');clearElement('testFtpMessage')" },
             { ROOT.getMap(), "!disableWarning", Boolean.TRUE},

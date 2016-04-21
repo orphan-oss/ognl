@@ -173,6 +173,11 @@ public class Simple extends Object
         return root;
     }
 
+    public MethodTestMethods getTestMethods()
+    {
+        return new MethodTestMethods();
+    }
+
     public Messages getMessages()
     {
         return _messages;

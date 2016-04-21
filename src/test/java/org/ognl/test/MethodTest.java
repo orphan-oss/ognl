@@ -44,10 +44,10 @@ public class MethodTest extends OgnlTestCase
             { "hashCode()", new Integer(ROOT.hashCode()) } ,
             { "getBooleanValue() ? \"here\" : \"\"", ""},
             { "getValueIsTrue(!false) ? \"\" : \"here\" ", ""},
-            { "messages.format('ShowAllCount', one)", "foo"}, // FIXME lukaszlenart: OGNL converts this one parameter into Object[] :\
-            { "messages.format('ShowAllCount', {one})", "foo"},
-            { "messages.format('ShowAllCount', {one, two})", "foo"},
-            { "messages.format('ShowAllCount', one, two)", "haha"},
+            { "messages.format('ShowAllCount', one)", ROOT.getMessages().format("ShowAllCount",  ROOT.getOne()) },
+            { "messages.format('ShowAllCount', {one})", ROOT.getMessages().format("ShowAllCount", new Object[] { ROOT.getOne() }) },
+            { "messages.format('ShowAllCount', {one, two})", ROOT.getMessages().format("ShowAllCount", new Object[] { ROOT.getOne(), ROOT.getTwo() }) },
+            { "messages.format('ShowAllCount', one, two)", ROOT.getMessages().format("ShowAllCount", ROOT.getOne(), ROOT.getTwo()) },
             { "getTestValue(@org.ognl.test.objects.SimpleEnum@ONE.value)", new Integer(2)},
             { "@org.ognl.test.MethodTest@getA().isProperty()", Boolean.FALSE},
             { "isDisabled()", Boolean.TRUE},
@@ -56,7 +56,21 @@ public class MethodTest extends OgnlTestCase
             { LIST, "addValue(name)", Boolean.TRUE},
             { "getDisplayValue(methodsTest.allowDisplay)", "test"},
             { "isThisVarArgsWorking(three, rootValue)", Boolean.TRUE},
-            { GENERIC, "service.getFullMessageFor(value, null)", "Halo 3"}
+            { GENERIC, "service.getFullMessageFor(value, null)", "Halo 3"},
+            // TestCase for https://github.com/jkuhnert/ognl/issues/17 -  ArrayIndexOutOfBoundsException when trying to access BeanFactory
+            { "testMethods.getBean('TestBean')", ROOT.getTestMethods().getBean("TestBean") } ,
+            // https://issues.apache.org/jira/browse/OGNL-250 -  OnglRuntime getMethodValue fails to find method matching propertyName
+            { "testMethods.testProperty", ROOT.getTestMethods().testProperty() } ,
+            // TODO: some further java <> OGNL inconsistencies: - related to https://github.com/jkuhnert/ognl/issues/16
+            //   Java 'ROOT.getTestMethods().argsTest1(Arrays.asList( ROOT.getOne() )' doesn't compile:
+            //		--> The method argsTest1(Object[]) in the type MethodTestMethods is not applicable for the arguments (List<Integer>)
+            { "testMethods.argsTest1({one})", "Array: [[1]]" }, // "Array: [[1]]" means dual-cast is done.
+            //   Java: ROOT.getTestMethods().argsTest(Arrays.asList( ROOT.getOne() ))
+            //		--> The method argsTest2(List<Object>) in the type MethodTestMethods is not applicable for the arguments (List<Integer>)
+            { "testMethods.argsTest2({one})", "List: [1]" },
+            //   Java 'ROOT.getTestMethods().argsTest1(Arrays.asList( ROOT.getOne() )' doesn't compile:
+            //		--> The method argsTest(Object[]) in the type MethodTestMethods is not applicable for the arguments (List<Integer>)
+            { "testMethods.argsTest3({one})", "List: [1]" },
     };
 
     public static class A

@@ -35,6 +35,7 @@ import ognl.enhance.OrderedReturn;
 import ognl.enhance.UnsupportedCompilationException;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
@@ -154,13 +155,13 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
         Method m = null;
 
         try {
-
             m = OgnlRuntime.getMethod(context, context.getCurrentType() != null ? context.getCurrentType() : target.getClass(), _methodName, _children, false);
+            Class[] argumentClasses = getChildrenClasses(context, _children);
             if (m == null)
-                m = OgnlRuntime.getReadMethod(target.getClass(), _methodName, _children != null ? _children.length : -1);
+                m = OgnlRuntime.getReadMethod(target.getClass(), _methodName, argumentClasses);
 
             if (m == null) {
-                m = OgnlRuntime.getWriteMethod(target.getClass(), _methodName, _children != null ? _children.length : -1);
+                m = OgnlRuntime.getWriteMethod(target.getClass(), _methodName, argumentClasses);
 
                 if (m != null) {
 
@@ -327,7 +328,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
                            + " last child? " + lastChild(context));*/
         Method m = OgnlRuntime.getWriteMethod(context.getCurrentType() != null ?
                 context.getCurrentType() : target.getClass(),
-                                              _methodName, _children != null ? _children.length : -1);
+                                              _methodName, getChildrenClasses(context, _children));
         if (m == null)
         {
             throw new UnsupportedCompilationException("Unable to determine setter method generation for " + _methodName);
@@ -486,4 +487,70 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
 
         return result + ")" + post;
     }
+
+    private static Class getClassMatchingAllChildren(OgnlContext context, Node[] _children) {
+        Class[] cc = getChildrenClasses(context, _children);
+        Class componentType = null;
+        for (int j = 0; j < cc.length; j++) {
+            Class ic = cc[j];
+            if (ic == null) {
+                componentType = Object.class; // fall back to object...
+                break;
+            } else {
+                if (componentType == null) {
+                    componentType = ic;
+                } else {
+                    if (!componentType.isAssignableFrom(ic)) {
+                        if (ic.isAssignableFrom(componentType)) {
+                            componentType = ic; // just swap... ic is more generic...
+                        } else {
+                            Class pc;
+                            while ((pc = componentType.getSuperclass()) != null) { // TODO hmm - it could also be that an interface matches...
+                                if (pc.isAssignableFrom(ic)) {
+                                    componentType = pc; // use this matching parent class
+                                    break;
+                                }
+                            }
+                            if (!componentType.isAssignableFrom(ic)) {
+                                // parents didn't match. the types might be primitives. Fall back to object.
+                                componentType = Object.class;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (componentType == null)
+            componentType = Object.class;
+        return componentType;
+    }
+
+    private static Class[] getChildrenClasses(OgnlContext context, Node[] _children) {
+        if (_children == null)
+            return null;
+        Class[] argumentClasses = new Class[_children.length];
+        for (int i = 0; i < _children.length; i++) {
+            Node child = _children[i];
+            if (child instanceof ASTList) {	// special handling for ASTList - it creates a List
+                //Class componentType = getClassMatchingAllChildren(context, ((ASTList)child)._children);
+                //argumentClasses[i] = Array.newInstance(componentType, 0).getClass();
+                argumentClasses[i] = List.class;
+            } else if (child instanceof NodeType) {
+                argumentClasses[i] = ((NodeType)child).getGetterClass();
+            } else if (child instanceof ASTCtor) {
+                try {
+                    argumentClasses[i] = ((ASTCtor)child).getCreatedClass(context);
+                } catch (ClassNotFoundException nfe) {
+                    throw OgnlOps.castToRuntime(nfe);
+                }
+            } else if (child instanceof ASTTest) {
+                argumentClasses[i] = getClassMatchingAllChildren(context, ((ASTTest)child)._children);
+            } else {
+                throw new UnsupportedOperationException("Don't know how to handle child: "+child);
+            }
+        }
+        return argumentClasses;
+    }
+
 }

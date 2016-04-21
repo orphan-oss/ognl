@@ -210,7 +210,7 @@ public class Root extends Object
 
     public String format(String key, Object[] value)
     {
-        return "formatted";
+        return "formatted: "+key+" "+Arrays.toString(value);
     }
 
     public String getCurrentClass(String value)
