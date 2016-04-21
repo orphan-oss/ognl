@@ -17,7 +17,7 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
-### Release notes - version 3.1.14
+### Release notes - version 3.1.4
  * fixes issue with executing expressions on Java 8 plus adds an `java like` method matching [#19](../../pull/19) -
    thanks to marvkis
 
