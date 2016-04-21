@@ -17,6 +17,10 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
+### Release notes - version 3.1.14
+ * fixes issue with executing expressions on Java 8 plus adds an `java like` method matching [#19](../../pull/19) -
+   thanks to marvkis
+
 ### Release notes - version 3.1.3, 3.0.14, 3.0.6.1
  * Exposes flag to allow check if an expression is a sequence of simple expressions -
    thanks to Łukasz Lenart
