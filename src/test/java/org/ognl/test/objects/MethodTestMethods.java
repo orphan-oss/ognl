@@ -56,4 +56,73 @@ public class MethodTestMethods {
         return "List: "+data;
     }
 
+    //---------------------------------------------------------------------
+    // https://github.com/jkuhnert/ognl/issues/23
+    // 'avg' tests
+    //---------------------------------------------------------------------
+    public double avg(final Iterable<? extends Number> target) {
+        double total = 0;
+        int size = 0;
+        for (final Number element : target) {
+            total += element.doubleValue();
+            size++;
+        }
+        return total/size;
+    }
+
+    public double avg(final Number[] target) {
+        double total = 0;
+        for (final Number element : target) {
+            total += element.doubleValue();
+        }
+        return total/target.length;
+    }
+
+    public double avg(final byte[] target) {
+        double total = 0;
+        for (final Number element : target) {
+            total += element.doubleValue();
+        }
+        return total/target.length;
+    }
+
+    public double avg(final short[] target) {
+        double total = 0;
+        for (final Number element : target) {
+            total += element.doubleValue();
+        }
+        return total/target.length;
+    }
+
+    public double avg(final int[] target) {
+        double total = 0;
+        for (final Number element : target) {
+            total += element.doubleValue();
+        }
+        return total/target.length;
+    }
+
+    public double avg(final long[] target) {
+        double total = 0;
+        for (final Number element : target) {
+            total += element.doubleValue();
+        }
+        return total/target.length;
+    }
+
+    public double avg(final float[] target) {
+        double total = 0;
+        for (final Number element : target) {
+            total += element.doubleValue();
+        }
+        return total/target.length;
+    }
+
+    public double avg(final double[] target) {
+        double total = 0;
+        for (final Number element : target) {
+            total += element.doubleValue();
+        }
+        return total/target.length;
+    }
 }
