@@ -977,16 +977,23 @@ public class OgnlRuntime {
                 //return isTypeCompatible(pct, mct, index, report); // check inner classes
             }
             if (Collection.class.isAssignableFrom(parameterClass)) {
-                // TODO get generics type here and do further evaluations...
-                report.conversionNeeded[index]=true;
-                report.score += 10;
-                return true;
+                // we have to assume that all Collections carry objects - generics access is of no use during runtime because of
+                // Type Erasure - http://www.angelikalanger.com/GenericsFAQ/FAQSections/TechnicalDetails.html#Type%20Erasure
+                Class mct = methodArgumentClass.getComponentType();
+                if (mct == Object.class) {
+                    report.conversionNeeded[index]=true;
+                    report.score += 30;
+                    return true;
+                } else {
+                    // Okay, the items from the list *might* not match. we better don't do that...
+                    return false;
+                }
             }
         } else if (Collection.class.isAssignableFrom(methodArgumentClass)) {
             if (parameterClass.isArray()) {
                 // TODO get generics type here and do further evaluations...
                 report.conversionNeeded[index]=true;
-                report.score += 10;
+                report.score += 50;
                 return true;
             }
             if (Collection.class.isAssignableFrom(parameterClass)) {
@@ -997,12 +1004,12 @@ public class OgnlRuntime {
                 }
                 // TODO get generics type here and do further evaluations...
                 report.conversionNeeded[index]=true;
-                report.score += 10;
+                report.score += 50;
                 return true;
             }
         }
         if (methodArgumentClass.isAssignableFrom(parameterClass)) {
-            report.score += 50;  // works but might not the best match - weight of 50..
+            report.score += 40;  // works but might not the best match - weight of 50..
             return true;
         }
         if (parameterClass.isPrimitive()) {
@@ -1340,6 +1347,7 @@ public class OgnlRuntime {
 
     private static MatchingMethod findBestMethod(List methods, Class typeClass, String name, Class[] argClasses) {
         MatchingMethod mm = null;
+        IllegalArgumentException failure = null;
         for (int i = 0, icount = methods.size(); i < icount; i++) {
             Method m = (Method) methods.get(i);
 
@@ -1364,6 +1372,7 @@ public class OgnlRuntime {
             }
             if (mm == null || mm.score > score) {
                 mm = new MatchingMethod(m, score, report, mParameterTypes);
+                failure = null;
             } else if (mm.score == score) {
                 // it happens that we see the same method signature multiple times - for the current class or interfaces ...
                 // TODO why are all of them on the list and not only the most specific one?
@@ -1376,6 +1385,7 @@ public class OgnlRuntime {
                             System.err.println("Two methods with same method signature but return types conflict? \""+mm.mMethod+"\" and \""+m+"\" please report!");
 
                         mm = new MatchingMethod(m, score, report, mParameterTypes);
+                        failure = null;
                     } else if (!m.getDeclaringClass().isAssignableFrom(mm.mMethod.getDeclaringClass())) {
                         // this should't happen
                         System.err.println("Two methods with same method signature but not providing classes assignable? \""+mm.mMethod+"\" and \""+m+"\" please report!");
@@ -1390,6 +1400,7 @@ public class OgnlRuntime {
                         } else if (!m.isVarArgs() && mm.mMethod.isVarArgs()) {
                             // legacy wins...
                             mm = new MatchingMethod(m, score, report, mParameterTypes);
+                            failure = null;
                         } else {
                             // both arguments are varargs...
                             System.err.println("Two vararg methods with same score("+score+"): \""+mm.mMethod+"\" and \""+m+"\" please report!");
@@ -1411,7 +1422,7 @@ public class OgnlRuntime {
                                     scoreCurr += 1000;	// other wins...
                                 } else {
                                     // both items can't be assigned to each other..
-                                    throw new IllegalArgumentException("Can't decide wich method to use: \""+mm.mMethod+"\" or \""+m+"\"");
+                                    failure = new IllegalArgumentException("Can't decide wich method to use: \""+mm.mMethod+"\" or \""+m+"\"");
                                 }
                             } else {
                                 // we try to find the more specific implementation
@@ -1424,20 +1435,24 @@ public class OgnlRuntime {
                                 } else {
                                     // both items can't be assigned to each other..
                                     // TODO: if this happens we have to put some weight on the inheritance...
-                                    throw new IllegalArgumentException("Can't decide wich method to use: \""+mm.mMethod+"\" or \""+m+"\"");
+                                    failure = new IllegalArgumentException("Can't decide wich method to use: \""+mm.mMethod+"\" or \""+m+"\"");
                                 }
                             }
                         }
                         if (scoreCurr == scoreOther) {
-                            System.err.println("Two methods with same score("+score+"): \""+mm.mMethod+"\" and \""+m+"\" please report!");
+                            if (failure == null)
+                                System.err.println("Two methods with same score("+score+"): \""+mm.mMethod+"\" and \""+m+"\" please report!");
                         } else if (scoreCurr > scoreOther) {
                             // other wins...
                             mm = new MatchingMethod(m, score, report, mParameterTypes);
+                            failure = null;
                         } // else current one wins...
                     }
                 }
             }
         }
+        if (failure != null)
+            throw failure;
         return mm;
     }
 
