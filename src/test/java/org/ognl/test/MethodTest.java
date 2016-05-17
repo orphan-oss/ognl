@@ -65,16 +65,20 @@ public class MethodTest extends OgnlTestCase
             { "testMethods.getBean('TestBean')", ROOT.getTestMethods().getBean("TestBean") } ,
             // https://issues.apache.org/jira/browse/OGNL-250 -  OnglRuntime getMethodValue fails to find method matching propertyName
             { "testMethods.testProperty", ROOT.getTestMethods().testProperty() } ,
-            // TODO: some further java <> OGNL inconsistencies: - related to https://github.com/jkuhnert/ognl/issues/16
-            //   Java 'ROOT.getTestMethods().argsTest1(Arrays.asList( ROOT.getOne() )' doesn't compile:
-            //		--> The method argsTest1(Object[]) in the type MethodTestMethods is not applicable for the arguments (List<Integer>)
-            { "testMethods.argsTest1({one})", "Array: [[1]]" }, // "Array: [[1]]" means dual-cast is done.
-            //   Java: ROOT.getTestMethods().argsTest(Arrays.asList( ROOT.getOne() ))
-            //		--> The method argsTest2(List<Object>) in the type MethodTestMethods is not applicable for the arguments (List<Integer>)
-            { "testMethods.argsTest2({one})", "List: [1]" },
+            { "testMethods.argsTest1({one})", ROOT.getTestMethods().argsTest1(Arrays.asList( ROOT.getOne() ).toArray()) },	// toArray() is automatically done by OGNL type conversion
+            // we need to cast out generics (insert "Object")
+            { "testMethods.argsTest2({one})", ROOT.getTestMethods().argsTest2(Arrays.asList( (Object) ROOT.getOne() )) },
             //   Java 'ROOT.getTestMethods().argsTest1(Arrays.asList( ROOT.getOne() )' doesn't compile:
             //		--> The method argsTest(Object[]) in the type MethodTestMethods is not applicable for the arguments (List<Integer>)
             { "testMethods.argsTest3({one})", "List: [1]" },
+            { "testMethods.showList(testMethods.getObjectList())", ROOT.getTestMethods().showList(ROOT.getTestMethods().getObjectList().toArray()) },
+            { "testMethods.showList(testMethods.getStringList())", ROOT.getTestMethods().showList(ROOT.getTestMethods().getStringList().toArray()) },
+            { "testMethods.showList(testMethods.getStringArray())", ROOT.getTestMethods().showList(ROOT.getTestMethods().getStringArray()) },
+            // TODO This one doesn't work - even 'toArray(new String[0]) returns Object[] and so the wrong method is called - currently no idea how to handle this...
+            // { "testMethods.showList(testMethods.getStringList().toArray(new String[0]))", ROOT.getTestMethods().showList(ROOT.getTestMethods().getStringList().toArray(new String[0])) },
+            // but this one works - at least in interpretation mode...
+            { "testMethods.showStringList(testMethods.getStringList().toArray(new String[0]))", ROOT.getTestMethods().showStringList(ROOT.getTestMethods().getStringList().toArray(new String[0])) },
+
             //	https://github.com/jkuhnert/ognl/issues/23 - Exception selecting overloaded method in 3.1.4
             { "testMethods.avg({ 5, 5 })", ROOT.getTestMethods().avg((List)Arrays.asList(5, 5)) },
     };

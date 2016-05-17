@@ -125,4 +125,28 @@ public class MethodTestMethods {
         }
         return total/target.length;
     }
+
+    public String[] getStringArray() {
+        return new String[] { "Hello", "World" };
+    }
+
+    public List<String> getStringList() {
+        return Arrays.asList("Hello", "World");
+    }
+
+    public List<Object> getObjectList() {
+        return Arrays.asList((Object)"Object");
+    }
+
+    public String showList(String[] args) {
+        return "Strings: " + Arrays.toString(args);
+    }
+
+    public String showList(Object[] args) {
+        return "Objects: " + Arrays.toString(args);
+    }
+
+    public String showStringList(String[] args) {
+        return "Strings: " + Arrays.toString(args);
+    }
 }
