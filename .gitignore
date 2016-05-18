@@ -3,4 +3,5 @@
 *.iws
 target
 .idea
-
+build
+.java-version
