@@ -31,6 +31,10 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.ognl.test.objects.*;
 
 public class MethodTest extends OgnlTestCase
@@ -71,6 +75,8 @@ public class MethodTest extends OgnlTestCase
             //   Java 'ROOT.getTestMethods().argsTest1(Arrays.asList( ROOT.getOne() )' doesn't compile:
             //		--> The method argsTest(Object[]) in the type MethodTestMethods is not applicable for the arguments (List<Integer>)
             { "testMethods.argsTest3({one})", "List: [1]" },
+            //	https://github.com/jkuhnert/ognl/issues/23 - Exception selecting overloaded method in 3.1.4
+            { "testMethods.avg({ 5, 5 })", ROOT.getTestMethods().avg((List)Arrays.asList(5, 5)) },
     };
 
     public static class A
