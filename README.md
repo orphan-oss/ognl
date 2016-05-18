@@ -17,6 +17,10 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
+### Release notes - version 3.1.5
+ * fixes issue with selecting overloaded methods [#23](../../issues/23)/[#14](../../pull/24) - 
+   thanks to Christian Niessner from [secadm GmbH](http://www.secadm.de/)
+
 ### Release notes - version 3.1.4
  * fixes issue with executing expressions on Java 8 plus adds an `java like` method matching [#19](../../pull/19) -
    thanks to marvkis
