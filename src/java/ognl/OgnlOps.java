@@ -35,6 +35,7 @@ import ognl.enhance.UnsupportedCompilationException;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Enumeration;
 
 /**
@@ -529,6 +530,9 @@ public abstract class OgnlOps implements NumericTypes
             if (toType == Character.TYPE)
                 return stringValue(value).toCharArray();
             
+            if (value instanceof Collection)
+                return ((Collection)value).toArray((Object[])Array.newInstance(toType, 0));
+
             Object arr =  Array.newInstance(toType, 1);
             Array.set(arr, 0, convertValue(value, toType, preventNulls));
 
@@ -571,7 +575,11 @@ public abstract class OgnlOps implements NumericTypes
 
                     result = stringValue(value).toCharArray();
                 } else if (toType.getComponentType() == Object.class) {
-                    return new Object[] { value };
+                    if (value instanceof Collection) {
+                        Collection vc = (Collection) value;
+                        return vc.toArray(new Object[0]);
+                    } else
+                        return new Object[] { value };
                 }
             } else {
                 if ((toType == Integer.class) || (toType == Integer.TYPE)) {
