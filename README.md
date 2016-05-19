@@ -17,6 +17,10 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
+### Release notes - version 3.1.6
+ * fixes automatic type conversion to avoid `double boxing` [#25](../../issues/25)/[#26](../../pull/26) - 
+   thanks to Christian Niessner from [secadm GmbH](http://www.secadm.de/)
+
 ### Release notes - version 3.1.5
  * fixes issue with selecting overloaded methods [#23](../../issues/23)/[#24](../../pull/24) - 
    thanks to Christian Niessner from [secadm GmbH](http://www.secadm.de/)
