@@ -155,4 +155,9 @@ public abstract class ExpressionNode extends SimpleNode
         
         return result;
     }
+
+    @Override
+    public boolean isOperation(OgnlContext context) {
+        return true;
+    }
 }

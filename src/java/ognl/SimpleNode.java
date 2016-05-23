@@ -362,6 +362,10 @@ public abstract class SimpleNode implements Node, Serializable {
         return false;
     }
 
+    public boolean isOperation(OgnlContext context) {
+        return false;
+    }
+
     protected boolean lastChild(OgnlContext context)
     {
         return _parent == null || context.get("_lastChild") !=  null;
