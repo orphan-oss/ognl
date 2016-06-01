@@ -462,4 +462,9 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
 
         return result;
     }
+
+    @Override
+    public boolean isChain(OgnlContext context) {
+        return true;
+    }
 }
