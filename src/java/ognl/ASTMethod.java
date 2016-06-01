@@ -553,4 +553,8 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
         return argumentClasses;
     }
 
+    @Override
+    public boolean isSimpleMethod(OgnlContext context) {
+        return true;
+    }
 }
