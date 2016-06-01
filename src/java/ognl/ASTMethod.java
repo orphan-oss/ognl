@@ -35,6 +35,7 @@ import ognl.enhance.OrderedReturn;
 import ognl.enhance.UnsupportedCompilationException;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
@@ -486,4 +487,10 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
 
         return result + ")" + post;
     }
+
+    @Override
+    public boolean isSimpleMethod(OgnlContext context) {
+        return true;
+    }
+
 }
