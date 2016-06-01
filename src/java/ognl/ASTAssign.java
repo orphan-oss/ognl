@@ -139,4 +139,9 @@ class ASTAssign extends SimpleNode
         
         return result + value + ")";
     }
+
+    @Override
+    public boolean isOperation(OgnlContext context) {
+        return true;
+    }
 }
