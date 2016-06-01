@@ -61,4 +61,17 @@ public class ASTMethodTest extends TestCase {
         assertEquals(OgnlRuntime.getCompiler().castExpression(context, prop, ".getBean3()"), ").getBean3()");
         
     }
+
+    public void test_isSimpleMethod() throws Exception {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+
+        SimpleNode node = (SimpleNode) Ognl.parseExpression("#name");
+        assertFalse(node.isSimpleMethod(context));
+
+        node = (SimpleNode) Ognl.parseExpression("#name.lastChar");
+        assertFalse(node.isSimpleMethod(context));
+
+        node = (SimpleNode) Ognl.parseExpression("execute()");
+        assertTrue(node.isSimpleMethod(context));
+    }
 }
