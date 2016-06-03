@@ -343,8 +343,7 @@ public abstract class SimpleNode implements Node, Serializable {
         return isSimpleProperty(context);
     }
 
-    public boolean isEvalChain(OgnlContext context)
-            throws OgnlException {
+    public boolean isEvalChain(OgnlContext context) throws OgnlException {
         if (_children == null) {
             return false;
         }
@@ -358,19 +357,49 @@ public abstract class SimpleNode implements Node, Serializable {
         return false;
     }
 
-    public boolean isSequence(OgnlContext context) {
+    public boolean isSequence(OgnlContext context) throws OgnlException {
+        if (_children == null) {
+            return false;
+        }
+        for (Node child : _children) {
+            if (child instanceof SimpleNode) {
+                if (((SimpleNode) child).isSequence(context)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
-    public boolean isOperation(OgnlContext context) {
+    public boolean isOperation(OgnlContext context) throws OgnlException {
+        if (_children == null) {
+            return false;
+        }
+        for (Node child : _children) {
+            if (child instanceof SimpleNode) {
+                if (((SimpleNode) child).isOperation(context)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
-    public boolean isChain(OgnlContext context) {
+    public boolean isChain(OgnlContext context) throws OgnlException {
+        if (_children == null) {
+            return false;
+        }
+        for (Node child : _children) {
+            if (child instanceof SimpleNode) {
+                if (((SimpleNode) child).isChain(context)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
-    public boolean isSimpleMethod(OgnlContext context) {
+    public boolean isSimpleMethod(OgnlContext context) throws OgnlException {
         return false;
     }
 

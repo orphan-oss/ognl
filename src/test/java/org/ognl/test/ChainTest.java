@@ -18,6 +18,18 @@ public class ChainTest extends TestCase {
 
         node = (SimpleNode) Ognl.parseExpression("#name.lastChar");
         assertTrue(node.isChain(context));
+
+        node = (SimpleNode) Ognl.parseExpression("#{name.lastChar, #boo}");
+        assertTrue(node.isChain(context));
+
+        node = (SimpleNode) Ognl.parseExpression("boo = #{name.lastChar, #boo, foo()}");
+        assertTrue(node.isChain(context));
+
+        node = (SimpleNode) Ognl.parseExpression("{name.lastChar, #boo, foo()}");
+        assertTrue(node.isChain(context));
+
+        node = (SimpleNode) Ognl.parseExpression("(name.lastChar, #boo, foo())");
+        assertTrue(node.isChain(context));
     }
 
 }
