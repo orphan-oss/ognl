@@ -73,5 +73,17 @@ public class ASTMethodTest extends TestCase {
 
         node = (SimpleNode) Ognl.parseExpression("execute()");
         assertTrue(node.isSimpleMethod(context));
+
+        node = (SimpleNode) Ognl.parseExpression("bean.execute()");
+        assertFalse(node.isSimpleMethod(context));
+
+        node = (SimpleNode) Ognl.parseExpression("bean.execute()");
+        assertFalse(node.isSimpleMethod(context));
+
+        node = (SimpleNode) Ognl.parseExpression("{name.lastChar, #boo, foo()}");
+        assertFalse(node.isSimpleMethod(context));
+
+        node = (SimpleNode) Ognl.parseExpression("(name.lastChar, #boo, foo())");
+        assertFalse(node.isSimpleMethod(context));
     }
 }
