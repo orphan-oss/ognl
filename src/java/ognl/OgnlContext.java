@@ -51,7 +51,6 @@ public class OgnlContext extends Object implements Map
     public static final String KEEP_LAST_EVALUATION_CONTEXT_KEY = "_keepLastEvaluation";
     public static final String CLASS_RESOLVER_CONTEXT_KEY = "_classResolver";
     public static final String TYPE_CONVERTER_CONTEXT_KEY = "_typeConverter";
-    public static final String MEMBER_ACCESS_CONTEXT_KEY = "_memberAccess";
 
     private static final String PROPERTY_KEY_PREFIX = "ognl";
     private static boolean DEFAULT_TRACE_EVALUATIONS = false;
@@ -89,7 +88,6 @@ public class OgnlContext extends Object implements Map
         RESERVED_KEYS.put(KEEP_LAST_EVALUATION_CONTEXT_KEY, null);
         RESERVED_KEYS.put(CLASS_RESOLVER_CONTEXT_KEY, null);
         RESERVED_KEYS.put(TYPE_CONVERTER_CONTEXT_KEY, null);
-        RESERVED_KEYS.put(MEMBER_ACCESS_CONTEXT_KEY, null);
 
         try {
             if ((s = System.getProperty(PROPERTY_KEY_PREFIX + ".traceEvaluations")) != null) {
@@ -516,11 +514,7 @@ public class OgnlContext extends Object implements Map
                                         if (key.equals(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY)) {
                                             result = getTypeConverter();
                                         } else {
-                                            if (key.equals(OgnlContext.MEMBER_ACCESS_CONTEXT_KEY)) {
-                                                result = getMemberAccess();
-                                            } else {
-                                                throw new IllegalArgumentException("unknown reserved key '" + key + "'");
-                                            }
+                                            throw new IllegalArgumentException("unknown reserved key '" + key + "'");
                                         }
                                     }
                                 }
@@ -572,12 +566,7 @@ public class OgnlContext extends Object implements Map
                                             result = getTypeConverter();
                                             setTypeConverter((TypeConverter) value);
                                         } else {
-                                            if (key.equals(OgnlContext.MEMBER_ACCESS_CONTEXT_KEY)) {
-                                                result = getMemberAccess();
-                                                setMemberAccess((MemberAccess) value);
-                                            } else {
-                                                throw new IllegalArgumentException("unknown reserved key '" + key + "'");
-                                            }
+                                            throw new IllegalArgumentException("unknown reserved key '" + key + "'");
                                         }
                                     }
                                 }
@@ -630,12 +619,7 @@ public class OgnlContext extends Object implements Map
                                             result = getTypeConverter();
                                             setTypeConverter(null);
                                         } else {
-                                            if (key.equals(OgnlContext.MEMBER_ACCESS_CONTEXT_KEY)) {
-                                                result = getMemberAccess();
-                                                setMemberAccess(null);
-                                            } else {
-                                                throw new IllegalArgumentException("unknown reserved key '" + key + "'");
-                                            }
+                                            throw new IllegalArgumentException("unknown reserved key '" + key + "'");
                                         }
                                     }
                                 }
