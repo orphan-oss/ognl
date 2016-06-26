@@ -366,33 +366,6 @@ public abstract class Ognl
     }
 
     /**
-     * Configures the specified context with a {@link MemberAccess} instance for
-     * handling field/method protection levels.
-     *
-     * @param context
-     *          The context to configure.
-     * @param memberAccess
-     *          The access resolver to configure the context with.
-     */
-    public static void setMemberAccess(Map context, MemberAccess memberAccess)
-    {
-        context.put(OgnlContext.MEMBER_ACCESS_CONTEXT_KEY, memberAccess);
-    }
-
-    /**
-     * Gets the currently stored {@link MemberAccess} object for the given context - if any.
-     *
-     * @param context
-     *          The context to get the object from.
-     * 
-     * @return The configured {@link MemberAccess} instance in the specified context - or null if none found.
-     */
-    public static MemberAccess getMemberAccess(Map context)
-    {
-        return (MemberAccess) context.get(OgnlContext.MEMBER_ACCESS_CONTEXT_KEY);
-    }
-
-    /**
      * Sets the root object to use for all expressions in the given context - doesn't necessarily replace
      * root object instances explicitly passed in to other expression resolving methods on this class.
      *
