@@ -10,7 +10,7 @@
     <groupId>ognl</groupId>
     <artifactId>ognl</artifactId>
     <packaging>jar</packaging>
-    <version>3.0.17</version>
+    <version>3.0.18-SNAPSHOT</version>
     <name>OGNL - Object Graph Navigation Library</name>
     <description>OGNL - Object Graph Navigation Library</description>
 
