@@ -17,6 +17,10 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
+### Release notes - version 3.1.9, 3.0.18
+ * Drops access to `_memeberAccess` field via magic key -
+   thanks to Łukasz Lenart
+
 ### Release notes - version 3.1.8, 3.0.17, 3.0.6.2
  * Exposes flags to allow check if an expression is a chain or an arithmetic operation or a simple method -
    thanks to Łukasz Lenart
