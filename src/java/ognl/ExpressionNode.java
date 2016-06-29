@@ -157,7 +157,7 @@ public abstract class ExpressionNode extends SimpleNode
     }
 
     @Override
-    public boolean isOperation(OgnlContext context) {
+    public boolean isOperation(OgnlContext context) throws OgnlException {
         return true;
     }
 }

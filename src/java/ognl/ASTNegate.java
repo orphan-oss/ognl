@@ -66,4 +66,13 @@ class ASTNegate extends NumericExpression
             return "-(" + source + ")";
         }
     }
+
+    @Override
+    public boolean isOperation(OgnlContext context) throws OgnlException {
+        if (_children.length == 1) {
+            SimpleNode child = (SimpleNode) _children[0];
+            return child.isOperation(context) || !child.isConstant(context);
+        }
+        return super.isOperation(context);
+    }
 }

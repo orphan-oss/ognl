@@ -30,6 +30,24 @@ public class OperationTest extends TestCase {
 
         node = (SimpleNode) Ognl.parseExpression("('bar' + 'foo', #name.foo())");
         assertTrue(node.isOperation(context));
+
+        node = (SimpleNode) Ognl.parseExpression("-bar");
+        assertTrue(node.isOperation(context));
+
+        node = (SimpleNode) Ognl.parseExpression("-(#bar)");
+        assertTrue(node.isOperation(context));
+
+        node = (SimpleNode) Ognl.parseExpression("-1");
+        assertFalse(node.isOperation(context));
+
+        node = (SimpleNode) Ognl.parseExpression("-(#bar+#foo)");
+        assertTrue(node.isOperation(context));
+
+        node = (SimpleNode) Ognl.parseExpression("#bar=3,#foo=4(#bar-#foo)");
+        assertTrue(node.isOperation(context));
+
+        node = (SimpleNode) Ognl.parseExpression("#bar-3");
+        assertTrue(node.isOperation(context));
     }
 
 }
