@@ -17,6 +17,10 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
+### Release notes - version 3.1.10, 3.0.19
+ * Does not treat nagative numbers as an arithemtic operations [#28](../../issues/28) -
+   thanks to Łukasz Lenart
+
 ### Release notes - version 3.1.9, 3.0.18
  * Drops access to `_memeberAccess` field via magic key -
    thanks to Łukasz Lenart
