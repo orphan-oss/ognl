@@ -167,6 +167,8 @@ public class OgnlRuntime {
             _compiler = new ExpressionCompiler();
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Javassist library is missing in classpath! Please add missed dependency!",e);
+        } catch (RuntimeException rt) {
+            throw new IllegalStateException("Javassist library cannot be loaded, is it restricted by runtime environment?");
         }
     }
 
