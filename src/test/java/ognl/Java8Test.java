@@ -1,16 +1,30 @@
 package ognl;
 
-import junit.framework.TestCase;
-
 import java.util.List;
 
-public class Java8Test extends TestCase /* implements InterfaceWithDefaults */ {
+import junit.framework.TestCase;
 
-    public void testDefaultMethod() {
+public class Java8Test extends TestCase {
+
+    public void testDefaultMethodOnClass() {
         /* defaultMethod(); */
-        List defaultMethod = OgnlRuntime.getMethods(Java8Test.class, "defaultMethod", false);
+        List defaultMethod = OgnlRuntime.getMethods(ClassWithDefaults.class, "defaultMethod", false);
         assertNotNull(defaultMethod);
     }
+
+    public void testDefaultMethodOnSubClass() {
+        /* defaultMethod(); */
+        List defaultMethod = OgnlRuntime.getMethods(SubClassWithDefaults.class, "defaultMethod", false);
+        assertNotNull(defaultMethod);
+    }
+
+}
+
+class SubClassWithDefaults extends ClassWithDefaults {
+
+}
+
+class ClassWithDefaults /* implements InterfaceWithDefaults */ {
 
 }
 
@@ -20,4 +34,4 @@ public class Java8Test extends TestCase /* implements InterfaceWithDefaults */ {
 interface InterfaceWithDefaults {
     default public void defaultMethod() { }
 }
-*/
+ */
