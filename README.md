@@ -17,12 +17,16 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
+### Release notes - version 3.1.11
+ * fixes issue with returning default methods from interfaces implemented by parent class [#30](../../issues/30) -
+   thanks to Vlastimil Dolejš
+
 ### Release notes - version 3.1.10, 3.0.19
- * Does not treat nagative numbers as an arithemtic operations [#28](../../issues/28) -
+ * Does not treat negative numbers as an arithmetic operation [#28](../../issues/28) -
    thanks to Łukasz Lenart
 
 ### Release notes - version 3.1.9, 3.0.18
- * Drops access to `_memeberAccess` field via magic key -
+ * Drops access to `_memeberAccess` field via a magic key -
    thanks to Łukasz Lenart
 
 ### Release notes - version 3.1.8, 3.0.17, 3.0.6.2
