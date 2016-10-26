@@ -17,6 +17,10 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
+### Release notes - version 3.1.12
+ * fixes issue with returning the `hasCode` method when looking for a field `code` [#32](../../issues/32) -
+   thanks to Łukasz Lenart
+
 ### Release notes - version 3.1.11
  * fixes issue with returning default methods from interfaces implemented by parent class [#30](../../issues/30) -
    thanks to Vlastimil Dolejš
