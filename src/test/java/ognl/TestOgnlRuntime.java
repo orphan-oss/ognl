@@ -5,6 +5,7 @@ import org.ognl.test.objects.*;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -52,6 +53,17 @@ public class TestOgnlRuntime extends TestCase {
         assertNotNull(m);
 
         assertEquals("isPageBreakAfter", m.getName());
+    }
+
+    public void test_Get_Read_Field()
+            throws Exception
+    {
+        Method m = OgnlRuntime.getReadMethod(Bean2.class, "code");
+        assertNull(m);
+
+        Field field = OgnlRuntime.getField(Bean2.class, "code");
+        assertNotNull(field);
+        assertEquals("code", field.getName());
     }
 
     class TestGetters {

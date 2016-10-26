@@ -2924,7 +2924,6 @@ public class OgnlRuntime {
                     continue;
 
                 if ((methods[i].getName().equalsIgnoreCase(name)
-                     || methods[i].getName().toLowerCase().equals(name)
                      || methods[i].getName().toLowerCase().equals("get" + name)
                      || methods[i].getName().toLowerCase().equals("has" + name)
                      || methods[i].getName().toLowerCase().equals("is" + name))
@@ -2944,8 +2943,11 @@ public class OgnlRuntime {
                 if (!isMethodCallable(methods[i].getMethod()))
                     continue;
 
-                if (methods[i].getName().toLowerCase().endsWith(name)
+                if (methods[i].getName().equalsIgnoreCase(name)
                     && !methods[i].getName().startsWith("set")
+                    && !methods[i].getName().startsWith("get")
+                    && !methods[i].getName().startsWith("is")
+                    && !methods[i].getName().startsWith("has")
                     && methods[i].getMethod().getReturnType() != Void.TYPE) {
 
                     Method m = methods[i].getMethod();

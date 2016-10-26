@@ -36,6 +36,8 @@ public class Bean2 extends Object
 
     private boolean _pageBreakAfter = false;
 
+    public String code = "code";
+
     public Long getId()
     {
         return 1l;
