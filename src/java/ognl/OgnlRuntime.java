@@ -1790,7 +1790,7 @@ public class OgnlRuntime {
                     {
                         toExamined.add(c);
                         
-                        // Including interfaces is needed as from Java 8 intefaces can implement defaul methods
+                        // Including interfaces is needed as from Java 8 intefaces can implement default methods
                         toExamined.addAll(Arrays.asList(c.getInterfaces()));
                     }
 
@@ -2148,6 +2148,37 @@ public class OgnlRuntime {
                                 }
                             }
                         }
+                    }
+                    // Add default methods on interface
+                    for (Class c = targetClass; c != null; c = c.getSuperclass()) {
+                    	for(Class intf : c.getInterfaces()){
+	                        Method[] methods = intf.getDeclaredMethods();
+	
+	                        for (int i = 0; i < methods.length; i++) {
+	                            if (Modifier.isAbstract(methods[i].getModifiers()))
+	                                continue;
+	
+	                            String ms = methods[i].getName();
+	
+	                            if (ms.endsWith(baseName)) {
+	                                boolean isSet = false, isIs = false;
+	
+	                                if ((isSet = ms.startsWith(SET_PREFIX)) || ms.startsWith(GET_PREFIX)
+	                                    || (isIs = ms.startsWith(IS_PREFIX))) {
+	                                    int prefixLength = (isIs ? 2 : 3);
+	
+	                                    if (isSet == findSets) {
+	                                        if (baseName.length() == (ms.length() - prefixLength)) {
+	                                            if (result == null) {
+	                                                result = new ArrayList();
+	                                            }
+	                                            result.add(methods[i]);
+	                                        }
+	                                    }
+	                                }
+	                            }
+	                        }
+                    	}
                     }
                     if (propertyCache == null) {
                         cache.put(targetClass, propertyCache = new HashMap(101));
@@ -2912,15 +2943,14 @@ public class OgnlRuntime {
 
             name = name.toLowerCase();
 
-            BeanInfo info = Introspector.getBeanInfo(target);
-            MethodDescriptor[] methods = info.getMethodDescriptors();
+            Method[] methods = target.getMethods();
 
             // exact matches first
             ArrayList<Method> candidates = new ArrayList<Method>();
 
             for (int i = 0; i < methods.length; i++)
             {
-                if (!isMethodCallable(methods[i].getMethod()))
+                if (!isMethodCallable(methods[i]))
                     continue;
 
                 if ((methods[i].getName().equalsIgnoreCase(name)
@@ -2929,7 +2959,7 @@ public class OgnlRuntime {
                      || methods[i].getName().toLowerCase().equals("is" + name))
                     && !methods[i].getName().startsWith("set"))
                 {
-                    candidates.add(methods[i].getMethod());
+                    candidates.add(methods[i]);
                 }
             }
             if (!candidates.isEmpty()) {
@@ -2940,7 +2970,7 @@ public class OgnlRuntime {
 
             for (int i = 0; i < methods.length; i++)
             {
-                if (!isMethodCallable(methods[i].getMethod()))
+                if (!isMethodCallable(methods[i]))
                     continue;
 
                 if (methods[i].getName().equalsIgnoreCase(name)
@@ -2948,9 +2978,9 @@ public class OgnlRuntime {
                     && !methods[i].getName().startsWith("get")
                     && !methods[i].getName().startsWith("is")
                     && !methods[i].getName().startsWith("has")
-                    && methods[i].getMethod().getReturnType() != Void.TYPE) {
+                    && methods[i].getReturnType() != Void.TYPE) {
 
-                    Method m = methods[i].getMethod();
+                    Method m = methods[i];
                     if (!candidates.contains(m))
                         candidates.add(m);
                 }
