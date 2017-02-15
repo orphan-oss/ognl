@@ -312,6 +312,36 @@ public abstract class Ognl
     }
 
     /**
+     * Configures the {@link ClassResolver} to use for the given context.  Will be used during
+     * expression parsing / execution to resolve class names.
+     *
+     * @param context
+     *          The context to place the resolver.
+     * @param classResolver
+     *          The resolver to use to resolve classes.
+     * @deprecated it ignores any attempts to modify ClassResolver, ClassResolver can be defined
+     *          only when creating a new context
+     */
+    public static void setClassResolver(Map context, ClassResolver classResolver)
+    {
+        // noop
+    }
+
+    /**
+     * Gets the previously stored {@link ClassResolver} for the given context - if any.
+     *
+     * @param context
+     *          The context to get the configured resolver from.
+     *
+     * @return The resolver instance, or null if none found.
+     * @deprecated it always return null, access to class resolver was prohibited
+     */
+    public static ClassResolver getClassResolver(Map context)
+    {
+        return null;
+    }
+
+    /**
      * Configures the type converter to use for a given context. This will be used
      * to convert into / out of various java class types.
      *
