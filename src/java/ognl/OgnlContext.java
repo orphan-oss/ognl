@@ -43,13 +43,11 @@ import java.util.*;
 public class OgnlContext extends Object implements Map
 {
 
-    public static final String CONTEXT_CONTEXT_KEY = "context";
     public static final String ROOT_CONTEXT_KEY = "root";
     public static final String THIS_CONTEXT_KEY = "this";
     public static final String TRACE_EVALUATIONS_CONTEXT_KEY = "_traceEvaluations";
     public static final String LAST_EVALUATION_CONTEXT_KEY = "_lastEvaluation";
     public static final String KEEP_LAST_EVALUATION_CONTEXT_KEY = "_keepLastEvaluation";
-    public static final String CLASS_RESOLVER_CONTEXT_KEY = "_classResolver";
     public static final String TYPE_CONVERTER_CONTEXT_KEY = "_typeConverter";
 
     private static final String PROPERTY_KEY_PREFIX = "ognl";
@@ -80,13 +78,11 @@ public class OgnlContext extends Object implements Map
     static {
         String s;
         
-        RESERVED_KEYS.put(CONTEXT_CONTEXT_KEY, null);
         RESERVED_KEYS.put(ROOT_CONTEXT_KEY, null);
         RESERVED_KEYS.put(THIS_CONTEXT_KEY, null);
         RESERVED_KEYS.put(TRACE_EVALUATIONS_CONTEXT_KEY, null);
         RESERVED_KEYS.put(LAST_EVALUATION_CONTEXT_KEY, null);
         RESERVED_KEYS.put(KEEP_LAST_EVALUATION_CONTEXT_KEY, null);
-        RESERVED_KEYS.put(CLASS_RESOLVER_CONTEXT_KEY, null);
         RESERVED_KEYS.put(TYPE_CONVERTER_CONTEXT_KEY, null);
 
         try {
@@ -496,27 +492,19 @@ public class OgnlContext extends Object implements Map
                 if (key.equals(OgnlContext.ROOT_CONTEXT_KEY)) {
                     result = getRoot();
                 } else {
-                    if (key.equals(OgnlContext.CONTEXT_CONTEXT_KEY)) {
-                        result = this;
+                    if (key.equals(OgnlContext.TRACE_EVALUATIONS_CONTEXT_KEY)) {
+                        result = getTraceEvaluations() ? Boolean.TRUE : Boolean.FALSE;
                     } else {
-                        if (key.equals(OgnlContext.TRACE_EVALUATIONS_CONTEXT_KEY)) {
-                            result = getTraceEvaluations() ? Boolean.TRUE : Boolean.FALSE;
+                        if (key.equals(OgnlContext.LAST_EVALUATION_CONTEXT_KEY)) {
+                            result = getLastEvaluation();
                         } else {
-                            if (key.equals(OgnlContext.LAST_EVALUATION_CONTEXT_KEY)) {
-                                result = getLastEvaluation();
+                            if (key.equals(OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY)) {
+                                result = getKeepLastEvaluation() ? Boolean.TRUE : Boolean.FALSE;
                             } else {
-                                if (key.equals(OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY)) {
-                                    result = getKeepLastEvaluation() ? Boolean.TRUE : Boolean.FALSE;
+                                if (key.equals(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY)) {
+                                    result = getTypeConverter();
                                 } else {
-                                    if (key.equals(OgnlContext.CLASS_RESOLVER_CONTEXT_KEY)) {
-                                        result = getClassResolver();
-                                    } else {
-                                        if (key.equals(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY)) {
-                                            result = getTypeConverter();
-                                        } else {
-                                            throw new IllegalArgumentException("unknown reserved key '" + key + "'");
-                                        }
-                                    }
+                                    throw new IllegalArgumentException("unknown reserved key '" + key + "'");
                                 }
                             }
                         }
@@ -542,33 +530,23 @@ public class OgnlContext extends Object implements Map
                     result = getRoot();
                     setRoot(value);
                 } else {
-                    if (key.equals(OgnlContext.CONTEXT_CONTEXT_KEY)) {
-                        throw new IllegalArgumentException("can't change " + OgnlContext.CONTEXT_CONTEXT_KEY
-                                + " in context");
+                    if (key.equals(OgnlContext.TRACE_EVALUATIONS_CONTEXT_KEY)) {
+                        result = getTraceEvaluations() ? Boolean.TRUE : Boolean.FALSE;
+                        setTraceEvaluations(OgnlOps.booleanValue(value));
                     } else {
-                        if (key.equals(OgnlContext.TRACE_EVALUATIONS_CONTEXT_KEY)) {
-                            result = getTraceEvaluations() ? Boolean.TRUE : Boolean.FALSE;
-                            setTraceEvaluations(OgnlOps.booleanValue(value));
+                        if (key.equals(OgnlContext.LAST_EVALUATION_CONTEXT_KEY)) {
+                            result = getLastEvaluation();
+                            _lastEvaluation = (Evaluation) value;
                         } else {
-                            if (key.equals(OgnlContext.LAST_EVALUATION_CONTEXT_KEY)) {
-                                result = getLastEvaluation();
-                                _lastEvaluation = (Evaluation) value;
+                            if (key.equals(OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY)) {
+                                result = getKeepLastEvaluation() ? Boolean.TRUE : Boolean.FALSE;
+                                setKeepLastEvaluation(OgnlOps.booleanValue(value));
                             } else {
-                                if (key.equals(OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY)) {
-                                    result = getKeepLastEvaluation() ? Boolean.TRUE : Boolean.FALSE;
-                                    setKeepLastEvaluation(OgnlOps.booleanValue(value));
+                                if (key.equals(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY)) {
+                                    result = getTypeConverter();
+                                    setTypeConverter((TypeConverter) value);
                                 } else {
-                                    if (key.equals(OgnlContext.CLASS_RESOLVER_CONTEXT_KEY)) {
-                                        result = getClassResolver();
-                                        setClassResolver((ClassResolver) value);
-                                    } else {
-                                        if (key.equals(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY)) {
-                                            result = getTypeConverter();
-                                            setTypeConverter((TypeConverter) value);
-                                        } else {
-                                            throw new IllegalArgumentException("unknown reserved key '" + key + "'");
-                                        }
-                                    }
+                                    throw new IllegalArgumentException("unknown reserved key '" + key + "'");
                                 }
                             }
                         }
@@ -595,33 +573,23 @@ public class OgnlContext extends Object implements Map
                     result = getRoot();
                     setRoot(null);
                 } else {
-                    if (key.equals(OgnlContext.CONTEXT_CONTEXT_KEY)) {
-                        throw new IllegalArgumentException("can't remove " + OgnlContext.CONTEXT_CONTEXT_KEY
-                                + " from context");
+                    if (key.equals(OgnlContext.TRACE_EVALUATIONS_CONTEXT_KEY)) {
+                        throw new IllegalArgumentException("can't remove "
+                                + OgnlContext.TRACE_EVALUATIONS_CONTEXT_KEY + " from context");
                     } else {
-                        if (key.equals(OgnlContext.TRACE_EVALUATIONS_CONTEXT_KEY)) {
-                            throw new IllegalArgumentException("can't remove "
-                                    + OgnlContext.TRACE_EVALUATIONS_CONTEXT_KEY + " from context");
+                        if (key.equals(OgnlContext.LAST_EVALUATION_CONTEXT_KEY)) {
+                            result = _lastEvaluation;
+                            setLastEvaluation(null);
                         } else {
-                            if (key.equals(OgnlContext.LAST_EVALUATION_CONTEXT_KEY)) {
-                                result = _lastEvaluation;
-                                setLastEvaluation(null);
+                            if (key.equals(OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY)) {
+                                throw new IllegalArgumentException("can't remove "
+                                        + OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY + " from context");
                             } else {
-                                if (key.equals(OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY)) {
-                                    throw new IllegalArgumentException("can't remove "
-                                            + OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY + " from context");
+                                if (key.equals(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY)) {
+                                    result = getTypeConverter();
+                                    setTypeConverter(null);
                                 } else {
-                                    if (key.equals(OgnlContext.CLASS_RESOLVER_CONTEXT_KEY)) {
-                                        result = getClassResolver();
-                                        setClassResolver(null);
-                                    } else {
-                                        if (key.equals(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY)) {
-                                            result = getTypeConverter();
-                                            setTypeConverter(null);
-                                        } else {
-                                            throw new IllegalArgumentException("unknown reserved key '" + key + "'");
-                                        }
-                                    }
+                                    throw new IllegalArgumentException("unknown reserved key '" + key + "'");
                                 }
                             }
                         }
