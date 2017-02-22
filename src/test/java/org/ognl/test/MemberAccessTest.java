@@ -32,6 +32,8 @@ package org.ognl.test;
 
 import junit.framework.TestSuite;
 import ognl.DefaultMemberAccess;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.OgnlException;
 import org.ognl.test.objects.Simple;
 
@@ -107,27 +109,28 @@ public class MemberAccessTest extends OgnlTestCase {
         super.setUp();
         
         /* Should allow access at all to the Simple class except for the bigIntValue property */
-        _context.setMemberAccess(new DefaultMemberAccess(false) {
+        DefaultMemberAccess ma = new DefaultMemberAccess(false) {
 
-            public boolean isAccessible(Map context, Object target, Member member, String propertyName)
-            {
+            public boolean isAccessible(Map context, Object target, Member member, String propertyName) {
                 if (target == Runtime.class) {
                     return false;
                 }
                 if (target instanceof Simple) {
                     if (propertyName != null) {
                         return !propertyName.equals("bigIntValue")
-                               && super.isAccessible(context, target, member, propertyName);
+                                && super.isAccessible(context, target, member, propertyName);
                     } else {
                         if (member instanceof Method) {
                             return !member.getName().equals("getBigIntValue")
-                                   && !member.getName().equals("setBigIntValue")
-                                   && super.isAccessible(context, target, member, propertyName);
+                                    && !member.getName().equals("setBigIntValue")
+                                    && super.isAccessible(context, target, member, propertyName);
                         }
                     }
                 }
                 return super.isAccessible(context, target, member, propertyName);
             }
-        });
+        };
+
+        _context = (OgnlContext) Ognl.createDefaultContext(null, null, null, ma);
     }
 }

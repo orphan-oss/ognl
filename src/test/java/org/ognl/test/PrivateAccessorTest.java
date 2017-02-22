@@ -32,6 +32,7 @@ package org.ognl.test;
 
 import junit.framework.TestSuite;
 import ognl.DefaultMemberAccess;
+import ognl.OgnlContext;
 import org.ognl.test.objects.Root;
 
 public class PrivateAccessorTest extends OgnlTestCase
@@ -118,7 +119,7 @@ public class PrivateAccessorTest extends OgnlTestCase
     public void setUp()
     {
         super.setUp();
-        _context.setMemberAccess(new DefaultMemberAccess(true));
+        _context = new OgnlContext(null, null, new DefaultMemberAccess(true));
         _compileExpressions = false;
     }
 }
