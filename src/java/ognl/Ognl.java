@@ -153,7 +153,7 @@ public abstract class Ognl
      */
     public static Map createDefaultContext(Object root)
     {
-        return addDefaultContext(root, null, null, null, new OgnlContext());
+        return addDefaultContext(root, null, null, null, new OgnlContext(null, null, null));
     }
 
     /**
@@ -169,7 +169,7 @@ public abstract class Ognl
      */
     public static Map createDefaultContext(Object root, ClassResolver classResolver)
     {
-        return addDefaultContext(root, classResolver, null, null, new OgnlContext());
+        return addDefaultContext(root, classResolver, null, null, new OgnlContext(classResolver, null, null));
     }
 
     /**
@@ -187,7 +187,7 @@ public abstract class Ognl
      */
     public static Map createDefaultContext(Object root, ClassResolver classResolver, TypeConverter converter)
     {
-        return addDefaultContext(root, classResolver, converter, null, new OgnlContext());
+        return addDefaultContext(root, classResolver, converter, null, new OgnlContext(classResolver, converter, null));
     }
 
     /**
@@ -208,7 +208,7 @@ public abstract class Ognl
     public static Map createDefaultContext(Object root, ClassResolver classResolver,
                                            TypeConverter converter, MemberAccess memberAccess)
     {
-        return addDefaultContext(root, classResolver, converter, memberAccess, new OgnlContext());
+        return addDefaultContext(root, classResolver, converter, memberAccess, new OgnlContext(classResolver, converter, memberAccess));
     }
 
     /**
@@ -292,19 +292,10 @@ public abstract class Ognl
         OgnlContext result;
 
         if (!(context instanceof OgnlContext)) {
-            result = new OgnlContext();
+            result = new OgnlContext(classResolver, converter, memberAccess);
             result.setValues(context);
         } else {
             result = (OgnlContext) context;
-        }
-        if (classResolver != null) {
-            result.setClassResolver(classResolver);
-        }
-        if (converter != null) {
-            result.setTypeConverter(converter);
-        }
-        if (memberAccess != null) {
-            result.setMemberAccess(memberAccess);
         }
 
         result.setRoot(root);

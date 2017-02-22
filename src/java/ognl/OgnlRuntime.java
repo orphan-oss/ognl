@@ -1175,7 +1175,7 @@ public class OgnlRuntime {
             ClassResolver resolver;
 
             if ((context == null) || ((resolver = context.getClassResolver()) == null)) {
-                resolver = OgnlContext.DEFAULT_CLASS_RESOLVER;
+                resolver = new DefaultClassResolver();
             }
             result = resolver.classForName(className, context);
         }
