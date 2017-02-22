@@ -54,11 +54,7 @@ public class OgnlContext extends Object implements Map
     private static boolean DEFAULT_TRACE_EVALUATIONS = false;
     private static boolean DEFAULT_KEEP_LAST_EVALUATION = false;
 
-    public static final ClassResolver DEFAULT_CLASS_RESOLVER = new DefaultClassResolver();
-    public static final TypeConverter DEFAULT_TYPE_CONVERTER = new DefaultTypeConverter();
-    public static final MemberAccess DEFAULT_MEMBER_ACCESS = new DefaultMemberAccess(false);
-    
-    private static Map RESERVED_KEYS = new HashMap(11);
+    private static final Map<String, Object> RESERVED_KEYS = new HashMap<>(6);
     
     private Object _root;
     private Object _currentObject;
@@ -71,13 +67,13 @@ public class OgnlContext extends Object implements Map
     
     private final Map _values;
     
-    private ClassResolver _classResolver = DEFAULT_CLASS_RESOLVER;
-    private TypeConverter _typeConverter = DEFAULT_TYPE_CONVERTER;
-    private MemberAccess _memberAccess = DEFAULT_MEMBER_ACCESS;
+    private final ClassResolver _classResolver;
+    private final TypeConverter _typeConverter;
+    private final MemberAccess _memberAccess;
     
     static {
         String s;
-        
+
         RESERVED_KEYS.put(ROOT_CONTEXT_KEY, null);
         RESERVED_KEYS.put(THIS_CONTEXT_KEY, null);
         RESERVED_KEYS.put(TRACE_EVALUATIONS_CONTEXT_KEY, null);
@@ -104,16 +100,6 @@ public class OgnlContext extends Object implements Map
     private Map _localReferenceMap = null;
 
     /**
-     * Constructs a new OgnlContext with the default class resolver, type converter and member
-     * access.
-     */
-    public OgnlContext()
-    {
-        // nulls will prevent overriding the default class resolver, type converter and member access
-        this(null, null, null);
-    }
-
-    /**
      * Constructs a new OgnlContext with the given class resolver, type converter and member access.
      * If any of these parameters is null the default will be used.
      */
@@ -135,12 +121,18 @@ public class OgnlContext extends Object implements Map
         this._values = values;
         if (classResolver != null) {
             this._classResolver = classResolver;
+        } else {
+            this._classResolver = new DefaultClassResolver();
         }
         if (typeConverter != null) {
             this._typeConverter = typeConverter;
+        } else {
+            this._typeConverter = new DefaultTypeConverter();
         }
         if (memberAccess != null) {
             this._memberAccess = memberAccess;
+        } else {
+            this._memberAccess = new DefaultMemberAccess(false);
         }
     }
 
@@ -158,10 +150,9 @@ public class OgnlContext extends Object implements Map
         return _values;
     }
 
-    public void setClassResolver(ClassResolver value)
-    {
-        if (value == null) { throw new IllegalArgumentException("cannot set ClassResolver to null"); }
-        _classResolver = value;
+    @Deprecated
+    public void setClassResolver(ClassResolver ignore) {
+        // no-op
     }
 
     public ClassResolver getClassResolver()
@@ -169,10 +160,10 @@ public class OgnlContext extends Object implements Map
         return _classResolver;
     }
 
-    public void setTypeConverter(TypeConverter value)
+    @Deprecated
+    public void setTypeConverter(TypeConverter ignore)
     {
-        if (value == null) { throw new IllegalArgumentException("cannot set TypeConverter to null"); }
-        _typeConverter = value;
+        // no-op
     }
 
     public TypeConverter getTypeConverter()
@@ -180,10 +171,10 @@ public class OgnlContext extends Object implements Map
         return _typeConverter;
     }
 
-    public void setMemberAccess(MemberAccess value)
+    @Deprecated
+    public void setMemberAccess(MemberAccess ignore)
     {
-        if (value == null) { throw new IllegalArgumentException("cannot set MemberAccess to null"); }
-        _memberAccess = value;
+        // no-op
     }
 
     public MemberAccess getMemberAccess()
@@ -542,12 +533,7 @@ public class OgnlContext extends Object implements Map
                                 result = getKeepLastEvaluation() ? Boolean.TRUE : Boolean.FALSE;
                                 setKeepLastEvaluation(OgnlOps.booleanValue(value));
                             } else {
-                                if (key.equals(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY)) {
-                                    result = getTypeConverter();
-                                    setTypeConverter((TypeConverter) value);
-                                } else {
-                                    throw new IllegalArgumentException("unknown reserved key '" + key + "'");
-                                }
+                                throw new IllegalArgumentException("unknown reserved key '" + key + "'");
                             }
                         }
                     }
@@ -585,12 +571,7 @@ public class OgnlContext extends Object implements Map
                                 throw new IllegalArgumentException("can't remove "
                                         + OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY + " from context");
                             } else {
-                                if (key.equals(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY)) {
-                                    result = getTypeConverter();
-                                    setTypeConverter(null);
-                                } else {
-                                    throw new IllegalArgumentException("unknown reserved key '" + key + "'");
-                                }
+                                throw new IllegalArgumentException("unknown reserved key '" + key + "'");
                             }
                         }
                     }
@@ -629,9 +610,6 @@ public class OgnlContext extends Object implements Map
         setCurrentEvaluation(null);
         setLastEvaluation(null);
         setCurrentNode(null);
-        setClassResolver(DEFAULT_CLASS_RESOLVER);
-        setTypeConverter(DEFAULT_TYPE_CONVERTER);
-        setMemberAccess(DEFAULT_MEMBER_ACCESS);
     }
 
     public Set keySet()
