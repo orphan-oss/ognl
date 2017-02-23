@@ -17,6 +17,14 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
+### Release notes - version 3.2
+ * makes `OgnlContext` a bit more immutable
+ * sets source and target in `pom.xml` to Java 1.7
+
+### Release notes - version 3.1.14
+ * drops access to `#context` and `_classResolver` via a magic keys -
+   thanks to Łukasz Lenart
+
 ### Release notes - version 3.1.12
  * fixes issue with returning the `hasCode` method when looking for a field `code` [#32](../../issues/32) -
    thanks to Łukasz Lenart
