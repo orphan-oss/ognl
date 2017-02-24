@@ -21,7 +21,7 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
  * makes `OgnlContext` a bit more immutable
  * sets source and target in `pom.xml` to Java 1.7
 
-### Release notes - version 3.1.14
+### Release notes - version 3.1.14, 3.0.20
  * drops access to `#context` and `_classResolver` via a magic keys -
    thanks to Łukasz Lenart
 
