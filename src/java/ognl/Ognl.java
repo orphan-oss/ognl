@@ -291,11 +291,10 @@ public abstract class Ognl
     {
         OgnlContext result;
 
-        if (!(context instanceof OgnlContext)) {
-            result = new OgnlContext(classResolver, converter, memberAccess);
-            result.setValues(context);
-        } else {
+        if (context instanceof OgnlContext) {
             result = (OgnlContext) context;
+        } else {
+            result = new OgnlContext(classResolver, converter, memberAccess, context);
         }
 
         result.setRoot(root);
@@ -340,10 +339,13 @@ public abstract class Ognl
      *          The context to configure it for.
      * @param converter
      *          The converter to use.
+     *
+     * @deprecated do not use
      */
+    @Deprecated
     public static void setTypeConverter(Map context, TypeConverter converter)
     {
-        context.put(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY, converter);
+        // no-op
     }
 
     /**
@@ -356,7 +358,10 @@ public abstract class Ognl
      */
     public static TypeConverter getTypeConverter(Map context)
     {
-        return (TypeConverter) context.get(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY);
+        if (context instanceof OgnlContext) {
+            return ((OgnlContext) context).getTypeConverter();
+        }
+        return null;
     }
 
     /**

@@ -79,7 +79,6 @@ public class OgnlContext extends Object implements Map
         RESERVED_KEYS.put(TRACE_EVALUATIONS_CONTEXT_KEY, null);
         RESERVED_KEYS.put(LAST_EVALUATION_CONTEXT_KEY, null);
         RESERVED_KEYS.put(KEEP_LAST_EVALUATION_CONTEXT_KEY, null);
-        RESERVED_KEYS.put(TYPE_CONVERTER_CONTEXT_KEY, null);
 
         try {
             if ((s = System.getProperty(PROPERTY_KEY_PREFIX + ".traceEvaluations")) != null) {
@@ -492,11 +491,7 @@ public class OgnlContext extends Object implements Map
                             if (key.equals(OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY)) {
                                 result = getKeepLastEvaluation() ? Boolean.TRUE : Boolean.FALSE;
                             } else {
-                                if (key.equals(OgnlContext.TYPE_CONVERTER_CONTEXT_KEY)) {
-                                    result = getTypeConverter();
-                                } else {
-                                    throw new IllegalArgumentException("unknown reserved key '" + key + "'");
-                                }
+                                throw new IllegalArgumentException("unknown reserved key '" + key + "'");
                             }
                         }
                     }
