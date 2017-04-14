@@ -48,13 +48,15 @@ public class OgnlContext extends Object implements Map
     public static final String TRACE_EVALUATIONS_CONTEXT_KEY = "_traceEvaluations";
     public static final String LAST_EVALUATION_CONTEXT_KEY = "_lastEvaluation";
     public static final String KEEP_LAST_EVALUATION_CONTEXT_KEY = "_keepLastEvaluation";
+
+    @Deprecated
     public static final String TYPE_CONVERTER_CONTEXT_KEY = "_typeConverter";
 
     private static final String PROPERTY_KEY_PREFIX = "ognl";
     private static boolean DEFAULT_TRACE_EVALUATIONS = false;
     private static boolean DEFAULT_KEEP_LAST_EVALUATION = false;
 
-    private static final Map<String, Object> RESERVED_KEYS = new HashMap<>(6);
+    private static final Map<Object, Object> RESERVED_KEYS = new HashMap<>(6);
     
     private Object _root;
     private Object _currentObject;
@@ -82,21 +84,21 @@ public class OgnlContext extends Object implements Map
 
         try {
             if ((s = System.getProperty(PROPERTY_KEY_PREFIX + ".traceEvaluations")) != null) {
-                DEFAULT_TRACE_EVALUATIONS = Boolean.valueOf(s.trim()).booleanValue();
+                DEFAULT_TRACE_EVALUATIONS = Boolean.valueOf(s.trim());
             }
             if ((s = System.getProperty(PROPERTY_KEY_PREFIX + ".keepLastEvaluation")) != null) {
-                DEFAULT_KEEP_LAST_EVALUATION = Boolean.valueOf(s.trim()).booleanValue();
+                DEFAULT_KEEP_LAST_EVALUATION = Boolean.valueOf(s.trim());
             }
         } catch (SecurityException ex) {
             // restricted access environment, just keep defaults
         }
     }
 
-    private final List _typeStack = new ArrayList(3);     // size 3 should be enough stack for most expressions
-    private final List _accessorStack = new ArrayList(3); // size 3 should be enough stack for most expressions
+    private final List<Class<?>> _typeStack = new ArrayList<>(3);     // size 3 should be enough stack for most expressions
+    private final List<Class<?>> _accessorStack = new ArrayList<>(3); // size 3 should be enough stack for most expressions
 
     private int _localReferenceCounter = 0;
-    private Map _localReferenceMap = null;
+    private Map<String, LocalReference> _localReferenceMap = null;
 
     /**
      * Constructs a new OgnlContext with the given class resolver, type converter and member access.
@@ -137,9 +139,7 @@ public class OgnlContext extends Object implements Map
 
     public void setValues(Map value)
     {
-        for(Iterator it = value.keySet().iterator(); it.hasNext();) {
-            Object k = it.next();
-
+        for (Object k : value.keySet()) {
             _values.put(k, value.get(k));
         }
     }
@@ -224,7 +224,10 @@ public class OgnlContext extends Object implements Map
      * reuse in the free pool maintained by the runtime. This is not a necessary step, but is useful
      * for keeping memory usage down. This will recycle the last evaluation and then set the last
      * evaluation to null.
+     *
+     * @deprecated since 3.2
      */
+    @Deprecated
     public void recycleLastEvaluation()
     {
         OgnlRuntime.getEvaluationPool().recycleAll(_lastEvaluation);
@@ -269,7 +272,7 @@ public class OgnlContext extends Object implements Map
         if (_accessorStack.isEmpty())
             return null;
         
-        return (Class) _accessorStack.get(_accessorStack.size() - 1);
+        return _accessorStack.get(_accessorStack.size() - 1);
     }
     
     public Class getPreviousAccessor()
@@ -278,7 +281,7 @@ public class OgnlContext extends Object implements Map
             return null;
 
         if (_accessorStack.size() > 1)
-            return (Class) _accessorStack.get(_accessorStack.size() - 2);
+            return _accessorStack.get(_accessorStack.size() - 2);
         else
             return null;
     }
@@ -288,7 +291,7 @@ public class OgnlContext extends Object implements Map
         if (_accessorStack.isEmpty())
             return null;
 
-        return (Class)_accessorStack.get(0);
+        return _accessorStack.get(0);
     }
 
     /**
@@ -321,7 +324,7 @@ public class OgnlContext extends Object implements Map
             return null;
 
         if (_typeStack.size() > 1)
-            return (Class)_typeStack.get(_typeStack.size() - 2);
+            return _typeStack.get(_typeStack.size() - 2);
         else
             return null;
     }
@@ -339,7 +342,7 @@ public class OgnlContext extends Object implements Map
         if (_typeStack.isEmpty())
             return null;
 
-        return (Class)_typeStack.get(0);
+        return _typeStack.get(0);
     }
 
     public void setCurrentNode(Node value)
@@ -439,7 +442,7 @@ public class OgnlContext extends Object implements Map
     {
         if (_localReferenceMap == null)
         {
-            _localReferenceMap = new LinkedHashMap();
+            _localReferenceMap = new LinkedHashMap<>();
         }
 
         _localReferenceMap.put(key, reference);
@@ -580,9 +583,7 @@ public class OgnlContext extends Object implements Map
 
     public void putAll(Map t)
     {
-        for(Iterator it = t.keySet().iterator(); it.hasNext();) {
-            Object k = it.next();
-
+        for (Object k : t.keySet()) {
             put(k, t.get(k));
         }
     }
