@@ -17,7 +17,7 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
-### Release notes - version 3.2
+### Release notes - version 3.2 - WIP (new changes are coming)
  * makes `OgnlContext` a bit more immutable
  * sets source and target in `pom.xml` to Java 1.7
 
