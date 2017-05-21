@@ -150,7 +150,10 @@ public abstract class Ognl
      *            the root of the object graph
      * @return a new Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
+     *
+     * @deprecated it will be removed soon
      */
+    @Deprecated
     public static Map createDefaultContext(Object root)
     {
         return addDefaultContext(root, null, null, null, new OgnlContext(null, null, null));
@@ -166,10 +169,13 @@ public abstract class Ognl
      *
      * @return a new OgnlContext with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
+     *
+     * @deprecated it will be removed soon
      */
+    @Deprecated
     public static Map createDefaultContext(Object root, ClassResolver classResolver)
     {
-        return addDefaultContext(root, classResolver, null, null, new OgnlContext(classResolver, null, null));
+        return addDefaultContext(root, null, classResolver, null, new OgnlContext(classResolver, null, null));
     }
 
     /**
@@ -184,10 +190,13 @@ public abstract class Ognl
      *
      * @return a new Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
+     *
+     * @deprecated it will be removed soon
      */
+    @Deprecated
     public static Map createDefaultContext(Object root, ClassResolver classResolver, TypeConverter converter)
     {
-        return addDefaultContext(root, classResolver, converter, null, new OgnlContext(classResolver, converter, null));
+        return addDefaultContext(root, null, classResolver, converter, new OgnlContext(classResolver, converter, null));
     }
 
     /**
@@ -195,20 +204,36 @@ public abstract class Ognl
      *
      * @param root
      *          The root of the object graph.
+     * @param memberAccess
+     *          Java security handling object to determine semantics for accessing normally private/protected
+     *          methods / fields.
      * @param classResolver
      *          The resolver used to instantiate {@link Class} instances referenced in the expression.
      * @param converter
      *          Converter used to convert return types of an expression in to their desired types.
+     * @return a new Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
+     *         appropriately
+     */
+    public static Map createDefaultContext(Object root, MemberAccess memberAccess, ClassResolver classResolver,
+                                           TypeConverter converter)
+    {
+        return addDefaultContext(root, memberAccess, classResolver, converter, new OgnlContext(classResolver, converter, memberAccess));
+    }
+
+    /**
+     * Creates and returns a new standard naming context for evaluating an OGNL expression.
+     *
+     * @param root
+     *          The root of the object graph.
      * @param memberAccess
      *          Java security handling object to determine semantics for accessing normally private/protected
      *          methods / fields.
      * @return a new Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
      */
-    public static Map createDefaultContext(Object root, ClassResolver classResolver,
-                                           TypeConverter converter, MemberAccess memberAccess)
+    public static Map createDefaultContext(Object root, MemberAccess memberAccess)
     {
-        return addDefaultContext(root, classResolver, converter, memberAccess, new OgnlContext(classResolver, converter, memberAccess));
+        return addDefaultContext(root, memberAccess, null, null, new OgnlContext(null, null, memberAccess));
     }
 
     /**
@@ -243,7 +268,7 @@ public abstract class Ognl
      */
     public static Map addDefaultContext(Object root, ClassResolver classResolver, Map context)
     {
-        return addDefaultContext(root, classResolver, null, null, context);
+        return addDefaultContext(root, null, classResolver, null, context);
     }
 
     /**
@@ -265,7 +290,7 @@ public abstract class Ognl
     public static Map addDefaultContext(Object root, ClassResolver classResolver,
                                         TypeConverter converter, Map context)
     {
-        return addDefaultContext(root, classResolver, converter, null, context);
+        return addDefaultContext(root, null, classResolver, converter, context);
     }
 
     /**
@@ -274,27 +299,27 @@ public abstract class Ognl
      *
      * @param root
      *            the root of the object graph
+     * @param memberAccess
+     *              Definition for handling private/protected access.
      * @param classResolver
      *            The class loading resolver that should be used to resolve class references.
      * @param converter
      *            The type converter to be used by default.
-     * @param memberAccess
-     *              Definition for handling private/protected access.
      * @param context
      *              Default context to use, if not an {@link OgnlContext} will be dumped into
      *              a new {@link OgnlContext} object.
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
      */
-    public static Map addDefaultContext(Object root, ClassResolver classResolver,
-                                        TypeConverter converter, MemberAccess memberAccess, Map context)
+    public static Map addDefaultContext(Object root, MemberAccess memberAccess, ClassResolver classResolver,
+                                        TypeConverter converter, Map context)
     {
         OgnlContext result;
 
         if (context instanceof OgnlContext) {
             result = (OgnlContext) context;
         } else {
-            result = new OgnlContext(classResolver, converter, memberAccess, context);
+            result = new OgnlContext(memberAccess, classResolver, converter, context);
         }
 
         result.setRoot(root);
@@ -584,7 +609,10 @@ public abstract class Ognl
      *             if the expression can't be used in this context
      * @throws OgnlException
      *             if there is a pathological environmental problem
+     *
+     * @deprecated it will be removed soon
      */
+    @Deprecated
     public static Object getValue(Object tree, Object root)
             throws OgnlException
     {

@@ -7,7 +7,8 @@ import java.util.List;
 public class IsTruckTest extends TestCase {
 
     public void testIsTruckMethod() throws Exception{
-        boolean actual = (Boolean) Ognl.getValue("isTruck", new TruckHolder());
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+        boolean actual = (Boolean) Ognl.getValue("isTruck", context, new TruckHolder());
 
         assertTrue(actual);
     }

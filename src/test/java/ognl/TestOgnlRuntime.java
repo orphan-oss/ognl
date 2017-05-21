@@ -9,13 +9,21 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Tests various methods / functionality of {@link ognl.OgnlRuntime}.
  */
 public class TestOgnlRuntime extends TestCase {
 
-    
+
+    private Map context;
+
+    public void setUp() throws Exception {
+        super.setUp();
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+    }
+
     public void test_Get_Super_Or_Interface_Class() throws Exception
     {
         ListSource list = new ListSourceImpl();
@@ -122,7 +130,7 @@ public class TestOgnlRuntime extends TestCase {
             throws Exception
     {
         ListSource list = new ListSourceImpl();
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
 
         Object ret = OgnlRuntime.callMethod(context, list, "addValue", new String[] {null});
         
@@ -134,7 +142,7 @@ public class TestOgnlRuntime extends TestCase {
 
         try {
 
-            OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+            OgnlContext context = (OgnlContext) this.context;
             OgnlRuntime.callStaticMethod(context, "made.up.Name", "foo", null);
 
             fail("ClassNotFoundException should have been thrown by previous reference to <made.up.Name> class.");
@@ -148,7 +156,7 @@ public class TestOgnlRuntime extends TestCase {
     public void test_Setter_Returns()
             throws Exception
     {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
         SetterReturns root = new SetterReturns();
 
         Method m = OgnlRuntime.getWriteMethod(root.getClass(), "value");
@@ -161,7 +169,7 @@ public class TestOgnlRuntime extends TestCase {
     public void test_Call_Method_VarArgs()
             throws Exception
     {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
         GenericService service = new GenericServiceImpl();
 
         GameGenericObject argument = new GameGenericObject();
@@ -179,7 +187,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(0, OgnlRuntime._propertyDescriptorCache.getSize());
 
         Root root = new Root();
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
         Node expr = Ognl.compileExpression(context, root, "property.bean3.value != null");
 
         assertTrue((Boolean)expr.getAccessor().get(context, root));
@@ -214,7 +222,7 @@ public class TestOgnlRuntime extends TestCase {
     public void test_Set_Generic_Parameter_Types()
         throws Exception
     {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
 
         Method m = OgnlRuntime.getSetMethod(context, GenericCracker.class, "param");
         assertNotNull(m);
@@ -227,7 +235,7 @@ public class TestOgnlRuntime extends TestCase {
     public void test_Get_Generic_Parameter_Types()
         throws Exception
     {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
 
         Method m = OgnlRuntime.getGetMethod(context, GenericCracker.class, "param");
         assertNotNull(m);
@@ -238,7 +246,7 @@ public class TestOgnlRuntime extends TestCase {
     public void test_Find_Parameter_Types()
             throws Exception
     {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
 
         Method m = OgnlRuntime.getSetMethod(context, GameGeneric.class, "ids");
         assertNotNull(m);
@@ -251,7 +259,7 @@ public class TestOgnlRuntime extends TestCase {
     public void test_Find_Parameter_Types_Superclass()
             throws Exception
     {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
 
         Method m = OgnlRuntime.getSetMethod(context, BaseGeneric.class, "ids");
         assertNotNull(m);
@@ -317,24 +325,24 @@ public class TestOgnlRuntime extends TestCase {
      }
 
     public void testBangOperator() throws Exception {
-        Object value = Ognl.getValue("!'false'", new Object());
+        Object value = Ognl.getValue("!'false'", context, new Object());
         assertEquals(Boolean.TRUE, value);
     }
 
     public void testGetStaticField() throws Exception {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
         Object obj = OgnlRuntime.getStaticField(context, "org.ognl.test.objects.Root", "SIZE_STRING");
         assertEquals(Root.SIZE_STRING, obj);
     }
 
     public void testGetStaticFieldEnum() throws Exception {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
         Object obj = OgnlRuntime.getStaticField(context, "org.ognl.test.objects.OtherEnum", "ONE");
         assertEquals(OtherEnum.ONE, obj);
     }
 
     public void testGetStaticFieldEnumStatic() throws Exception {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
         Object obj = OgnlRuntime.getStaticField(context, "org.ognl.test.objects.OtherEnum", "STATIC_STRING");
         assertEquals(OtherEnum.STATIC_STRING, obj);
     }

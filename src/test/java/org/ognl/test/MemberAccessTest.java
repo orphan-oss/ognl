@@ -131,6 +131,6 @@ public class MemberAccessTest extends OgnlTestCase {
             }
         };
 
-        _context = (OgnlContext) Ognl.createDefaultContext(null, null, null, ma);
+        _context = (OgnlContext) Ognl.createDefaultContext(null, ma, null, null);
     }
 }

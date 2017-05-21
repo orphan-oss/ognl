@@ -1,6 +1,7 @@
 package org.ognl.test;
 
 import junit.framework.TestCase;
+import ognl.DefaultMemberAccess;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import org.ognl.test.objects.IndexedSetObject;
@@ -12,7 +13,7 @@ public class ASTChainTest extends TestCase {
 
     public void test_Get_Indexed_Value() throws Exception {
 
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
         IndexedSetObject root = new IndexedSetObject();
 
         String expr = "thing[\"x\"].val";

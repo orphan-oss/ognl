@@ -1,6 +1,7 @@
 package org.ognl.test;
 
 import junit.framework.TestCase;
+import ognl.DefaultMemberAccess;
 import ognl.Node;
 import ognl.Ognl;
 import ognl.OgnlContext;
@@ -64,7 +65,7 @@ public class PropertySetterTest extends TestCase {
     }
 
     public void testEnhancedOgnl() throws Exception {
-        OgnlContext context = (OgnlContext)Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext)Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
         Node expression = Ognl.compileExpression(context, this, "interfaceObject.property");
         Ognl.setValue(expression, context, this, "hello");
         assertEquals("hello", getObject().getProperty() );

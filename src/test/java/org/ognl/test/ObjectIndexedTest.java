@@ -2,6 +2,7 @@ package org.ognl.test;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import ognl.DefaultMemberAccess;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
@@ -207,6 +208,6 @@ public class ObjectIndexedTest extends TestCase
       ===================================================================*/
     protected void setUp()
     {
-        context = (OgnlContext)Ognl.createDefaultContext(null);
+        context = (OgnlContext)Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
     }
 }

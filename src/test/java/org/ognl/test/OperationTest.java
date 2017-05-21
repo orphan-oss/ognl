@@ -1,6 +1,7 @@
 package org.ognl.test;
 
 import junit.framework.TestCase;
+import ognl.DefaultMemberAccess;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.SimpleNode;
@@ -11,7 +12,7 @@ import ognl.SimpleNode;
 public class OperationTest extends TestCase {
 
     public void test_isOperation() throws Exception {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
 
         SimpleNode node = (SimpleNode) Ognl.parseExpression("#name");
         assertFalse(node.isOperation(context));

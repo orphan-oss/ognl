@@ -86,6 +86,6 @@ public class PrivateMemberTest extends TestCase
 	  ===================================================================*/
 	public void setUp()
 	{
-        context = (OgnlContext)Ognl.createDefaultContext(null, null, null, new DefaultMemberAccess(true));
+        context = (OgnlContext)Ognl.createDefaultContext(null, new DefaultMemberAccess(true), null, null);
 	}
 }

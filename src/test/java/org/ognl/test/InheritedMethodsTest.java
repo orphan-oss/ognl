@@ -4,6 +4,7 @@
 package org.ognl.test;
 
 import junit.framework.TestCase;
+import ognl.DefaultMemberAccess;
 import ognl.Node;
 import ognl.Ognl;
 import ognl.OgnlContext;
@@ -25,7 +26,7 @@ public class InheritedMethodsTest extends TestCase
     public void test_Base_Inheritance()
     throws Exception
     {
-        OgnlContext context = (OgnlContext)Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext)Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
         String expression = "map.bean.name";
         BaseBean first = new FirstBean();
         BaseBean second = new SecondBean();

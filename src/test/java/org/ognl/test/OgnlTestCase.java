@@ -31,6 +31,7 @@
 package org.ognl.test;
 
 import junit.framework.TestCase;
+import ognl.DefaultMemberAccess;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.SimpleNode;
@@ -226,6 +227,6 @@ public class OgnlTestCase extends TestCase {
 
     protected void setUp()
     {
-        _context = (OgnlContext) Ognl.createDefaultContext(null);
+        _context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false), null, null);
     }
 }

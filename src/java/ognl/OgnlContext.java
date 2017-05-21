@@ -107,7 +107,7 @@ public class OgnlContext extends Object implements Map
     public OgnlContext(ClassResolver classResolver, TypeConverter typeConverter, MemberAccess memberAccess)
     {
         // No 'values' map has been specified, so we create one of the default size: 23 entries
-        this(classResolver, typeConverter, memberAccess, new HashMap(23));
+        this(memberAccess, classResolver, typeConverter, new HashMap(23));
     }
 
     public OgnlContext(Map values)
@@ -116,7 +116,7 @@ public class OgnlContext extends Object implements Map
         this(null, null, null, values);
     }
 
-    public OgnlContext(ClassResolver classResolver, TypeConverter typeConverter, MemberAccess memberAccess, Map values)
+    public OgnlContext(MemberAccess memberAccess, ClassResolver classResolver, TypeConverter typeConverter, Map values)
     {
         super();
         this._values = values;
@@ -133,7 +133,7 @@ public class OgnlContext extends Object implements Map
         if (memberAccess != null) {
             this._memberAccess = memberAccess;
         } else {
-            this._memberAccess = new DefaultMemberAccess(false);
+            throw new RuntimeException("MemberAccess implementation must be provided!");
         }
     }
 

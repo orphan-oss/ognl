@@ -13,6 +13,13 @@ import java.util.Map;
  */
 public class ASTPropertyTest extends TestCase {
 
+    private OgnlContext context;
+
+    public void setUp() throws Exception {
+        super.setUp();
+        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+    }
+
     public void test_Get_Indexed_Property_Type() throws Exception
     {
         ASTProperty p = new ASTProperty(0);
@@ -24,7 +31,6 @@ public class ASTPropertyTest extends TestCase {
 
         Map root = new Root().getMap();
 
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
         context.setRoot(root);
         context.setCurrentObject(root);
         context.setCurrentNode(pRef);
@@ -55,7 +61,6 @@ public class ASTPropertyTest extends TestCase {
 
         Map root = new Root().getMap();
 
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
         context.setRoot(root);
         context.setCurrentObject(root);
         context.setCurrentNode(pRef);
@@ -87,7 +92,6 @@ public class ASTPropertyTest extends TestCase {
 
         Map root = new Root().getMap();
         
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
         context.setRoot(root);
         context.setCurrentObject(root);
         context.setCurrentNode(pRef);
@@ -118,7 +122,6 @@ public class ASTPropertyTest extends TestCase {
         
         Map root = new Root().getMap();
 
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
         context.setRoot(root);
         context.setCurrentObject(root);
         context.setCurrentNode(pRef);
@@ -164,7 +167,6 @@ public class ASTPropertyTest extends TestCase {
         
         Root root = new Root();
 
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
         context.setRoot(root);
         context.setCurrentObject(root);
         context.setCurrentNode(listp);
@@ -178,7 +180,7 @@ public class ASTPropertyTest extends TestCase {
 
         // re test with chain
         
-        context = (OgnlContext) Ognl.createDefaultContext(null);
+        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
         context.setRoot(root);
         context.setCurrentObject(root);
 
@@ -205,8 +207,7 @@ public class ASTPropertyTest extends TestCase {
     public void test_Complicated_List() throws Exception
     {
         Root root = new Root();
-        OgnlContext context = (OgnlContext)Ognl.createDefaultContext(null);
-        
+
         SimpleNode node = (SimpleNode) Ognl.compileExpression(context, root,
                 "{ new org.ognl.test.objects.MenuItem('Home', 'Main', "
                     + "{ new org.ognl.test.objects.MenuItem('Help', 'Help'), "
@@ -226,7 +227,6 @@ public class ASTPropertyTest extends TestCase {
     public void test_Set_Chain_Indexed_Property() throws Exception
     {
         Root root = new Root();
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
 
         context.setRoot(root);
         context.setCurrentObject(root);
@@ -238,7 +238,6 @@ public class ASTPropertyTest extends TestCase {
     public void test_Set_Generic_Property() throws Exception
     {
         GenericRoot root = new GenericRoot();
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
 
         context.setRoot(root);
         context.setCurrentObject(root);
@@ -256,7 +255,6 @@ public class ASTPropertyTest extends TestCase {
     public void test_Get_Generic_Property() throws Exception
     {
         GenericRoot root = new GenericRoot();
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
 
         context.setRoot(root);
         context.setCurrentObject(root);
@@ -274,7 +272,6 @@ public class ASTPropertyTest extends TestCase {
     public void test_Set_Get_Multiple_Generic_Types_Property() throws Exception
     {
         BaseGeneric<GameGenericObject, Long> root = new GameGeneric();
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
 
         context.setRoot(root);
         context.setCurrentObject(root);

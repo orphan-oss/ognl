@@ -1,6 +1,7 @@
 package org.ognl.test.accessors;
 
 import junit.framework.TestCase;
+import ognl.DefaultMemberAccess;
 import ognl.ListPropertyAccessor;
 import ognl.Ognl;
 import ognl.OgnlContext;
@@ -10,11 +11,19 @@ import org.ognl.test.objects.ListSourceImpl;
 import org.ognl.test.objects.Root;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Tests functionality of various built in object accessors.
  */
 public class ListPropertyAccessorTest extends TestCase {
+
+    private Map context;
+
+    public void setUp() throws Exception {
+        super.setUp();
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+    }
 
     public void test_Get_Source_String_Number_Index()
     {
@@ -22,7 +31,7 @@ public class ListPropertyAccessorTest extends TestCase {
 
         Root root = new Root();
 
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
         context.setRoot(root);
         context.setCurrentObject(root);
         context.setCurrentType(Integer.TYPE);
@@ -41,7 +50,7 @@ public class ListPropertyAccessorTest extends TestCase {
 
         Root root = new Root();
 
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
         context.setRoot(root);
         context.setCurrentObject(root);
         context.setCurrentType(Integer.class);
@@ -60,7 +69,7 @@ public class ListPropertyAccessorTest extends TestCase {
         
         ListSource list = new ListSourceImpl();
 
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) this.context;
         context.setRoot(list);
         context.setCurrentObject(list);
 

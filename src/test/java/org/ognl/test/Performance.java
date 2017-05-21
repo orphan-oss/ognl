@@ -30,6 +30,7 @@
 // --------------------------------------------------------------------------
 package org.ognl.test;
 
+import ognl.DefaultMemberAccess;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
@@ -51,7 +52,7 @@ public class Performance extends Object
     private static NumberFormat FACTOR_FORMAT = new DecimalFormat("0.000");
 
     private String _name;
-    private OgnlContext _context = (OgnlContext) Ognl.createDefaultContext(null);
+    private OgnlContext _context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
     private Bean1 _root = new Bean1();
     private SimpleNode _expression;
     private SimpleNode _compiledExpression;

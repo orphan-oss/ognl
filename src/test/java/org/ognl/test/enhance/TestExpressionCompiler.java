@@ -4,6 +4,7 @@
 package org.ognl.test.enhance;
 
 import junit.framework.TestCase;
+import ognl.DefaultMemberAccess;
 import ognl.Node;
 import ognl.Ognl;
 import ognl.OgnlContext;
@@ -22,7 +23,7 @@ import java.util.Map;
 public class TestExpressionCompiler extends TestCase
 {
     OgnlExpressionCompiler _compiler;
-    OgnlContext _context = (OgnlContext) Ognl.createDefaultContext(null);
+    OgnlContext _context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
 
     public void setUp()
     {
