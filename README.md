@@ -17,8 +17,11 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
-### Release notes - version 3.2 - WIP (new changes are coming)
+### Release notes - version 3.2.2 - WIP (new changes are coming)
  * makes `OgnlContext` a bit more immutable
+   * `TypeConverter` can be set only when creating a new context, the setter won't work anymore
+   * Implementation of the `MemberAccess` is required when crearting a new context, you must always provide your own
+   * `DefaultMemberAccess` is only available in tests, it won't be used when there was no custom `MemberAccess` provided, an exception will be thrown in such case
  * sets source and target in `pom.xml` to Java 1.7
 
 ### Release notes - version 3.1.14, 3.0.20
