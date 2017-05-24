@@ -2095,15 +2095,11 @@ public class OgnlRuntime {
                 return propertyName;
             }
         }
-        char first = propertyName.charAt(0);
-        char second = propertyName.charAt(1);
-        if (Character.isLowerCase(first) && Character.isUpperCase(second)) {
-            return propertyName;
-        } else {
-            char[] chars = propertyName.toCharArray();
-            chars[0] = Character.toUpperCase(chars[0]);
-            return new String(chars);
-        }
+
+        char[] chars = propertyName.toCharArray();
+        chars[0] = Character.toUpperCase(chars[0]);
+        return new String(chars);
+        
     }
 
     public static List getDeclaredMethods(Class targetClass, String propertyName, boolean findSets)
