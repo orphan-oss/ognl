@@ -823,41 +823,11 @@ public class OgnlRuntime {
         // only synchronize method invocation if it actually requires it
 
         synchronized(method) {
-            if (_methodAccessCache.get(method) == null
-                || _methodAccessCache.get(method) == Boolean.TRUE) {
-                syncInvoke = true;
-            }
-
-            if (_securityManager != null && _methodPermCache.get(method) == null
-                || _methodPermCache.get(method) == Boolean.FALSE) {
-                checkPermission = true;
-            }
-        }
-
-        Object result;
-        boolean wasAccessible = true;
-
-        if (syncInvoke)
-        {
-            synchronized(method)
-            {
-                if (checkPermission)
-                {
-                    try
-                    {
-                        _securityManager.checkPermission(getPermission(method));
-                        _methodPermCache.put(method, Boolean.TRUE);
-                    } catch (SecurityException ex) {
-                        _methodPermCache.put(method, Boolean.FALSE);
-                        throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-                    }
-                }
-
+            if (_methodAccessCache.get(method) == null) {
                 if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
                 {
-                    if (!(wasAccessible = ((AccessibleObject) method).isAccessible()))
+                    if (!(((AccessibleObject) method).isAccessible()))
                     {
-                        ((AccessibleObject) method).setAccessible(true);
                         _methodAccessCache.put(method, Boolean.TRUE);
                     } else
                     {
@@ -867,13 +837,50 @@ public class OgnlRuntime {
                 {
                     _methodAccessCache.put(method, Boolean.FALSE);
                 }
+            }
+            if (_methodAccessCache.get(method) == Boolean.TRUE) {
+                syncInvoke = true;
+            }
 
-                result = method.invoke(target, argsArray);
-
-                if (!wasAccessible)
-                {
-                    ((AccessibleObject) method).setAccessible(false);
+            if (_methodPermCache.get(method) == null) {
+                if (_securityManager != null) {
+                    try
+                    {
+                        _securityManager.checkPermission(getPermission(method));
+                        _methodPermCache.put(method, Boolean.TRUE);
+                    } catch (SecurityException ex) {
+                        _methodPermCache.put(method, Boolean.FALSE);
+                        throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
+                    }
                 }
+                else {
+                    _methodPermCache.put(method, Boolean.TRUE);
+                }
+            }
+            if (_methodPermCache.get(method) == Boolean.FALSE) {
+                checkPermission = true;
+            }
+        }
+
+        Object result;
+
+        if (syncInvoke) //if is not public and is not accessible
+        {
+            synchronized(method)
+            {
+                if (checkPermission)
+                {
+                    try
+                    {
+                        _securityManager.checkPermission(getPermission(method));
+                    } catch (SecurityException ex) {
+                        throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
+                    }
+                }
+
+                ((AccessibleObject) method).setAccessible(true);
+                result = method.invoke(target, argsArray);
+                ((AccessibleObject) method).setAccessible(false);
             }
         } else
         {
@@ -882,9 +889,7 @@ public class OgnlRuntime {
                 try
                 {
                     _securityManager.checkPermission(getPermission(method));
-                    _methodPermCache.put(method, Boolean.TRUE);
                 } catch (SecurityException ex) {
-                    _methodPermCache.put(method, Boolean.FALSE);
                     throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
                 }
             }
