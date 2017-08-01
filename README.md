@@ -17,12 +17,20 @@ Out of incubator and now officially found here [http://commons.apache.org/ognl/]
 
 ## Development activity
 
-### Release notes - version 3.2.2 - WIP (new changes are coming)
+### Release notes - version 3.2.3 - WIP (new changes are coming)
  * makes `OgnlContext` a bit more immutable
    * `TypeConverter` can be set only when creating a new context, the setter won't work anymore
    * Implementation of the `MemberAccess` is required when crearting a new context, you must always provide your own
    * `DefaultMemberAccess` is only available in tests, it won't be used when there was no custom `MemberAccess` provided, an exception will be thrown in such case
  * sets source and target in `pom.xml` to Java 1.7
+ * makes better decisions on methods first call [#39](../../pul/39) -
+   thanks to Yasser Zamani
+ * fixes access to property which reads method is Java 8 default method [#33](../../pul/33) -
+   thanks to Yanming Zhou
+
+### Release notes - version 3.1.15, 3.0.21
+ * makes better decisions on methods first call [#36](../../pul/36), [#38](../../pul/38) -
+   thanks to Yasser Zamani
 
 ### Release notes - version 3.1.14, 3.0.20
  * drops access to `#context` and `_classResolver` via a magic keys -
