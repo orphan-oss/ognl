@@ -151,7 +151,7 @@ this:
     array[0]
 
 Note that Java collections have some special properties associated with
-them. See [section_title](#special-collections-properties)for these
+them. See [Pseudo-Properties for Collections](#pseudo-properties-for-collections) for these
 properties.
 
 ## Indexing
