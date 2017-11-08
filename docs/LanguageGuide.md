@@ -4,8 +4,7 @@ author:
 title: OGNL Language Guide
 ---
 
-Introduction
-============
+# Introduction
 
 OGNL stands for **O**bject **G**raph **N**avigation **L**anguage. It is
 an expression and binding language for getting and setting properties of
@@ -18,31 +17,27 @@ pronunciation of "orthogonal."
 Many people have asked exactly what OGNL is good for. Several of the
 uses to which OGNL has been applied are:
 
--   A binding language between GUI elements (textfield, combobox, etc.)
-    to model objects. Transformations are made easier by OGNL's
-    TypeConverter mechanism to convert values from one type to another
-    (String to numeric types, for example).
-
--   A data source language to map between table columns and a Swing
-    TableModel.
-
--   A binding language between web components and the underlying model
-    objects ([WebOGNL](http://www.ognl.org),
-    [Tapestry](http://jakarta.apache.org/tapestry/index.html),
-    [WebWork](http://sourceforge.net/projects/opensymphony),
-    [WebObjects](http://wonder.sourceforge.net/index.html)).
-
--   A more expressive replacement for the property-getting language used
-    by the Jakarata Commons BeanUtils package or JSTL's EL (which only
-    allow simple property navigation and rudimentary indexed
-    properties).
+- A binding language between GUI elements (textfield, combobox, etc.)
+  to model objects. Transformations are made easier by OGNL's
+  TypeConverter mechanism to convert values from one type to another
+  (String to numeric types, for example).
+- A data source language to map between table columns and a Swing
+  TableModel.
+- A binding language between web components and the underlying model
+  objects ([WebOGNL](http://www.ognl.org),
+  [Tapestry](http://jakarta.apache.org/tapestry/index.html),
+  [WebWork](http://sourceforge.net/projects/opensymphony),
+  [WebObjects](http://wonder.sourceforge.net/index.html)).
+- A more expressive replacement for the property-getting language used
+  by the Jakarta Commons BeanUtils package or JSTL's EL (which only
+  allow simple property navigation and rudimentary indexed
+  properties).
 
 Most of what you can do in Java is possible in OGNL, plus other extras
 such as list [projection](#projection) and [selection](#selection) and
 [lambda expressions](#lambdaExpressions).
 
-History
-=======
+## History
 
 OGNL started out as a way to set up associations between UI components
 and controllers using property names. As the desire for more complicated
@@ -54,8 +49,7 @@ again reimplemented the language using
 [JavaCC](http://www.webgain.com/products/java_cc/). Further maintenance
 on all the code is done by Drew (with spiritual guidance from Luke).
 
-Syntax {#basicSyntax}
-======
+## Syntax
 
 Simple OGNL expressions are very simple. The language has become quite
 rich with features, but you don't generally need to worry about the more
@@ -74,38 +68,34 @@ The fundamental unit of an OGNL expression is the navigation chain,
 usually just called "chain." The simplest chains consist of the
 following parts:
 
-  Expression Element Part   Example
-  ------------------------- ------------------------------------------------------------------------------
-  Property names            like the name and headline.text examples above
-  Method Calls              hashCode() to return the current object's hash code
-  Array Indices             listeners\[0\] to return the first of the current object's list of listeners
-
-  : OGNL Expression Parts
+|Expression Element Part|Example|
+|-----------------------|----------------------------------------------------------------|
+|Property names|like the name and headline.text examples above|
+|Method Calls|hashCode() to return the current object's hash code|
+|Array Indices|listeners[0] to return the first of the current object's list of listeners|
 
 All OGNL expressions are evaluated in the context of a current object,
 and a chain simply uses the result of the previous link in the chain as
 the current object for the next one. You can extend a chain as long as
 you like. For example, this chain:
 
+```
     name.toCharArray()[0].numericValue.toString()
+```
 
 This expression follows these steps to evaluate:
 
--   extracts the name property of the initial, or root, object (which
-    the user provides to OGNL through the OGNL context)
-
--   calls the toCharArray() method on the resulting `String`
-
--   extracts the first character (the one at index 0) from the resulting
-    array
-
--   gets the numericValue property from that character (the character is
-    represented as a `Character` object, and the `Character` class has a
-    method called getNumericValue()).
-
--   calls toString() on the resulting `Integer` object. The final result
-    of this expression is the `String` returned by the last toString()
-    call.
+- extracts the name property of the initial, or root, object (which
+  the user provides to OGNL through the OGNL context)
+- calls the toCharArray() method on the resulting `String`
+- extracts the first character (the one at index 0) from the resulting
+  array
+- gets the numericValue property from that character (the character is
+  represented as a `Character` object, and the `Character` class has a
+  method called getNumericValue()).
+- calls toString() on the resulting `Integer` object. The final result
+  of this expression is the `String` returned by the last toString()
+  call.
 
 Note that this example can only be used to get a value from an object,
 not to set a value. Passing the above expression to the Ognl.setValue()
@@ -116,35 +106,28 @@ array index.
 This is enough syntax to do the vast majority of what you ever need to
 do.
 
-Expressions {#basicExpressions}
-===========
+## Expressions
 
 This section outlines the details the elements of OGNL's expressions.
 
-Constants
----------
+## Constants
 
 OGNL has the following kinds of constants:
 
--   String literals, as in Java (with the addition of single quotes):
-    delimited by single- or double-quotes, with the full set of
-    character escapes.
+- String literals, as in Java (with the addition of single quotes):
+  delimited by single- or double-quotes, with the full set of
+  character escapes.
+- Character literals, also as in Java: delimited by single-quotes,
+  also with the full set of escapes.
+- Numeric literals, with a few more kinds than Java. In addition to
+  Java's ints, longs, floats and doubles, OGNL lets you specify
+  BigDecimals with a "b" or "B" suffix, and BigIntegers with an "h" or
+  "H" suffix (think "huge"---we chose "h" for BigIntegers because it
+  does not interfere with hexadecimal digits).
+- Boolean `(true` and `false`) literals.
+- The `null` literal.
 
--   Character literals, also as in Java: delimited by single-quotes,
-    also with the full set of escapes.
-
--   Numeric literals, with a few more kinds than Java. In addition to
-    Java's ints, longs, floats and doubles, OGNL lets you specify
-    BigDecimals with a "b" or "B" suffix, and BigIntegers with an "h" or
-    "H" suffix (think "huge"---we chose "h" for BigIntegers because it
-    does not interfere with hexadecimal digits).
-
--   Boolean `(true` and `false`) literals.
-
--   The `null` literal.
-
-Referring to Properties {#properties}
------------------------
+## Referring to Properties
 
 OGNL treats different kinds of objects differently in its handling of
 property references. Maps treat all property references as element
@@ -168,11 +151,10 @@ this:
     array[0]
 
 Note that Java collections have some special properties associated with
-them. See [section\_title](#specialCollectionsProperties)for these
+them. See [section_title](#special-collections-properties)for these
 properties.
 
-Indexing
---------
+## Indexing
 
 As discussed above, the "indexing" notation is actually just property
 reference, though a computed form of property reference rather than a
@@ -201,13 +183,10 @@ JavaBeans supports the concept of Indexed properties. Specifically this
 means that an object has a set of methods that follow the following
 pattern:
 
--   public PropertyType\[\] getPropertyName()
-
--   public void setPropertyName(PropertyType\[\] anArray)
-
--   public PropertyType getPropertyName(int index)
-
--   public void setPropertyName(int index, PropertyType value)
+- public PropertyType[] getPropertyName()
+- public void setPropertyName(PropertyType[] anArray)
+- public PropertyType getPropertyName(int index)
+- public void setPropertyName(int index, PropertyType value)
 
 OGNL can interpret this and provide seamless access to the property
 through the indexing notation. References such as
@@ -227,9 +206,8 @@ arbitrary objects, not just integers as with JavaBeans Indexed
 Properties. When finding properties as candidates for object indexing,
 OGNL looks for patterns of methods with the following signature:
 
--   public PropertyType getPropertyName(IndexType index)
-
--   public void setPropertyName(IndexType index, PropertyType value)
+- public PropertyType getPropertyName(IndexType index)
+- public void setPropertyName(IndexType index, PropertyType value)
 
 The PropertyType and IndexType must match each other in the
 corresponding set and get methods. An actual example of using Object
@@ -242,8 +220,7 @@ An OGNL expression that can both get and set one of these attributes is
 
     session.attribute["foo"]
 
-Calling Methods {#methods}
----------------
+## Calling Methods
 
 OGNL calls methods a little differently from the way Java does, because
 OGNL is interpreted and must choose the right method at run time, with
@@ -268,8 +245,7 @@ is a call to a 2-argument method, while
 
 is a call to a 1-argument method.
 
-Variable References {#varref}
--------------------
+## Variable References
 
 OGNL has a simple variable scheme, which lets you store intermediate
 results and use them again, or just name things to make an expression
@@ -297,8 +273,7 @@ statement with a variable reference on the left-hand side:
 
     #var = 99
 
-Parenthetical Expressions {#paren}
--------------------------
+## Parenthetical Expressions
 
 As you would expect, an expression enclosed in parentheses is evaluated
 as a unit, separately from any surrounding operators. This can be used
@@ -306,8 +281,7 @@ to force an evaluation order different from the one that would be
 implied by OGNL operator precedences. It is also the only way to use the
 comma operator in a method argument.
 
-Chained Subexpressions {#chainedSubexpressions}
-----------------------
+## Chained Subexpressions
 
 If you use a parenthetical expression after a dot, the object that is
 current at the dot is used as the current object throughout the
@@ -326,10 +300,9 @@ expression is the right-most expression element.
 This will call `ensureLoaded()` on the root object, then get the name
 property of the root object as the result of the expression.
 
-Collection Construction {#collectionConstruction}
------------------------
+## Collection Construction
 
-### Lists {#listConstruction}
+### Lists
 
 To create a list of objects, enclose a list of expressions in curly
 braces. As with method arguments, these expressions cannot use the comma
@@ -343,7 +316,7 @@ This tests whether the `name` property is `null` or equal to
 The syntax described above will create a instanceof the `List`
 interface. The exact subclass is not defined.
 
-### Native Arrays {#nativeArrayConstruction}
+### Native Arrays
 
 Sometimes you want to create Java native arrays, such as `int[]` or
 `Integer[]`. OGNL supports the creation of these similarly to the way
@@ -361,7 +334,7 @@ size constructor
 
 This creates an `int` array with 5 slots, all initialized to zero.
 
-### Maps {#mapConstruction}
+### Maps
 
 Maps can also be created using a special syntax.
 
@@ -378,8 +351,7 @@ The above example will create an instance of the JDK 1.4 class
 `LinkedHashMap`, ensuring the the insertion order of the elements is
 preserved.
 
-Projecting Across Collections {#projection}
------------------------------
+## Projecting Across Collections
 
 OGNL provides a simple way to call the same method or extract the same
 property from each element in a collection and store the results in a
@@ -399,8 +371,7 @@ of the iteration.
 The above would produce a new list of elements from the objects list as
 string values.
 
-Selecting From Collections {#selection}
---------------------------
+## Selecting From Collections
 
 OGNL provides a simple way to use an expression to choose some elements
 from a collection and save the results in a new collection. We call this
@@ -439,8 +410,7 @@ element that matched.
 This will return the last element contained in objects that is an
 instanceof the `String` class
 
-Calling Constructors {#constructors}
---------------------
+## Calling Constructors
 
 You can create new objects as in Java, with the `new` operator. One
 difference is that you must specify the fully qualified class name for
@@ -450,8 +420,7 @@ classes other than those in the java.lang package.[^1] (for example,
 OGNL chooses the right constructor to call using the same procedure it
 uses for overloaded method calls.
 
-Calling Static Methods {#staticMethods}
-----------------------
+## Calling Static Methods
 
 You can call a static method using the syntax
 `@``class``@``method(args)`. If you leave out class, it defaults to
@@ -466,14 +435,12 @@ If the method name is overloaded, OGNL chooses the right static method
 to call using the same procedure it uses for overloaded instance
 methods.
 
-Getting Static Fields {#staticFields}
----------------------
+## Getting Static Fields
 
 You can refer to a static field using the syntax `@``class``@``field`.
 The class must be fully qualified.
 
-Expression Evaluation {#expressionEvaluation}
----------------------
+## Expression Evaluation
 
 If you follow an OGNL expression with a parenthesized expression,
 without a dot in front of the parentheses, OGNL will try to treat the
@@ -506,8 +473,7 @@ reference by parentheses:
 
     (fact)(30H)
 
-Pseudo-Lambda Expressions {#lambdaExpressions}
--------------------------
+## Pseudo-Lambda Expressions
 
 OGNL has a simplified lambda-expression syntax, which lets you write
 simple functions. It is not a full-blown lambda calculus, because there
@@ -526,8 +492,7 @@ OGNL treats lambda expressions as constants. The value of a lambda
 expression is the AST that OGNL uses as the parsed form of the contained
 expression.
 
-Pseudo-Properties for Collections {#specialCollectionsProperties}
----------------------------------
+## Pseudo-Properties for Collections
 
 There are some special properties of collections that OGNL makes
 available. The reason for this is that the collections do not follow
@@ -536,103 +501,53 @@ JavaBeans patterns for method naming; therefore the `size()`,
 referring to these as properties. OGNL corrects this by exposing certain
 pseudo-properties as if they were built-in.
 
-  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  Collection                                          Special Properties
-  --------------------------------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  `Collection` (inherited by `Map`, `List` & `Set`)   `size`
+|Collection                                       |Special Properties                                                  |
+|-------------------------------------------------|--------------------------------------------------------------------|
+|`Collection` (inherited by `Map`, `List` & `Set`)|`size` - The size of the collection|
+|                                                 |`isEmpty` - Evaluates to `true` if the collection is empty|
+|`List`                                           |`iterator` - Evaluates to an `Iterator` over the `List`.|
+|`Map`                                            |`keys` - Evaluates to a `Set` of all keys in the `Map`.|
+|                                                 |`values` - Evaluates to a `Collection` of all values in the `Map`.|
+|                                                 |> **Note** These properties, plus `size` and `isEmpty`, are different than the indexed form of access for `Map`s (i.e. `someMap["size"]` gets the `"size"` key from the map, whereas `someMap.size` gets the size of the `Map`.|
+|`Set`                                            |`iterator` - Evaluates to an `Iterator` over the `Set`.|
+|`Iterator`                                       |`next` - Evaluates to the next object from the `Iterator`.|
+|                                                 |`hasNext` - Evaluates to `true` if there is a next object available from the `Iterator`.|
+|`Enumeration`                                    |`next` - Evaluates to the next object from the `Enumeration`.|
+|                                                 |`hasNext` - Evaluates to `true` if there is a next object available from the `Enumeration`.|
+|                                                 |`nextElement` - Synonym for `next`.|
+|                                                 |`hasMoreElements` - Synonym for `hasNext`.|
                                                       
-                                                      :   The size of the collection
-                                                      
-                                                      `isEmpty`
-                                                      
-                                                      :   Evaluates to `true` if the collection is empty
-                                                      
-
-  List                                                `iterator`
-                                                      
-                                                      :   Evalutes to an `Iterator` over the `List`.
-                                                      
-
-  `Map`                                               `keys`
-                                                      
-                                                      :   Evalutes to a `Set` of all keys in the `Map`.
-                                                      
-                                                      `values`
-                                                      
-                                                      :   Evaluates to a `Collection` of all values in the `Map`.
-                                                      
-                                                      > **Note**
-                                                      >
-                                                      > These properties, plus `size` and `isEmpty`, are different than the indexed form of access for `Map`s (i.e. `someMap["size"]` gets the `"size"` key from the map, whereas `someMap.size` gets the size of the `Map`.
-
-  `Set`                                               `iterator`
-                                                      
-                                                      :   Evalutes to an `Iterator` over the `Set`.
-                                                      
-
-  `Iterator`                                          `next`
-                                                      
-                                                      :   Evalutes to the next object from the `Iterator`.
-                                                      
-                                                      `hasNext`
-                                                      
-                                                      :   Evaluates to `true` if there is a next object available from the `Iterator`.
-                                                      
-
-  `Enumeration`                                       `next`
-                                                      
-                                                      :   Evalutes to the next object from the `Enumeration`.
-                                                      
-                                                      `hasNext`
-                                                      
-                                                      :   Evaluates to `true` if there is a next object available from the `Enumeration`.
-                                                      
-                                                      `nextElement`
-                                                      
-                                                      :   Synonym for `next`.
-                                                      
-                                                      `hasMoreElements`
-                                                      
-                                                      :   Synonym for `hasNext`.
-                                                      
-  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  : Special Collections Pseudo-Properties
-
-Operators that differ from Java's operators {#differences}
--------------------------------------------
+## Operators that differ from Java's operators
 
 For the most part, OGNL's operators are borrowed from Java and work
 similarly to Java's operators. See the OGNL Reference for a complete
 discussion. Here we describe OGNL operators that are not in Java, or
 that are different from Java.
 
--   The comma (,) or sequence operator. This operator is borrowed
-    from C. The comma is used to separate two independent expressions.
-    The value of the second of these expressions is the value of the
-    comma expression. Here is an example:
+- The comma (,) or sequence operator. This operator is borrowed
+  from C. The comma is used to separate two independent expressions.
+  The value of the second of these expressions is the value of the
+  comma expression. Here is an example:
+```
+ensureLoaded(), name
+```
+  When this expression is evaluated, the ensureLoaded method is called
+  (presumably to make sure that all parts of the object are in
+  memory), then the name property is retrieved (if getting the value)
+  or replaced (if setting).
+- List construction with curly braces ({}). You can create a list
+  in-line by enclosing the values in curly braces, as in this example:
+```
+{ null, true, false }
+```
+- The `in` operator (and `not in`, its negation). This is a
+  containment test, to see if a value is in a collection. For example,
+```
+name in {null,"Untitled"} || name
+```
+- See the OGNL reference for a full list of operations
 
-        ensureLoaded(), name
-
-    When this expression is evaluated, the ensureLoaded method is called
-    (presumably to make sure that all parts of the object are in
-    memory), then the name property is retrieved (if getting the value)
-    or replaced (if setting).
-
--   List construction with curly braces ({}). You can create a list
-    in-line by enclosing the values in curly braces, as in this example:
-
-        { null, true, false }
-
--   The `in` operator (and `not in`, its negation). This is a
-    containment test, to see if a value is in a collection. For example,
-
-        name in {null,"Untitled"} || name
-
--   See the OGNL reference for a full list of operations
-
-Setting values versus getting values {#settingVersusGetting}
-------------------------------------
+## Setting values versus getting values
 
 As stated before, some values that are gettable are not also settable
 because of the nature of the expression. For example,
@@ -655,33 +570,27 @@ It is also possible to set variables using get expressions that include
 the '`=`' operator. This is useful when a get expression needs to set a
 variable as a side effect of execution.
 
-Coercing Objects to Types {#coercion}
-=========================
+## Coercing Objects to Types
 
 Here we describe how OGNL interprets objects as various types. See below
 for how OGNL coerces objects to booleans, numbers, integers, and
 collections.
 
-Interpreting Objects as Booleans {#coerceBoolean}
---------------------------------
+## Interpreting Objects as Booleans
 
 Any object can be used where a boolean is required. OGNL interprets
 objects as booleans like this:
 
--   If the object is a `Boolean`, its value is extracted and returned
+- If the object is a `Boolean`, its value is extracted and returned
+- If the object is a `Number`, its double-precision floating-point
+  value is compared with zero; non-zero is treated as `true`, zero as
+  `false`.
+- If the object is a `Character`, its boolean value is `true` if and
+  only if its char value is non-zero.
+- Otherwise, its boolean value is `true` if and only if it is
+  non-`null`.
 
--   If the object is a `Number`, its double-precision floating-point
-    value is compared with zero; non-zero is treated as `true`, zero as
-    `false`.
-
--   If the object is a `Character`, its boolean value is `true` if and
-    only if its char value is non-zero.
-
--   Otherwise, its boolean value is `true` if and only if it is
-    non-`null`.
-
-Interpreting Objects as Numbers {#coerceNumber}
--------------------------------
+## Interpreting Objects as Numbers
 
 Numerical operators try to treat their arguments as numbers. The basic
 primitive-type wrapper classes (Integer, Double, and so on, including
@@ -694,26 +603,21 @@ Numerical operators that take two arguments use the following algorithm
 to decide what type the result should be. The type of the actual result
 may be wider, if the result does not fit in the given type.
 
--   If both arguments are of the same type, the result will be of the
-    same type if possible.
+- If both arguments are of the same type, the result will be of the
+  same type if possible.
+- If either argument is not of a recognized numeric class, it will be
+  treated as if it was a `Double` for the rest of this algorithm.
+- If both arguments are approximations to real numbers `(Float`,
+  `Double`, or `BigDecimal`), the result will be the wider type.
+- If both arguments are integers `(Boolean`, `Byte`, `Character`,
+  `Short`, `Integer`, `Long`, or `BigInteger`), the result will be the
+  wider type.
+- If one argument is a real type and the other an integer type, the
+  result will be the real type if the integer is narrower than "int";
+  `BigDecimal` if the integer is `BigInteger`; or the wider of the
+  real type and `Double` otherwise.
 
--   If either argument is not of a recognized numeric class, it will be
-    treated as if it was a `Double` for the rest of this algorithm.
-
--   If both arguments are approximations to real numbers `(Float`,
-    `Double`, or `BigDecimal`), the result will be the wider type.
-
--   If both arguments are integers `(Boolean`, `Byte`, `Character`,
-    `Short`, `Integer`, `Long`, or `BigInteger`), the result will be the
-    wider type.
-
--   If one argument is a real type and the other an integer type, the
-    result will be the real type if the integer is narrower than "int";
-    `BigDecimal` if the integer is `BigInteger`; or the wider of the
-    real type and `Double` otherwise.
-
-Interpreting Objects as Integers {#coerceInteger}
---------------------------------
+## Interpreting Objects as Integers
 
 Operators that work only on integers, like the bit-shifting operators,
 treat their arguments as numbers, except that `BigDecimal`s and
@@ -723,41 +627,33 @@ of these operators remains a `BigInteger`; for the `Long` case, the
 result is expressed as the same type of the arguments, if it fits, or as
 a `Long` otherwise.
 
-Interpreting Objects as Collections {#coerceCollection}
------------------------------------
+## Interpreting Objects as Collections
 
 The projection and selection operators (`e1.{e2}` and `e1.{?e2}`), and
 the `in` operator, all treat one of their arguments as a collection and
 walk it. This is done differently depending on the class of the
 argument:
 
--   Java arrays are walked from front to back
+- Java arrays are walked from front to back
+- Members of `java.util.Collection` are walked by walking their
+  iterators
+- Members of `java.util.Map` are walked by walking iterators over
+  their values
+- Members of `java.util.Iterator` and `java.util.Enumeration` are
+  walked by iterating them
+- Members of `java.lang.Number` are "walked" by returning integers
+  less than the given number starting with zero
+- All other objects are treated as singleton collections containing
+  only themselves
 
--   Members of `java.util.Collection` are walked by walking their
-    iterators
-
--   Members of `java.util.Map` are walked by walking iterators over
-    their values
-
--   Members of `java.util.Iterator` and `java.util.Enumeration` are
-    walked by iterating them
-
--   Members of `java.lang.Number` are "walked" by returning integers
-    less than the given number starting with zero
-
--   All other objects are treated as singleton collections containing
-    only themselves
-
-OGNL Language Reference
-=======================
+## OGNL Language Reference
 
 This section has a fairly detailed treatment of OGNL's syntax and
 implementation. See below for a complete table of OGNL's operators, a
 section on how OGNL coerces objects to various types, and a detailed
 description of OGNL's basic expressions.
 
-Operators
----------
+### Operators
 
 OGNL borrows most of Java's operators, and adds a few new ones. For the
 most part, OGNL's treatment of a given operator is the same as Java's,
@@ -770,236 +666,60 @@ The following table lists OGNL operators in reverse precedence order.
 When more than one operator is listed in the same box, these operators
 have the same precedence and are evaluated in left-to-right order.
 
-  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  Operator                                                                     `getValue()` Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                      `setValue()` Notes
-  ---------------------------------------------------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  e1`,` e2                                                                     Both `e1` and `e2` are evaluated with the same source object, and the result of `e2` is returned.                                                                                                                                                                                                                                                                                                                                                                       `getValue` is called on `e1`, and then `setValue` is called on `e2`.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Sequence operator                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  e1 `=` e2                                                                    `getValue` is called on `e2`, and then `setValue` is called on `e1` with the result of `e2` as the target object.                                                                                                                                                                                                                                                                                                                                                       Cannot be the top-level expression for `setValue`.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Assignment operator                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  e1 `?` e2 `:` e3                                                             `getValue` is called on `e1` and the result is [interpreted as a boolean](#coerceBoolean). `getValue` is then called on either `e2` or `e3`, depending on whether the result of `e1` was `true` or `false` respectively, and the result is returned.                                                                                                                                                                                                                    `getValue` is called on `e1`, and then `setValue` is called on either `e2` or `e3`.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Conditional operator                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  e1 `||` e2; e1 ` or `e2                                                      `getValue` is called on `e1` and the result is [interpreted as a boolean](#coerceBoolean). If `true`, that result is returned; if `false`, `getValue` is called on `e2` and its value is returned.                                                                                                                                                                                                                                                                      `getValue` is called on `e1`; if `false`, `setValue` is called on `e2`. Note that `e1` being `true` prevents any further setting from taking place.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Logical or operator                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  e1 `&&` e2; e1` and `e2                                                      `getValue` is called on `e1` and the result is [interpreted as a boolean](#coerceBoolean). If `false`, that result is returned; if true, `getValue` is called on e2 and its value is returned.                                                                                                                                                                                                                                                                          `getValue` is called on `e1`; if `true`, `setValue` is called on `e2`. Note that `e1` being `false` prevents any further setting from taking place.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Logical and operator                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  e1 `|` e2; e1` bor `e2                                                       `e1` and `e2` are [interpreted as integers](#coerceInteger) and the result is an `integer`.                                                                                                                                                                                                                                                                                                                                                                             Cannot be the top-level expression passed to `setValue`.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Bitwise or operator                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  e1 `^` e2; e1` xor `e2                                                       `e1` and `e2` are [interpreted as integers](#coerceInteger) and the result is an `integer`.                                                                                                                                                                                                                                                                                                                                                                             Cannot be the top-level expression passed to `setValue`.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Bitwise exclusive-or operator                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  e1 `&` e2; e1` band `e2                                                      `e1` and `e2` are [interpreted as integers](#coerceInteger) and the result is an `integer`.                                                                                                                                                                                                                                                                                                                                                                             Cannot be the top-level expression passed to `setValue`.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Bitwise and operator                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  e1 `==` e2; e1` eq `e2                                                       Equality is tested for as follows. If either value is `null`, they are equal if and only if both are `null`. If they are the same object or the `equals()` method says they are equal, they are equal. If they are both `Number`s, they are equal if their values as double-precision floating point numbers are equal. Otherwise, they are not equal. These rules make numbers compare equal more readily than they would normally, if just using the equals method.   Cannot be the top-level expression passed to `setValue`.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Equality test                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  e1 `!=` e2; e1` neq `e2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Inequality test                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  e1 `<` e2; e1` lt `e2                                                        The ordering operators compare with `compareTo()` if their arguments are non-numeric and implement `Comparable`; otherwise, the arguments are interpreted as numbers and compared numerically. The in operator is not from Java; it tests for inclusion of e1 in e2, where e2 is interpreted as a collection. This test is not efficient: it iterates the collection. However, it uses the standard OGNL equality test.                                                 Cannot be the top-level expression passed to `setValue`.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Less than comparison                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  e1 `<=` e2; e1` lte `e2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Less than or equals comparison                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  e1 `> `e2; e1` gt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-                              `e2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Greater than comparison                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  e1 `>=` e2; e1`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-                              gte `e2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Greater than or equals comparison                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  e1` in` e2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   List membership comparison                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  e1 `not in` e2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   List non-membership comparison                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  e1 `<<` e2; e1` shl `e2                                                      `e1` and `e2` are [interpreted as integers](#coerceInteger) and the result is an `integer`.                                                                                                                                                                                                                                                                                                                                                                             Cannot be the top-level expression passed to `setValue`.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Bit shift left                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  e1 `>>` e2; e1` shr `e2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Bit shift right                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  e1 `>>>` e2; e1` ushr                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-                              `e2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Logical shift right                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  e1`+` e2                                                                     The plus operator concatenates strings if its arguments are non-numeric; otherwise it [interprets its arguments as numbers](#coerceNumber) and adds them. The minus operator always works on numbers.                                                                                                                                                                                                                                                                   Cannot be the top-level expression passed to `setValue`.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Addition                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  e1 `-` e2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Subtraction                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  e1`* `e2                                                                     Multiplication, division, which [interpret their arguments as numbers](#coerceNumber), and remainder, which [interprets its arguments as integers](#coerceInteger).                                                                                                                                                                                                                                                                                                     Cannot be the top-level expression passed to `setValue`.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Multiplication                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  e1 `/` e2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Division                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  e1 `%` e2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Remainder                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  `+ `e                                                                        Unary plus is a no-op, it simply returns the value of its argument. Unary minus [interprets its argument as a number](#coerceNumber). Logical not [interprets its argument as a boolean](#coerceBoolean). Bitwise not [interprets its argument as an integer](#coerceInteger). The class argument to instanceof is the fully qualified name of a Java class.                                                                                                            Cannot be the top-level expression passed to `setValue`.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Unary plus                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  `-` e                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Unary minus                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  `!` e; `not `e                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Logical not                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  `~` e                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Bitwise not                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  e `instanceof` class                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Class membership                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  [e`.`method`(`args`)`](#methods)                                             Generally speaking, navigation chains are evaluated by evaluating the first expression, then evaluating the second one with the result of the first as the source object.                                                                                                                                                                                                                                                                                               Some of these forms can be passed as top-level expressions to `setValue` and others cannot. Only those chains that end in property references (e.property), indexes (`e1[e2]`), and subexpressions (`e1.(e2)`) can be; and expression evaluations can be as well. For the chains, `getValue` is called on the left-hand expression (`e` or `e1`), and then `setValue` is called on the rest with the result as the target object.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Method call                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [e`.`property](#properties)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Property                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [e1`[` e2 `]`](#indexing)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Index                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [e1`.{ `e2 `}`](#projection)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Projection                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [e1`.{?` e2`}`](#selection)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Selection                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [e1`.(`e2`)`](#chainedSubexpressions)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Subexpression evaluation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [e1`(`e2`)`](#expressionEvaluation)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Expression evaluation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  [constant](#constants)                                                       Basic expressions                                                                                                                                                                                                                                                                                                                                                                                                                                                       Only property references (`property`), indexes (`[e]`), and variable references (`#variable`) can be passed as top-level expressions to `setValue`. For indexes, `getValue` is called on `e`, and then the result is used as the property "name" (which might be a `String` or any other kind of object) to set in the current target object. Variable and property references are set more directly.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Constant                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [`(` e `)`](#paren)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Parenthesized expression                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [method`(`args`)`](#methods)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Method call                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [property](#properties)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Property reference                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [`[` e `]`](#indexing)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Index reference                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [`{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-                              `e`,` ... `}`](#listConstruction)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   List creation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [`#`variable](#varref)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Context variable reference                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [`@`class`@`method`(`args`)`](#staticMethods)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Static method reference                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [`@`class`@`field](#staticFields)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Static field reference                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [`new` class`(`args`)`](#constructors)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Constructor call                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [`new `array-component-class`[] {` e`,` ... `}`](#nativeArrayConstruction)                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Array creation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [`#{` e1 `:` e2`,` ... `}`](#mapConstruction)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Map creation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [`#@`classname`@{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-                              `e1 `:` e2`,` ... `}`](#mapConstruction)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Map creation with specific subclass                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  [`:[` e `]`](#lambdaExpressions)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-  :   Lambda expression definition                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-
-  > **Note**
-  >
-  > These operators are listed in reverse precedence order
-  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  : OGNL Operators
+|Operator                                                                    |`getValue()` Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                     |`setValue()` Notes|
+|----------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+|e1`,`e2 - Sequence operator                                                 |Both `e1` and `e2` are evaluated with the same source object, and the result of `e2` is returned.                                                                                                                                                                                                                                                                                                                                                                      |`getValue` is called on `e1`, and then `setValue` is called on `e2`.|
+|e1 `=` e2 - Assignment operator                                             |`getValue` is called on `e2`, and then `setValue` is called on `e1` with the result of `e2` as the target object.                                                                                                                                                                                                                                                                                                                                                      |Cannot be the top-level expression for `setValue`.|
+|e1 `?` e2 `:` e3 - Conditional operator                                     |`getValue` is called on `e1` and the result is [interpreted as a boolean](#interpreting-objects-as-booleans). `getValue` is then called on either `e2` or `e3`, depending on whether the result of `e1` was `true` or `false` respectively, and the result is returned.                                                                                                                                                                                                |`getValue` is called on `e1`, and then `setValue` is called on either `e2` or `e3`.|
+|e1 `||` e2; e1 `or` e2 - Logical or operator                                |`getValue` is called on `e1` and the result is [interpreted as a boolean](#interpreting-objects-as-booleans). If `true`, that result is returned; if `false`, `getValue` is called on `e2` and its value is returned.                                                                                                                                                                                                                                                  |`getValue` is called on `e1`; if `false`, `setValue` is called on `e2`. Note that `e1` being `true` prevents any further setting from taking place.|
+|e1 `&&` e2; e1 `and` e2 - Logical and operator                              |`getValue` is called on `e1` and the result is [interpreted as a boolean](#interpreting-objects-as-booleans). If `false`, that result is returned; if true, `getValue` is called on e2 and its value is returned.                                                                                                                                                                                                                                                      |`getValue` is called on `e1`; if `true`, `setValue` is called on `e2`. Note that `e1` being `false` prevents any further setting from taking place.|
+|e1 `|` e2; e1 `bor` e2 - Bitwise or operator                                |`e1` and `e2` are [interpreted as integers](#coerceInteger) and the result is an `integer`.                                                                                                                                                                                                                                                                                                                                                                            |Cannot be the top-level expression passed to `setValue`.|
+|e1 `^` e2; e1 `xor` e2 - Bitwise exclusive-or operator                      |`e1` and `e2` are [interpreted as integers](#coerceInteger) and the result is an `integer`.                                                                                                                                                                                                                                                                                                                                                                            |Cannot be the top-level expression passed to `setValue`.|
+|e1 `&` e2; e1 `band` e2 - Bitwise and operator                              |`e1` and `e2` are [interpreted as integers](#coerceInteger) and the result is an `integer`.                                                                                                                                                                                                                                                                                                                                                                            |Cannot be the top-level expression passed to `setValue`.|
+|e1 `==` e2; e1 `eq` e2 - Equality test                                      |Equality is tested for as follows. If either value is `null`, they are equal if and only if both are `null`. If they are the same object or the `equals()` method says they are equal, they are equal. If they are both `Number`s, they are equal if their values as double-precision floating point numbers are equal. Otherwise, they are not equal. These rules make numbers compare equal more readily than they would normally, if just using the equals method.  |Cannot be the top-level expression passed to `setValue`.|
+|e1 `!=` e2; e1 `neq` e2 - Inequality test                                   |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|e1 `<` e2; e1 `lt` e2 - Less than comparison                                |The ordering operators compare with `compareTo()` if their arguments are non-numeric and implement `Comparable`; otherwise, the arguments are interpreted as numbers and compared numerically. The in operator is not from Java; it tests for inclusion of e1 in e2, where e2 is interpreted as a collection. This test is not efficient: it iterates the collection. However, it uses the standard OGNL equality test.                                                |Cannot be the top-level expression passed to `setValue`.|
+|e1 `<=` e2; e1 `lte` e2 - Less than or equals comparison                    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|e1 `> `e2; e1 `gt` e2 - Greater than comparison                             |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|e1 `>=` e2; e1 `gte` e2 - Greater than or equals comparison                 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|e1` in` e2 - List membership comparison                                     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|e1 `not in` e2 - List non-membership comparison                             |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|e1 `<<` e2; e1 `shl` e2 - Bit shift left                                    |`e1` and `e2` are [interpreted as integers](#coerceInteger) and the result is an `integer`.                                                                                                                                                                                                                                                                                                                                                                            |Cannot be the top-level expression passed to `setValue`.|
+|e1 `>>` e2; e1 `shr` e2 - Bit shift right                                   |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|e1 `>>>` e2; e1 `ushr` e2 - Logical shift right                             |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|e1 `+` e2 - Addition                                                        |The plus operator concatenates strings if its arguments are non-numeric; otherwise it [interprets its arguments as numbers](#coerceNumber) and adds them. The minus operator always works on numbers.                                                                                                                                                                                                                                                                  |Cannot be the top-level expression passed to `setValue`.|
+|e1 `-` e2 - Subtraction                                                     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|e1 `*` e2 - Multiplication                                                  |Multiplication, division, which [interpret their arguments as numbers](#coerceNumber), and remainder, which [interprets its arguments as integers](#coerceInteger).                                                                                                                                                                                                                                                                                                    |Cannot be the top-level expression passed to `setValue`.|
+|e1 `/` e2 - Division                                                        |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|e1 `%` e2 - Remainder                                                       |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|`+ `e - Unary plus                                                          |Unary plus is a no-op, it simply returns the value of its argument. Unary minus [interprets its argument as a number](#coerceNumber). Logical not [interprets its argument as a boolean](#coerceBoolean). Bitwise not [interprets its argument as an integer](#coerceInteger). The class argument to instanceof is the fully qualified name of a Java class.                                                                                                           |Cannot be the top-level expression passed to `setValue`.|
+|`-` e - Unary minus                                                         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|`!` e; `not` e - Logical not                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|`~` e - Bitwise not                                                         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|e `instanceof` class - Class membership                                     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[e`.`method`(`args`)`](#methods) - Method call                              |Generally speaking, navigation chains are evaluated by evaluating the first expression, then evaluating the second one with the result of the first as the source object.                                                                                                                                                                                                                                                                                              |Some of these forms can be passed as top-level expressions to `setValue` and others cannot. Only those chains that end in property references (e.property), indexes (`e1[e2]`), and subexpressions (`e1.(e2)`) can be; and expression evaluations can be as well. For the chains, `getValue` is called on the left-hand expression (`e` or `e1`), and then `setValue` is called on the rest with the result as the target object.|
+|[e`.`property](#properties) - Property                                      |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[e1`[` e2 `]`](#indexing) - Index                                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[e1`.{ `e2 `}`](#projection) - Projection                                   |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[e1`.{?` e2`}`](#selection) - Selection                                     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[e1`.(`e2`)`](#chainedSubexpressions) - Subexpression evaluation            |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[e1`(`e2`)`](#expressionEvaluation) - Expression evaluation                 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[constant](#constants) - Constant                                           |Basic expressions                                                                                                                                                                                                                                                                                                                                                                                                                                                      |Only property references (`property`), indexes (`[e]`), and variable references (`#variable`) can be passed as top-level expressions to `setValue`. For indexes, `getValue` is called on `e`, and then the result is used as the property "name" (which might be a `String` or any other kind of object) to set in the current target object. Variable and property references are set more directly.|
+|[`(` e `)`](#paren) - Parenthesized expression                              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[method`(`args`)`](#methods) - Method call                                  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[property](#properties) - Property reference                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[`[` e `]`](#indexing) - Index reference                                    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[`{`e`,` ... `}`](#listConstruction) - List creation                        |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[`#`variable](#varref) - Context variable reference                         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[`@`class`@`method`(`args`)`](#staticMethods) - Static method reference     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[`@`class`@`field](#staticFields) - Static field reference                  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[`new` class`(`args`)`](#constructors) - Constructor call                   |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[`new `array-component-class`[] {` e`,` ... `}`](#nativeArrayConstruction) - Array creation|                                                                                                                                                                                                                                                                                                                                                                                                                                                        |                                                        |
+|[`#{` e1 `:` e2`,` ... `}`](#mapConstruction) - Map creation                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+|[`#@`classname`@{`e1 `:` e2`,` ... `}`](#mapConstruction) - Map creation with specific subclass|                                                                                                                                                                                                                                                                                                                                                                                                                                                    |                                                        |
+|[`:[` e `]`](#lambdaExpressions) - Lambda expression definition             |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                        |
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+> **Note** These operators are listed in reverse precedence order
 
 [^1]: This is only true with the default ClassResolver in place. With a
     custom class resolver packages can be mapped in such a way that more
