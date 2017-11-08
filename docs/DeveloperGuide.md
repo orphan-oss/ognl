@@ -141,7 +141,7 @@ accessor, which would simply
 ```java
 public interface ElementsAccessor
 {
-    public Enumeration getElements( Object target ) throws OgnlException;
+    Enumeration getElements( Object target ) throws OgnlException;
 }
 ```
 
@@ -172,7 +172,7 @@ full specify a class name.
 ```java
 public interface ClassResolver
 {
-    public Class classForName(Map context, String className) throws ClassNotFoundException;
+    Class classForName(Map context, String className) throws ClassNotFoundException;
 }
 ```
 
@@ -200,12 +200,7 @@ convert `String[]` to whatever is necessary.
 ```java
 public interface TypeConverter
 {
-    public Object convertValue(Map context,
-                                Object target,
-                                Member member,
-                                String propertyName,
-                                Object value,
-                                Class toType);
+    Object convertValue(Map context, Object target, Member member, String propertyName, Object value, Class toType);
 }
 ```
 
@@ -318,9 +313,9 @@ access the last evaluation through the lastEvaluation property of
 > on there is a `setTraceEvaluations()` method on `OgnlContext` that you
 > can call.
 
-Any [method accessor](#methodAccessors), [elements
-accessor](#elementsAccessors), [type converter](#typeConversion),
-[property accessor](#propertyAccessors) or [null handler](#nullHandler)
+Any [method accessor](#method-accessors), [elements
+accessor](#elements-accessors), [type converter](#type-conversion),
+[property accessor](#property-accessors) or [null handler](#null-handler)
 may find this useful to give context to the operation being performed.
 The `Evaluation` object is itself a tree and can be traversed up, down
 and left and right through siblings to determine the exact circumstances
@@ -328,5 +323,5 @@ of an evaluation. In addition the `Evaluation` object tracks the node
 that was performing the operation, the source object on which that
 operation was being performed and the result of the operation. If an
 exception is thrown during execution the user can get the last
-evaluation's last descendent to find out exactly which subexpression
-caused the error. The execption is also tracked in the `Evaluation`.
+evaluation's last descendant to find out exactly which subexpression
+caused the error. The exception is also tracked in the `Evaluation`.
