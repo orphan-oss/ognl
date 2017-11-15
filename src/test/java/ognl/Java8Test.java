@@ -22,9 +22,11 @@ public class Java8Test extends TestCase {
 
 class SubClassWithDefaults extends ClassWithDefaults {
 
+	public String getName() { return "name"; }
+
 }
 
-class ClassWithDefaults /* implements InterfaceWithDefaults */ {
+class ClassWithDefaults /* implements SubInterfaceWithDefaults */ {
 
 }
 
@@ -33,5 +35,8 @@ class ClassWithDefaults /* implements InterfaceWithDefaults */ {
  *
 interface InterfaceWithDefaults {
     default public void defaultMethod() { }
+    default public String getName() { return "name"; }
+}
+interface SubInterfaceWithDefaults extends InterfaceWithDefaults {
 }
  */
