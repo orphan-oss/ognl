@@ -4,8 +4,7 @@ author:
 title: OGNL Developer Guide
 ---
 
-Introduction
-============
+# Introduction
 
 OGNL as a language allows for the navigation of Java objects through a
 concise syntax that allows for specifying, where possible, symmetrically
@@ -24,8 +23,7 @@ are operated on by a view. Another example is an XML configuration file
 wherein values are generated via expressions which are then bound to
 configured objects.
 
-Embedding OGNL {#embeddingOGNL}
---------------
+## Embedding OGNL
 
 The `ognl.Ognl` class contains convenience methods for evaluating OGNL
 expressions. You can do this in two stages, parsing an expression into
@@ -44,37 +42,34 @@ OGNL expression within an object so that execution will be more
 efficient. The class then takes an `OgnlContext` and a root object to
 evaluate against.
 
-    import ognl.Ognl;
-    import ognl.OgnlContext;
+```java
+import ognl.Ognl;
+import ognl.OgnlContext;
 
-    public class OgnlExpression
-    {
-        private Object       expression;
+public class OgnlExpression {
+    
+    private Object expression;
 
-        public OgnlExpression(String expressionString) throws OgnlException
-        {
-            super();
-            expression = Ognl.parseExpression(expressionString);
-        }
-
-        public Object getExpression()
-        {
-            return expression;
-        }
-
-        public Object getValue(OgnlContext context, Object rootObject) throws OgnlException
-        {
-            return Ognl.getValue(getExpression(), context, rootObject);
-        }
-
-        public void setValue(OgnlContext context, Object rootObject, Object value) throws OgnlException
-        {
-            Ognl.setValue(getExpression(), context, rootObject, value);
-        }
+    public OgnlExpression(String expressionString) throws OgnlException {
+        expression = Ognl.parseExpression(expressionString);
     }
 
-Extending OGNL {#extendingOGNL}
---------------
+    public Object getExpression()
+    {
+        return expression;
+    }
+
+    public Object getValue(OgnlContext context, Object rootObject) throws OgnlException {
+        return Ognl.getValue(getExpression(), context, rootObject);
+    }
+
+    public void setValue(OgnlContext context, Object rootObject, Object value) throws OgnlException {
+        Ognl.setValue(getExpression(), context, rootObject, value);
+    }
+}
+```
+
+## Extending OGNL
 
 OGNL expressions are not evaluated in a static environment, as Java
 programs are. Expressions are not compiled to bytecode at the expression
@@ -89,8 +84,7 @@ extensions and provide a roadmap as to how they are used within OGNL to
 customize the dynamic runtime environment to suit the needs of the
 embedding program.
 
-Property Accessors {#propertyAccessors}
-==================
+### Property Accessors
 
 When navigating an OGNL expression many of the elements that are found
 are properties. Properties can be many things depending on the object
@@ -101,19 +95,20 @@ methodology the OGNL syntax remains the same. Under the hood, however,
 there are `PropertyAccessor` objects that handle the conversion of
 property name to an actual access to an objects' properties.
 
-    public interface PropertyAccessor
-    {
-        Object getProperty( Map context, Object target, Object name ) throws OgnlException;
-        void setProperty( Map context, Object target, Object name, Object value ) throws OgnlException;
-    }
+```java
+public interface PropertyAccessor 
+{    
+    Object getProperty( Map context, Object target, Object name ) throws OgnlException;
+    void setProperty( Map context, Object target, Object name, Object value ) throws OgnlException;
+}
+```
 
 You can set a property accessor on a class-by-class basis using
 OgnlRuntime.setPropertyAccessor(). There are default property accessors
 for `Object` (which uses JavaBeans patterns to extract properties) and
 `Map` (which uses the property name as a key).
 
-Method Accessors {#methodAccessors}
-================
+### Method Accessors
 
 Method calls are another area where OGNL needs to do lookups for methods
 based on dynamic information. The MethodAccessor interface provides a
@@ -121,19 +116,20 @@ hook into how OGNL calls a method. When a static or instance method is
 requested the implementor of this interface is called to actually
 execute the method.
 
-    public interface MethodAccessor
-    {
-        Object callStaticMethod( Map context, Class targetClass, String methodName, List args ) throws MethodFailedException;
-        Object callMethod( Map context, Object target, String methodName, List args ) throws MethodFailedException;
-    }
+```java
+public interface MethodAccessor
+{
+    Object callStaticMethod( Map context, Class targetClass, String methodName, List args ) throws MethodFailedException;
+    Object callMethod( Map context, Object target, String methodName, List args ) throws MethodFailedException;
+}
+```
 
 You can set a method accessor on a class-by-class basis using
 OgnlRuntime.setMethodAccessor(). The is a default method accessor for
 `Object` (which simply finds an appropriate method based on method name
 and argument types and uses reflection to call the method).
 
-Elements Accessors {#elementsAccessors}
-==================
+### Elements Accessors
 
 Since iteration is a built-in function of OGNL and many objects support
 the idea of iterating over the contents of an object (i.e. the object.{
@@ -142,10 +138,12 @@ the idea of iterating over the contents of an object (i.e. the object.{
 source object. Simple examples could be a `Collection` elements
 accessor, which would simply
 
-    public interface ElementsAccessor
-    {
-        public Enumeration getElements( Object target ) throws OgnlException;
-    }
+```java
+public interface ElementsAccessor
+{
+    Enumeration getElements( Object target ) throws OgnlException;
+}
+```
 
 You can set a method accessor on a class-by-class basis using
 OgnlRuntime.setElementsAccessor(). There are default elements accessors
@@ -157,8 +155,7 @@ for generating numeric sequences from 0 to the target value. For example
 the expression `(100).{ #this }` will generate a list of 100 integers
 ranged 0..99.
 
-Class References {#classReferences}
-================
+### Class References
 
 In the sections on accessing static field and static methods it stated
 that classes must be full-specified in between the class reference
@@ -172,16 +169,17 @@ example, a list of imports that are specific to a particular
 also makes class references agreeably short because you don't have to
 full specify a class name.
 
-    public interface ClassResolver
-    {
-        public Class classForName(Map context, String className) throws ClassNotFoundException;
-    }
+```java
+public interface ClassResolver
+{
+    Class classForName(Map context, String className) throws ClassNotFoundException;
+}
+```
 
 You can set a class resolver on a context basis using the `Ognl` methods
 addDefaultContext() and createDefaultContext().
 
-Type Conversion {#typeConversion}
-===============
+### Type Conversion
 
 When performing set operations on properties or calling methods it is
 often the case that the values you want to set have a different type
@@ -199,15 +197,12 @@ you want to set values with it in other objects; a custom type converter
 can be written (most likely subclassing `ognl.DefaultTypeConverter`) to
 convert `String[]` to whatever is necessary.
 
-    public interface TypeConverter
-    {
-        public Object convertValue(Map context,
-                                    Object target,
-                                    Member member,
-                                    String propertyName,
-                                    Object value,
-                                    Class toType);
-    }
+```java
+public interface TypeConverter
+{
+    Object convertValue(Map context, Object target, Member member, String propertyName, Object value, Class toType);
+}
+```
 
 Note that `ognl.DefaultTypeConverter` is much easier to subclass; it
 implements `TypeConverter` and calls it's own
@@ -217,42 +212,43 @@ converter (i.e. converting `String[]` to `int[]` for a list of
 identifier parameters in a request) implemented as a subclass of
 `ognl.DefaultTypeConverter`:
 
-    HttpServletRequest request;
-    Map context = Ognl.createDefaultContext(this);
+```java
+HttpServletRequest request;
+Map context = Ognl.createDefaultContext(this);
 
-    /* Create an anonymous inner class to handle special conversion */
-    Ognl.setTypeConverter(context, new ognl.DefaultTypeConverter() {
-        public Object convertValue(Map context, Object value, Class toType)
-        {
-            Object  result = null;
+/* Create an anonymous inner class to handle special conversion */
+Ognl.setTypeConverter(context, new ognl.DefaultTypeConverter() {
+    public Object convertValue(Map context, Object value, Class toType)
+    {
+        Object  result = null;
 
-            if ((toType == int[].class) && (value instanceof String[].class)) {
-                String  sa = (String[])value;
-                int[]   ia = new int[sa.length];
+        if ((toType == int[].class) && (value instanceof String[].class)) {
+            String  sa = (String[])value;
+            int[]   ia = new int[sa.length];
 
-                for (int i = 0; i < sa.length; i++) {
-                    Integer     cv;
+            for (int i = 0; i < sa.length; i++) {
+                Integer     cv;
 
-                    cv = (Integer)super.convertValue(context,
-                                                        sa[i],
-                                                        Integer.class);
-                    ia[i] = cv.intValue();
-                }
-                result = ia;
-            } else {
-                result = super.convertValue(context, value, toType);
+                cv = (Integer)super.convertValue(context,
+                                                    sa[i],
+                                                    Integer.class);
+                ia[i] = cv.intValue();
             }
-            return result;
+            result = ia;
+        } else {
+            result = super.convertValue(context, value, toType);
         }
-    });
-    /* Setting values within this OGNL context will use the above-defined TypeConverter */
-    Ognl.setValue("identifiers",
-                    context,
-                    this,
-                    request.getParameterValues("identifier"));
+        return result;
+    }
+});
+/* Setting values within this OGNL context will use the above-defined TypeConverter */
+Ognl.setValue("identifiers",
+                context,
+                this,
+                request.getParameterValues("identifier"));
+```
 
-Member Access {#memberAccessManager}
-=============
+### Member Access
 
 Normally in Java the only members of a class (fields, methods) that can
 be accessed are the ones defined with public access. OGNL includes an
@@ -266,15 +262,16 @@ protected members` using the AccessibleObject` interface in Java2. The
 default class can be subclasses to select different objects for which
 accessibility is allowed.
 
-    public interface MemberAccess
-    {
-        public Object setup( Member member );
-        public void restore( Member member, Object state );
-        public boolean isAccessible( Member member );
-    }
+```java
+public interface MemberAccess
+{
+    public Object setup( Member member );
+    public void restore( Member member, Object state );
+    public boolean isAccessible( Member member );
+}
+```
 
-Null Handler {#nullHandler}
-============
+### Null Handler
 
 When navigating a chain sometimes properties or methods will evaluate to
 null, causing subsequent properties or method calls to fail with
@@ -289,20 +286,20 @@ source of the method or property a really clever implementor might write
 the property back to the object so that subsequent invocations do not
 return or evaluate to `null`.
 
-    public interface NullHandler
-    {
-        public Object nullMethodResult(Map context, Object target, String methodName, List args);
-        public Object nullPropertyValue(Map context, Object target, Object property);
-    }
+```java
+public interface NullHandler
+{
+    public Object nullMethodResult(Map context, Object target, String methodName, List args);
+    public Object nullPropertyValue(Map context, Object target, Object property);
+}
+```
 
 `NullHandler` implementors are registered with OGNL using the
 `OgnlRuntime.setNullHandler()` method.
 
-Other API features {#evaluation}
-==================
+## Other API features
 
-Tracing Evaluations
--------------------
+### Tracing Evaluations
 
 As of OGNL 2.5.0 the `OgnlContext` object can automatically tracks
 evaluations of expressions. This tracking is kept in the `OgnlContext`
@@ -316,9 +313,9 @@ access the last evaluation through the lastEvaluation property of
 > on there is a `setTraceEvaluations()` method on `OgnlContext` that you
 > can call.
 
-Any [method accessor](#methodAccessors), [elements
-accessor](#elementsAccessors), [type converter](#typeConversion),
-[property accessor](#propertyAccessors) or [null handler](#nullHandler)
+Any [method accessor](#method-accessors), [elements
+accessor](#elements-accessors), [type converter](#type-conversion),
+[property accessor](#property-accessors) or [null handler](#null-handler)
 may find this useful to give context to the operation being performed.
 The `Evaluation` object is itself a tree and can be traversed up, down
 and left and right through siblings to determine the exact circumstances
@@ -326,5 +323,5 @@ of an evaluation. In addition the `Evaluation` object tracks the node
 that was performing the operation, the source object on which that
 operation was being performed and the result of the operation. If an
 exception is thrown during execution the user can get the last
-evaluation's last descendent to find out exactly which subexpression
-caused the error. The execption is also tracked in the `Evaluation`.
+evaluation's last descendant to find out exactly which subexpression
+caused the error. The exception is also tracked in the `Evaluation`.
