@@ -39,7 +39,7 @@ class SubClassWithDefaults extends ClassWithDefaults {
 
 }
 
-class ClassWithDefaults /* implements InterfaceWithDefaults */ {
+class ClassWithDefaults /* implements SubInterfaceWithDefaults */ {
 
 }
 
@@ -49,5 +49,7 @@ class ClassWithDefaults /* implements InterfaceWithDefaults */ {
 interface InterfaceWithDefaults {
     default public void defaultMethod() { }
     default public String getName() { return "name"; }
+}
+interface SubInterfaceWithDefaults extends InterfaceWithDefaults {
 }
  */
