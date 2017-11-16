@@ -10,7 +10,7 @@
     <groupId>ognl</groupId>
     <artifactId>ognl</artifactId>
     <packaging>jar</packaging>
-    <version>3.2.4-SNAPSHOT</version>
+    <version>3.2.4</version>
     <name>OGNL - Object Graph Navigation Library</name>
     <description>OGNL - Object Graph Navigation Library</description>
 
@@ -181,13 +181,13 @@
                                 <configuration>
                                     <target>
                                         <java classname="org.javacc.jjtree.Main" fork="true">
-                                            <arg value="-OUTPUT_DIRECTORY=${project.build.sourceDirectory}/ognl"/>
-                                            <arg value="${project.basedir}/src/etc/ognl.jjt"/>
+                                            <arg value="-OUTPUT_DIRECTORY=${project.build.sourceDirectory}/ognl" />
+                                            <arg value="${project.basedir}/src/etc/ognl.jjt" />
                                         </java>
 
                                         <java classname="org.javacc.parser.Main" fork="true">
-                                            <arg value="-OUTPUT_DIRECTORY=${project.build.sourceDirectory}/ognl"/>
-                                            <arg value="${project.basedir}/src/etc/ognl.jj"/>
+                                            <arg value="-OUTPUT_DIRECTORY=${project.build.sourceDirectory}/ognl" />
+                                            <arg value="${project.basedir}/src/etc/ognl.jj" />
                                         </java>
                                     </target>
                                 </configuration>
