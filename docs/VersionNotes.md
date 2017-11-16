@@ -1,7 +1,8 @@
 # Version Notes
 
 ## Release notes - version 3.1.16, 3.2.4
- * collects only default methods when scanning interfaces [40](../../../40)
+ * collects only default methods when scanning interfaces [40](../../../pull/40)
+   thanks to Iwao AVE! 
 
 ## Release notes - version 3.2.3 - WIP (new changes are coming)
  * makes `OgnlContext` a bit more immutable
@@ -9,13 +10,13 @@
    * Implementation of the `MemberAccess` is required when crearting a new context, you must always provide your own
    * `DefaultMemberAccess` is only available in tests, it won't be used when there was no custom `MemberAccess` provided, an exception will be thrown in such case
  * sets source and target in `pom.xml` to Java 1.7
- * makes better decisions on methods first call [#39](../../../pul/39) -
+ * makes better decisions on methods first call [#39](../../../pull/39) -
    thanks to Yasser Zamani
- * fixes access to property which reads method is Java 8 default method [#33](../../../pul/33) -
+ * fixes access to property which reads method is Java 8 default method [#33](../../../pull/33) -
    thanks to Yanming Zhou
 
 ## Release notes - version 3.1.15, 3.0.21
- * makes better decisions on methods first call [#36](../../../pul/36), [#38](../../../pul/38) -
+ * makes better decisions on methods first call [#36](../../../pull/36), [#38](../../../pull/38) -
    thanks to Yasser Zamani
 
 ## Release notes - version 3.1.14, 3.0.20
