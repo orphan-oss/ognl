@@ -1789,43 +1789,57 @@ public class OgnlRuntime {
                 if ((result = (Map) cache.get(targetClass)) == null)
                 {
                     result = new HashMap(23);
-
-                    List<Class> toExamined = new LinkedList<Class>();
-                    for (Class c = targetClass; c != null; c = c.getSuperclass())
-                    {
-                        toExamined.add(c);
-                        
-                        // Including interfaces is needed as from Java 8 intefaces can implement defaul methods
-                        toExamined.addAll(Arrays.asList(c.getInterfaces()));
-                    }
-
-                    for (Class c : toExamined)
-                    {
-                        Method[] ma = c.getDeclaredMethods();
-
-                        for (int i = 0, icount = ma.length; i < icount; i++)
-                        {
-                            // skip over synthetic methods
-
-                            if (!isMethodCallable(ma[i]))
-                                continue;
-
-                            if (Modifier.isStatic(ma[i].getModifiers()) == staticMethods)
-                            {
-                                List ml = (List) result.get(ma[i].getName());
-
-                                if (ml == null)
-                                    result.put(ma[i].getName(), ml = new ArrayList());
-
-                                ml.add(ma[i]);
-                            }
-                        }
-                    }
+                    collectMethods(targetClass, result, staticMethods);
                     cache.put(targetClass, result);
                 }
             }
         }
         return result;
+                    }
+
+    private static void collectMethods(Class c, Map result, boolean staticMethods) {
+        Method[] ma = c.getDeclaredMethods();
+        for (int i = 0, icount = ma.length; i < icount; i++)
+        {
+            if (c.isInterface())
+            {
+                if (isDefaultMethod(ma[i]))
+                    addMethodToResult(result, ma[i]);
+                continue;
+            }
+
+            // skip over synthetic methods
+            if (!isMethodCallable(ma[i]))
+                continue;
+
+            if (Modifier.isStatic(ma[i].getModifiers()) == staticMethods)
+                addMethodToResult(result, ma[i]);
+        }
+
+        Class superclass = c.getSuperclass();
+        if (superclass != null)
+            collectMethods(superclass, result, staticMethods);
+
+        for (Class iface : c.getInterfaces())
+            collectMethods(iface, result, staticMethods);
+    }
+
+    private static void addMethodToResult(Map result, Method method)
+    {
+        List ml = (List) result.get(method.getName());
+        if (ml == null)
+            result.put(method.getName(), ml = new ArrayList());
+        ml.add(method);
+    }
+
+    /**
+     * Backport of java.lang.reflect.Method#isDefault()
+     */
+    private static boolean isDefaultMethod(Method method)
+    {
+        return ((method.getModifiers()
+                & (Modifier.ABSTRACT | Modifier.PUBLIC | Modifier.STATIC)) == Modifier.PUBLIC)
+                && method.getDeclaringClass().isInterface();
     }
 
     public static Map getAllMethods(Class targetClass, boolean staticMethods)
