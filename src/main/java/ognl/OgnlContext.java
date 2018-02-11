@@ -110,6 +110,10 @@ public class OgnlContext extends Object implements Map
         this(memberAccess, classResolver, typeConverter, new HashMap(23));
     }
 
+    /**
+     * @deprecated use on of the constructors which require {@link MemberAccess}, this one can be removed soon
+     */
+    @Deprecated
     public OgnlContext(Map values)
     {
         // nulls will prevent overriding the default class resolver, type converter and member access
