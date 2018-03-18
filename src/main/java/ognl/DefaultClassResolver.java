@@ -49,23 +49,23 @@ public class DefaultClassResolver extends Object implements ClassResolver
         super();
     }
 
-	public Class classForName(String className, Map context) throws ClassNotFoundException
-	{
-	    Class       result = null;
+    public Class classForName(String className, Map context) throws ClassNotFoundException
+    {
+        Class       result = null;
 
         if ((result = (Class)classes.get(className)) == null) {
-    		try {
-    		    result = Class.forName(className);
-    		} catch (ClassNotFoundException ex) {
-    			if (className.indexOf('.') == -1) {
-    			    result = Class.forName("java.lang." + className);
-        			classes.put("java.lang." + className, result);
-        		}
-    		}
-            if (result != null) {
-				classes.put(className, result);
+            try {
+                result = Class.forName(className);
+            } catch (ClassNotFoundException ex) {
+                if (className.indexOf('.') == -1) {
+                    result = Class.forName("java.lang." + className);
+                    classes.put("java.lang." + className, result);
+                }
             }
-    	}
-	    return result;
-	}
+            if (result != null) {
+                classes.put(className, result);
+            }
+        }
+        return result;
+    }
 }
