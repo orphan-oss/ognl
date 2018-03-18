@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultClassResolver extends Object implements ClassResolver
 {
-    private Map     classes = new ConcurrentHashMap(101);
+    private final Map<String, Class> classes = new ConcurrentHashMap<>(101);
 
     public DefaultClassResolver()
     {
@@ -51,21 +51,18 @@ public class DefaultClassResolver extends Object implements ClassResolver
 
     public Class classForName(String className, Map context) throws ClassNotFoundException
     {
-        Class       result = null;
-
-        if ((result = (Class)classes.get(className)) == null) {
-            try {
-                result = Class.forName(className);
-            } catch (ClassNotFoundException ex) {
-                if (className.indexOf('.') == -1) {
-                    result = Class.forName("java.lang." + className);
-                    classes.put("java.lang." + className, result);
-                }
-            }
-            if (result != null) {
-                classes.put(className, result);
-            }
+        Class result = classes.get(className);
+        if (result != null) {
+            return result;
         }
+        if (className.indexOf('.') == -1) {
+            String langClassName = "java.lang." + className;
+            result = Class.forName(langClassName);
+            classes.put(langClassName, result);
+        } else {
+            result = Class.forName(className);
+        }
+        classes.put(className, result);
         return result;
     }
 }
