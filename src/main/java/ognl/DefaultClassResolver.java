@@ -30,7 +30,8 @@
 //--------------------------------------------------------------------------
 package ognl;
 
-import java.util.*;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Default class resolution.  Uses Class.forName() to look up classes by name.
@@ -41,7 +42,7 @@ import java.util.*;
  */
 public class DefaultClassResolver extends Object implements ClassResolver
 {
-    private Map     classes = new HashMap(101);
+    private Map     classes = new ConcurrentHashMap(101);
 
     public DefaultClassResolver()
     {
