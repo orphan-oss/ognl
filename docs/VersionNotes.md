@@ -1,11 +1,11 @@
 # Version Notes
 
 ## Release notes - version 3.2.5
- * supports concurrency in `DefaultClassResolver` [46](../../../pull/46) -
+ * supports concurrency in `DefaultClassResolver` [#46](../../../pull/46) -
    thanks to kazuki43zoo! 
 
 ## Release notes - version 3.1.16, 3.2.4
- * collects only default methods when scanning interfaces [40](../../../pull/40) -
+ * collects only default methods when scanning interfaces [#40](../../../pull/40) -
    thanks to Iwao AVE! 
 
 ## Release notes - version 3.2.3 - WIP (new changes are coming)
