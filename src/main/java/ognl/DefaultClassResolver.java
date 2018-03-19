@@ -30,7 +30,8 @@
 //--------------------------------------------------------------------------
 package ognl;
 
-import java.util.*;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Default class resolution.  Uses Class.forName() to look up classes by name.
@@ -41,28 +42,21 @@ import java.util.*;
  */
 public class DefaultClassResolver extends Object implements ClassResolver
 {
-    private Map     classes = new HashMap(101);
+    private final Map<String, Class> classes = new ConcurrentHashMap<>(101);
 
     public DefaultClassResolver()
     {
         super();
     }
 
-	public Class classForName(String className, Map context) throws ClassNotFoundException
-	{
-	    Class       result = null;
-
-        if ((result = (Class)classes.get(className)) == null) {
-    		try {
-    		    result = Class.forName(className);
-    		} catch (ClassNotFoundException ex) {
-    			if (className.indexOf('.') == -1) {
-    			    result = Class.forName("java.lang." + className);
-        			classes.put("java.lang." + className, result);
-        		}
-    		}
-			classes.put(className, result);
-    	}
-	    return result;
-	}
+    public Class classForName(String className, Map context) throws ClassNotFoundException
+    {
+        Class result = classes.get(className);
+        if (result != null) {
+            return result;
+        }
+        result = (className.indexOf('.') == -1) ? Class.forName("java.lang." + className) : Class.forName(className);
+        classes.put(className, result);
+        return result;
+    }
 }
