@@ -55,13 +55,7 @@ public class DefaultClassResolver extends Object implements ClassResolver
         if (result != null) {
             return result;
         }
-        if (className.indexOf('.') == -1) {
-            String langClassName = "java.lang." + className;
-            result = Class.forName(langClassName);
-            classes.put(langClassName, result);
-        } else {
-            result = Class.forName(className);
-        }
+        result = (className.indexOf('.') == -1) ? Class.forName("java.lang." + className) : Class.forName(className);
         classes.put(className, result);
         return result;
     }
