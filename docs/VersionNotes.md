@@ -1,6 +1,6 @@
 # Version Notes
 
-## Release notes - version 3.2.5
+## Release notes - version 3.1.17, 3.2.5
  * supports concurrency in `DefaultClassResolver` [#46](../../../pull/46) -
    thanks to kazuki43zoo! 
 
