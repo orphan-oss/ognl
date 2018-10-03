@@ -1,12 +1,20 @@
 # Version Notes
 
+## Release notes - version 3.2.7
+ * `getDeclaredMethods()` searches super-interfaces recursively. [#55](../../../pull/55) -
+   thanks to Iwao AVE!
+
+## Release notes - version 3.2.6
+ * allows override a strategy for loading a class on `DefaultClassResolve` [#50](../../../pull/50) -
+   thanks to kazuki43zoo
+
 ## Release notes - version 3.1.17, 3.2.5
  * supports concurrency in `DefaultClassResolver` [#46](../../../pull/46) -
-   thanks to kazuki43zoo! 
+   thanks to kazuki43zoo 
 
 ## Release notes - version 3.1.16, 3.2.4
  * collects only default methods when scanning interfaces [#40](../../../pull/40) -
-   thanks to Iwao AVE! 
+   thanks to Iwao AVE!
 
 ## Release notes - version 3.2.3 - WIP (new changes are coming)
  * makes `OgnlContext` a bit more immutable
