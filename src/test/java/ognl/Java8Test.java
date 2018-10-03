@@ -1,5 +1,6 @@
 package ognl;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -10,20 +11,21 @@ public class Java8Test extends TestCase {
         /* defaultMethod(); */
         List defaultMethod = OgnlRuntime.getMethods(ClassWithDefaults.class, "defaultMethod", false);
         assertNotNull(defaultMethod);
+        Method method = OgnlRuntime.getReadMethod(ClassWithDefaults.class, "defaultMethod");
+        assertNotNull(method);
     }
 
     public void testDefaultMethodOnSubClass() {
         /* defaultMethod(); */
         List defaultMethod = OgnlRuntime.getMethods(SubClassWithDefaults.class, "defaultMethod", false);
         assertNotNull(defaultMethod);
+        Method method = OgnlRuntime.getReadMethod(SubClassWithDefaults.class, "defaultMethod");
+        assertNotNull(method);
     }
 
 }
 
 class SubClassWithDefaults extends ClassWithDefaults {
-
-	public String getName() { return "name"; }
-
 }
 
 class ClassWithDefaults /* implements SubInterfaceWithDefaults */ {
