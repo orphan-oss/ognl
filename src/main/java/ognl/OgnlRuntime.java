@@ -2117,76 +2117,61 @@ public class OgnlRuntime {
                 if ((propertyCache == null) || ((result = (List) propertyCache.get(propertyName)) == null)) {
 
                     String baseName = capitalizeBeanPropertyName(propertyName);
+                    result = new ArrayList();
+                    collectAccessors(targetClass, baseName, result, findSets);
 
-                    for (Class c = targetClass; c != null; c = c.getSuperclass()) {
-                        Method[] methods = c.getDeclaredMethods();
-
-                        for (int i = 0; i < methods.length; i++) {
-
-                            if (!isMethodCallable(methods[i]))
-                                continue;
-
-                            String ms = methods[i].getName();
-
-                            if (ms.endsWith(baseName)) {
-                                boolean isSet = false, isIs = false;
-
-                                if ((isSet = ms.startsWith(SET_PREFIX)) || ms.startsWith(GET_PREFIX)
-                                    || (isIs = ms.startsWith(IS_PREFIX))) {
-                                    int prefixLength = (isIs ? 2 : 3);
-
-                                    if (isSet == findSets) {
-                                        if (baseName.length() == (ms.length() - prefixLength)) {
-                                            if (result == null) {
-                                                result = new ArrayList();
-                                            }
-                                            result.add(methods[i]);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    // Add default methods on interface
-                    for (Class c = targetClass; c != null; c = c.getSuperclass()) {
-                    	for(Class intf : c.getInterfaces()){
-	                        Method[] methods = intf.getDeclaredMethods();
-	
-	                        for (int i = 0; i < methods.length; i++) {
-	                            if (Modifier.isAbstract(methods[i].getModifiers()))
-	                                continue;
-	
-	                            String ms = methods[i].getName();
-	
-	                            if (ms.endsWith(baseName)) {
-	                                boolean isSet = false, isIs = false;
-	
-	                                if ((isSet = ms.startsWith(SET_PREFIX)) || ms.startsWith(GET_PREFIX)
-	                                    || (isIs = ms.startsWith(IS_PREFIX))) {
-	                                    int prefixLength = (isIs ? 2 : 3);
-	
-	                                    if (isSet == findSets) {
-	                                        if (baseName.length() == (ms.length() - prefixLength)) {
-	                                            if (result == null) {
-	                                                result = new ArrayList();
-	                                            }
-	                                            result.add(methods[i]);
-	                                        }
-	                                    }
-	                                }
-	                            }
-	                        }
-                    	}
-                    }
                     if (propertyCache == null) {
                         cache.put(targetClass, propertyCache = new HashMap(101));
                     }
+                    propertyCache.put(propertyName, result.isEmpty() ? NotFoundList : result);
 
-                    propertyCache.put(propertyName, (result == null) ? NotFoundList : result);
+                    return result.isEmpty() ? null : result;
                 }
             }
         }
         return (result == NotFoundList) ? null : result;
+    }
+
+    private static void collectAccessors(Class c, String baseName, List result, boolean findSets)
+    {
+        final Method[] methods = c.getDeclaredMethods();
+        for (int i = 0; i < methods.length; i++) {
+            if (c.isInterface()) {
+                if (isDefaultMethod(methods[i])) {
+                    addIfAccessor(result, methods[i], baseName, findSets);
+                }
+                continue;
+            }
+
+            if (!isMethodCallable(methods[i]))
+                continue;
+
+            addIfAccessor(result, methods[i], baseName, findSets);
+        }
+
+        final Class superclass = c.getSuperclass();
+        if (superclass != null)
+            collectAccessors(superclass, baseName, result, findSets);
+
+        for (final Class iface : c.getInterfaces())
+            collectAccessors(iface, baseName, result, findSets);
+    }
+
+    private static void addIfAccessor(List result, Method method, String baseName, boolean findSets)
+    {
+        final String ms = method.getName();
+        if (ms.endsWith(baseName)) {
+            boolean isSet = false, isIs = false;
+            if ((isSet = ms.startsWith(SET_PREFIX)) || ms.startsWith(GET_PREFIX)
+                    || (isIs = ms.startsWith(IS_PREFIX))) {
+                int prefixLength = (isIs ? 2 : 3);
+                if (isSet == findSets) {
+                    if (baseName.length() == (ms.length() - prefixLength)) {
+                        result.add(method);
+                    }
+                }
+            }
+        }
     }
 
     /**
