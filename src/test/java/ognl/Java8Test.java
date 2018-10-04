@@ -18,16 +18,19 @@ public class Java8Test extends TestCase {
         assertNotNull(defaultMethod);
     }
 
+    public void testGetDeclaredMethods() {
+        List defaultMethod = OgnlRuntime.getDeclaredMethods(SubClassWithDefaults.class, "name", false);
+        assertNotNull(defaultMethod);
+        defaultMethod = OgnlRuntime.getDeclaredMethods(ClassWithDefaults.class, "name", false);
+        assertNotNull(defaultMethod);
+    }
+
 }
 
 class SubClassWithDefaults extends ClassWithDefaults {
-
-	public String getName() { return "name"; }
-
 }
 
 class ClassWithDefaults /* implements SubInterfaceWithDefaults */ {
-
 }
 
 /**
