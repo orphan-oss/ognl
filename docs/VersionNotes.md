@@ -1,6 +1,12 @@
 # Version Notes
 
-## Release notes - version 3.2.7
+## Release notes - version 3.1.18
+ * `getDeclaredMethods()` searches super-interfaces recursively. [#55](../../../pull/55) -
+   thanks to Iwao AVE!
+ * allows override a strategy for loading a class on `DefaultClassResolve` [#50](../../../pull/50) -
+   thanks to Iwao AVE!
+
+## Release notes - version 3.1.18, 3.2.7
  * `getDeclaredMethods()` searches super-interfaces recursively. [#55](../../../pull/55) -
    thanks to Iwao AVE!
 
