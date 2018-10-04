@@ -1795,7 +1795,7 @@ public class OgnlRuntime {
             }
         }
         return result;
-                    }
+    }
 
     private static void collectMethods(Class c, Map result, boolean staticMethods) {
         Method[] ma = c.getDeclaredMethods();
@@ -2947,15 +2947,14 @@ public class OgnlRuntime {
 
             name = name.toLowerCase();
 
-            BeanInfo info = Introspector.getBeanInfo(target);
-            MethodDescriptor[] methods = info.getMethodDescriptors();
+            Method[] methods = target.getMethods();
 
             // exact matches first
             ArrayList<Method> candidates = new ArrayList<Method>();
 
             for (int i = 0; i < methods.length; i++)
             {
-                if (!isMethodCallable(methods[i].getMethod()))
+                if (!isMethodCallable(methods[i]))
                     continue;
 
                 if ((methods[i].getName().equalsIgnoreCase(name)
@@ -2964,7 +2963,7 @@ public class OgnlRuntime {
                      || methods[i].getName().toLowerCase().equals("is" + name))
                     && !methods[i].getName().startsWith("set"))
                 {
-                    candidates.add(methods[i].getMethod());
+                    candidates.add(methods[i]);
                 }
             }
             if (!candidates.isEmpty()) {
@@ -2975,7 +2974,7 @@ public class OgnlRuntime {
 
             for (int i = 0; i < methods.length; i++)
             {
-                if (!isMethodCallable(methods[i].getMethod()))
+                if (!isMethodCallable(methods[i]))
                     continue;
 
                 if (methods[i].getName().equalsIgnoreCase(name)
@@ -2983,9 +2982,9 @@ public class OgnlRuntime {
                     && !methods[i].getName().startsWith("get")
                     && !methods[i].getName().startsWith("is")
                     && !methods[i].getName().startsWith("has")
-                    && methods[i].getMethod().getReturnType() != Void.TYPE) {
+                    && methods[i].getReturnType() != Void.TYPE) {
 
-                    Method m = methods[i].getMethod();
+                    Method m = methods[i];
                     if (!candidates.contains(m))
                         candidates.add(m);
                 }
