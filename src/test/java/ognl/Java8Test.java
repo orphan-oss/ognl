@@ -1,6 +1,5 @@
 package ognl;
 
-import java.beans.IntrospectionException;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -19,7 +18,7 @@ public class Java8Test extends TestCase {
         assertNotNull(defaultMethod);
     }
 
-    public void testGetDeclaredMethods() throws IntrospectionException, OgnlException{
+    public void testGetDeclaredMethods() {
         List defaultMethod = OgnlRuntime.getDeclaredMethods(SubClassWithDefaults.class, "name", false);
         assertNotNull(defaultMethod);
         defaultMethod = OgnlRuntime.getDeclaredMethods(ClassWithDefaults.class, "name", false);
@@ -29,13 +28,9 @@ public class Java8Test extends TestCase {
 }
 
 class SubClassWithDefaults extends ClassWithDefaults {
-
-	public String getName() { return "name"; }
-
 }
 
 class ClassWithDefaults /* implements SubInterfaceWithDefaults */ {
-
 }
 
 /**
