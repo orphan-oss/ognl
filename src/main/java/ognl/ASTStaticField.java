@@ -89,7 +89,10 @@ public class ASTStaticField extends SimpleNode implements NodeType
                 result = true;
             } else
             {
-                Field f = c.getField(fieldName);
+                Field f = OgnlRuntime.getField(c, fieldName);
+                if (f == null) {
+                    throw new NoSuchFieldException(fieldName);
+                }
 
                 if (!Modifier.isStatic(f.getModifiers()))
                     throw new OgnlException("Field " + fieldName + " of class " + className + " is not static");
@@ -200,7 +203,7 @@ public class ASTStaticField extends SimpleNode implements NodeType
         {
             throw OgnlOps.castToRuntime(t);
         }
-        
+
         return className + "." + fieldName;
     }
 }

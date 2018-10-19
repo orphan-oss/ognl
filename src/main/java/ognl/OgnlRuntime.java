@@ -147,7 +147,7 @@ public class OgnlRuntime {
 
     static final Map<Method, Boolean> _methodAccessCache = new ConcurrentHashMap<Method, Boolean>();
     static final Map<Method, Boolean> _methodPermCache = new ConcurrentHashMap<Method, Boolean>();
-    
+
     static final ClassPropertyMethodCache cacheSetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
 
@@ -1442,7 +1442,7 @@ public class OgnlRuntime {
         return mm;
     }
 
-	public static Object callAppropriateMethod(OgnlContext context, Object source, Object target, String methodName,
+    public static Object callAppropriateMethod(OgnlContext context, Object source, Object target, String methodName,
                                                String propertyName, List methods, Object[] args)
             throws MethodFailedException
     {
@@ -2055,11 +2055,26 @@ public class OgnlRuntime {
                 }
             }
 
-            Field f = c.getField(fieldName);
+            Field f = getField(c, fieldName);
+            if (f == null) {
+                throw new NoSuchFieldException(fieldName);
+            }
             if (!Modifier.isStatic(f.getModifiers()))
                 throw new OgnlException("Field " + fieldName + " of class " + className + " is not static");
 
-            return f.get(null);
+            Object result = null;
+            if (context.getMemberAccess().isAccessible(context, null, f, null)) {
+                Object state = context.getMemberAccess().setup(context, null, f, null);
+                try {
+                    result = f.get(null);
+                } finally {
+                    context.getMemberAccess().restore(context, null, f, null, state);
+                }
+            } else {
+                throw new IllegalAccessException("Access to " + fieldName  + " of class " + className + " is forbidden");
+            }
+
+            return result;
         } catch (ClassNotFoundException e) {
             reason = e;
         } catch (NoSuchFieldException e) {
@@ -2188,7 +2203,7 @@ public class OgnlRuntime {
 
         return true;
     }
-    
+
     /**
      * cache get methods
      */
@@ -2246,9 +2261,9 @@ public class OgnlRuntime {
     {
         return isMethodAccessible(context, target, getGetMethod(context, targetClass, propertyName), propertyName);
     }
-    
+
     /**
-     * cache set methods method 
+     * cache set methods method
      */
     public static Method getSetMethod(OgnlContext context, Class targetClass, String propertyName)
             throws IntrospectionException, OgnlException
