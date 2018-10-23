@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.1.19, 3.2.8
+ * `MemberAccess` does not support private static field. [#59](../../../issues/59) -
+   thanks to hengyunabc
+
 ## Release notes - version 3.1.18
  * `getDeclaredMethods()` searches super-interfaces recursively. [#55](../../../pull/55) -
    thanks to Iwao AVE!
