@@ -56,13 +56,13 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.9</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
-            <version>2.3</version>
+            <version>2.5.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -101,7 +101,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.22.1</version>  <!-- Most recent 2.x available -->
                 <configuration>
                     <excludes>
                         <exclude>**/OgnlTestCase.java</exclude>
@@ -161,9 +161,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>2.1.1</version>
+                <version>2.6.1</version>  <!-- Most recent 2.x available -->
             </plugin>
         </plugins>
+
+        <defaultGoal>install</defaultGoal>
+
     </build>
 
 </project>
