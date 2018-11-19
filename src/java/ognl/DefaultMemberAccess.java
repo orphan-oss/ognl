@@ -108,7 +108,7 @@ public class DefaultMemberAccess implements MemberAccess
         Object      result = null;
 
         if (isAccessible(context, target, member, propertyName)) {
-            AccessibleObject    accessible = (AccessibleObject)member;
+            AccessibleObject    accessible = (AccessibleObject) member;
 
             if (!accessible.isAccessible()) {
                 result = Boolean.FALSE;
@@ -121,7 +121,14 @@ public class DefaultMemberAccess implements MemberAccess
     public void restore(Map context, Object target, Member member, String propertyName, Object state)
     {
         if (state != null) {
-            ((AccessibleObject)member).setAccessible(((Boolean)state).booleanValue());
+            final AccessibleObject  accessible = (AccessibleObject) member;
+            final boolean           stateboolean = ((Boolean) state).booleanValue();  // Using twice (avoid unboxing)
+            if (!stateboolean) {
+                accessible.setAccessible(stateboolean);
+            } else {
+                throw new IllegalArgumentException("Improper restore state [" + stateboolean + "] for target [" + target +
+                                                   "], member [" + member + "], propertyName [" + propertyName + "]");
+            }
         }
     }
 
