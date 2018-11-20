@@ -36,13 +36,15 @@ import ognl.DefaultMemberAccess;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
+import ognl.OgnlRuntime;
 
 /**
  * This is a test program for private access in OGNL.
- * shows the failures and a summary.
+ * Shows the failures and a summary.
  */
 public class PrivateMemberTest extends TestCase
 {
+    private static String           _privateStaticProperty = "private static value";
     private String                  _privateProperty = "private value";
     protected OgnlContext           context;
 
@@ -64,13 +66,20 @@ public class PrivateMemberTest extends TestCase
 	}
 
 	/*===================================================================
-		Public methods
+		Private methods
 	  ===================================================================*/
     private String getPrivateProperty()
     {
         return _privateProperty;
     }
 
+    private static String getPrivateStaticProperty() {
+        return _privateStaticProperty;
+    }
+
+  /*===================================================================
+    Public methods
+    ===================================================================*/
     public void testPrivateAccessor() throws OgnlException
     {
         assertEquals(Ognl.getValue("privateProperty", context, this), getPrivateProperty());
@@ -79,6 +88,89 @@ public class PrivateMemberTest extends TestCase
     public void testPrivateField() throws OgnlException
     {
         assertEquals(Ognl.getValue("_privateProperty", context, this), _privateProperty);
+    }
+
+    public void testPrivateStaticAccessor() throws OgnlException
+    {
+        // Test following PR#59/PR#60 (MemberAccess support private static field).
+        assertEquals(Ognl.getValue("privateStaticProperty", context, this), getPrivateStaticProperty());
+        // Succeeds due to calling the static getter to retrieve it.
+    }
+
+    public void testPrivateStaticFieldNormalAccess() throws OgnlException
+    {
+        // Test following PR#59/PR#60 (MemberAccess support private static field).
+        try {
+            assertEquals(Ognl.getValue("_privateStaticProperty", context, this), _privateStaticProperty);
+            fail("Should not be able to access private static _privateStaticProperty through getValue()");
+        } catch (OgnlException oex) {
+            // Fails as test attempts to access a static field using non-static getValue
+        }
+    }
+
+    public void testPrivateStaticFieldStaticAccess() throws OgnlException
+    {
+        // Test following PR#59/PR#60 (MemberAccess support private static field).
+        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_privateStaticProperty"), _privateStaticProperty);
+        // Only succeeds due to directly using the runtime to access the field as a static field.
+    }
+
+    public void testPrivateAccessorFail() throws OgnlException
+    {
+        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+        try {
+          assertEquals(Ognl.getValue("privateProperty", context, this), getPrivateProperty());
+          fail("Should not be able to access private property with private access turned off");
+        } catch (OgnlException oex) {
+          // Fails as test attempts to access a private accessor with private access turned off
+        }
+    }
+
+    public void testPrivateFieldFail() throws OgnlException
+    {
+        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+        try {
+          assertEquals(Ognl.getValue("_privateProperty", context, this), _privateProperty);
+          fail("Should not be able to access private property with private access turned off");
+        } catch (OgnlException oex) {
+          // Fails as test attempts to access a private accessor with private access turned off
+        }
+    }
+
+    public void testPrivateStaticAccessorFail() throws OgnlException
+    {
+        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+        // Test following PR#59/PR#60 (MemberAccess support private static field).
+        try {
+          assertEquals(Ognl.getValue("privateStaticProperty", context, this), getPrivateStaticProperty());
+          fail("Should not be able to access private static property with private access turned off");
+        } catch (OgnlException oex) {
+          // Fails as test attempts to access a private accessor with private access turned off
+        }
+    }
+
+    public void testPrivateStaticFieldNormalAccessFail() throws OgnlException
+    {
+        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+        // Test following PR#59/PR#60 (MemberAccess support private static field).
+        try {
+            assertEquals(Ognl.getValue("_privateStaticProperty", context, this), _privateStaticProperty);
+            fail("Should not be able to access private static property with private access turned off");
+        } catch (OgnlException oex) {
+            // Fails as test attempts to access a private accessor with private access turned off
+        }
+    }
+
+    public void testPrivateStaticFieldStaticAccessFail() throws OgnlException
+    {
+        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+        // Test following PR#59/PR#60 (MemberAccess support private static field).
+        try {
+            assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_privateStaticProperty"), _privateStaticProperty);
+            fail("Should not be able to access private static property with private access turned off");
+        } catch (OgnlException oex) {
+            // Fails as test attempts to access a private accessor with private access turned off
+        }
     }
 
 	/*===================================================================
