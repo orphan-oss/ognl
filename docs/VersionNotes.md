@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.1.20
+ * Minor cleanups for `DefaultMemberAccess` `restore` method [#61](../../../pull/61) -
+   thanks to JCgH4164838Gh792C124B5
+
 ## Release notes - version 3.1.19, 3.2.8
  * `MemberAccess` does not support private static field. [#59](../../../issues/59) -
    thanks to hengyunabc
