@@ -881,8 +881,11 @@ public class OgnlRuntime {
                 }
 
                 ((AccessibleObject) method).setAccessible(true);
-                result = method.invoke(target, argsArray);
-                ((AccessibleObject) method).setAccessible(false);
+                try {
+                    result = method.invoke(target, argsArray);
+                } finally {
+                    ((AccessibleObject) method).setAccessible(false);
+                }
             }
         } else
         {
@@ -1977,7 +1980,7 @@ public class OgnlRuntime {
             throws NoSuchFieldException
     {
         Object result = null;
-        Field f = getField((target == null) ? null : target.getClass(), propertyName);
+        final Field f = getField((target == null) ? null : target.getClass(), propertyName);
 
         if (checkAccessAndExistence) {
             if ((f == null) || !context.getMemberAccess().isAccessible(context, target, f, propertyName)) {
@@ -1989,14 +1992,17 @@ public class OgnlRuntime {
                 throw new NoSuchFieldException(propertyName);
             } else {
                 try {
-                    Object state = null;
 
                     if (!Modifier.isStatic(f.getModifiers())) {
-                        state = context.getMemberAccess().setup(context, target, f, propertyName);
-                        result = f.get(target);
-                        context.getMemberAccess().restore(context, target, f, propertyName, state);
-                    } else
+                        final Object state = context.getMemberAccess().setup(context, target, f, propertyName);
+                        try {
+                            result = f.get(target);
+                        } finally {
+                            context.getMemberAccess().restore(context, target, f, propertyName, state);
+                        }
+                    } else {
                         throw new NoSuchFieldException(propertyName);
+                    }
 
                 } catch (IllegalAccessException ex) {
                     throw new NoSuchFieldException(propertyName);
@@ -2012,19 +2018,21 @@ public class OgnlRuntime {
         boolean result = false;
 
         try {
-            Field f = getField((target == null) ? null : target.getClass(), propertyName);
-            Object state;
+            final Field f = getField((target == null) ? null : target.getClass(), propertyName);
 
-            if ((f != null) && !Modifier.isStatic(f.getModifiers())) {
-                state = context.getMemberAccess().setup(context, target, f, propertyName);
-                try {
-                    if (isTypeCompatible(value, f.getType())
-                        || ((value = getConvertedType(context, target, f, propertyName, value, f.getType())) != null)) {
-                        f.set(target, value);
-                        result = true;
+            if (f != null) {
+                final int fModifiers = f.getModifiers();
+                if (!Modifier.isStatic(fModifiers) && !Modifier.isFinal(fModifiers)) {
+                    final Object state = context.getMemberAccess().setup(context, target, f, propertyName);
+                    try {
+                        if (isTypeCompatible(value, f.getType())
+                            || ((value = getConvertedType(context, target, f, propertyName, value, f.getType())) != null)) {
+                            f.set(target, value);
+                            result = true;
+                        }
+                    } finally {
+                        context.getMemberAccess().restore(context, target, f, propertyName, state);
                     }
-                } finally {
-                    context.getMemberAccess().restore(context, target, f, propertyName, state);
                 }
             }
         } catch (IllegalAccessException ex) {
@@ -2050,15 +2058,30 @@ public class OgnlRuntime {
         return (f != null) && isFieldAccessible(context, target, f, propertyName);
     }
 
+    /**
+     * Method name is getStaticField(), but actually behaves more like "getStaticFieldValue()".
+     * <p/>
+     * Typical usage: Returns the value (not the actual {@link Field}) for the given (static) fieldName.
+     * May return the {@link Enum} constant value for the given fieldName when className is an {@link Enum}.
+     * May return a {@link Class} instance when the given fieldName is "class".
+     * <p/>
+     * @param context    The current ognl context
+     * @param className  The name of the class which contains the field
+     * @param fieldName  The name of the field whose value should be returned
+     * 
+     * @return           The value of the (static) fieldName
+     * @throws OgnlException
+     */
     public static Object getStaticField(OgnlContext context, String className, String fieldName)
             throws OgnlException
     {
         Exception reason = null;
         try {
-            Class c = classForName(context, className);
+            final Class c = classForName(context, className);
 
-            if (c == null)
+            if (c == null) {
                 throw new OgnlException("Unable to find class " + className + " when resolving field name of " + fieldName);
+            }
 
             /*
              * Check for virtual static field "class"; this cannot interfere with normal static
@@ -2076,16 +2099,17 @@ public class OgnlRuntime {
                 }
             }
 
-            Field f = getField(c, fieldName);
+            final Field f = getField(c, fieldName);
             if (f == null) {
                 throw new NoSuchFieldException(fieldName);
             }
-            if (!Modifier.isStatic(f.getModifiers()))
+            if (!Modifier.isStatic(f.getModifiers())) {
                 throw new OgnlException("Field " + fieldName + " of class " + className + " is not static");
+            }
 
             Object result = null;
             if (context.getMemberAccess().isAccessible(context, null, f, null)) {
-                Object state = context.getMemberAccess().setup(context, null, f, null);
+                final Object state = context.getMemberAccess().setup(context, null, f, null);
                 try {
                     result = f.get(null);
                 } finally {
