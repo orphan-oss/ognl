@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.1.21, 3.2.9
+ * Code clean up [#63](../../../issues/63), [#64](../../../issues/64) -
+   thanks to JCgH4164838Gh792C124B5
+
 ## Release notes - version 3.1.20
  * Minor cleanups for `DefaultMemberAccess` `restore` method [#61](../../../pull/61) -
    thanks to JCgH4164838Gh792C124B5
