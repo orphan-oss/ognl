@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.2.10
+ * Upgrades to Javassist 3.24.1 to restore support for Java 7 [#65](../../../issues/65) -
+   thanks to JCgH4164838Gh792C124B5
+
 ## Release notes - version 3.1.21, 3.2.9
  * Code clean up [#63](../../../issues/63), [#64](../../../issues/64) -
    thanks to JCgH4164838Gh792C124B5
