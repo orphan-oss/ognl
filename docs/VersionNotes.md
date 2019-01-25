@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.1.22
+ * Restores unrestricted access to public static fields [#67](../../../pull/67) -
+   thanks to JCgH4164838Gh792C124B5
+
 ## Release notes - version 3.2.10
  * Upgrades to Javassist 3.24.1 to restore support for Java 7 [#65](../../../issues/65) -
    thanks to JCgH4164838Gh792C124B5
