@@ -2099,24 +2099,34 @@ public class OgnlRuntime {
                 }
             }
 
-            final Field f = getField(c, fieldName);
-            if (f == null) {
-                throw new NoSuchFieldException(fieldName);
+            Field f;
+            try {
+                f = c.getField(fieldName);  // Public fields checked first (direct)
+            } catch (NoSuchFieldException nsfe) {
+                f = OgnlRuntime.getField(c, fieldName);  // Non-public fields checked (access controlled)
+                if (f == null) {
+                    throw new NoSuchFieldException(fieldName);
+                }
             }
-            if (!Modifier.isStatic(f.getModifiers())) {
+            final int fModifiers = f.getModifiers();
+            if (!Modifier.isStatic(fModifiers)) {
                 throw new OgnlException("Field " + fieldName + " of class " + className + " is not static");
             }
+            final Object result;
 
-            Object result = null;
-            if (context.getMemberAccess().isAccessible(context, null, f, null)) {
-                final Object state = context.getMemberAccess().setup(context, null, f, null);
-                try {
-                    result = f.get(null);
-                } finally {
-                    context.getMemberAccess().restore(context, null, f, null, state);
-                }
+            if (Modifier.isPublic(fModifiers)) {
+                result = f.get(null);  // Valid static public field (no access check required)
             } else {
-                throw new IllegalAccessException("Access to " + fieldName  + " of class " + className + " is forbidden");
+                if (context.getMemberAccess().isAccessible(context, null, f, null)) {
+                    final Object state = context.getMemberAccess().setup(context, null, f, null);
+                    try {
+                        result = f.get(null);
+                    } finally {
+                        context.getMemberAccess().restore(context, null, f, null, state);
+                    }
+                } else {
+                    throw new IllegalAccessException("Access to " + fieldName  + " of class " + className + " is forbidden");
+                }
             }
 
             return result;
