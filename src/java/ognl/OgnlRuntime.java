@@ -40,6 +40,9 @@ import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Permission;
+import java.security.Permissions;
+import java.security.Policy;
+import java.security.SecurityPermission;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -142,6 +145,7 @@ public class OgnlRuntime {
     static final Map _genericMethodParameterTypesCache = new HashMap(101);
     static final Map _ctorParameterTypesCache = new HashMap(101);
     static SecurityManager _securityManager = System.getSecurityManager();
+    static Permissions _permissions;
     static final EvaluationPool _evaluationPool = new EvaluationPool();
     static final ObjectArrayPool _objectArrayPool = new ObjectArrayPool();
 
@@ -795,6 +799,16 @@ public class OgnlRuntime {
     }
 
     /**
+     * Sets further Permissions that OGNL uses to determine permissions for invoking methods.
+     *
+     * @param permissions further Permissions
+     */
+    public static void setPermissions(Permissions permissions)
+    {
+        _permissions = permissions;
+    }
+
+    /**
      * Permission will be named "invoke.<declaring-class>.<method-name>".
      */
     public static Permission getPermission(Method method)
@@ -882,7 +896,7 @@ public class OgnlRuntime {
 
                 ((AccessibleObject) method).setAccessible(true);
                 try {
-                    result = method.invoke(target, argsArray);
+                    result = invokeMethodInJavaSandbox(target, method, argsArray);
                 } finally {
                     ((AccessibleObject) method).setAccessible(false);
                 }
@@ -899,10 +913,51 @@ public class OgnlRuntime {
                 }
             }
 
-            result = method.invoke(target, argsArray);
+            result = invokeMethodInJavaSandbox(target, method, argsArray);
         }
 
         return result;
+    }
+
+    private static Object invokeMethodInJavaSandbox(Object target, Method method, Object[] argsArray) throws InvocationTargetException, IllegalAccessException {
+        SecurityManager parentSecurityManager = System.getSecurityManager();
+        Policy parentPolicy;
+        try
+        {
+            if (parentSecurityManager != null) {
+                parentSecurityManager.checkPermission(new SecurityPermission("getPolicy"));
+                parentSecurityManager.checkPermission(new SecurityPermission("setPolicy"));
+                parentSecurityManager.checkPermission(new RuntimePermission("setSecurityManager"));
+            }
+            parentPolicy = Policy.getPolicy();
+        } catch (SecurityException ex) {
+            return method.invoke(target, argsArray);
+        }
+
+        synchronized (Policy.class) {
+            try {
+                Policy.setPolicy(new OgnlPolicy(parentPolicy, _permissions));
+            } catch (SecurityException ex) {
+                return method.invoke(target, argsArray);
+            }
+
+            try {
+                System.setSecurityManager(new OgnlSecurityManager(parentSecurityManager));
+            } catch (SecurityException ex) {
+                Policy.setPolicy(parentPolicy);
+                return method.invoke(target, argsArray);
+            }
+
+            try {
+                return method.invoke(target, argsArray);
+            } catch (SecurityException ex) {
+                ex.printStackTrace();
+                throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
+            } finally {
+                System.setSecurityManager(parentSecurityManager);
+                Policy.setPolicy(parentPolicy);
+            }
+        }
     }
 
     /**
