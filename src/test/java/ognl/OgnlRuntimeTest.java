@@ -25,6 +25,9 @@ class ExampleStringClass extends GenericClass<String> {
 class ExampleStringSubclass extends ExampleStringClass {
 }
 
+class BlacklistStringSubclass extends ExampleStringClass {
+}
+
 public class OgnlRuntimeTest {
 
     class Worker implements Callable<Class<?>[]> {
@@ -94,6 +97,60 @@ public class OgnlRuntimeTest {
     public void testPerformanceNotGenericMultipleThreads() throws Exception {
         final Method fooMethod = ExampleStringSubclass.class.getMethod("foo", Integer.class, Date.class);
         runTest(ExampleStringSubclass.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+    }
+
+    /**
+     * Ensure adding the standard methods to the blacklist doesn't generate exceptions.
+     * 
+     * @throws Exception 
+     */
+    @Test
+    public void testBlacklistProcessing() throws Exception {
+        final Method fooMethod = BlacklistStringSubclass.class.getMethod("foo", Integer.class, Date.class);
+        final Method gcMethod = System.class.getMethod("gc", new Class<?>[0]);
+        final BlacklistStringSubclass blacklistStringSubclass = new BlacklistStringSubclass();
+
+        // Initial invocation should not fail
+        OgnlRuntime.invokeMethod(blacklistStringSubclass, fooMethod, new Object[] { new Integer(0), new Date() });
+
+        // Add method to blacklist, subsequent invocations should fail
+        OgnlRuntime.addMethodToBlacklist(fooMethod);
+        try {
+            OgnlRuntime.invokeMethod(blacklistStringSubclass, fooMethod, new Object[] { new Integer(0), new Date() });
+            throw new IllegalStateException("OgnlRuntime blacklist didn't blook foo method ?");
+        } catch (IllegalAccessException iae) {
+            // Expected invocation failure
+        }
+        // Second attempt should still fail
+        try {
+            OgnlRuntime.invokeMethod(blacklistStringSubclass, fooMethod, new Object[] { new Integer(0), new Date() });
+            throw new IllegalStateException("OgnlRuntime blacklist didn't blook foo method ?");
+        } catch (IllegalAccessException iae) {
+            // Expected invocation failure
+        }
+
+        // Attempt call to gc method before standard blacklist
+        OgnlRuntime.invokeMethod(System.class, gcMethod, new Object[0]);
+
+        // Attempt call to gc method after standard blacklist
+        OgnlRuntime.prepareStandardMethodBlacklist();
+        try {
+            OgnlRuntime.invokeMethod(System.class, gcMethod, new Object[0]);
+            throw new IllegalStateException("OgnlRuntime blacklist didn't blook gc method ?");
+        } catch (IllegalAccessException iae) {
+            // Expected invocation failure
+        }
+
+        // Attempt call both prepare blacklist methods directly (should not cause errors to call them again)
+        OgnlRuntime.prepareMinimalMethodBlacklist();
+        OgnlRuntime.prepareStandardMethodBlacklist();
+        // Attempt to call now-blacklisted method again
+        try {
+            OgnlRuntime.invokeMethod(System.class, gcMethod, new Object[0]);
+            throw new IllegalStateException("OgnlRuntime blacklist didn't blook gc method ?");
+        } catch (IllegalAccessException iae) {
+            // Expected invocation failure
+        }
     }
 
 }
