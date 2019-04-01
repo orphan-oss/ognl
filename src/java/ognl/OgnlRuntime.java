@@ -151,7 +151,7 @@ public class OgnlRuntime {
 
     static final Map<Method, Boolean> _methodAccessCache = new ConcurrentHashMap<Method, Boolean>();
     static final Map<Method, Boolean> _methodPermCache = new ConcurrentHashMap<Method, Boolean>();
-    static final Map<Method, Boolean> _methodBlacklist = new ConcurrentHashMap<Method, Boolean>(48);
+    static final Map<Method, Boolean> _methodDenyList = new ConcurrentHashMap<Method, Boolean>(48);
 
     static final ClassPropertyMethodCache cacheSetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
@@ -780,169 +780,169 @@ public class OgnlRuntime {
     }
 
     /**
-     * Add a method to the OgnlRuntime method blacklist.
+     * Add a method to the OgnlRuntime method deny list.
      * 
-     * The OgnlRuntime method blacklist is only additive (only provide a method to
-     * add blacklist elements, no methods to clear or remove entries).
+     * The OgnlRuntime method deny list is only additive (only provide a method to
+     * add deny list elements, no methods to clear or remove entries).
      * 
      * @param method (a non-null Method parameter)
      */
-    public static void addMethodToBlacklist(Method method)
+    public static void addMethodToDenyList(Method method)
     {
         if (method == null) {
-            throw new IllegalArgumentException("Cannot add a null Method to the blacklist");
+            throw new IllegalArgumentException("Cannot add a null Method to the deny list");
         }
 
-        _methodBlacklist.put(method, Boolean.TRUE);
+        _methodDenyList.put(method, Boolean.TRUE);
     }
 
     /**
-     * Add a predefined "minimal" list of methods to the OgnlRuntime method blacklist.
+     * Add a predefined "minimal" list of methods to the OgnlRuntime method deny list.
      * 
      * It uses a small list of methods that OGNL expressions should not normally need to call.
      * 
      * @throws NoSuchMethodException
      */
-    public static void prepareMinimalMethodBlacklist() throws NoSuchMethodException
+    public static void prepareMinimalMethodDenyList() throws NoSuchMethodException
     {
         final Class<?>[] noClassArgument = new Class<?>[0];
         final Class<?>[] singleClassArgument = new Class<?>[1];
         final Class<?>[] twoClassArgument = new Class<?>[2];
         final Class<?>[] threeClassArgument = new Class<?>[3];
 
-        // Blacklist some OgnlRuntime methods (which seem reasonable to restrict)
-        addMethodToBlacklist(OgnlRuntime.class.getMethod("getSecurityManager", noClassArgument));
-        addMethodToBlacklist(OgnlRuntime.class.getMethod("getCompiler", noClassArgument));
+        // Deny some OgnlRuntime methods (which seem reasonable to restrict)
+        addMethodToDenyList(OgnlRuntime.class.getMethod("getSecurityManager", noClassArgument));
+        addMethodToDenyList(OgnlRuntime.class.getMethod("getCompiler", noClassArgument));
         singleClassArgument[0] = SecurityManager.class;
-        addMethodToBlacklist(OgnlRuntime.class.getMethod("setSecurityManager", singleClassArgument));
+        addMethodToDenyList(OgnlRuntime.class.getMethod("setSecurityManager", singleClassArgument));
         singleClassArgument[0] = OgnlExpressionCompiler.class;
-        addMethodToBlacklist(OgnlRuntime.class.getMethod("setCompiler", singleClassArgument));
+        addMethodToDenyList(OgnlRuntime.class.getMethod("setCompiler", singleClassArgument));
         singleClassArgument[0] = Method.class;
-        addMethodToBlacklist(OgnlRuntime.class.getMethod("addMethodToBlacklist", singleClassArgument));
+        addMethodToDenyList(OgnlRuntime.class.getMethod("addMethodToDenyList", singleClassArgument));
         threeClassArgument[0] = OgnlContext.class;
         threeClassArgument[1] = Node.class;
         threeClassArgument[2] = Object.class;
-        addMethodToBlacklist(OgnlRuntime.class.getMethod("compileExpression", threeClassArgument));
+        addMethodToDenyList(OgnlRuntime.class.getMethod("compileExpression", threeClassArgument));
 
-        // Blacklist some system methods
-        addMethodToBlacklist(System.class.getMethod("getSecurityManager", noClassArgument));
+        // DenyList some system methods
+        addMethodToDenyList(System.class.getMethod("getSecurityManager", noClassArgument));
         singleClassArgument[0] = SecurityManager.class;
-        addMethodToBlacklist(System.class.getMethod("setSecurityManager", singleClassArgument));
+        addMethodToDenyList(System.class.getMethod("setSecurityManager", singleClassArgument));
         singleClassArgument[0] = Properties.class;
-        addMethodToBlacklist(System.class.getMethod("setProperties", singleClassArgument));
+        addMethodToDenyList(System.class.getMethod("setProperties", singleClassArgument));
         singleClassArgument[0] = String.class;
-        addMethodToBlacklist(System.class.getMethod("clearProperty", singleClassArgument));
-        addMethodToBlacklist(System.class.getMethod("load", singleClassArgument));
-        addMethodToBlacklist(System.class.getMethod("loadLibrary", singleClassArgument));
-        addMethodToBlacklist(System.class.getMethod("mapLibraryName", singleClassArgument));
+        addMethodToDenyList(System.class.getMethod("clearProperty", singleClassArgument));
+        addMethodToDenyList(System.class.getMethod("load", singleClassArgument));
+        addMethodToDenyList(System.class.getMethod("loadLibrary", singleClassArgument));
+        addMethodToDenyList(System.class.getMethod("mapLibraryName", singleClassArgument));
         singleClassArgument[0] = InputStream.class;
-        addMethodToBlacklist(System.class.getMethod("setIn", singleClassArgument));
+        addMethodToDenyList(System.class.getMethod("setIn", singleClassArgument));
         singleClassArgument[0] = PrintStream.class;
-        addMethodToBlacklist(System.class.getMethod("setOut", singleClassArgument));
-        addMethodToBlacklist(System.class.getMethod("setErr", singleClassArgument));
+        addMethodToDenyList(System.class.getMethod("setOut", singleClassArgument));
+        addMethodToDenyList(System.class.getMethod("setErr", singleClassArgument));
         singleClassArgument[0] = int.class;
-        addMethodToBlacklist(System.class.getMethod("exit", singleClassArgument));
+        addMethodToDenyList(System.class.getMethod("exit", singleClassArgument));
         twoClassArgument[0] = String.class;
         twoClassArgument[1] = String.class;
-        addMethodToBlacklist(System.class.getMethod("setProperty", twoClassArgument));
+        addMethodToDenyList(System.class.getMethod("setProperty", twoClassArgument));
 
-        // Blacklist ProcessBuilder start method
-        addMethodToBlacklist(ProcessBuilder.class.getMethod("start", noClassArgument));
+        // Deny ProcessBuilder start method
+        addMethodToDenyList(ProcessBuilder.class.getMethod("start", noClassArgument));
 
-        // Blacklist some Runtime methods
-        addMethodToBlacklist(Runtime.class.getMethod("getRuntime", noClassArgument));
+        // Deny some Runtime methods
+        addMethodToDenyList(Runtime.class.getMethod("getRuntime", noClassArgument));
         singleClassArgument[0] = Thread.class;
-        addMethodToBlacklist(Runtime.class.getMethod("addShutdownHook", singleClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("addShutdownHook", singleClassArgument));
         singleClassArgument[0] = int.class;
-        addMethodToBlacklist(Runtime.class.getMethod("exit", singleClassArgument));
-        addMethodToBlacklist(Runtime.class.getMethod("halt", singleClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("exit", singleClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("halt", singleClassArgument));
         singleClassArgument[0] = InputStream.class;
         try {
-            addMethodToBlacklist(Runtime.class.getMethod("getLocalizedInputStream", singleClassArgument));
+            addMethodToDenyList(Runtime.class.getMethod("getLocalizedInputStream", singleClassArgument));
         } catch (NoSuchMethodException nsme) {
             // Deprecated method.  Avoid exception if it disappears in later JDK versions
         }
         singleClassArgument[0] = OutputStream.class;
         try {
-            addMethodToBlacklist(Runtime.class.getMethod("getLocalizedOutputStream", singleClassArgument));
+            addMethodToDenyList(Runtime.class.getMethod("getLocalizedOutputStream", singleClassArgument));
         } catch (NoSuchMethodException nsme) {
             // Deprecated method.  Avoid exception if it disappears in later JDK versions
         }
         singleClassArgument[0] = String.class;
-        addMethodToBlacklist(Runtime.class.getMethod("exec", singleClassArgument));
-        addMethodToBlacklist(Runtime.class.getMethod("load", singleClassArgument));
-        addMethodToBlacklist(Runtime.class.getMethod("loadLibrary", singleClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("exec", singleClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("load", singleClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("loadLibrary", singleClassArgument));
         singleClassArgument[0] = String[].class;
-        addMethodToBlacklist(Runtime.class.getMethod("exec", singleClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("exec", singleClassArgument));
         twoClassArgument[0] = String[].class;
         twoClassArgument[1] = String[].class;
-        addMethodToBlacklist(Runtime.class.getMethod("exec", twoClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("exec", twoClassArgument));
         twoClassArgument[0] = String.class;
         twoClassArgument[1] = String[].class;
-        addMethodToBlacklist(Runtime.class.getMethod("exec", twoClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("exec", twoClassArgument));
         threeClassArgument[0] = String[].class;
         threeClassArgument[1] = String[].class;
         threeClassArgument[2] = File.class;
-        addMethodToBlacklist(Runtime.class.getMethod("exec", threeClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("exec", threeClassArgument));
         threeClassArgument[0] = String.class;
         threeClassArgument[1] = String[].class;
         threeClassArgument[2] = File.class;
-        addMethodToBlacklist(Runtime.class.getMethod("exec", threeClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("exec", threeClassArgument));
     }
 
     /**
-     * Add a predefined "standard" list of methods to the OgnlRuntime method blacklist.
+     * Add a predefined "standard" list of methods to the OgnlRuntime method deny list.
      * 
      * It uses a larger list of methods that OGNL expressions should not normally need to call.
-     * The generated method blacklist includes everything provided by prepareMinimalMethodBlacklist()
+     * The generated method deny list includes everything provided by prepareMinimalMethodDenyList()
      * and more.
      * 
      * @throws NoSuchMethodException
      */
-    public static void prepareStandardMethodBlacklist() throws NoSuchMethodException
+    public static void prepareStandardMethodDenyList() throws NoSuchMethodException
     {
         final Class<?>[] noClassArgument = new Class<?>[0];
         final Class<?>[] singleClassArgument = new Class<?>[1];
         final Class<?>[] twoClassArgument = new Class<?>[2];
 
-        // Blacklist the minimal list first
-        prepareMinimalMethodBlacklist();
+        // Deny the minimal list first
+        prepareMinimalMethodDenyList();
 
-        // Blacklist more system methods
+        // Deny more system methods
         try {
-            addMethodToBlacklist(System.class.getMethod("console", noClassArgument));
+            addMethodToDenyList(System.class.getMethod("console", noClassArgument));
         } catch (NoSuchMethodException nsme) {
             // JDK 1.6+ method.  Avoid exception if running under JDK 1.5
         }
-        addMethodToBlacklist(System.class.getMethod("inheritedChannel", noClassArgument));
-        addMethodToBlacklist(System.class.getMethod("getProperties", noClassArgument));
-        addMethodToBlacklist(System.class.getMethod("getenv", noClassArgument));
-        addMethodToBlacklist(System.class.getMethod("gc", noClassArgument));
-        addMethodToBlacklist(System.class.getMethod("runFinalization", noClassArgument));
+        addMethodToDenyList(System.class.getMethod("inheritedChannel", noClassArgument));
+        addMethodToDenyList(System.class.getMethod("getProperties", noClassArgument));
+        addMethodToDenyList(System.class.getMethod("getenv", noClassArgument));
+        addMethodToDenyList(System.class.getMethod("gc", noClassArgument));
+        addMethodToDenyList(System.class.getMethod("runFinalization", noClassArgument));
         singleClassArgument[0] = String.class;
-        addMethodToBlacklist(System.class.getMethod("getProperty", singleClassArgument));
-        addMethodToBlacklist(System.class.getMethod("getenv", singleClassArgument));
+        addMethodToDenyList(System.class.getMethod("getProperty", singleClassArgument));
+        addMethodToDenyList(System.class.getMethod("getenv", singleClassArgument));
         try {
-            addMethodToBlacklist(System.class.getMethod("runFinalizersOnExit", singleClassArgument));
+            addMethodToDenyList(System.class.getMethod("runFinalizersOnExit", singleClassArgument));
         } catch (NoSuchMethodException nsme) {
             // Deprecated method.  Avoid exception if it disappears in later JDK versions
         }
         twoClassArgument[0] = String.class;
         twoClassArgument[1] = String.class;
-        addMethodToBlacklist(System.class.getMethod("getProperty", twoClassArgument));
+        addMethodToDenyList(System.class.getMethod("getProperty", twoClassArgument));
 
-        // Blacklist more Runtime methods
-        addMethodToBlacklist(Runtime.class.getMethod("gc", noClassArgument));
-        addMethodToBlacklist(Runtime.class.getMethod("runFinalization", noClassArgument));
+        // Deny more Runtime methods
+        addMethodToDenyList(Runtime.class.getMethod("gc", noClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("runFinalization", noClassArgument));
 
         singleClassArgument[0] = boolean.class;
         try {
-            addMethodToBlacklist(Runtime.class.getMethod("runFinalizersOnExit", singleClassArgument));
+            addMethodToDenyList(Runtime.class.getMethod("runFinalizersOnExit", singleClassArgument));
         } catch (NoSuchMethodException nsme) {
             // Deprecated method.  Avoid exception if it disappears in later JDK versions
         }
-        addMethodToBlacklist(Runtime.class.getMethod("traceInstructions", singleClassArgument));
-        addMethodToBlacklist(Runtime.class.getMethod("traceMethodCalls", singleClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("traceInstructions", singleClassArgument));
+        addMethodToDenyList(Runtime.class.getMethod("traceMethodCalls", singleClassArgument));
     }
 
     /**
@@ -996,11 +996,11 @@ public class OgnlRuntime {
         // only synchronize method invocation if it actually requires it
 
         synchronized(method) {
-            // Disallow any methods in the blacklist (only check if blacklist nonempty, for JIT performance)
+            // Disallow any methods in the deny list (only check if deny list nonempty, for JIT performance)
 
-            if (_methodBlacklist.isEmpty() == false) {
-                if (_methodBlacklist.get(method) != null) {
-                    throw new IllegalAccessException("Method [" + method + "] is blacklisted.");
+            if (_methodDenyList.isEmpty() == false) {
+                if (_methodDenyList.get(method) != null) {
+                    throw new IllegalAccessException("Method [" + method + "] is deny listed.");
                 }
             }
 
