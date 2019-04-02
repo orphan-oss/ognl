@@ -25,7 +25,81 @@ class ExampleStringClass extends GenericClass<String> {
 class ExampleStringSubclass extends ExampleStringClass {
 }
 
+class ExampleTwoMethodClass {
+    public void foo(final Integer parameter1, final Date parameter2) {
+    }
+    public void bar(final String parameter2) {
+    }
+}
+
+class ExampleTwoMethodClass2 {
+    public void foo(final Integer parameter1, final Date parameter2) {
+    }
+    public void bar(final String parameter2) {
+    }
+}
+
+class ExampleTwoMethodClass3 {
+    public void foo(final Integer parameter1, final Date parameter2) {
+    }
+    public void bar(final String parameter2) {
+    }
+}
+
+class ExampleTwoMethodClass4 {
+    public void foo(final Integer parameter1, final Date parameter2) {
+    }
+    public void bar(final String parameter2) {
+    }
+}
+
+class ExampleTwoMethodClass5 {
+    public void foo(final Integer parameter1, final Date parameter2) {
+    }
+    public void bar(final String parameter2) {
+    }
+}
+
+class ExampleTwoMethodClass6 {
+    public void foo(final Integer parameter1, final Date parameter2) {
+    }
+    public void bar(final String parameter2) {
+    }
+}
+
+class ExampleTwoMethodClass7 {
+    public void foo(final Integer parameter1, final Date parameter2) {
+    }
+    public void bar(final String parameter2) {
+    }
+}
+
+class ExampleTwoMethodClass8 {
+    public void foo(final Integer parameter1, final Date parameter2) {
+    }
+    public void bar(final String parameter2) {
+    }
+}
+
+class ExampleTwoMethodClass9 {
+    public void foo(final Integer parameter1, final Date parameter2) {
+    }
+    public void bar(final String parameter2) {
+    }
+}
+
+class ExampleTwoMethodClass10 {
+    public void foo(final Integer parameter1, final Date parameter2) {
+    }
+    public void bar(final String parameter2) {
+    }
+}
+
+
 public class OgnlRuntimeTest {
+
+    private static long cumulativelRunTestElapsedNanoTime;
+    private static long totalNumberOfRunTestRuns;
 
     class Worker implements Callable<Class<?>[]> {
 
@@ -52,12 +126,23 @@ public class OgnlRuntimeTest {
             final Class<?>[] expected) throws Exception {
         final ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         final List<Future<Class<?>[]>> futures = new ArrayList<Future<Class<?>[]>>(threadCount);
+        totalNumberOfRunTestRuns++;
+        final long testStartNanoTime = System.nanoTime();
         for (int i = threadCount; i > 0; i--) {
             futures.add(executor.submit(new Worker(clazz, method, invocationCount)));
         }
         for (final Future<Class<?>[]> future : futures) {
             Assert.assertArrayEquals(future.get(), expected);
         }
+        final long testEndNanoTime = System.nanoTime();
+        final long elapsedTestNanoTime = testEndNanoTime - testStartNanoTime;
+        cumulativelRunTestElapsedNanoTime = cumulativelRunTestElapsedNanoTime + elapsedTestNanoTime;
+        System.out.println("    OGNL runTest() elapsed time: " + elapsedTestNanoTime + " ns (" +
+                (elapsedTestNanoTime / (1000 * 1000)) + " ms or " +
+                (elapsedTestNanoTime / (1000 * 1000 * 1000)) + " s)");
+        System.out.println("    OGNL runTest() runs cumulative elapsed time: " + cumulativelRunTestElapsedNanoTime + " ns (" +
+                (cumulativelRunTestElapsedNanoTime / (1000 * 1000)) + " ms or " +
+                (cumulativelRunTestElapsedNanoTime / (1000 * 1000 * 1000)) + " s)");
     }
 
     @Test
@@ -96,4 +181,139 @@ public class OgnlRuntimeTest {
         runTest(ExampleStringSubclass.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
     }
 
+    @Test
+    public void testPerformanceMultipleClassesMultipleMethodsSingleThread() throws Exception {
+        final long testStartNanoTime = System.nanoTime();
+
+        Method barMethod = ExampleTwoMethodClass.class.getMethod("bar", String.class);
+        Method fooMethod = ExampleTwoMethodClass.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass.class, barMethod, 10000000, 1, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass2.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass2.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass2.class, barMethod, 10000000, 1, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass2.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass3.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass3.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass3.class, barMethod, 10000000, 1, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass3.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass4.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass4.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass4.class, barMethod, 10000000, 1, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass4.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass5.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass5.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass5.class, barMethod, 10000000, 1, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass5.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass6.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass6.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass6.class, barMethod, 10000000, 1, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass6.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass7.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass7.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass7.class, barMethod, 10000000, 1, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass7.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass8.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass8.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass8.class, barMethod, 10000000, 1, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass8.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass9.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass9.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass9.class, barMethod, 10000000, 1, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass9.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass10.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass10.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass10.class, barMethod, 10000000, 1, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass10.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+
+        final long testEndNanoTime = System.nanoTime();
+        final long elapsedTestNanoTime = testEndNanoTime - testStartNanoTime;
+        cumulativelRunTestElapsedNanoTime = cumulativelRunTestElapsedNanoTime + elapsedTestNanoTime;
+        System.out.println("    OGNL testPerformanceMultipleClassesMultipleMethodsSingleThread() elapsed time: " + elapsedTestNanoTime + " ns (" +
+                (elapsedTestNanoTime / (1000 * 1000)) + " ms or " +
+                (elapsedTestNanoTime / (1000 * 1000 * 1000)) + " s)");
+        if (totalNumberOfRunTestRuns > 0) {
+            System.out.println("  OGNL testPerformanceMultipleClassesMultipleMethodsSingleThread() - runTest() average run time (so far over " + totalNumberOfRunTestRuns +
+                    " runs): " + cumulativelRunTestElapsedNanoTime / totalNumberOfRunTestRuns + " ns (" +
+                    (cumulativelRunTestElapsedNanoTime / (1000 * 1000)) / totalNumberOfRunTestRuns + " ms or " +
+                    (cumulativelRunTestElapsedNanoTime / (1000 * 1000 * 1000)) / totalNumberOfRunTestRuns + " s)");
+        }
+    }
+
+    @Test
+    public void testPerformanceMultipleClassesMultipleMethodsMultipleThreads() throws Exception {
+        final long testStartNanoTime = System.nanoTime();
+
+        Method barMethod = ExampleTwoMethodClass.class.getMethod("bar", String.class);
+        Method fooMethod = ExampleTwoMethodClass.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass.class, barMethod, 100000, 100, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass2.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass2.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass2.class, barMethod, 100000, 100, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass2.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass3.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass3.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass3.class, barMethod, 100000, 100, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass3.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass4.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass4.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass4.class, barMethod, 100000, 100, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass4.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass5.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass5.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass5.class, barMethod, 100000, 100, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass5.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass6.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass6.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass6.class, barMethod, 100000, 100, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass6.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass7.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass7.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass7.class, barMethod, 100000, 100, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass7.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass8.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass8.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass8.class, barMethod, 100000, 100, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass8.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass9.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass9.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass9.class, barMethod, 100000, 100, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass9.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+
+        barMethod = ExampleTwoMethodClass10.class.getMethod("bar", String.class);
+        fooMethod = ExampleTwoMethodClass10.class.getMethod("foo", Integer.class, Date.class);
+        runTest(ExampleTwoMethodClass10.class, barMethod, 100000, 100, new Class[] { String.class });
+        runTest(ExampleTwoMethodClass10.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+
+        final long testEndNanoTime = System.nanoTime();
+        final long elapsedTestNanoTime = testEndNanoTime - testStartNanoTime;
+        cumulativelRunTestElapsedNanoTime = cumulativelRunTestElapsedNanoTime + elapsedTestNanoTime;
+        System.out.println("    OGNL testPerformanceMultipleClassesMultipleMethodsMultipleThreads() elapsed time: " + elapsedTestNanoTime + " ns (" +
+                (elapsedTestNanoTime / (1000 * 1000)) + " ms or " +
+                (elapsedTestNanoTime / (1000 * 1000 * 1000)) + " s)");
+        if (totalNumberOfRunTestRuns > 0) {
+            System.out.println("  OGNL testPerformanceMultipleClassesMultipleMethodsMultipleThreads() - runTest() average run time (so far over " + totalNumberOfRunTestRuns +
+                    " runs): " + cumulativelRunTestElapsedNanoTime / totalNumberOfRunTestRuns + " ns (" +
+                    (cumulativelRunTestElapsedNanoTime / (1000 * 1000)) / totalNumberOfRunTestRuns + " ms or " +
+                    (cumulativelRunTestElapsedNanoTime / (1000 * 1000 * 1000)) / totalNumberOfRunTestRuns + " s)");
+        }
+    }
 }
