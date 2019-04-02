@@ -101,6 +101,7 @@ public class OgnlRuntimeTest {
 
     /**
      * Ensure adding the standard methods to the deny list doesn't generate exceptions.
+     * Also tests a basic deny scenario, after applying elements to the deny list.
      * 
      * @throws Exception 
      */
@@ -117,14 +118,14 @@ public class OgnlRuntimeTest {
         OgnlRuntime.addMethodToDenyList(fooMethod);
         try {
             OgnlRuntime.invokeMethod(denyListStringSubclass, fooMethod, new Object[] { new Integer(0), new Date() });
-            throw new IllegalStateException("OgnlRuntime deny list didn't blook foo method ?");
+            throw new IllegalStateException("OgnlRuntime deny list didn't block foo method ?");
         } catch (IllegalAccessException iae) {
             // Expected invocation failure
         }
         // Second attempt should still fail
         try {
             OgnlRuntime.invokeMethod(denyListStringSubclass, fooMethod, new Object[] { new Integer(0), new Date() });
-            throw new IllegalStateException("OgnlRuntime deny list didn't blook foo method ?");
+            throw new IllegalStateException("OgnlRuntime deny list didn't block foo method ?");
         } catch (IllegalAccessException iae) {
             // Expected invocation failure
         }
@@ -136,7 +137,7 @@ public class OgnlRuntimeTest {
         OgnlRuntime.prepareStandardMethodDenyList();
         try {
             OgnlRuntime.invokeMethod(System.class, gcMethod, new Object[0]);
-            throw new IllegalStateException("OgnlRuntime deny list didn't blook gc method ?");
+            throw new IllegalStateException("OgnlRuntime deny list didn't block gc method ?");
         } catch (IllegalAccessException iae) {
             // Expected invocation failure
         }
@@ -144,10 +145,10 @@ public class OgnlRuntimeTest {
         // Attempt call both prepare deny list methods directly (should not cause errors to call them again)
         OgnlRuntime.prepareMinimalMethodDenyList();
         OgnlRuntime.prepareStandardMethodDenyList();
-        // Attempt to call now-deny listed method again
+        // Attempt to call now-deny-listed method again
         try {
             OgnlRuntime.invokeMethod(System.class, gcMethod, new Object[0]);
-            throw new IllegalStateException("OgnlRuntime deny list didn't blook gc method ?");
+            throw new IllegalStateException("OgnlRuntime deny list didn't block gc method ?");
         } catch (IllegalAccessException iae) {
             // Expected invocation failure
         }

@@ -151,7 +151,7 @@ public class OgnlRuntime {
 
     static final Map<Method, Boolean> _methodAccessCache = new ConcurrentHashMap<Method, Boolean>();
     static final Map<Method, Boolean> _methodPermCache = new ConcurrentHashMap<Method, Boolean>();
-    static final Map<Method, Boolean> _methodDenyList = new ConcurrentHashMap<Method, Boolean>(48);
+    static final Map<Method, Boolean> _methodDenyList = new ConcurrentHashMap<Method, Boolean>(58);
 
     static final ClassPropertyMethodCache cacheSetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
@@ -824,7 +824,7 @@ public class OgnlRuntime {
         threeClassArgument[2] = Object.class;
         addMethodToDenyList(OgnlRuntime.class.getMethod("compileExpression", threeClassArgument));
 
-        // DenyList some system methods
+        // Deny some System methods
         addMethodToDenyList(System.class.getMethod("getSecurityManager", noClassArgument));
         singleClassArgument[0] = SecurityManager.class;
         addMethodToDenyList(System.class.getMethod("setSecurityManager", singleClassArgument));
@@ -888,6 +888,23 @@ public class OgnlRuntime {
         threeClassArgument[1] = String[].class;
         threeClassArgument[2] = File.class;
         addMethodToDenyList(Runtime.class.getMethod("exec", threeClassArgument));
+
+        // Deny some Thread methods
+        addMethodToDenyList(Thread.class.getMethod("currentThread", noClassArgument));
+        addMethodToDenyList(Thread.class.getMethod("dumpStack", noClassArgument));
+        addMethodToDenyList(Thread.class.getMethod("getAllStackTraces", noClassArgument));
+        addMethodToDenyList(Thread.class.getMethod("getContextClassLoader", noClassArgument));
+        addMethodToDenyList(Thread.class.getMethod("getDefaultUncaughtExceptionHandler", noClassArgument));
+        addMethodToDenyList(Thread.class.getMethod("yield", noClassArgument));
+        singleClassArgument[0] = Thread[].class;
+        addMethodToDenyList(Thread.class.getMethod("enumerate", singleClassArgument));
+        singleClassArgument[0] = Thread.UncaughtExceptionHandler.class;
+        addMethodToDenyList(Thread.class.getMethod("setDefaultUncaughtExceptionHandler", singleClassArgument));
+        singleClassArgument[0] = long.class;
+        addMethodToDenyList(Thread.class.getMethod("sleep", singleClassArgument));
+        twoClassArgument[0] = long.class;
+        twoClassArgument[1] = int.class;
+        addMethodToDenyList(Thread.class.getMethod("sleep", twoClassArgument));
     }
 
     /**
@@ -908,7 +925,7 @@ public class OgnlRuntime {
         // Deny the minimal list first
         prepareMinimalMethodDenyList();
 
-        // Deny more system methods
+        // Deny more System methods
         try {
             addMethodToDenyList(System.class.getMethod("console", noClassArgument));
         } catch (NoSuchMethodException nsme) {
