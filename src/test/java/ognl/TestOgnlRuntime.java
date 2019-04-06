@@ -172,6 +172,25 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals("Halo 3", OgnlRuntime.callMethod(context, service, "getFullMessageFor", args));
     }
 
+    public void test_Call_Method_In_JDK_Sandbox()
+            throws Exception {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        GenericService service = new GenericServiceImpl();
+
+        Object[] args = OgnlRuntime.getObjectArrayPool().create(0);
+
+        OgnlRuntime.enableJDKSandbox(null, null, null);
+
+        try {
+            OgnlRuntime.callMethod(context, service, "exec", args);
+            fail("JDK sandbox should block execution");
+        } catch (MethodFailedException ex) {
+            assertTrue(ex.getCause() instanceof SecurityException);
+        } finally {
+            OgnlRuntime.disableJDKSandbox();
+        }
+    }
+
     public void test_Class_Cache_Inspector()
             throws Exception
     {

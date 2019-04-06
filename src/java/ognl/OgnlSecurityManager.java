@@ -5,10 +5,11 @@ import java.net.InetAddress;
 import java.security.Permission;
 
 /**
+ * Wraps current security manager with sensitive actions e.g. exit and exec disabled if is inside OGNL context
  * @author Yasser Zamani
  * @since 3.1.23
  */
-class OgnlSecurityManager extends SecurityManager {
+public class OgnlSecurityManager extends SecurityManager {
     private SecurityManager parentSecurityManager;
 
     OgnlSecurityManager(SecurityManager parentSecurityManager) {
@@ -16,8 +17,7 @@ class OgnlSecurityManager extends SecurityManager {
     }
 
     private boolean isInsideOgnlContext() {
-        for (Class clazz :
-                getClassContext()) {
+        for (Class clazz : getClassContext()) {
             if (OgnlRuntime.class.equals(clazz)) {
                 return true;
             }

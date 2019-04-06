@@ -5,22 +5,25 @@ import java.security.*;
 import java.util.Enumeration;
 
 /**
+ * Wraps current policy with minimum permissions plus user demand further permissions
  * @author Yasser Zamani
  * @since 3.1.23
  */
-class OgnlPolicy extends Policy {
+public class OgnlPolicy extends Policy {
     private Policy _parentPolicy;
     private Permissions _permissions;
 
     OgnlPolicy(Policy parentPolicy, Permissions permissions) {
         _parentPolicy = parentPolicy;
 
+        // add OGNL itself minimum required permissions
         _permissions = new Permissions();
         _permissions.add(new SecurityPermission("setPolicy"));
         _permissions.add(new RuntimePermission("setSecurityManager"));
         _permissions.add(new ReflectPermission("suppressAccessChecks"));
         _permissions.add(new RuntimePermission("getProtectionDomain"));
 
+        // add user demand further permissions
         if (permissions != null) {
             Enumeration<Permission> furtherPermissions = permissions.elements();
             while (furtherPermissions.hasMoreElements()) {

@@ -145,7 +145,7 @@ public class OgnlRuntime {
     static final Map _genericMethodParameterTypesCache = new HashMap(101);
     static final Map _ctorParameterTypesCache = new HashMap(101);
     static SecurityManager _securityManager = System.getSecurityManager();
-    static Permissions _permissions;
+    static UserMethodBodySecurity _userMethodBodySecurity = null;
     static final EvaluationPool _evaluationPool = new EvaluationPool();
     static final ObjectArrayPool _objectArrayPool = new ObjectArrayPool();
 
@@ -799,16 +799,6 @@ public class OgnlRuntime {
     }
 
     /**
-     * Sets further Permissions that OGNL uses to determine permissions for invoking methods.
-     *
-     * @param permissions further Permissions
-     */
-    public static void setPermissions(Permissions permissions)
-    {
-        _permissions = permissions;
-    }
-
-    /**
      * Permission will be named "invoke.<declaring-class>.<method-name>".
      */
     public static Permission getPermission(Method method)
@@ -896,7 +886,7 @@ public class OgnlRuntime {
 
                 ((AccessibleObject) method).setAccessible(true);
                 try {
-                    result = invokeMethodInJavaSandbox(target, method, argsArray);
+                    result = invokeMethodInJDKSandbox(target, method, argsArray);
                 } finally {
                     ((AccessibleObject) method).setAccessible(false);
                 }
@@ -913,14 +903,32 @@ public class OgnlRuntime {
                 }
             }
 
-            result = invokeMethodInJavaSandbox(target, method, argsArray);
+            result = invokeMethodInJDKSandbox(target, method, argsArray);
         }
 
         return result;
     }
 
-    private static Object invokeMethodInJavaSandbox(Object target, Method method, Object[] argsArray) throws InvocationTargetException, IllegalAccessException {
+    private static Object invokeMethodInJDKSandbox(Object target, Method method, Object[] argsArray) throws InvocationTargetException, IllegalAccessException {
+        if (_userMethodBodySecurity == null) {
+            // isn't enabled so simply just invoke the method outside sandbox
+            return method.invoke(target, argsArray);
+        }
+
         SecurityManager parentSecurityManager = System.getSecurityManager();
+
+        if (parentSecurityManager != null) {
+            // internal sync to guarantee that method invocation finishes before roll back of security manager
+            // by another thread - see below synchronized(newSecurityManager) block
+            synchronized (parentSecurityManager) {
+                if (parentSecurityManager instanceof OgnlSecurityManager ||
+                        parentSecurityManager.equals(_userMethodBodySecurity.getSecurityManager())) {
+                    // already installed into JVM so simply just invoke the method which already is in sandbox
+                    return method.invoke(target, argsArray);
+                }
+            }
+        }
+
         Policy parentPolicy;
         try
         {
@@ -931,19 +939,29 @@ public class OgnlRuntime {
             }
             parentPolicy = Policy.getPolicy();
         } catch (SecurityException ex) {
+            // user has applied a policy that doesn't allow getPolicy so we have to honor and
+            // just invoke method inside user's sandbox
             return method.invoke(target, argsArray);
         }
 
+        // try to minimize potential concurrency issues
         synchronized (Policy.class) {
             try {
-                Policy.setPolicy(new OgnlPolicy(parentPolicy, _permissions));
+                Policy.setPolicy(_userMethodBodySecurity.getPolicy() == null ?
+                        new OgnlPolicy(parentPolicy, _userMethodBodySecurity.getPermissions()) : _userMethodBodySecurity.getPolicy());
             } catch (SecurityException ex) {
+                // user has applied a policy that doesn't allow setPolicy so we have to honor and
+                // just invoke method inside user's sandbox
                 return method.invoke(target, argsArray);
             }
 
+            SecurityManager newSecurityManager = _userMethodBodySecurity.getSecurityManager() == null ?
+                    new OgnlSecurityManager(parentSecurityManager) : _userMethodBodySecurity.getSecurityManager();
             try {
-                System.setSecurityManager(new OgnlSecurityManager(parentSecurityManager));
+                System.setSecurityManager(newSecurityManager);
             } catch (SecurityException ex) {
+                // user has applied a policy that doesn't allow setSecurityManager so we have to honor and
+                // restore previous policy and then just invoke method inside user's sandbox
                 Policy.setPolicy(parentPolicy);
                 return method.invoke(target, argsArray);
             }
@@ -951,12 +969,69 @@ public class OgnlRuntime {
             try {
                 return method.invoke(target, argsArray);
             } catch (SecurityException ex) {
+                // JDK sandbox blocked the execution
                 ex.printStackTrace();
                 throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
             } finally {
-                System.setSecurityManager(parentSecurityManager);
-                Policy.setPolicy(parentPolicy);
+                // roll back all things to what was before method invocation
+                // internal sync to guarantee that method invocation finishes before roll back of security manager
+                // by another thread - see above synchronized(parentSecurityManager) block
+                synchronized (newSecurityManager) {
+                    System.setSecurityManager(parentSecurityManager);
+                    Policy.setPolicy(parentPolicy);
+                }
             }
+        }
+    }
+
+    /**
+     * Enables JDK sandbox via {@link OgnlSecurityManager} for user's invoking methods body execution.
+     *
+     * <p> Note: Due to potential performance and concurrency issues, try this only if you afraid your app can have an
+     * unknown "expression injection" flaw or you afraid you cannot prevent those in your app's internal sandbox
+     * comprehensively e.g. you cannot discover and maintain all attack vectors over time because of many dependencies
+     * and also their change over time.</p>
+     *
+     * <p> This tries to provide an option to you to enable a security manager that disables any sensitive action e.g.
+     * exec and exit even if attacker had a successful "expression injection" in any unknown way into your app. However,
+     * also honors previous security manager and policies if any set, as parent, and rolls back to them after method
+     * execution finished.</p>
+     *
+     * @param permissions further Permissions or pass <code>null</code> to use minimum required permissions
+     * @param policy your own one or pass <code>null</code> to use {@link OgnlSecurityManager}
+     * @param securityManager your own one or pass <code>null</code> to use {@link OgnlSecurityManager}
+     *
+     * @since 3.1.23
+     */
+    public static void enableJDKSandbox(Permissions permissions,  Policy policy, SecurityManager securityManager)
+    {
+        _userMethodBodySecurity = new UserMethodBodySecurity(permissions, policy, securityManager);
+    }
+    public static void disableJDKSandbox()
+    {
+        _userMethodBodySecurity = null;
+    }
+    private static class UserMethodBodySecurity {
+        private Permissions permissions;
+        private Policy policy;
+        private SecurityManager securityManager;
+
+        UserMethodBodySecurity(Permissions permissions,  Policy policy, SecurityManager securityManager){
+            this.permissions = permissions;
+            this.policy = policy;
+            this.securityManager = securityManager;
+        }
+
+        public Permissions getPermissions() {
+            return permissions;
+        }
+
+        public Policy getPolicy() {
+            return policy;
+        }
+
+        public SecurityManager getSecurityManager() {
+            return securityManager;
         }
     }
 
