@@ -145,18 +145,31 @@ public class OgnlRuntime {
     static final Map _methodParameterTypesCache = new HashMap(101);
     static final Map _genericMethodParameterTypesCache = new HashMap(101);
     static final Map _ctorParameterTypesCache = new HashMap(101);
-    static SecurityManager _securityManager = System.getSecurityManager();
+    static volatile SecurityManager _securityManager = System.getSecurityManager();
     static final EvaluationPool _evaluationPool = new EvaluationPool();
     static final ObjectArrayPool _objectArrayPool = new ObjectArrayPool();
 
     static final Map<Method, Boolean> _methodAccessCache = new ConcurrentHashMap<Method, Boolean>();
     static final Map<Method, Boolean> _methodPermCache = new ConcurrentHashMap<Method, Boolean>();
-    static final Map<Method, Boolean> _methodDenyList = new ConcurrentHashMap<Method, Boolean>(58);
+    private static final Map<Method, Boolean> _methodDenyList = new ConcurrentHashMap<Method, Boolean>(101);
+
+    private static final Method ADDMETHODTODENYLIST_REF;
+
+    /**
+     * Initialize the Method references used in invokeMethod() checks
+     */
+    static {
+        try {
+            ADDMETHODTODENYLIST_REF = OgnlRuntime.class.getMethod("addMethodToDenyList", new Class<?>[]{Method.class});
+        } catch (NoSuchMethodException nsme) {
+            throw new IllegalStateException("OgnlRuntime initialization missing required method", nsme);
+        }
+    }
 
     static final ClassPropertyMethodCache cacheSetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
 
-    static ClassCacheInspector _cacheInspector;
+    static volatile ClassCacheInspector _cacheInspector;
 
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
@@ -817,8 +830,6 @@ public class OgnlRuntime {
         addMethodToDenyList(OgnlRuntime.class.getMethod("setSecurityManager", singleClassArgument));
         singleClassArgument[0] = OgnlExpressionCompiler.class;
         addMethodToDenyList(OgnlRuntime.class.getMethod("setCompiler", singleClassArgument));
-        singleClassArgument[0] = Method.class;
-        addMethodToDenyList(OgnlRuntime.class.getMethod("addMethodToDenyList", singleClassArgument));
         threeClassArgument[0] = OgnlContext.class;
         threeClassArgument[1] = Node.class;
         threeClassArgument[2] = Object.class;
@@ -1015,8 +1026,12 @@ public class OgnlRuntime {
         // only synchronize method invocation if it actually requires it
 
         synchronized(method) {
-            // Disallow any methods in the deny list (only check if deny list nonempty, for JIT performance)
+            // Always disallow invokeMethod() calling addMethodToDenyList()
+            if (ADDMETHODTODENYLIST_REF.equals(method)) {
+                throw new IllegalAccessException("Method [" + method + "] is not permitted.");
+            }
 
+            // Disallow any methods in the deny list (only check if deny list nonempty, for JIT performance)
             if (_methodDenyList.isEmpty() == false) {
                 if (_methodDenyList.get(method) != null) {
                     throw new IllegalAccessException("Method [" + method + "] is deny listed.");
