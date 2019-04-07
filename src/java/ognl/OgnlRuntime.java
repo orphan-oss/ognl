@@ -42,7 +42,6 @@ import java.math.BigInteger;
 import java.security.Permission;
 import java.security.Permissions;
 import java.security.Policy;
-import java.security.SecurityPermission;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -145,7 +144,7 @@ public class OgnlRuntime {
     static final Map _genericMethodParameterTypesCache = new HashMap(101);
     static final Map _ctorParameterTypesCache = new HashMap(101);
     static SecurityManager _securityManager = System.getSecurityManager();
-    static UserMethodBodySecurity _userMethodBodySecurity = null;
+    static MethodBodyExecutionSandbox methodBodyExecutionSandbox = null;
     static final EvaluationPool _evaluationPool = new EvaluationPool();
     static final ObjectArrayPool _objectArrayPool = new ObjectArrayPool();
 
@@ -910,77 +909,21 @@ public class OgnlRuntime {
     }
 
     private static Object invokeMethodInJDKSandbox(Object target, Method method, Object[] argsArray) throws InvocationTargetException, IllegalAccessException {
-        if (_userMethodBodySecurity == null) {
+        if (methodBodyExecutionSandbox == null) {
             // isn't enabled so simply just invoke the method outside sandbox
             return method.invoke(target, argsArray);
         }
 
-        SecurityManager parentSecurityManager = System.getSecurityManager();
+        methodBodyExecutionSandbox.increaseUseCount();
 
-        if (parentSecurityManager != null) {
-            // internal sync to guarantee that method invocation finishes before roll back of security manager
-            // by another thread - see below synchronized(newSecurityManager) block
-            synchronized (parentSecurityManager) {
-                if (parentSecurityManager instanceof OgnlSecurityManager ||
-                        parentSecurityManager.equals(_userMethodBodySecurity.getSecurityManager())) {
-                    // already installed into JVM so simply just invoke the method which already is in sandbox
-                    return method.invoke(target, argsArray);
-                }
-            }
-        }
-
-        Policy parentPolicy;
-        try
-        {
-            if (parentSecurityManager != null) {
-                parentSecurityManager.checkPermission(new SecurityPermission("getPolicy"));
-                parentSecurityManager.checkPermission(new SecurityPermission("setPolicy"));
-                parentSecurityManager.checkPermission(new RuntimePermission("setSecurityManager"));
-            }
-            parentPolicy = Policy.getPolicy();
-        } catch (SecurityException ex) {
-            // user has applied a policy that doesn't allow getPolicy so we have to honor and
-            // just invoke method inside user's sandbox
+        try {
             return method.invoke(target, argsArray);
-        }
-
-        // try to minimize potential concurrency issues
-        synchronized (Policy.class) {
-            try {
-                Policy.setPolicy(_userMethodBodySecurity.getPolicy() == null ?
-                        new OgnlPolicy(parentPolicy, _userMethodBodySecurity.getPermissions()) : _userMethodBodySecurity.getPolicy());
-            } catch (SecurityException ex) {
-                // user has applied a policy that doesn't allow setPolicy so we have to honor and
-                // just invoke method inside user's sandbox
-                return method.invoke(target, argsArray);
-            }
-
-            SecurityManager newSecurityManager = _userMethodBodySecurity.getSecurityManager() == null ?
-                    new OgnlSecurityManager(parentSecurityManager) : _userMethodBodySecurity.getSecurityManager();
-            try {
-                System.setSecurityManager(newSecurityManager);
-            } catch (SecurityException ex) {
-                // user has applied a policy that doesn't allow setSecurityManager so we have to honor and
-                // restore previous policy and then just invoke method inside user's sandbox
-                Policy.setPolicy(parentPolicy);
-                return method.invoke(target, argsArray);
-            }
-
-            try {
-                return method.invoke(target, argsArray);
-            } catch (SecurityException ex) {
-                // JDK sandbox blocked the execution
-                ex.printStackTrace();
-                throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-            } finally {
-                // roll back all things to what was before method invocation
-                // internal sync to guarantee that method invocation finishes before roll back of security manager
-                // by another thread - see above synchronized(parentSecurityManager) block
-                synchronized (newSecurityManager) {
-                    System.setSecurityManager(parentSecurityManager);
-                    Policy.setPolicy(parentPolicy);
-                }
-            }
+        } catch (SecurityException ex) {
+            // JDK sandbox blocked the execution of method body due to do sensitive actions like exit or exec
+            ex.printStackTrace();
+            throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
+        } finally {
+            methodBodyExecutionSandbox.decreaseUseCount();
         }
     }
 
@@ -1003,36 +946,18 @@ public class OgnlRuntime {
      *
      * @since 3.1.23
      */
-    public static void enableJDKSandbox(Permissions permissions,  Policy policy, SecurityManager securityManager)
-    {
-        _userMethodBodySecurity = new UserMethodBodySecurity(permissions, policy, securityManager);
+    public static void enableJDKSandbox(Permissions permissions,  Policy policy, SecurityManager securityManager) {
+        if (methodBodyExecutionSandbox != null) {
+            disableJDKSandbox();
+        }
+        methodBodyExecutionSandbox = new MethodBodyExecutionSandbox(permissions, policy, securityManager);
     }
     public static void disableJDKSandbox()
     {
-        _userMethodBodySecurity = null;
-    }
-    private static class UserMethodBodySecurity {
-        private Permissions permissions;
-        private Policy policy;
-        private SecurityManager securityManager;
-
-        UserMethodBodySecurity(Permissions permissions,  Policy policy, SecurityManager securityManager){
-            this.permissions = permissions;
-            this.policy = policy;
-            this.securityManager = securityManager;
+        if (methodBodyExecutionSandbox != null && methodBodyExecutionSandbox.getUseCount() > 0) {
+            throw new IllegalStateException("JDK Sandbox is already in use!");
         }
-
-        public Permissions getPermissions() {
-            return permissions;
-        }
-
-        public Policy getPolicy() {
-            return policy;
-        }
-
-        public SecurityManager getSecurityManager() {
-            return securityManager;
-        }
+        methodBodyExecutionSandbox = null;
     }
 
     /**

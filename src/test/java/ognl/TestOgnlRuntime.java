@@ -9,6 +9,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Tests various methods / functionality of {@link ognl.OgnlRuntime}.
@@ -177,15 +182,66 @@ public class TestOgnlRuntime extends TestCase {
         OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
         GenericService service = new GenericServiceImpl();
 
-        Object[] args = OgnlRuntime.getObjectArrayPool().create(0);
+        Object[] args = OgnlRuntime.getObjectArrayPool().create(1);
+        args[0] = 0;
 
         OgnlRuntime.enableJDKSandbox(null, null, null);
 
         try {
             OgnlRuntime.callMethod(context, service, "exec", args);
             fail("JDK sandbox should block execution");
-        } catch (MethodFailedException ex) {
+        } catch (Exception ex) {
             assertTrue(ex.getCause() instanceof SecurityException);
+        } finally {
+            OgnlRuntime.disableJDKSandbox();
+        }
+    }
+
+    public void test_Call_Method_In_JDK_Sandbox_Thread_Safety()
+            throws Exception {
+        final OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        final GenericService service = new GenericServiceImpl();
+
+        OgnlRuntime.enableJDKSandbox(null, null, null);
+
+        try {
+            final int NUM_THREADS = 1000;
+            final int MAX_WAIT_MS = 3000;
+            ExecutorService exec = Executors.newFixedThreadPool(NUM_THREADS);
+            final CountDownLatch allThreadsWaitOnThis = new CountDownLatch(1);
+            final AtomicInteger numThreadsFailedTest = new AtomicInteger(0);
+            for (int i = 0; i < NUM_THREADS; ++i) {
+                exec.submit(new Runnable() {
+                    public void run() {
+                        try {
+                            allThreadsWaitOnThis.await();
+                        } catch (InterruptedException ignored) {
+                        }
+
+                        Object[] args = OgnlRuntime.getObjectArrayPool().create(1);
+                        args[0] = Math.random() * MAX_WAIT_MS;
+
+                        try {
+                            OgnlRuntime.callMethod(context, service, "exec", args);
+                            numThreadsFailedTest.incrementAndGet();
+                        } catch (Exception ex) {
+                            if (!(ex.getCause() instanceof SecurityException)) {
+                                numThreadsFailedTest.incrementAndGet();
+                            }
+                        }
+                    }
+                });
+            }
+
+            // release all the threads
+            allThreadsWaitOnThis.countDown();
+
+            // wait for them all to finish
+            Thread.sleep(MAX_WAIT_MS);
+            exec.shutdown();
+            exec.awaitTermination(MAX_WAIT_MS, TimeUnit.MILLISECONDS);
+            assertTrue(exec.isTerminated());
+            assertEquals(0, numThreadsFailedTest.get());
         } finally {
             OgnlRuntime.disableJDKSandbox();
         }

@@ -11,5 +11,5 @@ public interface GenericService {
 
     String getFullMessageFor(GameGenericObject game, Object...arguments);
 
-    void exec() throws IOException;
+    void exec(long waitMilliseconds) throws IOException, InterruptedException;
 }

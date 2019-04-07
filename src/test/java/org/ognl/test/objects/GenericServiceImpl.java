@@ -19,7 +19,8 @@ public class GenericServiceImpl implements GenericService {
         return person.getDisplayName();
     }
 
-    public void exec() throws IOException {
+    public void exec(long sleepMilliseconds) throws IOException, InterruptedException {
+        Thread.sleep(sleepMilliseconds);
         Runtime.getRuntime().exec("time").destroy();
     }
 }
