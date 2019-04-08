@@ -144,7 +144,6 @@ public class OgnlRuntime {
     static final Map _genericMethodParameterTypesCache = new HashMap(101);
     static final Map _ctorParameterTypesCache = new HashMap(101);
     static SecurityManager _securityManager = System.getSecurityManager();
-    static MethodBodyExecutionSandbox methodBodyExecutionSandbox = null;
     static final EvaluationPool _evaluationPool = new EvaluationPool();
     static final ObjectArrayPool _objectArrayPool = new ObjectArrayPool();
 
@@ -885,7 +884,7 @@ public class OgnlRuntime {
 
                 ((AccessibleObject) method).setAccessible(true);
                 try {
-                    result = invokeMethodInJDKSandbox(target, method, argsArray);
+                    result = MethodBodyExecutionSandbox.executeMethodBody(target, method, argsArray);
                 } finally {
                     ((AccessibleObject) method).setAccessible(false);
                 }
@@ -902,29 +901,10 @@ public class OgnlRuntime {
                 }
             }
 
-            result = invokeMethodInJDKSandbox(target, method, argsArray);
+            result = MethodBodyExecutionSandbox.executeMethodBody(target, method, argsArray);
         }
 
         return result;
-    }
-
-    private static Object invokeMethodInJDKSandbox(Object target, Method method, Object[] argsArray) throws InvocationTargetException, IllegalAccessException {
-        if (methodBodyExecutionSandbox == null) {
-            // isn't enabled so simply just invoke the method outside sandbox
-            return method.invoke(target, argsArray);
-        }
-
-        methodBodyExecutionSandbox.increaseUseCount();
-
-        try {
-            return method.invoke(target, argsArray);
-        } catch (SecurityException ex) {
-            // JDK sandbox blocked the execution of method body due to do sensitive actions like exit or exec
-            ex.printStackTrace();
-            throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-        } finally {
-            methodBodyExecutionSandbox.decreaseUseCount();
-        }
     }
 
     /**
@@ -947,17 +927,11 @@ public class OgnlRuntime {
      * @since 3.1.23
      */
     public static void enableJDKSandbox(Permissions permissions,  Policy policy, SecurityManager securityManager) {
-        if (methodBodyExecutionSandbox != null) {
-            disableJDKSandbox();
-        }
-        methodBodyExecutionSandbox = new MethodBodyExecutionSandbox(permissions, policy, securityManager);
+        MethodBodyExecutionSandbox.enable(permissions, policy, securityManager);
     }
     public static void disableJDKSandbox()
     {
-        if (methodBodyExecutionSandbox != null && methodBodyExecutionSandbox.getUseCount() > 0) {
-            throw new IllegalStateException("JDK Sandbox is already in use!");
-        }
-        methodBodyExecutionSandbox = null;
+        MethodBodyExecutionSandbox.disable();
     }
 
     /**

@@ -218,6 +218,11 @@ public class TestOgnlRuntime extends TestCase {
                         } catch (InterruptedException ignored) {
                         }
 
+                        try {
+                            Thread.sleep((long) (Math.random() * MAX_WAIT_MS));
+                        } catch (InterruptedException ignored) {
+                        }
+
                         Object[] args = OgnlRuntime.getObjectArrayPool().create(1);
                         args[0] = Math.random() * MAX_WAIT_MS;
 
@@ -237,9 +242,9 @@ public class TestOgnlRuntime extends TestCase {
             allThreadsWaitOnThis.countDown();
 
             // wait for them all to finish
-            Thread.sleep(MAX_WAIT_MS);
+            Thread.sleep(MAX_WAIT_MS * 2);
             exec.shutdown();
-            exec.awaitTermination(MAX_WAIT_MS, TimeUnit.MILLISECONDS);
+            exec.awaitTermination(MAX_WAIT_MS * 2, TimeUnit.MILLISECONDS);
             assertTrue(exec.isTerminated());
             assertEquals(0, numThreadsFailedTest.get());
         } finally {
