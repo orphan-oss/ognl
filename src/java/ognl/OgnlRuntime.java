@@ -80,15 +80,15 @@ public class OgnlRuntime {
     /**
      * Not an indexed property
      */
-    public static int INDEXED_PROPERTY_NONE = 0;
+    public static final int INDEXED_PROPERTY_NONE = 0;
     /**
      * JavaBeans IndexedProperty
      */
-    public static int INDEXED_PROPERTY_INT = 1;
+    public static final int INDEXED_PROPERTY_INT = 1;
     /**
      * OGNL ObjectIndexedProperty
      */
-    public static int INDEXED_PROPERTY_OBJECT = 2;
+    public static final int INDEXED_PROPERTY_OBJECT = 2;
 
     /**
      * Constant string representation of null string.
@@ -174,7 +174,7 @@ public class OgnlRuntime {
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
      */
-    private static OgnlExpressionCompiler _compiler;
+    private static volatile OgnlExpressionCompiler _compiler;
 
     /**
      * Lazy loading of Javassist library
@@ -192,7 +192,7 @@ public class OgnlRuntime {
 
     private static final Class[] EMPTY_CLASS_ARRAY = new Class[0];
 
-    private static IdentityHashMap PRIMITIVE_WRAPPER_CLASSES = new IdentityHashMap();
+    private static final IdentityHashMap PRIMITIVE_WRAPPER_CLASSES = new IdentityHashMap();
 
     /**
      * Used to provide primitive type equivalent conversions into and out of
