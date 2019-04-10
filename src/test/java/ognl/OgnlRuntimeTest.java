@@ -335,8 +335,35 @@ public class OgnlRuntimeTest {
         // Initial invocation should not fail
         OgnlRuntime.invokeMethod(denyListStringSubclass, fooMethod, new Object[] { new Integer(0), new Date() });
 
+        // Verify invalid specialized processing parameter set is rejected
+        try {
+            OgnlRuntime.setSpecializedOgnlRuntime(null);
+            throw new IllegalStateException("OgnlRuntime set specialized runtime accepted null parameter ?");
+        } catch (IllegalArgumentException iae) {
+            // Expected failure
+        }
+
+        // Enable deny list processing
+        OgnlRuntime.setSpecializedOgnlRuntime(OgnlRuntimeMethodBlocking.getInstance());
+
+        // Verify specialized processing parameter set is rejected once it is already set
+        try {
+            OgnlRuntime.setSpecializedOgnlRuntime(OgnlRuntimeMethodBlocking.getInstance());
+            throw new Exception("OgnlRuntime set specialized runtime allowed multiple set operations ?");
+        } catch (IllegalStateException ise) {
+            // Expected failure
+        }
+
+        // Verify specialized processing parameter set (with null parameter) is rejected once it is already set
+        try {
+            OgnlRuntime.setSpecializedOgnlRuntime(null);
+            throw new Exception("OgnlRuntime set specialized runtime allowed multiple set operations ?");
+        } catch (IllegalStateException ise) {
+            // Expected failure
+        }
+
         // Add method to deny list, subsequent invocations should fail
-        OgnlRuntime.addMethodToDenyList(fooMethod);
+        OgnlRuntimeMethodBlocking.addMethodToDenyList(fooMethod);
         try {
             OgnlRuntime.invokeMethod(denyListStringSubclass, fooMethod, new Object[] { new Integer(0), new Date() });
             throw new IllegalStateException("OgnlRuntime deny list didn't block foo method ?");
@@ -355,7 +382,7 @@ public class OgnlRuntimeTest {
         OgnlRuntime.invokeMethod(System.class, gcMethod, new Object[0]);
 
         // Attempt call to gc method after standard deny list
-        OgnlRuntime.prepareStandardMethodDenyList();
+        OgnlRuntimeMethodBlocking.prepareStandardMethodDenyList();
         try {
             OgnlRuntime.invokeMethod(System.class, gcMethod, new Object[0]);
             throw new IllegalStateException("OgnlRuntime deny list didn't block gc method ?");
@@ -364,8 +391,8 @@ public class OgnlRuntimeTest {
         }
 
         // Attempt call both prepare deny list methods directly (should not cause errors to call them again)
-        OgnlRuntime.prepareMinimalMethodDenyList();
-        OgnlRuntime.prepareStandardMethodDenyList();
+        OgnlRuntimeMethodBlocking.prepareMinimalMethodDenyList();
+        OgnlRuntimeMethodBlocking.prepareStandardMethodDenyList();
         // Attempt to call now-deny-listed method again
         try {
             OgnlRuntime.invokeMethod(System.class, gcMethod, new Object[0]);

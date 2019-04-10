@@ -36,10 +36,6 @@ import ognl.internal.ClassCache;
 import ognl.internal.ClassCacheImpl;
 
 import java.beans.*;
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -151,20 +147,6 @@ public class OgnlRuntime {
 
     static final Map<Method, Boolean> _methodAccessCache = new ConcurrentHashMap<Method, Boolean>();
     static final Map<Method, Boolean> _methodPermCache = new ConcurrentHashMap<Method, Boolean>();
-    private static final Map<Method, Boolean> _methodDenyList = new ConcurrentHashMap<Method, Boolean>(101);
-
-    private static final Method ADDMETHODTODENYLIST_REF;
-
-    /**
-     * Initialize the Method references used in invokeMethod() checks
-     */
-    static {
-        try {
-            ADDMETHODTODENYLIST_REF = OgnlRuntime.class.getMethod("addMethodToDenyList", new Class<?>[]{Method.class});
-        } catch (NoSuchMethodException nsme) {
-            throw new IllegalStateException("OgnlRuntime initialization missing required method", nsme);
-        }
-    }
 
     static final ClassPropertyMethodCache cacheSetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
@@ -175,6 +157,12 @@ public class OgnlRuntime {
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
      */
     private static volatile OgnlExpressionCompiler _compiler;
+
+    /**
+     * Optional OgnlRuntume descendant reference for specialized processing.
+     * The reference can only be set ONCE, after which further set attempts will fail.
+     */
+    private static volatile OgnlRuntime specializedOgnlRuntime = null;
 
     /**
      * Lazy loading of Javassist library
@@ -367,6 +355,32 @@ public class OgnlRuntime {
 
         _primitiveDefaults.put(BigInteger.class, new BigInteger("0"));
         _primitiveDefaults.put(BigDecimal.class, new BigDecimal(0.0));
+    }
+
+    /**
+     * Assign an (optional) OgnlRuntime descendant for specialized processing.
+     * 
+     * Permits an alternate processing path for OgnlRuntime methods that have been
+     * configured to support it.
+     * 
+     * Only one assignment is permitted, subsequent attempts will fail with an Exception.
+     * Only a non-null descendant parameter is permitted, others will be rejected with an Exception.
+     * 
+     * @since 3.1.24
+     * 
+     * @param specializedOgnlRuntime 
+     */
+    public static synchronized void setSpecializedOgnlRuntime(OgnlRuntime specializedOgnlRuntime) {
+        if (OgnlRuntime.specializedOgnlRuntime != null) {
+            throw new IllegalStateException("Cannot set a specialized OGNL runtime (was already previously set)");
+        } else {
+            if (specializedOgnlRuntime == null) {
+                throw new IllegalArgumentException("Cannot set a null specialized OGNL runtime");
+            } else if (OgnlRuntime.class.equals(specializedOgnlRuntime.getClass()) ) {
+                throw new IllegalArgumentException("Cannot assign a non-descendant specialized ONLG runtime");
+            }
+            OgnlRuntime.specializedOgnlRuntime = specializedOgnlRuntime;
+        }
     }
 
     /**
@@ -793,187 +807,6 @@ public class OgnlRuntime {
     }
 
     /**
-     * Add a method to the OgnlRuntime method deny list.
-     * 
-     * The OgnlRuntime method deny list is only additive (only provide a method to
-     * add deny list elements, no methods to clear or remove entries).
-     * 
-     * @param method (a non-null Method parameter)
-     */
-    public static void addMethodToDenyList(Method method)
-    {
-        if (method == null) {
-            throw new IllegalArgumentException("Cannot add a null Method to the deny list");
-        }
-
-        _methodDenyList.put(method, Boolean.TRUE);
-    }
-
-    /**
-     * Add a predefined "minimal" list of methods to the OgnlRuntime method deny list.
-     * 
-     * It uses a small list of methods that OGNL expressions should not normally need to call.
-     * 
-     * @throws NoSuchMethodException
-     */
-    public static void prepareMinimalMethodDenyList() throws NoSuchMethodException
-    {
-        final Class<?>[] noClassArgument = new Class<?>[0];
-        final Class<?>[] singleClassArgument = new Class<?>[1];
-        final Class<?>[] twoClassArgument = new Class<?>[2];
-        final Class<?>[] threeClassArgument = new Class<?>[3];
-
-        // Deny some OgnlRuntime methods (which seem reasonable to restrict)
-        addMethodToDenyList(OgnlRuntime.class.getMethod("getSecurityManager", noClassArgument));
-        addMethodToDenyList(OgnlRuntime.class.getMethod("getCompiler", noClassArgument));
-        singleClassArgument[0] = SecurityManager.class;
-        addMethodToDenyList(OgnlRuntime.class.getMethod("setSecurityManager", singleClassArgument));
-        singleClassArgument[0] = OgnlExpressionCompiler.class;
-        addMethodToDenyList(OgnlRuntime.class.getMethod("setCompiler", singleClassArgument));
-        threeClassArgument[0] = OgnlContext.class;
-        threeClassArgument[1] = Node.class;
-        threeClassArgument[2] = Object.class;
-        addMethodToDenyList(OgnlRuntime.class.getMethod("compileExpression", threeClassArgument));
-
-        // Deny some System methods
-        addMethodToDenyList(System.class.getMethod("getSecurityManager", noClassArgument));
-        singleClassArgument[0] = SecurityManager.class;
-        addMethodToDenyList(System.class.getMethod("setSecurityManager", singleClassArgument));
-        singleClassArgument[0] = Properties.class;
-        addMethodToDenyList(System.class.getMethod("setProperties", singleClassArgument));
-        singleClassArgument[0] = String.class;
-        addMethodToDenyList(System.class.getMethod("clearProperty", singleClassArgument));
-        addMethodToDenyList(System.class.getMethod("load", singleClassArgument));
-        addMethodToDenyList(System.class.getMethod("loadLibrary", singleClassArgument));
-        addMethodToDenyList(System.class.getMethod("mapLibraryName", singleClassArgument));
-        singleClassArgument[0] = InputStream.class;
-        addMethodToDenyList(System.class.getMethod("setIn", singleClassArgument));
-        singleClassArgument[0] = PrintStream.class;
-        addMethodToDenyList(System.class.getMethod("setOut", singleClassArgument));
-        addMethodToDenyList(System.class.getMethod("setErr", singleClassArgument));
-        singleClassArgument[0] = int.class;
-        addMethodToDenyList(System.class.getMethod("exit", singleClassArgument));
-        twoClassArgument[0] = String.class;
-        twoClassArgument[1] = String.class;
-        addMethodToDenyList(System.class.getMethod("setProperty", twoClassArgument));
-
-        // Deny ProcessBuilder start method
-        addMethodToDenyList(ProcessBuilder.class.getMethod("start", noClassArgument));
-
-        // Deny some Runtime methods
-        addMethodToDenyList(Runtime.class.getMethod("getRuntime", noClassArgument));
-        singleClassArgument[0] = Thread.class;
-        addMethodToDenyList(Runtime.class.getMethod("addShutdownHook", singleClassArgument));
-        singleClassArgument[0] = int.class;
-        addMethodToDenyList(Runtime.class.getMethod("exit", singleClassArgument));
-        addMethodToDenyList(Runtime.class.getMethod("halt", singleClassArgument));
-        singleClassArgument[0] = InputStream.class;
-        try {
-            addMethodToDenyList(Runtime.class.getMethod("getLocalizedInputStream", singleClassArgument));
-        } catch (NoSuchMethodException nsme) {
-            // Deprecated method.  Avoid exception if it disappears in later JDK versions
-        }
-        singleClassArgument[0] = OutputStream.class;
-        try {
-            addMethodToDenyList(Runtime.class.getMethod("getLocalizedOutputStream", singleClassArgument));
-        } catch (NoSuchMethodException nsme) {
-            // Deprecated method.  Avoid exception if it disappears in later JDK versions
-        }
-        singleClassArgument[0] = String.class;
-        addMethodToDenyList(Runtime.class.getMethod("exec", singleClassArgument));
-        addMethodToDenyList(Runtime.class.getMethod("load", singleClassArgument));
-        addMethodToDenyList(Runtime.class.getMethod("loadLibrary", singleClassArgument));
-        singleClassArgument[0] = String[].class;
-        addMethodToDenyList(Runtime.class.getMethod("exec", singleClassArgument));
-        twoClassArgument[0] = String[].class;
-        twoClassArgument[1] = String[].class;
-        addMethodToDenyList(Runtime.class.getMethod("exec", twoClassArgument));
-        twoClassArgument[0] = String.class;
-        twoClassArgument[1] = String[].class;
-        addMethodToDenyList(Runtime.class.getMethod("exec", twoClassArgument));
-        threeClassArgument[0] = String[].class;
-        threeClassArgument[1] = String[].class;
-        threeClassArgument[2] = File.class;
-        addMethodToDenyList(Runtime.class.getMethod("exec", threeClassArgument));
-        threeClassArgument[0] = String.class;
-        threeClassArgument[1] = String[].class;
-        threeClassArgument[2] = File.class;
-        addMethodToDenyList(Runtime.class.getMethod("exec", threeClassArgument));
-
-        // Deny some Thread methods
-        addMethodToDenyList(Thread.class.getMethod("currentThread", noClassArgument));
-        addMethodToDenyList(Thread.class.getMethod("dumpStack", noClassArgument));
-        addMethodToDenyList(Thread.class.getMethod("getAllStackTraces", noClassArgument));
-        addMethodToDenyList(Thread.class.getMethod("getContextClassLoader", noClassArgument));
-        addMethodToDenyList(Thread.class.getMethod("getDefaultUncaughtExceptionHandler", noClassArgument));
-        addMethodToDenyList(Thread.class.getMethod("yield", noClassArgument));
-        singleClassArgument[0] = Thread[].class;
-        addMethodToDenyList(Thread.class.getMethod("enumerate", singleClassArgument));
-        singleClassArgument[0] = Thread.UncaughtExceptionHandler.class;
-        addMethodToDenyList(Thread.class.getMethod("setDefaultUncaughtExceptionHandler", singleClassArgument));
-        singleClassArgument[0] = long.class;
-        addMethodToDenyList(Thread.class.getMethod("sleep", singleClassArgument));
-        twoClassArgument[0] = long.class;
-        twoClassArgument[1] = int.class;
-        addMethodToDenyList(Thread.class.getMethod("sleep", twoClassArgument));
-    }
-
-    /**
-     * Add a predefined "standard" list of methods to the OgnlRuntime method deny list.
-     * 
-     * It uses a larger list of methods that OGNL expressions should not normally need to call.
-     * The generated method deny list includes everything provided by prepareMinimalMethodDenyList()
-     * and more.
-     * 
-     * @throws NoSuchMethodException
-     */
-    public static void prepareStandardMethodDenyList() throws NoSuchMethodException
-    {
-        final Class<?>[] noClassArgument = new Class<?>[0];
-        final Class<?>[] singleClassArgument = new Class<?>[1];
-        final Class<?>[] twoClassArgument = new Class<?>[2];
-
-        // Deny the minimal list first
-        prepareMinimalMethodDenyList();
-
-        // Deny more System methods
-        try {
-            addMethodToDenyList(System.class.getMethod("console", noClassArgument));
-        } catch (NoSuchMethodException nsme) {
-            // JDK 1.6+ method.  Avoid exception if running under JDK 1.5
-        }
-        addMethodToDenyList(System.class.getMethod("inheritedChannel", noClassArgument));
-        addMethodToDenyList(System.class.getMethod("getProperties", noClassArgument));
-        addMethodToDenyList(System.class.getMethod("getenv", noClassArgument));
-        addMethodToDenyList(System.class.getMethod("gc", noClassArgument));
-        addMethodToDenyList(System.class.getMethod("runFinalization", noClassArgument));
-        singleClassArgument[0] = String.class;
-        addMethodToDenyList(System.class.getMethod("getProperty", singleClassArgument));
-        addMethodToDenyList(System.class.getMethod("getenv", singleClassArgument));
-        try {
-            addMethodToDenyList(System.class.getMethod("runFinalizersOnExit", singleClassArgument));
-        } catch (NoSuchMethodException nsme) {
-            // Deprecated method.  Avoid exception if it disappears in later JDK versions
-        }
-        twoClassArgument[0] = String.class;
-        twoClassArgument[1] = String.class;
-        addMethodToDenyList(System.class.getMethod("getProperty", twoClassArgument));
-
-        // Deny more Runtime methods
-        addMethodToDenyList(Runtime.class.getMethod("gc", noClassArgument));
-        addMethodToDenyList(Runtime.class.getMethod("runFinalization", noClassArgument));
-
-        singleClassArgument[0] = boolean.class;
-        try {
-            addMethodToDenyList(Runtime.class.getMethod("runFinalizersOnExit", singleClassArgument));
-        } catch (NoSuchMethodException nsme) {
-            // Deprecated method.  Avoid exception if it disappears in later JDK versions
-        }
-        addMethodToDenyList(Runtime.class.getMethod("traceInstructions", singleClassArgument));
-        addMethodToDenyList(Runtime.class.getMethod("traceMethodCalls", singleClassArgument));
-    }
-
-    /**
      * Gets the SecurityManager that OGNL uses to determine permissions for invoking methods.
      *
      * @return SecurityManager for OGNL
@@ -1018,6 +851,11 @@ public class OgnlRuntime {
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException
     {
+        // Perform specialized (alternative) processing when configured to do so
+        if (specializedOgnlRuntime != null) {
+            return specializedOgnlRuntime.specializedInvokeMethod(target, method, argsArray);
+        }
+
         boolean syncInvoke;
         boolean checkPermission;
         Boolean methodAccessCacheValue;
@@ -1026,18 +864,6 @@ public class OgnlRuntime {
         // only synchronize method invocation if it actually requires it
 
         synchronized(method) {
-            // Always disallow invokeMethod() calling addMethodToDenyList()
-            if (ADDMETHODTODENYLIST_REF.equals(method)) {
-                throw new IllegalAccessException("Method [" + method + "] is not permitted.");
-            }
-
-            // Disallow any methods in the deny list (only check if deny list nonempty, for JIT performance)
-            if (_methodDenyList.isEmpty() == false) {
-                if (_methodDenyList.get(method) != null) {
-                    throw new IllegalAccessException("Method [" + method + "] is deny listed.");
-                }
-            }
-
             methodAccessCacheValue = _methodAccessCache.get(method);
             if (methodAccessCacheValue == null) {
                 if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
@@ -1120,6 +946,26 @@ public class OgnlRuntime {
         }
 
         return result;
+    }
+
+    /**
+     * Define a specialized mechanism that invokeMethod() can leverage for specialized
+     * processing.  This method MUST be overridden by descendant implementations.
+     * 
+     * Note: This base implementation should not be called, doing so  will result in an Exception.
+     * 
+     * @param target
+     * @param method
+     * @param argsArray
+     * 
+     * @return
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException 
+     */
+    protected Object specializedInvokeMethod(Object target, Method method, Object[] argsArray)
+            throws InvocationTargetException, IllegalAccessException
+    {
+        throw new IllegalStateException("specializedInvokeMethod not available");
     }
 
     /**
