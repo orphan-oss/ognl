@@ -47,11 +47,19 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Utility class used by internal OGNL API to do specialized OgnlRuntime processing.
+ * Utility class used by internal OGNL API to do delegate (alternate) OgnlRuntime processing.
  * 
- * Note: The convention is to NOT call any ancestor method(s) which support
- *   specializedOgnlRuntime processing.  Violating this convention may result in
- *   unwanted recursion failures.
+ * Delegate convention used by internal OGNL API to do allow for delegate
+ * (alternate) OgnlRuntime processing.
+ * 
+ * Convention:
+ *   The convention for delegate methods is:
+ *   1) For a method named "methodName", the delegate method name should be "delegateMethodName".
+ *   2) Descendant classes should implement ALL delegate methods as "protected".
+ *   3) Descendant classes should utilize the Singleton pattern (at most one instance exists).
+ *   4) Descendant classes class should NOT call any ancestor OgnlRuntime methods that
+ *      support delegate processing.
+ *      Note:  Violating this convention may result in unwanted recursion failures.
  * 
  * @since 3.1.24
  */
@@ -279,12 +287,13 @@ public class OgnlRuntimeMethodBlocking extends OgnlRuntime {
     }
 
     /**
-     * Perform specialized invokeMethod() processing.
+     * Perform delegate (alternate) invokeMethod() processing.
      * 
-     * Checks for denied methods, then performs standard invokeMethod() if checks pass.
+     * Checks for denied methods, then performs standard processing
+     * (same logic as ancestor invokeMethod()) if checks pass.
      * 
      * Note: It is recommended that when OgnlRuntime invokeMethod() code is changed that
-     *   this method be reviewed to determine fo the changes are applicable here.
+     *   this method be reviewed to determine if the changes are applicable here.
      * 
      * @param target
      * @param method
@@ -294,7 +303,8 @@ public class OgnlRuntimeMethodBlocking extends OgnlRuntime {
      * @throws InvocationTargetException
      * @throws IllegalAccessException 
      */
-    protected Object specializedInvokeMethod(Object target, Method method, Object[] argsArray)
+    @Override
+    protected Object delegateInvokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException
     {
         boolean syncInvoke;

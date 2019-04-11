@@ -335,29 +335,29 @@ public class OgnlRuntimeTest {
         // Initial invocation should not fail
         OgnlRuntime.invokeMethod(denyListStringSubclass, fooMethod, new Object[] { new Integer(0), new Date() });
 
-        // Verify invalid specialized processing parameter set is rejected
+        // Verify invalid delegate processing parameter set is rejected
         try {
-            OgnlRuntime.setSpecializedOgnlRuntime(null);
-            throw new IllegalStateException("OgnlRuntime set specialized runtime accepted null parameter ?");
+            OgnlRuntime.setDelegateOgnlRuntime(null);
+            throw new IllegalStateException("OgnlRuntime set delegate runtime accepted null parameter ?");
         } catch (IllegalArgumentException iae) {
             // Expected failure
         }
 
         // Enable deny list processing
-        OgnlRuntime.setSpecializedOgnlRuntime(OgnlRuntimeMethodBlocking.getInstance());
+        OgnlRuntime.setDelegateOgnlRuntime(OgnlRuntimeMethodBlocking.getInstance());
 
-        // Verify specialized processing parameter set is rejected once it is already set
+        // Verify delegate processing parameter set is rejected once it is already set
         try {
-            OgnlRuntime.setSpecializedOgnlRuntime(OgnlRuntimeMethodBlocking.getInstance());
-            throw new Exception("OgnlRuntime set specialized runtime allowed multiple set operations ?");
+            OgnlRuntime.setDelegateOgnlRuntime(OgnlRuntimeMethodBlocking.getInstance());
+            throw new Exception("OgnlRuntime set delegate runtime allowed multiple set operations ?");
         } catch (IllegalStateException ise) {
             // Expected failure
         }
 
-        // Verify specialized processing parameter set (with null parameter) is rejected once it is already set
+        // Verify delegate processing parameter set (with null parameter) is rejected once it is already set
         try {
-            OgnlRuntime.setSpecializedOgnlRuntime(null);
-            throw new Exception("OgnlRuntime set specialized runtime allowed multiple set operations ?");
+            OgnlRuntime.setDelegateOgnlRuntime(null);
+            throw new Exception("OgnlRuntime set delegate runtime allowed multiple set operations ?");
         } catch (IllegalStateException ise) {
             // Expected failure
         }

@@ -159,10 +159,24 @@ public class OgnlRuntime {
     private static volatile OgnlExpressionCompiler _compiler;
 
     /**
-     * Optional OgnlRuntume descendant reference for specialized processing.
+     * Delegate convention used by internal OGNL API to do allow for delegate
+     * (alternate) OgnlRuntime processing.
+     * 
+     * Convention:
+     *   The convention for delegate methods is:
+     *   1) For a method named "methodName", the delegate method name should be "delegateMethodName".
+     *   2) Descendant classes should implement ALL delegate methods as "protected".
+     *   3) Descendant classes should utilize the Singleton pattern (at most one instance exists).
+     *   4) Descendant classes class should NOT call any ancestor OgnlRuntime methods that
+     *      support delegate processing.
+     *      Note:  Violating this convention may result in unwanted recursion failures.
+     * 
+     * Optional OgnlRuntume descendant reference delegate (alternate) processing.
      * The reference can only be set ONCE, after which further set attempts will fail.
+     *
+     * @since 3.1.24
      */
-    private static volatile OgnlRuntime specializedOgnlRuntime = null;
+    private static volatile OgnlRuntime delegateOgnlRuntime = null;
 
     /**
      * Lazy loading of Javassist library
@@ -358,7 +372,7 @@ public class OgnlRuntime {
     }
 
     /**
-     * Assign an (optional) OgnlRuntime descendant for specialized processing.
+     * Assign an (optional) OgnlRuntime descendant for delegate (alternate) processing.
      * 
      * Permits an alternate processing path for OgnlRuntime methods that have been
      * configured to support it.
@@ -368,18 +382,18 @@ public class OgnlRuntime {
      * 
      * @since 3.1.24
      * 
-     * @param specializedOgnlRuntime 
+     * @param delegateOgnlRuntime 
      */
-    public static synchronized void setSpecializedOgnlRuntime(OgnlRuntime specializedOgnlRuntime) {
-        if (OgnlRuntime.specializedOgnlRuntime != null) {
-            throw new IllegalStateException("Cannot set a specialized OGNL runtime (was already previously set)");
+    public static synchronized void setDelegateOgnlRuntime(OgnlRuntime delegateOgnlRuntime) {
+        if (OgnlRuntime.delegateOgnlRuntime != null) {
+            throw new IllegalStateException("Cannot set a delegate OGNL runtime (was already previously set)");
         } else {
-            if (specializedOgnlRuntime == null) {
-                throw new IllegalArgumentException("Cannot set a null specialized OGNL runtime");
-            } else if (OgnlRuntime.class.equals(specializedOgnlRuntime.getClass()) ) {
-                throw new IllegalArgumentException("Cannot assign a non-descendant specialized ONLG runtime");
+            if (delegateOgnlRuntime == null) {
+                throw new IllegalArgumentException("Cannot set a null delegate OGNL runtime");
+            } else if (OgnlRuntime.class.equals(delegateOgnlRuntime.getClass()) ) {
+                throw new IllegalArgumentException("Cannot assign a non-descendant delegate OGNL runtime");
             }
-            OgnlRuntime.specializedOgnlRuntime = specializedOgnlRuntime;
+            OgnlRuntime.delegateOgnlRuntime = delegateOgnlRuntime;
         }
     }
 
@@ -851,9 +865,9 @@ public class OgnlRuntime {
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException
     {
-        // Perform specialized (alternative) processing when configured to do so
-        if (specializedOgnlRuntime != null) {
-            return specializedOgnlRuntime.specializedInvokeMethod(target, method, argsArray);
+        // Perform delegate (alternative) processing when configured to do so
+        if (delegateOgnlRuntime != null) {
+            return delegateOgnlRuntime.delegateInvokeMethod(target, method, argsArray);
         }
 
         boolean syncInvoke;
@@ -949,7 +963,7 @@ public class OgnlRuntime {
     }
 
     /**
-     * Define a specialized mechanism that invokeMethod() can leverage for specialized
+     * Define a delegate (alternate) mechanism that invokeMethod() can leverage for alternate
      * processing.  This method MUST be overridden by descendant implementations.
      * 
      * Note: This base implementation should not be called, doing so  will result in an Exception.
@@ -962,10 +976,10 @@ public class OgnlRuntime {
      * @throws InvocationTargetException
      * @throws IllegalAccessException 
      */
-    protected Object specializedInvokeMethod(Object target, Method method, Object[] argsArray)
+    protected Object delegateInvokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException
     {
-        throw new IllegalStateException("specializedInvokeMethod not available");
+        throw new IllegalStateException("delegateInvokeMethod not available");
     }
 
     /**
