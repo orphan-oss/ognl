@@ -1,6 +1,7 @@
 package ognl;
 
 import junit.framework.TestCase;
+import ognl.security.MethodBodyExecutionSandbox;
 import org.ognl.test.objects.*;
 
 import java.beans.PropertyDescriptor;
@@ -185,7 +186,7 @@ public class TestOgnlRuntime extends TestCase {
         Object[] args = OgnlRuntime.getObjectArrayPool().create(1);
         args[0] = 0;
 
-        OgnlRuntime.enableJDKSandbox(null, null, null);
+        MethodBodyExecutionSandbox.enable(null, null, null);
 
         try {
             OgnlRuntime.callMethod(context, service, "exec", args);
@@ -193,7 +194,7 @@ public class TestOgnlRuntime extends TestCase {
         } catch (Exception ex) {
             assertTrue(ex.getCause() instanceof SecurityException);
         } finally {
-            OgnlRuntime.disableJDKSandbox();
+            MethodBodyExecutionSandbox.disable();
         }
     }
 
@@ -202,7 +203,7 @@ public class TestOgnlRuntime extends TestCase {
         final OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
         final GenericService service = new GenericServiceImpl();
 
-        OgnlRuntime.enableJDKSandbox(null, null, null);
+        MethodBodyExecutionSandbox.enable(null, null, null);
 
         try {
             final int NUM_THREADS = 1000;
@@ -248,7 +249,37 @@ public class TestOgnlRuntime extends TestCase {
             assertTrue(exec.isTerminated());
             assertEquals(0, numThreadsFailedTest.get());
         } finally {
-            OgnlRuntime.disableJDKSandbox();
+            MethodBodyExecutionSandbox.disable();
+        }
+    }
+
+    public void test_Disable_JDK_Sandbox()
+            throws Exception {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        GenericService service = new GenericServiceImpl();
+
+        Object[] args = OgnlRuntime.getObjectArrayPool().create(0);
+
+        MethodBodyExecutionSandbox.enable(null, null, null);
+
+        try {
+            OgnlRuntime.callMethod(context, service, "disableSandboxViaReflectionByField", args);
+            fail("JDK sandbox should block execution");
+        } catch (Exception ex) {
+            assertTrue(ex.getCause() instanceof SecurityException);
+        } finally {
+            MethodBodyExecutionSandbox.disable();
+        }
+
+        MethodBodyExecutionSandbox.enable(null, null, null);
+
+        try {
+            OgnlRuntime.callMethod(context, service, "disableSandboxViaReflectionByMethod", args);
+            fail("JDK sandbox should block execution");
+        } catch (Exception ex) {
+            assertTrue(ex.getCause().getCause() instanceof SecurityException);
+        } finally {
+            MethodBodyExecutionSandbox.disable();
         }
     }
 

@@ -35,15 +35,12 @@ import ognl.enhance.OgnlExpressionCompiler;
 import ognl.internal.ClassCache;
 import ognl.internal.ClassCacheImpl;
 import ognl.security.MethodBodyExecutionSandbox;
-import ognl.security.OgnlSecurityManager;
 
 import java.beans.*;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Permission;
-import java.security.Permissions;
-import java.security.Policy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -907,33 +904,6 @@ public class OgnlRuntime {
         }
 
         return result;
-    }
-
-    /**
-     * Enables JDK sandbox via {@link OgnlSecurityManager} for user's invoking methods body execution.
-     *
-     * <p> Note: Due to potential performance and concurrency issues, try this only if you afraid your app can have an
-     * unknown "expression injection" flaw or you afraid you cannot prevent those in your app's internal sandbox
-     * comprehensively e.g. you cannot discover and maintain all attack vectors over time because of many dependencies
-     * and also their change over time.</p>
-     *
-     * <p> This tries to provide an option to you to enable a security manager that disables any sensitive action e.g.
-     * exec and exit even if attacker had a successful "expression injection" in any unknown way into your app. However,
-     * also honors previous security manager and policies if any set, as parent, and rolls back to them after method
-     * execution finished.</p>
-     *
-     * @param permissions further Permissions or pass <code>null</code> to use minimum required permissions
-     * @param policy your own one or pass <code>null</code> to use {@link OgnlSecurityManager}
-     * @param securityManager your own one or pass <code>null</code> to use {@link OgnlSecurityManager}
-     *
-     * @since 3.1.23
-     */
-    public static void enableJDKSandbox(Permissions permissions,  Policy policy, SecurityManager securityManager) {
-        MethodBodyExecutionSandbox.enable(permissions, policy, securityManager);
-    }
-    public static void disableJDKSandbox()
-    {
-        MethodBodyExecutionSandbox.disable();
     }
 
     /**

@@ -16,12 +16,7 @@ public class OgnlPolicy extends Policy {
     OgnlPolicy(Policy parentPolicy, Permissions permissions) {
         _parentPolicy = parentPolicy;
 
-        // add OGNL itself minimum required permissions
         _permissions = new Permissions();
-        _permissions.add(new SecurityPermission("setPolicy"));
-        _permissions.add(new RuntimePermission("setSecurityManager"));
-        _permissions.add(new ReflectPermission("suppressAccessChecks"));
-        _permissions.add(new RuntimePermission("getProtectionDomain"));
 
         // add user demand further permissions
         if (permissions != null) {
