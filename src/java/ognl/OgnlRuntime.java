@@ -34,6 +34,8 @@ import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
 import ognl.internal.ClassCache;
 import ognl.internal.ClassCacheImpl;
+import ognl.security.MethodBodyExecutionSandbox;
+import ognl.security.OgnlSecurityManager;
 
 import java.beans.*;
 import java.lang.reflect.*;

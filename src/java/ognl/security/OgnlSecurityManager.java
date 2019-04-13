@@ -1,4 +1,6 @@
-package ognl;
+package ognl.security;
+
+import ognl.OgnlRuntime;
 
 import java.io.FileDescriptor;
 import java.net.InetAddress;

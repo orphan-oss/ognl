@@ -1,4 +1,4 @@
-package ognl;
+package ognl.security;
 
 import java.lang.reflect.ReflectPermission;
 import java.security.*;

@@ -1,4 +1,4 @@
-package ognl;
+package ognl.security;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -11,7 +11,7 @@ import java.security.SecurityPermission;
  * @author Yasser Zamani
  * @since 3.1.23
  */
-class MethodBodyExecutionSandbox {
+public class MethodBodyExecutionSandbox {
     private static Permissions userDemandPermissions;
     private static Policy userDemandPolicy;
     private static SecurityManager userDemandSecurityManager;
