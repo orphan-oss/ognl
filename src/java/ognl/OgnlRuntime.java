@@ -372,6 +372,54 @@ public class OgnlRuntime {
     }
 
     /**
+     * Check if the current Thread call stack contains an earlier call by OgnlRuntime,
+     * ignoring (not counting) the first ignoreCount+1 instances (the +1 is for this
+     * method itself).
+     * 
+     * Returns true if-and-only-if the current Thread call stack contains more than
+     * ignoreCount+1 references to OgnlRuntime.
+     * 
+     * If the Thread call stack cannot be checked, this method will throw and
+     * {@link IllegalStateException}.
+     * 
+     * Note: The caller must know and account for the expected calling sequence
+     *   for this method to be effective.
+     * 
+     * Note: This method may be EXPENSIVE, so avoid using it in frequently executed
+     *   call sequences.
+     * 
+     * @param ignoreCount 
+     * 
+     * @return 
+     */
+    protected static final boolean ognlRuntimeExceedsCallStackIgnoreCount(int ignoreCount) {
+        final StackTraceElement[] stackTraceElementArray;
+
+        if (ignoreCount < 0 ) {
+            throw new IllegalArgumentException("ognlRuntimeInThreadCallStack() does not support ignoreCount: " +
+                    ignoreCount + " ( < 0).");
+        }
+        try {
+            ignoreCount++;  // Take into account this method call itself
+            final String ognlRuntimeClassName = OgnlRuntime.class.getName();
+            int ognlRuntimeClassInStackCount = 0;
+            stackTraceElementArray = Thread.currentThread().getStackTrace();
+            for (int index = 0; index < stackTraceElementArray.length; index++) {
+                if (ognlRuntimeClassName.equals(stackTraceElementArray[index].getClassName())) {
+                    ognlRuntimeClassInStackCount++;
+                    if (ognlRuntimeClassInStackCount > ignoreCount) {
+                      return true;
+                    }
+                }
+            }
+        } catch (SecurityException se) {
+            throw new IllegalStateException("ognlRuntimeInThreadCallStack() fails when stacktrace access denied.", se);
+        }
+
+        return false;
+    }
+
+    /**
      * Assign an (optional) OgnlRuntime descendant for delegate (alternate) processing.
      * 
      * Permits an alternate processing path for OgnlRuntime methods that have been
@@ -384,14 +432,16 @@ public class OgnlRuntime {
      * 
      * @param delegateOgnlRuntime 
      */
-    public static synchronized void setDelegateOgnlRuntime(OgnlRuntime delegateOgnlRuntime) {
+    public static final synchronized void setDelegateOgnlRuntime(OgnlRuntime delegateOgnlRuntime) {
         if (OgnlRuntime.delegateOgnlRuntime != null) {
-            throw new IllegalStateException("Cannot set a delegate OGNL runtime (was already previously set)");
+            throw new IllegalStateException("Cannot set a delegate OGNL runtime (was already previously set).");
         } else {
             if (delegateOgnlRuntime == null) {
-                throw new IllegalArgumentException("Cannot set a null delegate OGNL runtime");
+                throw new IllegalArgumentException("Cannot set a null delegate OGNL runtime.");
             } else if (OgnlRuntime.class.equals(delegateOgnlRuntime.getClass()) ) {
-                throw new IllegalArgumentException("Cannot assign a non-descendant delegate OGNL runtime");
+                throw new IllegalArgumentException("Cannot assign a non-descendant delegate OGNL runtime.");
+            } else if (ognlRuntimeExceedsCallStackIgnoreCount(1)) {
+                throw new IllegalStateException("Cannot assign a delegate OGNL runtime from within OGNL itself.");
             }
             OgnlRuntime.delegateOgnlRuntime = delegateOgnlRuntime;
         }

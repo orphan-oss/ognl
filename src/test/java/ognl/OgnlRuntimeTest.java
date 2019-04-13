@@ -1,5 +1,6 @@
 package ognl;
 
+import java.lang.reflect.InvocationTargetException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -330,6 +331,7 @@ public class OgnlRuntimeTest {
     public void testDenyListProcessing() throws Exception {
         final Method fooMethod = DenyListStringSubclass.class.getMethod("foo", Integer.class, Date.class);
         final Method gcMethod = System.class.getMethod("gc", new Class<?>[0]);
+        final Method setDelegateMethod = OgnlRuntime.class.getMethod("setDelegateOgnlRuntime", new Class<?>[] {OgnlRuntime.class});
         final DenyListStringSubclass denyListStringSubclass = new DenyListStringSubclass();
 
         // Initial invocation should not fail
@@ -340,6 +342,14 @@ public class OgnlRuntimeTest {
             OgnlRuntime.setDelegateOgnlRuntime(null);
             throw new IllegalStateException("OgnlRuntime set delegate runtime accepted null parameter ?");
         } catch (IllegalArgumentException iae) {
+            // Expected failure
+        }
+
+        // Verify calling setDelegateOgnlRuntime within OGNL itself is rejected
+        try {
+            OgnlRuntime.invokeMethod(OgnlRuntime.class, setDelegateMethod, new Object[] { OgnlRuntimeMethodBlocking.getInstance() });
+            throw new Exception("OgnlRuntime set delegate runtime callable within OgnlRuntime ?");
+        } catch (InvocationTargetException ite) {
             // Expected failure
         }
 
