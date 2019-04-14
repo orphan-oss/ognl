@@ -1,9 +1,10 @@
 package ognl;
 
-import java.lang.reflect.InvocationTargetException;
+import ognl.delegate.OgnlRuntimeMethodBlocking;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
@@ -332,6 +333,7 @@ public class OgnlRuntimeTest {
         final Method fooMethod = DenyListStringSubclass.class.getMethod("foo", Integer.class, Date.class);
         final Method gcMethod = System.class.getMethod("gc", new Class<?>[0]);
         final Method setDelegateMethod = OgnlRuntime.class.getMethod("setDelegateOgnlRuntime", new Class<?>[] {OgnlRuntime.class});
+        final Method addMethodToDenyList = OgnlRuntimeMethodBlocking.class.getMethod("addMethodToDenyList", new Class<?>[] {Method.class});
         final DenyListStringSubclass denyListStringSubclass = new DenyListStringSubclass();
 
         // Initial invocation should not fail
@@ -370,6 +372,18 @@ public class OgnlRuntimeTest {
             throw new Exception("OgnlRuntime set delegate runtime allowed multiple set operations ?");
         } catch (IllegalStateException ise) {
             // Expected failure
+        }
+
+        // Verify calling addMethodToDenyList within OGNL itself is rejected (for any of 3 reasons)
+        try {
+            OgnlRuntime.invokeMethod(OgnlRuntimeMethodBlocking.class, addMethodToDenyList, new Object[] { addMethodToDenyList });
+            throw new Exception("OgnlRuntimeMethodBlocking add to deny list callable within OgnlRuntime ?");
+        } catch (InvocationTargetException ite) {
+            // Expected failure (failed during invocation)
+        } catch (IllegalStateException ise) {
+            // Expected failure (failed during addMethodToDenyList call)
+        } catch (IllegalAccessException iae) {
+            // Expected failure (blocked from delegateInvokeMethod disallowing call)
         }
 
         // Add method to deny list, subsequent invocations should fail

@@ -159,6 +159,33 @@ public class OgnlRuntime {
     private static volatile OgnlExpressionCompiler _compiler;
 
     /**
+     * Provide _securityManager reference to descendants
+     * 
+     * @return 
+     */
+    protected SecurityManager get_SecurityManager() {
+        return _securityManager;
+    }
+
+    /**
+     * Provide _methodAccessCache reference to descendants
+     * 
+     * @return 
+     */
+    protected Map<Method, Boolean> get_MethodAccessCache() {
+        return _methodAccessCache;
+    }
+
+    /**
+     * Provide _methodPermCache reference to descendants
+     * 
+     * @return 
+     */
+    protected Map<Method, Boolean> get_MethodPermCache() {
+        return _methodPermCache;
+    }
+
+    /**
      * Delegate convention used by internal OGNL API to do allow for delegate
      * (alternate) OgnlRuntime processing.
      * 

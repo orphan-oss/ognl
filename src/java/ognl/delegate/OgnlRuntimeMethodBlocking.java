@@ -28,8 +28,9 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 // --------------------------------------------------------------------------
-package ognl;
+package ognl.delegate;
 
+import ognl.OgnlRuntime;
 import ognl.enhance.OgnlExpressionCompiler;
 
 import java.io.File;
@@ -45,6 +46,8 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import ognl.Node;
+import ognl.OgnlContext;
 
 /**
  * Utility class used by internal OGNL API to do delegate (alternate) OgnlRuntime processing.
@@ -117,6 +120,8 @@ public class OgnlRuntimeMethodBlocking extends OgnlRuntime {
     {
         if (method == null) {
             throw new IllegalArgumentException("Cannot add a null Method to the deny list");
+        } else if (ognlRuntimeExceedsCallStackIgnoreCount(1)) {
+            throw new IllegalStateException("Cannot add a Method the deny list from within OGNL itself.");
         }
 
         _methodDenyList.put(method, Boolean.TRUE);
@@ -311,6 +316,9 @@ public class OgnlRuntimeMethodBlocking extends OgnlRuntime {
         boolean checkPermission;
         Boolean methodAccessCacheValue;
         Boolean methodPermCacheValue;
+        final Map<Method, Boolean> _methodAccessCache;
+        final Map<Method, Boolean> _methodPermCache;
+        final SecurityManager _securityManager;
 
         // only synchronize method invocation if it actually requires it
 
@@ -326,6 +334,11 @@ public class OgnlRuntimeMethodBlocking extends OgnlRuntime {
                     throw new IllegalAccessException("Method [" + method + "] is deny listed.");
                 }
             }
+
+            // Retrieve ancestor method access and permission caches 
+            _methodAccessCache = get_MethodAccessCache();
+            _methodPermCache = get_MethodPermCache();
+            _securityManager = get_SecurityManager();
 
             // Passed deny checks, perform standard OgnlRuntime invokeMethod() call
             methodAccessCacheValue = _methodAccessCache.get(method);
