@@ -36,7 +36,7 @@ public class MethodBodyExecutionSandbox {
      * execution finished.</p>
      *
      * @param permissions further Permissions or pass <code>null</code> to use minimum required permissions
-     * @param policy your own one or pass <code>null</code> to use {@link OgnlSecurityManager}
+     * @param policy your own one or pass <code>null</code> to use {@link OgnlPolicy}
      * @param securityManager your own one or pass <code>null</code> to use {@link OgnlSecurityManager}
      *
      * @since 3.1.23
@@ -80,10 +80,6 @@ public class MethodBodyExecutionSandbox {
 
         try {
             return method.invoke(target, argsArray);
-        } catch (SecurityException ex) {
-            // JDK sandbox blocked the execution of method body due to do sensitive actions like exit or exec
-            ex.printStackTrace();
-            throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
         } finally {
             leave();
         }
