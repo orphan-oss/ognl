@@ -9,11 +9,11 @@ import java.util.Enumeration;
  * @author Yasser Zamani
  * @since 3.1.23
  */
-public class OgnlPolicy extends Policy {
+public class OgnlDefaultPolicy extends Policy {
     private Policy _parentPolicy;
     private Permissions _permissions;
 
-    OgnlPolicy(Policy parentPolicy, Permissions permissions) {
+    OgnlDefaultPolicy(Policy parentPolicy, Permissions permissions) {
         _parentPolicy = parentPolicy;
 
         _permissions = new Permissions();

@@ -12,10 +12,10 @@ import java.security.Permission;
  * @author Yasser Zamani
  * @since 3.1.23
  */
-public class OgnlSecurityManager extends SecurityManager {
+public class OgnlDefaultSecurityManager extends SecurityManager {
     private SecurityManager parentSecurityManager;
 
-    OgnlSecurityManager(SecurityManager parentSecurityManager) {
+    OgnlDefaultSecurityManager(SecurityManager parentSecurityManager) {
         this.parentSecurityManager = parentSecurityManager;
     }
 

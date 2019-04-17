@@ -23,7 +23,7 @@ public class MethodBodyExecutionSandbox {
     private static Policy parentPolicy;
 
     /**
-     * Enables JDK sandbox via {@link OgnlSecurityManager} for user's invoking methods body execution.
+     * Enables JDK sandbox via {@link OgnlDefaultSecurityManager} for user's invoking methods body execution.
      *
      * <p> Note: Due to potential performance and concurrency issues, try this only if you afraid your app can have an
      * unknown "expression injection" flaw or you afraid you cannot prevent those in your app's internal sandbox
@@ -36,8 +36,8 @@ public class MethodBodyExecutionSandbox {
      * execution finished.</p>
      *
      * @param permissions further Permissions or pass <code>null</code> to use minimum required permissions
-     * @param policy your own one or pass <code>null</code> to use {@link OgnlPolicy}
-     * @param securityManager your own one or pass <code>null</code> to use {@link OgnlSecurityManager}
+     * @param policy your own one or pass <code>null</code> to use {@link OgnlDefaultPolicy}
+     * @param securityManager your own one or pass <code>null</code> to use {@link OgnlDefaultSecurityManager}
      *
      * @since 3.1.23
      */
@@ -129,13 +129,13 @@ public class MethodBodyExecutionSandbox {
                 return false;
             }
             try {
-                Policy.setPolicy(userDemandPolicy == null ? new OgnlPolicy(parentPolicy, userDemandPermissions) : userDemandPolicy);
+                Policy.setPolicy(userDemandPolicy == null ? new OgnlDefaultPolicy(parentPolicy, userDemandPermissions) : userDemandPolicy);
             } catch (SecurityException ex) {
                 // user has applied a policy that doesn't allow setPolicy so we have to honor user's sandbox
                 return false;
             }
             try {
-                System.setSecurityManager(userDemandSecurityManager == null ? new OgnlSecurityManager(parentSecurityManager)
+                System.setSecurityManager(userDemandSecurityManager == null ? new OgnlDefaultSecurityManager(parentSecurityManager)
                         : userDemandSecurityManager);
             } catch (SecurityException ex) {
                 // user has applied a policy that doesn't allow setSecurityManager so we have to restore previous
