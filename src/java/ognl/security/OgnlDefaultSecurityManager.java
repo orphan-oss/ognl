@@ -3,45 +3,44 @@ package ognl.security;
 import ognl.OgnlRuntime;
 
 import java.io.FileDescriptor;
-import java.lang.reflect.ReflectPermission;
 import java.net.InetAddress;
+import java.security.AccessControlException;
 import java.security.Permission;
 
 /**
- * Wraps current security manager with sensitive actions e.g. exit and exec disabled if is inside OgnlRuntime
+ * Wraps current security manager with all actions disabled if is inside OgnlRuntime
  * @author Yasser Zamani
  * @since 3.1.23
  */
-public class OgnlDefaultSecurityManager extends SecurityManager {
+final class OgnlDefaultSecurityManager extends SecurityManager {
     private SecurityManager parentSecurityManager;
 
     OgnlDefaultSecurityManager(SecurityManager parentSecurityManager) {
         this.parentSecurityManager = parentSecurityManager;
     }
 
-    private boolean isInsideSandbox() {
+    private boolean isAccessDenied() {
         Class[] classContext = getClassContext();
+        boolean isInsideUserMethod = false;
+        boolean isInsideMySelfOrJDK = true;
+        ClassLoader systemClassLoader = "".getClass().getClassLoader();
         for (int i = 2; i < classContext.length; i++) {
+            if (isInsideMySelfOrJDK && !MethodBodyExecutionSandbox.class.equals(classContext[i - 2])
+                    && !OgnlDefaultSecurityManager.class.equals(classContext[i - 2])
+                    && systemClassLoader != classContext[i - 2].getClassLoader()) {
+                isInsideMySelfOrJDK = false;
+            }
             if (OgnlRuntime.class.equals(classContext[i]) && MethodBodyExecutionSandbox.class.equals(classContext[i - 1])
                     && /*not sandbox calling itself*/!MethodBodyExecutionSandbox.class.equals(classContext[i - 2])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isInsideJDK() {
-        Class[] classContext = getClassContext();
-        for (int i = 2; i < classContext.length; i++) {
-            if (MethodBodyExecutionSandbox.class.equals(classContext[i])) {
+                isInsideUserMethod = true;
                 break;
             }
-            ClassLoader systemClassLoader = "".getClass().getClassLoader();
-            if (systemClassLoader != classContext[i].getClassLoader()) {
-                return false;
-            }
         }
-        return true;
+        return !isInsideMySelfOrJDK && isInsideUserMethod;
+    }
+
+    private void accessDeny(Permission perm) {
+        throw new AccessControlException("OgnlRuntime access denied "+ perm, perm);
     }
 
     @Override
@@ -49,13 +48,8 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkPermission(perm);
         }
-        if (isInsideSandbox()) {
-            if (perm instanceof ReflectPermission && "suppressAccessChecks".equals(perm.getName())) {
-                if (isInsideJDK()) {
-                    return;
-                }
-            }
-            super.checkPermission(perm);
+        if (isAccessDenied()) {
+            accessDeny(perm);
         }
     }
 
@@ -64,8 +58,8 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkPermission(perm, context);
         }
-        if (isInsideSandbox()) {
-            super.checkPermission(perm, context);
+        if (isAccessDenied()) {
+            accessDeny(perm);
         }
     }
 
@@ -74,6 +68,9 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkCreateClassLoader();
         }
+        if (isAccessDenied()) {
+            super.checkCreateClassLoader();
+        }
     }
 
     @Override
@@ -81,7 +78,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkAccess(t);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkAccess(t);
         }
     }
@@ -91,7 +88,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkAccess(g);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkAccess(g);
         }
     }
@@ -101,7 +98,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkExit(status);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkExit(status);
         }
     }
@@ -111,7 +108,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkExec(cmd);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkExec(cmd);
         }
     }
@@ -121,12 +118,18 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkLink(lib);
         }
+        if (isAccessDenied()) {
+            super.checkLink(lib);
+        }
     }
 
     @Override
     public void checkRead(FileDescriptor fd) {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkRead(fd);
+        }
+        if (isAccessDenied()) {
+            super.checkRead(fd);
         }
     }
 
@@ -135,12 +138,18 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkRead(file);
         }
+        if (isAccessDenied()) {
+            super.checkRead(file);
+        }
     }
 
     @Override
     public void checkRead(String file, Object context) {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkRead(file, context);
+        }
+        if (isAccessDenied()) {
+            super.checkRead(file, context);
         }
     }
 
@@ -149,12 +158,18 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkWrite(fd);
         }
+        if (isAccessDenied()) {
+            super.checkWrite(fd);
+        }
     }
 
     @Override
     public void checkWrite(String file) {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkWrite(file);
+        }
+        if (isAccessDenied()) {
+            super.checkWrite(file);
         }
     }
 
@@ -163,6 +178,9 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkDelete(file);
         }
+        if (isAccessDenied()) {
+            super.checkDelete(file);
+        }
     }
 
     @Override
@@ -170,7 +188,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkConnect(host, port);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkConnect(host, port);
         }
     }
@@ -180,7 +198,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkConnect(host, port, context);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkConnect(host, port, context);
         }
     }
@@ -190,7 +208,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkListen(port);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkListen(port);
         }
     }
@@ -200,7 +218,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkAccept(host, port);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkAccept(host, port);
         }
     }
@@ -210,7 +228,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkMulticast(maddr);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkMulticast(maddr);
         }
     }
@@ -220,7 +238,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkMulticast(maddr, ttl);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkMulticast(maddr, ttl);
         }
     }
@@ -230,12 +248,18 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkPropertiesAccess();
         }
+        if (isAccessDenied()) {
+            super.checkPropertiesAccess();
+        }
     }
 
     @Override
     public void checkPropertyAccess(String key) {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkPropertyAccess(key);
+        }
+        if (isAccessDenied()) {
+            super.checkPropertyAccess(key);
         }
     }
 
@@ -244,7 +268,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             return parentSecurityManager.checkTopLevelWindow(window);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             return super.checkTopLevelWindow(window);
         }
         return true;
@@ -255,7 +279,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkPrintJobAccess();
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkPrintJobAccess();
         }
     }
@@ -265,7 +289,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkSystemClipboardAccess();
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkSystemClipboardAccess();
         }
     }
@@ -275,7 +299,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkAwtEventQueueAccess();
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkAwtEventQueueAccess();
         }
     }
@@ -285,7 +309,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkPackageAccess(pkg);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             if (pkg.startsWith("ognl.security")) {
                 throw new SecurityException("Access to ognl.security via OgnlRuntime denied!");
             }
@@ -297,10 +321,11 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkPackageDefinition(pkg);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             if (pkg.startsWith("ognl.security")) {
                 throw new SecurityException("Access to ognl.security via OgnlRuntime denied!");
             }
+            super.checkPackageDefinition(pkg);
         }
     }
 
@@ -309,7 +334,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkSetFactory();
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkSetFactory();
         }
     }
@@ -319,6 +344,9 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkMemberAccess(clazz, which);
         }
+        if (isAccessDenied()) {
+            super.checkMemberAccess(clazz, which);
+        }
     }
 
     @Override
@@ -326,7 +354,7 @@ public class OgnlDefaultSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkSecurityAccess(target);
         }
-        if (isInsideSandbox()) {
+        if (isAccessDenied()) {
             super.checkSecurityAccess(target);
         }
     }

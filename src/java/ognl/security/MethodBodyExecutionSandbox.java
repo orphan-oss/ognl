@@ -2,9 +2,6 @@ package ognl.security;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.Permissions;
-import java.security.Policy;
-import java.security.SecurityPermission;
 
 /**
  * Guarantee a singleton shared thread-safe security manager and sandbox for user's methods body execution
@@ -12,15 +9,11 @@ import java.security.SecurityPermission;
  * @since 3.1.23
  */
 public class MethodBodyExecutionSandbox {
-    private static Permissions userDemandPermissions;
-    private static Policy userDemandPolicy;
-    private static SecurityManager userDemandSecurityManager;
     private static boolean enabled;
     private static boolean disabled;
-    private static Integer residentsCount = 0;
+    private static int residentsCount = 0;
 
     private static SecurityManager parentSecurityManager;
-    private static Policy parentPolicy;
 
     /**
      * Enables JDK sandbox via {@link OgnlDefaultSecurityManager} for user's invoking methods body execution.
@@ -35,24 +28,15 @@ public class MethodBodyExecutionSandbox {
      * also honors previous security manager and policies if any set, as parent, and rolls back to them after method
      * execution finished.</p>
      *
-     * @param permissions further Permissions or pass <code>null</code> to use minimum required permissions
-     * @param policy your own one or pass <code>null</code> to use {@link OgnlDefaultPolicy}
-     * @param securityManager your own one or pass <code>null</code> to use {@link OgnlDefaultSecurityManager}
-     *
      * @since 3.1.23
      */
-    public static void enable(Permissions permissions, Policy policy, SecurityManager securityManager) {
+    public static void enable() {
         SecurityManager sm = System.getSecurityManager();
 
         if (sm != null) {
-            sm.checkPermission(new SecurityPermission("getPolicy"));
-            sm.checkPermission(new SecurityPermission("setPolicy"));
             sm.checkPermission(new RuntimePermission("setSecurityManager"));
         }
 
-        userDemandPermissions = permissions;
-        userDemandPolicy = policy;
-        userDemandSecurityManager = securityManager;
         enabled = true;
         disabled = false;
     }
@@ -61,7 +45,6 @@ public class MethodBodyExecutionSandbox {
         SecurityManager sm = System.getSecurityManager();
 
         if (sm != null) {
-            sm.checkPermission(new SecurityPermission("setPolicy"));
             sm.checkPermission(new RuntimePermission("setSecurityManager"));
         }
 
@@ -113,46 +96,27 @@ public class MethodBodyExecutionSandbox {
     }
     
     private static boolean installSandboxIntoJVM() {
-        // try to synchronize with potential other external policy appliers
-        synchronized (Policy.class) {
-            parentSecurityManager = System.getSecurityManager();
+        parentSecurityManager = System.getSecurityManager();
 
-            try {
-                if (parentSecurityManager != null) {
-                    parentSecurityManager.checkPermission(new SecurityPermission("getPolicy"));
-                    parentSecurityManager.checkPermission(new SecurityPermission("setPolicy"));
-                    parentSecurityManager.checkPermission(new RuntimePermission("setSecurityManager"));
-                }
-                parentPolicy = Policy.getPolicy();
-            } catch (SecurityException ex) {
-                // user has applied a policy that doesn't allow getPolicy so we have to honor user's sandbox
-                return false;
+        try {
+            if (parentSecurityManager != null) {
+                parentSecurityManager.checkPermission(new RuntimePermission("setSecurityManager"));
             }
-            try {
-                Policy.setPolicy(userDemandPolicy == null ? new OgnlDefaultPolicy(parentPolicy, userDemandPermissions) : userDemandPolicy);
-            } catch (SecurityException ex) {
-                // user has applied a policy that doesn't allow setPolicy so we have to honor user's sandbox
-                return false;
-            }
-            try {
-                System.setSecurityManager(userDemandSecurityManager == null ? new OgnlDefaultSecurityManager(parentSecurityManager)
-                        : userDemandSecurityManager);
-            } catch (SecurityException ex) {
-                // user has applied a policy that doesn't allow setSecurityManager so we have to restore previous
-                // policy and honor user's sandbox
-                Policy.setPolicy(parentPolicy);
-                return false;
-            }
+        } catch (SecurityException ex) {
+            // user has applied a policy that doesn't allow setSecurityManager so we have to honor user's sandbox
+            return false;
         }
-        
+        try {
+            System.setSecurityManager(new OgnlDefaultSecurityManager(parentSecurityManager));
+        } catch (SecurityException ex) {
+            // user has applied a policy that doesn't allow setSecurityManager so we have to honor user's sandbox
+            return false;
+        }
+
         return true;
     }
 
     private static void uninstallSandboxFromJVM() {
-        // try to synchronize with potential other external policy appliers
-        synchronized (Policy.class) {
-            Policy.setPolicy(parentPolicy);
-            System.setSecurityManager(parentSecurityManager);
-        }
+        System.setSecurityManager(parentSecurityManager);
     }
 }

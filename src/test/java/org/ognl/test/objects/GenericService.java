@@ -12,9 +12,11 @@ public interface GenericService {
 
     String getFullMessageFor(GameGenericObject game, Object...arguments);
 
-    void exec(long waitMilliseconds) throws IOException, InterruptedException;
+    void exec(long waitMilliseconds) throws InterruptedException, NoSuchMethodException, InvocationTargetException, IllegalAccessException;
 
     void disableSandboxViaReflectionByField() throws NoSuchFieldException, IllegalAccessException;
 
     void disableSandboxViaReflectionByMethod() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException;
+
+    void exit() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException;
 }

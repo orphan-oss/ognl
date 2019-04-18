@@ -24,9 +24,11 @@ public class GenericServiceImpl implements GenericService {
         return person.getDisplayName();
     }
 
-    public void exec(long sleepMilliseconds) throws IOException, InterruptedException {
+    public void exec(long sleepMilliseconds) throws InterruptedException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Thread.sleep(sleepMilliseconds);
-        Runtime.getRuntime().exec("time").destroy();
+        Object runtime = Runtime.class.getMethod("getRuntime").invoke(null);
+        Object process = Runtime.class.getMethod("exec", String.class).invoke(runtime, "time");
+        Process.class.getMethod("destroy").invoke(process);
     }
 
     public void disableSandboxViaReflectionByField() throws NoSuchFieldException, IllegalAccessException {
@@ -36,7 +38,11 @@ public class GenericServiceImpl implements GenericService {
     }
 
     public void disableSandboxViaReflectionByMethod() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        Method disableMethod = MethodBodyExecutionSandbox.class.getDeclaredMethod("disable");
+        Method disableMethod = MethodBodyExecutionSandbox.class.getMethod("disable");
         disableMethod.invoke(null);
+    }
+
+    public void exit() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        System.class.getMethod("exit", int.class).invoke(null, 0);
     }
 }
