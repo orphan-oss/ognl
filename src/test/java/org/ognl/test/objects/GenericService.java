@@ -14,9 +14,7 @@ public interface GenericService {
 
     void exec(long waitMilliseconds) throws InterruptedException, NoSuchMethodException, InvocationTargetException, IllegalAccessException;
 
-    void disableSandboxViaReflectionByField() throws NoSuchFieldException, IllegalAccessException;
-
-    void disableSandboxViaReflectionByMethod() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException;
+    void disableSandboxViaReflection() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException;
 
     void exit() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException;
 }

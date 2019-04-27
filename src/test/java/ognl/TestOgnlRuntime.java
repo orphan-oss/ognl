@@ -1,7 +1,6 @@
 package ognl;
 
 import junit.framework.TestCase;
-import ognl.security.MethodBodyExecutionSandbox;
 import org.ognl.test.objects.*;
 
 import java.beans.PropertyDescriptor;
@@ -187,7 +186,7 @@ public class TestOgnlRuntime extends TestCase {
         Object[] args = OgnlRuntime.getObjectArrayPool().create(1);
         args[0] = 0;
 
-        MethodBodyExecutionSandbox.enable();
+        System.setProperty("ognl.security.manager", "");
 
         try {
             OgnlRuntime.callMethod(context, service, "exec", args);
@@ -196,7 +195,7 @@ public class TestOgnlRuntime extends TestCase {
             assertTrue(ex.getCause() instanceof InvocationTargetException);
             assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("execute"));
         } finally {
-            MethodBodyExecutionSandbox.disable();
+            System.clearProperty("ognl.security.manager");
         }
     }
 
@@ -205,7 +204,7 @@ public class TestOgnlRuntime extends TestCase {
         final OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
         final GenericService service = new GenericServiceImpl();
 
-        MethodBodyExecutionSandbox.enable();
+        System.setProperty("ognl.security.manager", "");
 
         try {
             final int NUM_THREADS = 100;
@@ -255,7 +254,7 @@ public class TestOgnlRuntime extends TestCase {
             assertTrue(exec.isTerminated());
             assertEquals(0, numThreadsFailedTest.get());
         } finally {
-            MethodBodyExecutionSandbox.disable();
+            System.clearProperty("ognl.security.manager");
         }
     }
 
@@ -266,29 +265,16 @@ public class TestOgnlRuntime extends TestCase {
 
         Object[] args = OgnlRuntime.getObjectArrayPool().create(0);
 
-        MethodBodyExecutionSandbox.enable();
+        System.setProperty("ognl.security.manager", "");
 
         try {
-            OgnlRuntime.callMethod(context, service, "disableSandboxViaReflectionByField", args);
+            OgnlRuntime.callMethod(context, service, "disableSandboxViaReflection", args);
             fail("JDK sandbox should block execution");
         } catch (Exception ex) {
-            assertTrue(ex.getCause() instanceof SecurityException);
-            assertTrue(ex.getCause().getMessage().contains("accessDeclaredMembers") ||
-                    ex.getCause().getMessage().contains("suppressAccessChecks"));
+            assertTrue(ex.getCause() instanceof InvocationTargetException);
+            assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("ognl.security.manager"));
         } finally {
-            MethodBodyExecutionSandbox.disable();
-        }
-
-        MethodBodyExecutionSandbox.enable();
-
-        try {
-            OgnlRuntime.callMethod(context, service, "disableSandboxViaReflectionByMethod", args);
-            fail("JDK sandbox should block execution");
-        } catch (Exception ex) {
-            assertTrue(ex.getCause() instanceof InvocationTargetException &&
-                            ((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("setSecurityManager"));
-        } finally {
-            MethodBodyExecutionSandbox.disable();
+            System.clearProperty("ognl.security.manager");
         }
     }
 
@@ -299,7 +285,7 @@ public class TestOgnlRuntime extends TestCase {
 
         Object[] args = OgnlRuntime.getObjectArrayPool().create(0);
 
-        MethodBodyExecutionSandbox.enable();
+        System.setProperty("ognl.security.manager", "");
 
         try {
             OgnlRuntime.callMethod(context, service, "exit", args);
@@ -308,7 +294,7 @@ public class TestOgnlRuntime extends TestCase {
             assertTrue(ex.getCause() instanceof InvocationTargetException);
             assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("exit"));
         } finally {
-            MethodBodyExecutionSandbox.disable();
+            System.clearProperty("ognl.security.manager");
         }
     }
 

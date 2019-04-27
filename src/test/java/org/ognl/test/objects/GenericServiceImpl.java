@@ -1,9 +1,5 @@
 package org.ognl.test.objects;
 
-import ognl.security.MethodBodyExecutionSandbox;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -31,15 +27,9 @@ public class GenericServiceImpl implements GenericService {
         Process.class.getMethod("destroy").invoke(process);
     }
 
-    public void disableSandboxViaReflectionByField() throws NoSuchFieldException, IllegalAccessException {
-        Field disabledField = MethodBodyExecutionSandbox.class.getDeclaredField("disabled");
-        disabledField.setAccessible(true);
-        disabledField.set(null, true);
-    }
-
-    public void disableSandboxViaReflectionByMethod() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        Method disableMethod = MethodBodyExecutionSandbox.class.getMethod("disable");
-        disableMethod.invoke(null);
+    public void disableSandboxViaReflection() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        Method clearPropertyMethod = System.class.getMethod("clearProperty", String.class);
+        clearPropertyMethod.invoke(null, "ognl.security.manager");
     }
 
     public void exit() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
