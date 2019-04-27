@@ -29,12 +29,10 @@ public class MethodBodyExecutionSandbox {
     public static Object executeMethodBody(Object target, Method method, Object[] argsArray) throws InvocationTargetException,
             IllegalAccessException {
         
-        if (System.getProperty("ognl.security.manager") == null) {
-            // isn't enabled so simply just invoke the method outside sandbox
+        if (!enter()) {
+            // isn't enabled or cannot installed due to current security manager policy
             return method.invoke(target, argsArray);
         }
-
-        enter();
 
         try {
             return method.invoke(target, argsArray);
@@ -43,15 +41,21 @@ public class MethodBodyExecutionSandbox {
         }
     }
 
-    private static void enter() {
+    private static boolean enter() {
         synchronized (MethodBodyExecutionSandbox.class) {
             if (residentsCount == 0) {
+                if (System.getProperty("ognl.security.manager") == null) {
+                    // isn't enabled so simply just invoke the method outside sandbox
+                    return false;
+                }
                 if (installSandboxIntoJVM()) {
                     residentsCount++;
+                    return true;
                 }
             } else {
                 residentsCount++;
             }
+            return true;
         }
     }
 

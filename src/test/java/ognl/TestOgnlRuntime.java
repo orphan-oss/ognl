@@ -186,7 +186,13 @@ public class TestOgnlRuntime extends TestCase {
         Object[] args = OgnlRuntime.getObjectArrayPool().create(1);
         args[0] = 0;
 
-        System.setProperty("ognl.security.manager", "");
+        boolean temporaryEnabled = false;
+        try {
+            System.setProperty("ognl.security.manager", "");
+            temporaryEnabled = true;
+        } catch (Exception ignore) {
+            // already enabled
+        }
 
         try {
             OgnlRuntime.callMethod(context, service, "exec", args);
@@ -195,7 +201,9 @@ public class TestOgnlRuntime extends TestCase {
             assertTrue(ex.getCause() instanceof InvocationTargetException);
             assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("execute"));
         } finally {
-            System.clearProperty("ognl.security.manager");
+            if (temporaryEnabled) {
+                System.clearProperty("ognl.security.manager");
+            }
         }
     }
 
@@ -204,11 +212,17 @@ public class TestOgnlRuntime extends TestCase {
         final OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
         final GenericService service = new GenericServiceImpl();
 
-        System.setProperty("ognl.security.manager", "");
+        boolean temporaryEnabled = false;
+        try {
+            System.setProperty("ognl.security.manager", "");
+            temporaryEnabled = true;
+        } catch (Exception ignore) {
+            // already enabled
+        }
 
         try {
-            final int NUM_THREADS = 100;
-            final int MAX_WAIT_MS = 300;
+            final int NUM_THREADS = 10;
+            final int MAX_WAIT_MS = 30;
             ExecutorService exec = Executors.newFixedThreadPool(NUM_THREADS);
             final CountDownLatch allThreadsWaitOnThis = new CountDownLatch(1);
             final AtomicInteger numThreadsFailedTest = new AtomicInteger(0);
@@ -254,7 +268,9 @@ public class TestOgnlRuntime extends TestCase {
             assertTrue(exec.isTerminated());
             assertEquals(0, numThreadsFailedTest.get());
         } finally {
-            System.clearProperty("ognl.security.manager");
+            if (temporaryEnabled) {
+                System.clearProperty("ognl.security.manager");
+            }
         }
     }
 
@@ -265,7 +281,13 @@ public class TestOgnlRuntime extends TestCase {
 
         Object[] args = OgnlRuntime.getObjectArrayPool().create(0);
 
-        System.setProperty("ognl.security.manager", "");
+        boolean temporaryEnabled = false;
+        try {
+            System.setProperty("ognl.security.manager", "");
+            temporaryEnabled = true;
+        } catch (Exception ignore) {
+            // already enabled
+        }
 
         try {
             OgnlRuntime.callMethod(context, service, "disableSandboxViaReflection", args);
@@ -273,8 +295,11 @@ public class TestOgnlRuntime extends TestCase {
         } catch (Exception ex) {
             assertTrue(ex.getCause() instanceof InvocationTargetException);
             assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("ognl.security.manager"));
+            assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("write"));
         } finally {
-            System.clearProperty("ognl.security.manager");
+            if (temporaryEnabled) {
+                System.clearProperty("ognl.security.manager");
+            }
         }
     }
 
@@ -285,7 +310,13 @@ public class TestOgnlRuntime extends TestCase {
 
         Object[] args = OgnlRuntime.getObjectArrayPool().create(0);
 
-        System.setProperty("ognl.security.manager", "");
+        boolean temporaryEnabled = false;
+        try {
+            System.setProperty("ognl.security.manager", "");
+            temporaryEnabled = true;
+        } catch (Exception ignore) {
+            // already enabled
+        }
 
         try {
             OgnlRuntime.callMethod(context, service, "exit", args);
@@ -294,7 +325,9 @@ public class TestOgnlRuntime extends TestCase {
             assertTrue(ex.getCause() instanceof InvocationTargetException);
             assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("exit"));
         } finally {
-            System.clearProperty("ognl.security.manager");
+            if (temporaryEnabled) {
+                System.clearProperty("ognl.security.manager");
+            }
         }
     }
 

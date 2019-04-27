@@ -22,21 +22,14 @@ final class OgnlDefaultSecurityManager extends SecurityManager {
     private boolean isAccessDenied() {
         Class[] classContext = getClassContext();
         boolean isInsideUserMethod = false;
-        boolean isInsideMySelfOrJDK = true;
-        ClassLoader systemClassLoader = "".getClass().getClassLoader();
         for (int i = 2; i < classContext.length; i++) {
-            if (isInsideMySelfOrJDK && !MethodBodyExecutionSandbox.class.equals(classContext[i - 2])
-                    && !OgnlDefaultSecurityManager.class.equals(classContext[i - 2])
-                    && systemClassLoader != classContext[i - 2].getClassLoader()) {
-                isInsideMySelfOrJDK = false;
-            }
             if (OgnlRuntime.class.equals(classContext[i]) && MethodBodyExecutionSandbox.class.equals(classContext[i - 1])
                     && /*not sandbox calling itself*/!MethodBodyExecutionSandbox.class.equals(classContext[i - 2])) {
                 isInsideUserMethod = true;
                 break;
             }
         }
-        return !isInsideMySelfOrJDK && isInsideUserMethod;
+        return isInsideUserMethod;
     }
 
     private void accessDeny(Permission perm) {
