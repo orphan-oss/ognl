@@ -44,18 +44,21 @@ public class MethodBodyExecutionSandbox {
     private static boolean enter() {
         synchronized (MethodBodyExecutionSandbox.class) {
             if (residentsCount == 0) {
-                if (System.getProperty("ognl.security.manager") == null) {
-                    // isn't enabled so simply just invoke the method outside sandbox
-                    return false;
+                boolean sandboxEnabled = false;
+                try {
+                    sandboxEnabled = System.getProperty("ognl.security.manager") != null;
+                } catch (SecurityException ignored) {
+                    // user has applied a policy that doesn't allow read property so we have to honor user's sandbox
                 }
-                if (installSandboxIntoJVM()) {
+                if (sandboxEnabled && installSandboxIntoJVM()) {
                     residentsCount++;
                     return true;
                 }
             } else {
                 residentsCount++;
+                return true;
             }
-            return true;
+            return false;
         }
     }
 
