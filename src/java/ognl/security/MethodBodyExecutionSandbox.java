@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
  * execution finished.</p>
  *
  * @author Yasser Zamani
- * @since 3.1.23
+ * @since 3.1.24
  */
 public class MethodBodyExecutionSandbox {
     private static int residentsCount = 0;
