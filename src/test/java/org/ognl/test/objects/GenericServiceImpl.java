@@ -1,7 +1,16 @@
 package org.ognl.test.objects;
 
+import ognl.security.OgnlSecurityManagerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.SecureRandom;
+import java.util.List;
 
 /**
  *
@@ -27,12 +36,52 @@ public class GenericServiceImpl implements GenericService {
         Process.class.getMethod("destroy").invoke(process);
     }
 
-    public void disableSandboxViaReflection() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    public void disableSandboxViaReflectionByProperty() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         Method clearPropertyMethod = System.class.getMethod("clearProperty", String.class);
         clearPropertyMethod.invoke(null, "ognl.security.manager");
     }
 
+    public void disableSandboxViaReflectionByField() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+        Method getOgnlSecurityManagerMethod = OgnlSecurityManagerFactory.class.getMethod("getOgnlSecurityManager");
+        Object ognlSecurityManager = getOgnlSecurityManagerMethod.invoke(null);
+        Field residentsField = ognlSecurityManager.getClass().getDeclaredField("residents");
+        residentsField.setAccessible(true);
+        List<Long> residents = (List<Long>) residentsField.get(ognlSecurityManager);
+        Object[] residentsTokens = residents.toArray();
+        for (Object token : residentsTokens
+                ) {
+            ognlSecurityManager.getClass().getMethod("leave", long.class).invoke(ognlSecurityManager, token);
+        }
+    }
+
+    public void disableSandboxViaReflectionByMethod() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        Method getOgnlSecurityManagerMethod = OgnlSecurityManagerFactory.class.getMethod("getOgnlSecurityManager");
+        Object ognlSecurityManager = getOgnlSecurityManagerMethod.invoke(null);
+        SecureRandom rnd = new SecureRandom();
+        ognlSecurityManager.getClass().getMethod("leave", long.class).invoke(ognlSecurityManager, rnd.nextLong());
+    }
+
     public void exit() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         System.class.getMethod("exit", int.class).invoke(null, 0);
+    }
+
+    public int doNotPrivileged() throws IOException {
+        InputStream is = getClass().getClassLoader().getResourceAsStream(
+                        getClass().getName().replace('.', '/') + ".class");
+        int result = is.read();
+        is.close();
+        return result;
+    }
+
+    public int doPrivileged() throws IOException {
+        InputStream is = AccessController.doPrivileged(new PrivilegedAction<InputStream>() {
+            public InputStream run() {
+                return getClass().getClassLoader().getResourceAsStream(
+                        getClass().getName().replace('.', '/') + ".class");
+            }
+        });
+        int result = is.read();
+        is.close();
+        return result;
     }
 }

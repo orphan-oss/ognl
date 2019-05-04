@@ -34,7 +34,8 @@ import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
 import ognl.internal.ClassCache;
 import ognl.internal.ClassCacheImpl;
-import ognl.security.MethodBodyExecutionSandbox;
+import ognl.security.OgnlSandbox;
+import ognl.security.OgnlSecurityManagerFactory;
 
 import java.beans.*;
 import java.lang.reflect.*;
@@ -889,7 +890,7 @@ public class OgnlRuntime {
 
                 ((AccessibleObject) method).setAccessible(true);
                 try {
-                    result = MethodBodyExecutionSandbox.executeMethodBody(target, method, argsArray);
+                    result = invokeMethodInsideSandbox(target, method, argsArray);
                 } finally {
                     ((AccessibleObject) method).setAccessible(false);
                 }
@@ -906,10 +907,45 @@ public class OgnlRuntime {
                 }
             }
 
-            result = MethodBodyExecutionSandbox.executeMethodBody(target, method, argsArray);
+            result = invokeMethodInsideSandbox(target, method, argsArray);
         }
 
         return result;
+    }
+
+    private static Object invokeMethodInsideSandbox(Object target, Method method, Object[] argsArray)
+            throws InvocationTargetException, IllegalAccessException {
+
+        try {
+            if (System.getProperty("ognl.security.manager") == null) {
+                return method.invoke(target, argsArray);
+            }
+        } catch (SecurityException ignored) {
+            // already enabled or user has applied a policy that doesn't allow read property so we have to honor user's sandbox
+        }
+
+        Object ognlSecurityManager = OgnlSecurityManagerFactory.getOgnlSecurityManager();
+
+        Long token;
+        try {
+            token = (Long) ognlSecurityManager.getClass().getMethod("enter").invoke(ognlSecurityManager);
+        } catch (NoSuchMethodException e) {
+            throw new InvocationTargetException(e);
+        }
+        if (token == null) {
+            // user has applied a policy that doesn't allow setSecurityManager so we have to honor user's sandbox
+            return method.invoke(target, argsArray);
+        }
+
+        try {
+            return OgnlSandbox.executeMethodBody(target, method, argsArray);
+        } finally {
+            try {
+                ognlSecurityManager.getClass().getMethod("leave", long.class).invoke(ognlSecurityManager, token);
+            } catch (NoSuchMethodException e) {
+                throw new InvocationTargetException(e);
+            }
+        }
     }
 
     /**

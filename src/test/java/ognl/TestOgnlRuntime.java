@@ -221,8 +221,8 @@ public class TestOgnlRuntime extends TestCase {
         }
 
         try {
-            final int NUM_THREADS = 10;
-            final int MAX_WAIT_MS = 30;
+            final int NUM_THREADS = 100;
+            final int MAX_WAIT_MS = 300;
             ExecutorService exec = Executors.newFixedThreadPool(NUM_THREADS);
             final CountDownLatch allThreadsWaitOnThis = new CountDownLatch(1);
             final AtomicInteger numThreadsFailedTest = new AtomicInteger(0);
@@ -262,9 +262,9 @@ public class TestOgnlRuntime extends TestCase {
             allThreadsWaitOnThis.countDown();
 
             // wait for them all to finish
-            Thread.sleep(MAX_WAIT_MS * 2);
+            Thread.sleep(MAX_WAIT_MS * 3);
             exec.shutdown();
-            exec.awaitTermination(MAX_WAIT_MS * 2, TimeUnit.MILLISECONDS);
+            exec.awaitTermination(MAX_WAIT_MS * 3, TimeUnit.MILLISECONDS);
             assertTrue(exec.isTerminated());
             assertEquals(0, numThreadsFailedTest.get());
         } finally {
@@ -290,12 +290,52 @@ public class TestOgnlRuntime extends TestCase {
         }
 
         try {
-            OgnlRuntime.callMethod(context, service, "disableSandboxViaReflection", args);
+            OgnlRuntime.callMethod(context, service, "disableSandboxViaReflectionByProperty", args);
             fail("JDK sandbox should block execution");
         } catch (Exception ex) {
             assertTrue(ex.getCause() instanceof InvocationTargetException);
             assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("ognl.security.manager"));
             assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("write"));
+        } finally {
+            if (temporaryEnabled) {
+                System.clearProperty("ognl.security.manager");
+            }
+        }
+
+        temporaryEnabled = false;
+        try {
+            System.setProperty("ognl.security.manager", "");
+            temporaryEnabled = true;
+        } catch (Exception ignore) {
+            // already enabled
+        }
+
+        try {
+            OgnlRuntime.callMethod(context, service, "disableSandboxViaReflectionByField", args);
+            fail("JDK sandbox should block execution");
+        } catch (Exception ex) {
+            assertTrue(ex.getCause().getMessage().contains("accessDeclaredMembers"));
+        } finally {
+            if (temporaryEnabled) {
+                System.clearProperty("ognl.security.manager");
+            }
+        }
+
+        temporaryEnabled = false;
+        try {
+            System.setProperty("ognl.security.manager", "");
+            temporaryEnabled = true;
+        } catch (Exception ignore) {
+            // already enabled
+        }
+
+        try {
+            OgnlRuntime.callMethod(context, service, "disableSandboxViaReflectionByMethod", args);
+            fail("JDK sandbox should block execution");
+        } catch (Exception ex) {
+            assertTrue(ex.getCause() instanceof InvocationTargetException);
+            assertTrue(((InvocationTargetException)ex.getCause()).getTargetException() instanceof SecurityException);
+            assertNull(((InvocationTargetException)ex.getCause()).getTargetException().getMessage());
         } finally {
             if (temporaryEnabled) {
                 System.clearProperty("ognl.security.manager");
@@ -324,6 +364,51 @@ public class TestOgnlRuntime extends TestCase {
         } catch (Exception ex) {
             assertTrue(ex.getCause() instanceof InvocationTargetException);
             assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("exit"));
+        } finally {
+            if (temporaryEnabled) {
+                System.clearProperty("ognl.security.manager");
+            }
+        }
+    }
+
+    public void test_Call_Method_In_JDK_Sandbox_Privileged()
+            throws Exception {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        GenericService service = new GenericServiceImpl();
+
+        Object[] args = OgnlRuntime.getObjectArrayPool().create(0);
+
+        boolean temporaryEnabled = false;
+        try {
+            System.setProperty("ognl.security.manager", "");
+            temporaryEnabled = true;
+        } catch (Exception ignore) {
+            // already enabled
+        }
+
+        try {
+            OgnlRuntime.callMethod(context, service, "doNotPrivileged", args);
+            fail("JDK sandbox should block execution");
+        } catch (Exception ex) {
+            assertTrue(ex.getCause() instanceof NullPointerException);
+        } finally {
+            if (temporaryEnabled) {
+                System.clearProperty("ognl.security.manager");
+            }
+        }
+
+        temporaryEnabled = false;
+        try {
+            System.setProperty("ognl.security.manager", "");
+            temporaryEnabled = true;
+        } catch (Exception ignore) {
+            // already enabled
+        }
+
+        try {
+            Object result = OgnlRuntime.callMethod(context, service, "doPrivileged", args);
+            assertNotNull(result);
+            assertNotSame(-1, result);
         } finally {
             if (temporaryEnabled) {
                 System.clearProperty("ognl.security.manager");
