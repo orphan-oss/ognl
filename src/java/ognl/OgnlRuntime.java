@@ -34,14 +34,14 @@ import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
 import ognl.internal.ClassCache;
 import ognl.internal.ClassCacheImpl;
-import ognl.security.OgnlSandbox;
 import ognl.security.OgnlSecurityManagerFactory;
+import ognl.security.UserMethod;
 
 import java.beans.*;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.security.Permission;
+import java.security.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -924,6 +924,12 @@ public class OgnlRuntime {
             // already enabled or user has applied a policy that doesn't allow read property so we have to honor user's sandbox
         }
 
+        // creating object before entering sandbox to load classes out of the sandbox
+        UserMethod userMethod = new UserMethod(target, method, argsArray);
+        Permissions p = new Permissions(); // not any permission
+        ProtectionDomain pd = new ProtectionDomain(null, p);
+        AccessControlContext acc = new AccessControlContext(new ProtectionDomain[]{pd});
+
         Object ognlSecurityManager = OgnlSecurityManagerFactory.getOgnlSecurityManager();
 
         Long token;
@@ -937,8 +943,14 @@ public class OgnlRuntime {
             return method.invoke(target, argsArray);
         }
 
+        // execute user method body with all permissions denied
         try {
-            return OgnlSandbox.executeMethodBody(target, method, argsArray);
+            return AccessController.doPrivileged(userMethod, acc);
+        } catch (PrivilegedActionException e) {
+            if (e.getException() instanceof InvocationTargetException) {
+                throw (InvocationTargetException) e.getException();
+            }
+            throw new InvocationTargetException(e);
         } finally {
             try {
                 ognlSecurityManager.getClass().getMethod("leave", long.class).invoke(ognlSecurityManager, token);

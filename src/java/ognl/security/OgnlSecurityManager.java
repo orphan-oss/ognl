@@ -23,7 +23,7 @@ import java.util.List;
  * @since 3.1.24
  */
 public class OgnlSecurityManager extends SecurityManager {
-    private static final String OGNL_SANDBOX_CLASS_NAME = "ognl.security.OgnlSandbox";
+    private static final String OGNL_SANDBOX_CLASS_NAME = "ognl.security.UserMethod";
 
     private SecurityManager parentSecurityManager;
     private List<Long> residents = new ArrayList<Long>();
