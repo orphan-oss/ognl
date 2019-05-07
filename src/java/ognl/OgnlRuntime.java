@@ -43,6 +43,7 @@ import java.security.Permission;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 /**
  * Utility class used by internal OGNL API to do various things like:
  *
@@ -157,53 +158,6 @@ public class OgnlRuntime {
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
      */
     private static volatile OgnlExpressionCompiler _compiler;
-
-    /**
-     * Provide _securityManager reference to descendants
-     * 
-     * @return 
-     */
-    protected SecurityManager get_SecurityManager() {
-        return _securityManager;
-    }
-
-    /**
-     * Provide _methodAccessCache reference to descendants
-     * 
-     * @return 
-     */
-    protected Map<Method, Boolean> get_MethodAccessCache() {
-        return _methodAccessCache;
-    }
-
-    /**
-     * Provide _methodPermCache reference to descendants
-     * 
-     * @return 
-     */
-    protected Map<Method, Boolean> get_MethodPermCache() {
-        return _methodPermCache;
-    }
-
-    /**
-     * Delegate convention used by internal OGNL API to do allow for delegate
-     * (alternate) OgnlRuntime processing.
-     * 
-     * Convention:
-     *   The convention for delegate methods is:
-     *   1) For a method named "methodName", the delegate method name should be "delegateMethodName".
-     *   2) Descendant classes should implement ALL delegate methods as "protected".
-     *   3) Descendant classes should utilize the Singleton pattern (at most one instance exists).
-     *   4) Descendant classes class should NOT call any ancestor OgnlRuntime methods that
-     *      support delegate processing.
-     *      Note:  Violating this convention may result in unwanted recursion failures.
-     * 
-     * Optional OgnlRuntume descendant reference delegate (alternate) processing.
-     * The reference can only be set ONCE, after which further set attempts will fail.
-     *
-     * @since 3.1.24
-     */
-    private static volatile OgnlRuntime delegateOgnlRuntime = null;
 
     /**
      * Lazy loading of Javassist library
@@ -398,79 +352,29 @@ public class OgnlRuntime {
         _primitiveDefaults.put(BigDecimal.class, new BigDecimal(0.0));
     }
 
+    private static final Method INSTALL_OGNL_SECURITYMANAGER_REF;
+
     /**
-     * Check if the current Thread call stack contains an earlier call by OgnlRuntime,
-     * ignoring (not counting) the first ignoreCount+1 instances (the +1 is for this
-     * method itself).
-     * 
-     * Returns true if-and-only-if the current Thread call stack contains more than
-     * ignoreCount+1 references to OgnlRuntime.
-     * 
-     * If the Thread call stack cannot be checked, this method will throw and
-     * {@link IllegalStateException}.
-     * 
-     * Note: The caller must know and account for the expected calling sequence
-     *   for this method to be effective.
-     * 
-     * Note: This method may be EXPENSIVE, so avoid using it in frequently executed
-     *   call sequences.
-     * 
-     * @param ignoreCount 
-     * 
-     * @return 
+     * Initialize the Method reference used for OgnlSecurityManager installation.  May be used
+     *   to block usage within invokeMethod() for instance.
      */
-    protected static final boolean ognlRuntimeExceedsCallStackIgnoreCount(int ignoreCount) {
-        final StackTraceElement[] stackTraceElementArray;
-
-        if (ignoreCount < 0 ) {
-            throw new IllegalArgumentException("ognlRuntimeInThreadCallStack() does not support ignoreCount: " +
-                    ignoreCount + " ( < 0).");
-        }
+    static {
         try {
-            ignoreCount++;  // Take into account this method call itself
-            final String ognlRuntimeClassName = OgnlRuntime.class.getName();
-            int ognlRuntimeClassInStackCount = 0;
-            stackTraceElementArray = Thread.currentThread().getStackTrace();
-            for (int index = 0; index < stackTraceElementArray.length; index++) {
-                if (ognlRuntimeClassName.equals(stackTraceElementArray[index].getClassName())) {
-                    ognlRuntimeClassInStackCount++;
-                    if (ognlRuntimeClassInStackCount > ignoreCount) {
-                      return true;
-                    }
-                }
-            }
-        } catch (SecurityException se) {
-            throw new IllegalStateException("ognlRuntimeInThreadCallStack() fails when stacktrace access denied.", se);
+            INSTALL_OGNL_SECURITYMANAGER_REF = OgnlSecurityManager.class.getMethod("installOgnlSecurityManager", new Class<?>[]{SecurityManager.class, boolean.class});
+        } catch (NoSuchMethodException nsme) {
+            throw new IllegalStateException("OgnlRuntime initialization missing required method", nsme);
         }
-
-        return false;
     }
 
     /**
-     * Assign an (optional) OgnlRuntime descendant for delegate (alternate) processing.
-     * 
-     * Permits an alternate processing path for OgnlRuntime methods that have been
-     * configured to support it.
-     * 
-     * Only one assignment is permitted, subsequent attempts will fail with an Exception.
-     * Only a non-null descendant parameter is permitted, others will be rejected with an Exception.
-     * 
-     * @since 3.1.24
-     * 
-     * @param delegateOgnlRuntime 
+     * Allow the OGNL Security Manager to be installed by JVM Option (if enabled) at the
+     *   point the OgnlRuntime is instantiated.
      */
-    public static final synchronized void setDelegateOgnlRuntime(OgnlRuntime delegateOgnlRuntime) {
-        if (OgnlRuntime.delegateOgnlRuntime != null) {
-            throw new IllegalStateException("Cannot set a delegate OGNL runtime (was already previously set).");
-        } else {
-            if (delegateOgnlRuntime == null) {
-                throw new IllegalArgumentException("Cannot set a null delegate OGNL runtime.");
-            } else if (OgnlRuntime.class.equals(delegateOgnlRuntime.getClass()) ) {
-                throw new IllegalArgumentException("Cannot assign a non-descendant delegate OGNL runtime.");
-            } else if (ognlRuntimeExceedsCallStackIgnoreCount(1)) {
-                throw new IllegalStateException("Cannot assign a delegate OGNL runtime from within OGNL itself.");
-            }
-            OgnlRuntime.delegateOgnlRuntime = delegateOgnlRuntime;
+    static {
+        try {
+            OgnlSecurityManager.installOgnlSecurityManagerViaJVMOption();
+        } catch (Throwable t) {
+            // Do not care if the installation fails for any reason, do not propagate those failures.
         }
     }
 
@@ -942,11 +846,6 @@ public class OgnlRuntime {
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException
     {
-        // Perform delegate (alternative) processing when configured to do so
-        if (delegateOgnlRuntime != null) {
-            return delegateOgnlRuntime.delegateInvokeMethod(target, method, argsArray);
-        }
-
         boolean syncInvoke;
         boolean checkPermission;
         Boolean methodAccessCacheValue;
@@ -955,6 +854,17 @@ public class OgnlRuntime {
         // only synchronize method invocation if it actually requires it
 
         synchronized(method) {
+            // Disallow any methods in the deny list (only check if deny list nonempty, for JIT performance)
+            if (OgnlMethodBlocker._methodDenyList.isEmpty() == false) {
+                if (OgnlMethodBlocker._methodDenyList.get(method) != null) {
+                    throw new IllegalAccessException("Method [" + method + "] is deny listed.");
+                }
+            }
+            if (INSTALL_OGNL_SECURITYMANAGER_REF.equals(method)) {
+                // Prevent accidental enabling of OgnlSecurityManager via invokeMethod().
+                throw new IllegalAccessException("Method [" + method + "] cannot be called from within OGNL invokeMethod().");
+            }
+
             methodAccessCacheValue = _methodAccessCache.get(method);
             if (methodAccessCacheValue == null) {
                 if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
@@ -1016,9 +926,13 @@ public class OgnlRuntime {
 
                 ((AccessibleObject) method).setAccessible(true);
                 try {
+                    OgnlSecurityManager.enableForCurrentThread();
+                    OgnlSecurityManager.incrementInvocationDepthForCurrentThread();
                     result = method.invoke(target, argsArray);
                 } finally {
                     ((AccessibleObject) method).setAccessible(false);
+                    OgnlSecurityManager.decrementInvocationDepthForCurrentThread();
+                    OgnlSecurityManager.disableForCurrentThread();
                 }
             }
         } else
@@ -1033,30 +947,17 @@ public class OgnlRuntime {
                 }
             }
 
-            result = method.invoke(target, argsArray);
+            try {
+                OgnlSecurityManager.enableForCurrentThread();
+                OgnlSecurityManager.incrementInvocationDepthForCurrentThread();
+                result = method.invoke(target, argsArray);
+            } finally {
+                OgnlSecurityManager.decrementInvocationDepthForCurrentThread();
+                OgnlSecurityManager.disableForCurrentThread();
+            }
         }
 
         return result;
-    }
-
-    /**
-     * Define a delegate (alternate) mechanism that invokeMethod() can leverage for alternate
-     * processing.  This method MUST be overridden by descendant implementations.
-     * 
-     * Note: This base implementation should not be called, doing so  will result in an Exception.
-     * 
-     * @param target
-     * @param method
-     * @param argsArray
-     * 
-     * @return
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException 
-     */
-    protected Object delegateInvokeMethod(Object target, Method method, Object[] argsArray)
-            throws InvocationTargetException, IllegalAccessException
-    {
-        throw new IllegalStateException("delegateInvokeMethod not available");
     }
 
     /**

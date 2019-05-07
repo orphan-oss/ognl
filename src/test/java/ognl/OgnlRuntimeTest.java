@@ -1,8 +1,12 @@
 package ognl;
 
-import ognl.delegate.OgnlRuntimeMethodBlocking;
+import java.awt.HeadlessException;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import org.junit.Assert;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,6 +17,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 
 class GenericClass<T> {
     public void bar(final T parameter) {
@@ -101,6 +108,7 @@ class ExampleTwoMethodClass10 {
 }
 
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class OgnlRuntimeTest {
 
     private static long cumulativelRunTestElapsedNanoTime;
@@ -332,71 +340,35 @@ public class OgnlRuntimeTest {
     public void testDenyListProcessing() throws Exception {
         final Method fooMethod = DenyListStringSubclass.class.getMethod("foo", Integer.class, Date.class);
         final Method gcMethod = System.class.getMethod("gc", new Class<?>[0]);
-        final Method setDelegateMethod = OgnlRuntime.class.getMethod("setDelegateOgnlRuntime", new Class<?>[] {OgnlRuntime.class});
-        final Method addMethodToDenyList = OgnlRuntimeMethodBlocking.class.getMethod("addMethodToDenyList", new Class<?>[] {Method.class});
+        final Method addMethodToDenyList = OgnlMethodBlocker.class.getMethod("addMethodToDenyList", new Class<?>[] {Method.class});
         final DenyListStringSubclass denyListStringSubclass = new DenyListStringSubclass();
 
         // Initial invocation should not fail
-        OgnlRuntime.invokeMethod(denyListStringSubclass, fooMethod, new Object[] { new Integer(0), new Date() });
-
-        // Verify invalid delegate processing parameter set is rejected
-        try {
-            OgnlRuntime.setDelegateOgnlRuntime(null);
-            throw new IllegalStateException("OgnlRuntime set delegate runtime accepted null parameter ?");
-        } catch (IllegalArgumentException iae) {
-            // Expected failure
-        }
-
-        // Verify calling setDelegateOgnlRuntime within OGNL itself is rejected
-        try {
-            OgnlRuntime.invokeMethod(OgnlRuntime.class, setDelegateMethod, new Object[] { OgnlRuntimeMethodBlocking.getInstance() });
-            throw new Exception("OgnlRuntime set delegate runtime callable within OgnlRuntime ?");
-        } catch (InvocationTargetException ite) {
-            // Expected failure
-        }
-
-        // Enable deny list processing
-        OgnlRuntime.setDelegateOgnlRuntime(OgnlRuntimeMethodBlocking.getInstance());
-
-        // Verify delegate processing parameter set is rejected once it is already set
-        try {
-            OgnlRuntime.setDelegateOgnlRuntime(OgnlRuntimeMethodBlocking.getInstance());
-            throw new Exception("OgnlRuntime set delegate runtime allowed multiple set operations ?");
-        } catch (IllegalStateException ise) {
-            // Expected failure
-        }
-
-        // Verify delegate processing parameter set (with null parameter) is rejected once it is already set
-        try {
-            OgnlRuntime.setDelegateOgnlRuntime(null);
-            throw new Exception("OgnlRuntime set delegate runtime allowed multiple set operations ?");
-        } catch (IllegalStateException ise) {
-            // Expected failure
-        }
+        OgnlRuntime.invokeMethod(denyListStringSubclass, fooMethod, new Object[] { Integer.valueOf(0), new Date() });
 
         // Verify calling addMethodToDenyList within OGNL itself is rejected (for any of 3 reasons)
         try {
-            OgnlRuntime.invokeMethod(OgnlRuntimeMethodBlocking.class, addMethodToDenyList, new Object[] { addMethodToDenyList });
+            OgnlRuntime.invokeMethod(OgnlMethodBlocker.class, addMethodToDenyList, new Object[] { addMethodToDenyList });
             throw new Exception("OgnlRuntimeMethodBlocking add to deny list callable within OgnlRuntime ?");
         } catch (InvocationTargetException ite) {
             // Expected failure (failed during invocation)
         } catch (IllegalStateException ise) {
             // Expected failure (failed during addMethodToDenyList call)
-        } catch (IllegalAccessException iae) {
-            // Expected failure (blocked from delegateInvokeMethod disallowing call)
+        } catch (IllegalArgumentException iae) {
+            // Expected failure (failed during addMethodToDenyList call)
         }
 
         // Add method to deny list, subsequent invocations should fail
-        OgnlRuntimeMethodBlocking.addMethodToDenyList(fooMethod);
+        OgnlMethodBlocker.addMethodToDenyList(fooMethod);
         try {
-            OgnlRuntime.invokeMethod(denyListStringSubclass, fooMethod, new Object[] { new Integer(0), new Date() });
+            OgnlRuntime.invokeMethod(denyListStringSubclass, fooMethod, new Object[] { Integer.valueOf(0), new Date() });
             throw new IllegalStateException("OgnlRuntime deny list didn't block foo method ?");
         } catch (IllegalAccessException iae) {
             // Expected invocation failure
         }
         // Second attempt should still fail
         try {
-            OgnlRuntime.invokeMethod(denyListStringSubclass, fooMethod, new Object[] { new Integer(0), new Date() });
+            OgnlRuntime.invokeMethod(denyListStringSubclass, fooMethod, new Object[] { Integer.valueOf(0), new Date() });
             throw new IllegalStateException("OgnlRuntime deny list didn't block foo method ?");
         } catch (IllegalAccessException iae) {
             // Expected invocation failure
@@ -406,7 +378,7 @@ public class OgnlRuntimeTest {
         OgnlRuntime.invokeMethod(System.class, gcMethod, new Object[0]);
 
         // Attempt call to gc method after standard deny list
-        OgnlRuntimeMethodBlocking.prepareStandardMethodDenyList();
+        OgnlMethodBlocker.prepareStandardMethodDenyList();
         try {
             OgnlRuntime.invokeMethod(System.class, gcMethod, new Object[0]);
             throw new IllegalStateException("OgnlRuntime deny list didn't block gc method ?");
@@ -415,8 +387,8 @@ public class OgnlRuntimeTest {
         }
 
         // Attempt call both prepare deny list methods directly (should not cause errors to call them again)
-        OgnlRuntimeMethodBlocking.prepareMinimalMethodDenyList();
-        OgnlRuntimeMethodBlocking.prepareStandardMethodDenyList();
+        OgnlMethodBlocker.prepareMinimalMethodDenyList();
+        OgnlMethodBlocker.prepareStandardMethodDenyList();
         // Attempt to call now-deny-listed method again
         try {
             OgnlRuntime.invokeMethod(System.class, gcMethod, new Object[0]);
@@ -424,6 +396,145 @@ public class OgnlRuntimeTest {
         } catch (IllegalAccessException iae) {
             // Expected invocation failure
         }
+    }
+
+    /**
+     * Ensure adding the standard methods to the deny list doesn't generate exceptions.
+     * Also tests a basic deny scenario, after applying elements to the deny list.
+     * All tests run with OgnlSecurityManager enabled.
+     * 
+     * Note: Depends on @FixMethodOrder(MethodSorters.NAME_ASCENDING) combined with
+     *   prefix testZLastTest to ensure it is the last test called.  This should ensure
+     *   the SecurityManager doesn't impact other tests and testDenyListProcessing() will
+     *   already have been called, installing the deny list.
+     * 
+     * @throws Exception 
+     */
+    @Test
+    public void testZLastTestSecurityManagerAndDenyListProcessing() throws Exception {
+        final Method fooMethod = DenyListStringSubclass.class.getMethod("foo", Integer.class, Date.class);
+        final Method gcMethod = System.class.getMethod("gc", new Class<?>[0]);
+        final Method addMethodToDenyList = OgnlMethodBlocker.class.getMethod("addMethodToDenyList", new Class<?>[] {Method.class});
+        final Method installOgnlSecurityManager = OgnlSecurityManager.class.getMethod("installOgnlSecurityManager", new Class<?>[]{SecurityManager.class, boolean.class});
+        final DenyListStringSubclass denyListStringSubclass = new DenyListStringSubclass();
+
+        // Due to ascending name test ordering, the deny listhould already be installed.
+
+        // Ensure OgnlSecurityManager installation cannot be called via invokeMethod(), even before
+        //   the OgnlSecurityManager is installed
+        try {
+            OgnlRuntime.invokeMethod(OgnlSecurityManager.class, installOgnlSecurityManager, new Object[] { null, false });
+            throw new Exception("OGNL Security Manager install callable within OgnlRuntime invokeMethod() ?");
+        } catch (InvocationTargetException ite) {
+            // Expected failure (failed during invocation)
+        } catch (IllegalAccessException iae) {
+            // Expected failure (failed during invokeMethod() call)
+        }
+
+        assertFalse("OGNL Security Manager already installed ?", OgnlSecurityManager.isOgnlSecurityManagerInstalled());
+        // Note: Once installed (in whatever order the tests are called) the Security Manager will remain in place.
+        assertFalse("OGNL Security Manager JVM option install succeeded (not disabled by default) ?", OgnlSecurityManager.installOgnlSecurityManagerViaJVMOption());
+        assertTrue("Unable to install OGNL Security manager ?", OgnlSecurityManager.installOgnlSecurityManager(false));
+        assertTrue("OGNL Security Manager not installed ?", OgnlSecurityManager.isOgnlSecurityManagerInstalled());
+
+        try {
+            assertFalse("Able to re-install OGNL Security manager ?", OgnlSecurityManager.installOgnlSecurityManager(false));
+        } catch (SecurityException se) {
+            // Expected failure
+        }
+
+        // Ensure OgnlSecurityManager installation cannot be called via invokeMethod(),
+        //   after the OgnlSecurityManager is installed
+        try {
+            OgnlRuntime.invokeMethod(OgnlSecurityManager.class, installOgnlSecurityManager, new Object[] { null });
+            throw new Exception("OgnlSecurityManager install callable within OgnlRuntime invokeMethod() ?");
+        } catch (InvocationTargetException ite) {
+            // Expected failure (failed during invocation)
+        } catch (IllegalAccessException iae) {
+            // Expected failure (failed during invokeMethod() call)
+        }
+
+        // Verify calling addMethodToDenyList within OGNL itself is rejected (for any of 3 reasons)
+        try {
+            OgnlRuntime.invokeMethod(OgnlMethodBlocker.class, addMethodToDenyList, new Object[] { addMethodToDenyList });
+            throw new Exception("OgnlRuntimeMethodBlocking add to deny list callable within OgnlRuntime invokeMethod() ?");
+        } catch (InvocationTargetException ite) {
+            // Expected failure (failed during invocation)
+        } catch (IllegalStateException ise) {
+            // Expected failure (failed during addMethodToDenyList call)
+        } catch (IllegalArgumentException iae) {
+            // Expected failure (failed during addMethodToDenyList call)
+        }
+
+        // Add method to deny list, subsequent invocations should fail
+        OgnlMethodBlocker.addMethodToDenyList(fooMethod);
+        try {
+            OgnlRuntime.invokeMethod(denyListStringSubclass, fooMethod, new Object[] { Integer.valueOf(0), new Date() });
+            throw new IllegalStateException("OgnlRuntime deny list didn't block foo method ?");
+        } catch (IllegalAccessException iae) {
+            // Expected invocation failure
+        }
+        // Second attempt should still fail
+        try {
+            OgnlRuntime.invokeMethod(denyListStringSubclass, fooMethod, new Object[] { Integer.valueOf(0), new Date() });
+            throw new IllegalStateException("OgnlRuntime deny list didn't block foo method ?");
+        } catch (IllegalAccessException iae) {
+            // Expected invocation failure
+        }
+
+        // Attempt call to gc method after standard deny list
+        OgnlMethodBlocker.prepareStandardMethodDenyList();
+        try {
+            OgnlRuntime.invokeMethod(System.class, gcMethod, new Object[0]);
+            throw new IllegalStateException("OgnlRuntime deny list didn't block gc method ?");
+        } catch (IllegalAccessException iae) {
+            // Expected invocation failure
+        }
+
+        // Attempt call both prepare deny list methods directly (should not cause errors to call them again)
+        OgnlMethodBlocker.prepareMinimalMethodDenyList();
+        OgnlMethodBlocker.prepareStandardMethodDenyList();
+        // Attempt to call now-deny-listed method again
+        try {
+            OgnlRuntime.invokeMethod(System.class, gcMethod, new Object[0]);
+            throw new IllegalStateException("OgnlRuntime deny list didn't block gc method ?");
+        } catch (IllegalAccessException iae) {
+            // Expected invocation failure
+        }
+
+        assertFalse("OGNL Security Manager is enabled for current thread ?", OgnlSecurityManager.isEnabledForCurrentThread());
+        try {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            assertNotNull("Clipboard is null?", clipboard);
+        } catch (HeadlessException he) {
+            // Acceptable failure in any state with OGNL Security Manager disabled
+        }
+        assertTrue("Unable to enable OGNL Security Manager for current thread ?", OgnlSecurityManager.enableForCurrentThread());
+        try {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            throw new IllegalStateException("Should not be able to access clipboard while OGNL Security Manager active");
+        } catch (SecurityException se) {
+            // Epxected failure with OGNL Security Manager active
+        } catch (HeadlessException he) {
+            // Acceptable failure in any state with OGNL Security Manager enabled on a "headless" system
+        }
+        // Test some various calls while enabled
+        testPerformanceMultipleClassesMultipleMethodsSingleThread();
+        testPerformanceMultipleClassesMultipleMethodsMultipleThreads();
+        // Test call depth processing
+        assertTrue("Unable to increment call depth ?", OgnlSecurityManager.incrementInvocationDepthForCurrentThread() == 1);
+        assertFalse("Able to disable while still in use (according to call depth) ?", OgnlSecurityManager.disableForCurrentThread());
+        assertTrue("Unable to decrement call depth ?", OgnlSecurityManager.decrementInvocationDepthForCurrentThread() == 0);
+        assertTrue("Unable to disable when not in use (according to call depth) ?", OgnlSecurityManager.disableForCurrentThread());
+        try {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            assertNotNull("Clipboard is null?", clipboard);
+        } catch (HeadlessException he) {
+            // Acceptable failure in any state with OGNL Security Manager disabled
+        }
+
+        // Confirm OGNL Security Manager still installed after all processing
+        assertTrue("OGNL Security Manager not installed ?", OgnlSecurityManager.isOgnlSecurityManagerInstalled());
     }
 
 }

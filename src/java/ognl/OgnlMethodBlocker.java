@@ -28,26 +28,21 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 // --------------------------------------------------------------------------
-package ognl.delegate;
+package ognl;
 
-import ognl.OgnlRuntime;
 import ognl.enhance.OgnlExpressionCompiler;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.AccessibleObject;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
-import ognl.Node;
-import ognl.OgnlContext;
+
 
 /**
  * Utility class used by internal OGNL API to do delegate (alternate) OgnlRuntime processing.
@@ -66,53 +61,33 @@ import ognl.OgnlContext;
  * 
  * @since 3.1.24
  */
-public class OgnlRuntimeMethodBlocking extends OgnlRuntime {
+public class OgnlMethodBlocker extends OgnlRuntime {
 
-    private static final Map<Method, Boolean> _methodDenyList = new ConcurrentHashMap<Method, Boolean>(101);
+    static final Map<Method, Boolean> _methodDenyList = new ConcurrentHashMap<Method, Boolean>(101);
 
-    private static final Method ADDMETHODTODENYLIST_REF;
-
-    private static volatile OgnlRuntimeMethodBlocking ognlRuntimeMethodBlockingSingleton = null;
+    static final Method ADD_METHOD_TO_DENYLIST_REF;
 
     /**
-     * Initialize the Method references used in invokeMethod() checks
+     * Initialize the Method reference used in addMethodToDenyList() checks
      */
     static {
         try {
-            ADDMETHODTODENYLIST_REF = OgnlRuntimeMethodBlocking.class.getMethod("addMethodToDenyList", new Class<?>[]{Method.class});
+            ADD_METHOD_TO_DENYLIST_REF = OgnlMethodBlocker.class.getMethod("addMethodToDenyList", new Class<?>[]{Method.class});
         } catch (NoSuchMethodException nsme) {
             throw new IllegalStateException("OgnlRuntimeMethodBlocking initialization missing required method", nsme);
         }
     }
 
-
     /**
-     * Generate an instance (for Singleton use)
-     */
-    private OgnlRuntimeMethodBlocking() {
-        // For Singleton
-    }
-
-    /**
-     * Get instance of OgnlRuntimeMethodBlocking.
+     * Add a method to the OgnlMethodBlocker method deny list.
      * 
-     * Intended (only) for use by OgnlRuntime.
+     * The OgnlMethodBlocker method deny list is only additive (only provide a method to
+     *   add deny list elements, no methods to clear or remove entries).
      * 
-     * @return 
-     */
-    public synchronized static OgnlRuntimeMethodBlocking getInstance() {
-        if (ognlRuntimeMethodBlockingSingleton == null) {
-            ognlRuntimeMethodBlockingSingleton = new OgnlRuntimeMethodBlocking();
-        }
-
-        return ognlRuntimeMethodBlockingSingleton;
-    }
-
-    /**
-     * Add a method to the OgnlRuntimeMethodBlocking method deny list.
-     * 
-     * The OgnlRuntimeMethodBlocking method deny list is only additive (only provide a method to
-     * add deny list elements, no methods to clear or remove entries).
+     * Note: It is not permitted to call this method with OGNL itself.  Doing so will result
+     *   in an {@link IllegalStateException}.
+     * Note: It is not permitted to add this method to its own deny list.  Doing so will result
+     *   in an {@link IllegalArgumentException}.
      * 
      * @param method (a non-null Method parameter)
      */
@@ -120,15 +95,18 @@ public class OgnlRuntimeMethodBlocking extends OgnlRuntime {
     {
         if (method == null) {
             throw new IllegalArgumentException("Cannot add a null Method to the deny list");
-        } else if (ognlRuntimeExceedsCallStackIgnoreCount(1)) {
+        } else if (OgnlSecurityManager.ognlRuntimeExceedsCallStackIgnoreCount(0)) {
             throw new IllegalStateException("Cannot add a Method the deny list from within OGNL itself.");
+        } else if (OgnlMethodBlocker.ADD_METHOD_TO_DENYLIST_REF.equals(method)) {
+            // Always disallow adding addMethodToDenyList() itself to the deny list
+            throw new IllegalArgumentException("Method [" + method + "] is not permitted.");
         }
 
         _methodDenyList.put(method, Boolean.TRUE);
     }
 
     /**
-     * Add a predefined "minimal" list of methods to the OgnlRuntimeMethodBlocking method deny list.
+     * Add a predefined "minimal" list of methods to the OgnlMethodBlocker method deny list.
      * 
      * It uses a small list of methods that OGNL expressions should not normally need to call.
      * 
@@ -237,7 +215,7 @@ public class OgnlRuntimeMethodBlocking extends OgnlRuntime {
     }
 
     /**
-     * Add a predefined "standard" list of methods to the OgnlRuntimeMethodBlocking method deny list.
+     * Add a predefined "standard" list of methods to the OgnlMethodBlocker method deny list.
      * 
      * It uses a larger list of methods that OGNL expressions should not normally need to call.
      * The generated method deny list includes everything provided by prepareMinimalMethodDenyList()
@@ -289,140 +267,6 @@ public class OgnlRuntimeMethodBlocking extends OgnlRuntime {
         }
         addMethodToDenyList(Runtime.class.getMethod("traceInstructions", singleClassArgument));
         addMethodToDenyList(Runtime.class.getMethod("traceMethodCalls", singleClassArgument));
-    }
-
-    /**
-     * Perform delegate (alternate) invokeMethod() processing.
-     * 
-     * Checks for denied methods, then performs standard processing
-     * (same logic as ancestor invokeMethod()) if checks pass.
-     * 
-     * Note: It is recommended that when OgnlRuntime invokeMethod() code is changed that
-     *   this method be reviewed to determine if the changes are applicable here.
-     * 
-     * @param target
-     * @param method
-     * @param argsArray
-     * 
-     * @return
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException 
-     */
-    @Override
-    protected Object delegateInvokeMethod(Object target, Method method, Object[] argsArray)
-            throws InvocationTargetException, IllegalAccessException
-    {
-        boolean syncInvoke;
-        boolean checkPermission;
-        Boolean methodAccessCacheValue;
-        Boolean methodPermCacheValue;
-        final Map<Method, Boolean> _methodAccessCache;
-        final Map<Method, Boolean> _methodPermCache;
-        final SecurityManager _securityManager;
-
-        // only synchronize method invocation if it actually requires it
-
-        synchronized(method) {
-            // Always disallow invokeMethod() calling addMethodToDenyList()
-            if (ADDMETHODTODENYLIST_REF.equals(method)) {
-                throw new IllegalAccessException("Method [" + method + "] is not permitted.");
-            }
-
-            // Disallow any methods in the deny list (only check if deny list nonempty, for JIT performance)
-            if (_methodDenyList.isEmpty() == false) {
-                if (_methodDenyList.get(method) != null) {
-                    throw new IllegalAccessException("Method [" + method + "] is deny listed.");
-                }
-            }
-
-            // Retrieve ancestor method access and permission caches 
-            _methodAccessCache = get_MethodAccessCache();
-            _methodPermCache = get_MethodPermCache();
-            _securityManager = get_SecurityManager();
-
-            // Passed deny checks, perform standard OgnlRuntime invokeMethod() call
-            methodAccessCacheValue = _methodAccessCache.get(method);
-            if (methodAccessCacheValue == null) {
-                if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
-                {
-                    if (!(((AccessibleObject) method).isAccessible()))
-                    {
-                        methodAccessCacheValue = Boolean.TRUE;
-                        _methodAccessCache.put(method, methodAccessCacheValue);
-                    } else
-                    {
-                        methodAccessCacheValue = Boolean.FALSE;
-                        _methodAccessCache.put(method, methodAccessCacheValue);
-                    }
-                } else
-                {
-                    methodAccessCacheValue = Boolean.FALSE;
-                    _methodAccessCache.put(method, methodAccessCacheValue);
-                }
-            }
-            syncInvoke = Boolean.TRUE.equals(methodAccessCacheValue);
-
-            methodPermCacheValue = _methodPermCache.get(method);
-            if (methodPermCacheValue == null) {
-                if (_securityManager != null) {
-                    try
-                    {
-                        _securityManager.checkPermission(getPermission(method));
-                        methodPermCacheValue = Boolean.TRUE;
-                        _methodPermCache.put(method, methodPermCacheValue);
-                    } catch (SecurityException ex) {
-                        methodPermCacheValue = Boolean.FALSE;
-                        _methodPermCache.put(method, methodPermCacheValue);
-                        throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-                    }
-                }
-                else {
-                    methodPermCacheValue = Boolean.TRUE;
-                    _methodPermCache.put(method, methodPermCacheValue);
-                }
-            }
-            checkPermission = Boolean.FALSE.equals(methodPermCacheValue);
-        }
-
-        Object result;
-
-        if (syncInvoke) //if is not public and is not accessible
-        {
-            synchronized(method)
-            {
-                if (checkPermission)
-                {
-                    try
-                    {
-                        _securityManager.checkPermission(getPermission(method));
-                    } catch (SecurityException ex) {
-                        throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-                    }
-                }
-
-                ((AccessibleObject) method).setAccessible(true);
-                try {
-                    result = method.invoke(target, argsArray);
-                } finally {
-                    ((AccessibleObject) method).setAccessible(false);
-                }
-            }
-        } else
-        {
-            if (checkPermission)
-            {
-                try
-                {
-                    _securityManager.checkPermission(getPermission(method));
-                } catch (SecurityException ex) {
-                    throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-                }
-            }
-
-            result = method.invoke(target, argsArray);
-        }
-
-        return result;
     }
 
 }

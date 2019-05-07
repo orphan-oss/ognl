@@ -244,7 +244,7 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
                 
                 if (m != null || !context.getCurrentType().isPrimitive())
                 {
-                    System.out.println("super source setter returned: " + super.getSourceSetter(context, target, index));
+                    //System.out.println("super source setter returned: " + super.getSourceSetter(context, target, index));
                     return super.getSourceSetter(context, target, index);
                 }
 
