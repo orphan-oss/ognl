@@ -924,6 +924,11 @@ public class OgnlRuntime {
             // already enabled or user has applied a policy that doesn't allow read property so we have to honor user's sandbox
         }
 
+        if (ClassLoader.class.isAssignableFrom(method.getDeclaringClass())) {
+            // to support OgnlSecurityManager.isAccessDenied
+            throw new IllegalAccessException("OGNL direct access to class loader denied!");
+        }
+
         // creating object before entering sandbox to load classes out of the sandbox
         UserMethod userMethod = new UserMethod(target, method, argsArray);
         Permissions p = new Permissions(); // not any permission

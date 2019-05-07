@@ -1,5 +1,6 @@
 package ognl.security;
 
+import java.io.FilePermission;
 import java.security.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,8 @@ import java.util.List;
  */
 public class OgnlSecurityManager extends SecurityManager {
     private static final String OGNL_SANDBOX_CLASS_NAME = "ognl.security.UserMethod";
+    private static final Class<?> CLASS_LOADER_CLASS = ClassLoader.class;
+    private static final Class<?> FILE_PERMISSION_CLASS = FilePermission.class;
 
     private SecurityManager parentSecurityManager;
     private List<Long> residents = new ArrayList<Long>();
@@ -33,16 +36,24 @@ public class OgnlSecurityManager extends SecurityManager {
         this.parentSecurityManager = parentSecurityManager;
     }
 
-    private boolean isAccessDenied() {
+    private boolean isAccessDenied(Permission perm) {
         Class[] classContext = getClassContext();
-        boolean isInsideOgnlSandbox = false;
-        for (Class clazz : classContext) {
-            if (OGNL_SANDBOX_CLASS_NAME.equals(clazz.getName())) {
-                isInsideOgnlSandbox = true;
-                break;
+        Boolean isInsideClassLoader = null;
+        for (Class c : classContext) {
+            if (isInsideClassLoader == null && CLASS_LOADER_CLASS.isAssignableFrom(c)) {
+                if (FILE_PERMISSION_CLASS.equals(perm.getClass()) && "read".equals(perm.getActions())) {
+                    // TODO: might be risky but we have to - fix it if any POC discovered
+                    // relax a bit with containers class loaders lazy class load
+                    return false;
+                } else {
+                    isInsideClassLoader = false;
+                }
+            }
+            if (OGNL_SANDBOX_CLASS_NAME.equals(c.getName())) {
+                return true;
             }
         }
-        return isInsideOgnlSandbox;
+        return false;
     }
 
     @Override
@@ -50,7 +61,7 @@ public class OgnlSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkPermission(perm);
         }
-        if (isAccessDenied()) {
+        if (isAccessDenied(perm)) {
             super.checkPermission(perm);
         }
     }
@@ -60,7 +71,7 @@ public class OgnlSecurityManager extends SecurityManager {
         if (parentSecurityManager != null) {
             parentSecurityManager.checkPermission(perm, context);
         }
-        if (isAccessDenied()) {
+        if (isAccessDenied(perm)) {
             super.checkPermission(perm, context);
         }
     }

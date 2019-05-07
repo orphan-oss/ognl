@@ -390,7 +390,10 @@ public class TestOgnlRuntime extends TestCase {
             OgnlRuntime.callMethod(context, service, "doNotPrivileged", args);
             fail("JDK sandbox should block execution");
         } catch (Exception ex) {
-            assertTrue(ex.getCause() instanceof NullPointerException);
+            assertTrue(ex.getCause() instanceof SecurityException);
+            assertTrue(ex.getCause().getMessage().contains("FilePermission"));
+            assertTrue(ex.getCause().getMessage().contains("read"));
+            assertTrue(ex.getCause().getMessage().contains("test.properties"));
         } finally {
             if (temporaryEnabled) {
                 System.clearProperty("ognl.security.manager");
@@ -409,6 +412,35 @@ public class TestOgnlRuntime extends TestCase {
             Object result = OgnlRuntime.callMethod(context, service, "doPrivileged", args);
             assertNotNull(result);
             assertNotSame(-1, result);
+        } finally {
+            if (temporaryEnabled) {
+                System.clearProperty("ognl.security.manager");
+            }
+        }
+    }
+
+    public void test_Class_Loader_Direct_Access()
+            throws Exception {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        ClassLoader classLoader = getClass().getClassLoader();
+
+        Object[] args = OgnlRuntime.getObjectArrayPool().create(1);
+        args[0] = "test.properties";
+
+        boolean temporaryEnabled = false;
+        try {
+            System.setProperty("ognl.security.manager", "");
+            temporaryEnabled = true;
+        } catch (Exception ignore) {
+            // already enabled
+        }
+
+        try {
+            OgnlRuntime.callMethod(context, classLoader, "getResourceAsStream", args);
+            fail("JDK sandbox should block execution");
+        } catch (Exception ex) {
+            assertTrue(ex.getCause() instanceof IllegalAccessException);
+            assertEquals("OGNL direct access to class loader denied!", ex.getCause().getMessage());
         } finally {
             if (temporaryEnabled) {
                 System.clearProperty("ognl.security.manager");

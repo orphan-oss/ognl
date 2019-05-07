@@ -7,9 +7,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.SecureRandom;
+import java.security.*;
 import java.util.List;
 
 /**
@@ -66,20 +64,25 @@ public class GenericServiceImpl implements GenericService {
     }
 
     public int doNotPrivileged() throws IOException {
-        InputStream is = getClass().getClassLoader().getResourceAsStream(
-                        getClass().getName().replace('.', '/') + ".class");
+        InputStream is = getClass().getClassLoader().getResource("test.properties").openStream();
         int result = is.read();
         is.close();
         return result;
     }
 
     public int doPrivileged() throws IOException {
-        InputStream is = AccessController.doPrivileged(new PrivilegedAction<InputStream>() {
-            public InputStream run() {
-                return getClass().getClassLoader().getResourceAsStream(
-                        getClass().getName().replace('.', '/') + ".class");
+        InputStream is = null;
+        try {
+            is = AccessController.doPrivileged(new PrivilegedExceptionAction<InputStream>() {
+                public InputStream run() throws Exception {
+                    return getClass().getClassLoader().getResource("test.properties").openStream();
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            if (e.getException() instanceof IOException) {
+                throw (IOException) e.getException();
             }
-        });
+        }
         int result = is.read();
         is.close();
         return result;
