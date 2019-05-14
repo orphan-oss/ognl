@@ -43,7 +43,6 @@ import java.security.Permission;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 /**
  * Utility class used by internal OGNL API to do various things like:
  *
@@ -359,10 +358,17 @@ public class OgnlRuntime {
      *   to block usage within invokeMethod() for instance.
      */
     static {
+        Method installOgnlSMMethod = null;
         try {
-            INSTALL_OGNL_SECURITYMANAGER_REF = OgnlSecurityManager.class.getMethod("installOgnlSecurityManager", new Class<?>[]{SecurityManager.class, boolean.class});
+            installOgnlSMMethod = OgnlSecurityManager.class.getMethod("installOgnlSecurityManager", new Class<?>[]{SecurityManager.class, boolean.class});
         } catch (NoSuchMethodException nsme) {
-            throw new IllegalStateException("OgnlRuntime initialization missing required method", nsme);
+            // Should not happen.  To debug, uncomment the next line.
+            //throw new IllegalStateException("OgnlRuntime initialization missing required method", nsme);
+        } catch (SecurityException se) {
+            // May be blocked by existing SecurityManager.  To debug, uncomment the next line.
+            //throw new SecurityException("OgnlRuntime initialization cannot access required method", se);
+        } finally {
+            INSTALL_OGNL_SECURITYMANAGER_REF = installOgnlSMMethod;
         }
     }
 
@@ -860,7 +866,7 @@ public class OgnlRuntime {
                     throw new IllegalAccessException("Method [" + method + "] is deny listed.");
                 }
             }
-            if (INSTALL_OGNL_SECURITYMANAGER_REF.equals(method)) {
+            if (INSTALL_OGNL_SECURITYMANAGER_REF != null && INSTALL_OGNL_SECURITYMANAGER_REF.equals(method)) {
                 // Prevent accidental enabling of OgnlSecurityManager via invokeMethod().
                 throw new IllegalAccessException("Method [" + method + "] cannot be called from within OGNL invokeMethod().");
             }
