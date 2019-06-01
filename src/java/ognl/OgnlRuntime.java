@@ -122,6 +122,144 @@ public class OgnlRuntime {
     private static boolean _jdk15 = false;
     private static boolean _jdkChecked = false;
 
+    /**
+     * Control usage of pre-JDK9 access handler using the JVM option:
+     *   -Dognl.UsePreJDK9AccessHandler=true
+     *   -Dognl.UsePreJDK9AccessHandler=false
+     * Note: Set to "true" to force the original pre-JDK9 behaviour even if a newer JDK9+
+     *   is detected (in the event the newer processing causes issues for existing applications).
+     *   Using the "false" value has the same effect as omitting the option completely.
+     *   The default behaviour is checking JVM version to decide whether to use PreJDK9 or
+     *   JDK9Plus AccessibleObjectHandler.
+     */
+    static final String USE_PREJDK9_ACESS_HANDLER = "ognl.UsePreJDK9AccessHandler";
+
+    /**
+     * Control usage of "stricter" invocation processing by invokeMethod() using the JVM options:
+     *    -Dognl.UseStricterInvocation=true
+     *    -Dognl.UseStricterInvocation=false
+     * Note: Using the "true" value has the same effect as omitting the option completely.
+     *   The default behaviour is to use the "stricter" invocation processing.
+     *   Using the "false" value reverts to the older "less strict" invocation processing
+     *   (in the event the "stricter" processing causes issues for existing applications).
+     */
+    static final String USE_STRICTER_INVOCATION = "ognl.UseStricterInvocation";
+
+    /**
+     * Hold environment flag state associated with USE_PREJDK9_ACESS_HANDLER.
+     *   Default: false (if not set)
+     */
+    private static final boolean _usePreJDK9AccessHandler;
+    static {
+        boolean initialFlagState = false;
+        try {
+            final String propertyString = System.getProperty(USE_PREJDK9_ACESS_HANDLER);
+            if (propertyString != null && propertyString.length() > 0) {
+                initialFlagState = Boolean.parseBoolean(propertyString);
+            }
+        } catch (Exception ex) {
+            // Unavailable (SecurityException, etc.)
+        }
+        _usePreJDK9AccessHandler = initialFlagState;
+    }
+
+    /**
+     * Hold environment flag state associated with USE_STRICTER_INVOCATION.
+     *   Default: true (if not set)
+     */
+    private static final boolean _useStricterInvocation;
+    static {
+        boolean initialFlagState = true;
+        try {
+            final String propertyString = System.getProperty(USE_STRICTER_INVOCATION);
+            if (propertyString != null && propertyString.length() > 0) {
+                initialFlagState = Boolean.parseBoolean(propertyString);
+            }
+        } catch (Exception ex) {
+            // Unavailable (SecurityException, etc.)
+        }
+        _useStricterInvocation = initialFlagState;
+    }
+
+    /*
+     * Attempt to detect the system-reported Major Java Version (e.g. 5, 7, 11).
+     */
+    private static final int _majorJavaVersion = detectMajorJavaVersion();
+    private static final boolean _jdk9Plus = _majorJavaVersion >= 9;
+
+    /*
+     * Assign an accessibility modification mechanism, based on Major Java Version.
+     *   Note: Can be override using a Java option flag {@link OgnlRuntime#USE_PREJDK9_ACESS_HANDLER}.
+     */
+    private static final AccessibleObjectHandler _accessibleObjectHandler =
+            (_jdk9Plus && !_usePreJDK9AccessHandler) ? new AccessibleObjectHandlerJDK9Plus() :
+            new AccessibleObjectHandlerPreJDK9();
+
+    /**
+     * Private references for use in blocking direct invocation by invokeMethod().
+     */
+    private static final Method SYS_CONSOLE_REF;
+    private static final Method SYS_EXIT_REF;
+    private static final Method AO_SETACCESSIBLE_REF;
+    private static final Method AO_SETACCESSIBLE_ARR_REF;
+
+    /**
+     * Initialize the Method references used for blocking usage within invokeMethod().
+     */
+    static {
+        Method setAccessibleMethod = null;
+        Method setAccessibleMethodArray = null;
+        Method systemExitMethod = null;
+        Method systemConsoleMethod = null;
+        try {
+            setAccessibleMethod = AccessibleObject.class.getMethod("setAccessible", new Class<?>[]{boolean.class});
+        } catch (NoSuchMethodException nsme) {
+            // Should not happen.  To debug, uncomment the next line.
+            //throw new IllegalStateException("OgnlRuntime initialization missing setAccessible method", nsme);
+        } catch (SecurityException se) {
+            // May be blocked by existing SecurityManager.  To debug, uncomment the next line.
+            //throw new SecurityException("OgnlRuntime initialization cannot access setAccessible method", se);
+        } finally {
+            AO_SETACCESSIBLE_REF = setAccessibleMethod;
+        }
+
+        try {
+            setAccessibleMethodArray = AccessibleObject.class.getMethod("setAccessible", new Class<?>[]{AccessibleObject[].class, boolean.class});
+        } catch (NoSuchMethodException nsme) {
+            // Should not happen.  To debug, uncomment the next line.
+            //throw new IllegalStateException("OgnlRuntime initialization missing setAccessible method", nsme);
+        } catch (SecurityException se) {
+            // May be blocked by existing SecurityManager.  To debug, uncomment the next line.
+            //throw new SecurityException("OgnlRuntime initialization cannot access setAccessible method", se);
+        } finally {
+            AO_SETACCESSIBLE_ARR_REF = setAccessibleMethodArray;
+        }
+
+        try {
+            systemExitMethod = System.class.getMethod("exit", new Class<?>[]{int.class});
+        } catch (NoSuchMethodException nsme) {
+            // Should not happen.  To debug, uncomment the next line.
+            //throw new IllegalStateException("OgnlRuntime initialization missing exit method", nsme);
+        } catch (SecurityException se) {
+            // May be blocked by existing SecurityManager.  To debug, uncomment the next line.
+            //throw new SecurityException("OgnlRuntime initialization cannot access exit method", se);
+        } finally {
+            SYS_EXIT_REF = systemExitMethod;
+        }
+
+        try {
+            systemConsoleMethod = System.class.getMethod("console", new Class<?>[]{});  // Not available in JDK 1.5 or earlier
+        } catch (NoSuchMethodException nsme) {
+            // May happen for JDK 1.5 and earlier.  To debug, uncomment the next line.
+            //throw new IllegalStateException("OgnlRuntime initialization missing console method", nsme);
+        } catch (SecurityException se) {
+            // May be blocked by existing SecurityManager.  To debug, uncomment the next line.
+            //throw new SecurityException("OgnlRuntime initialization cannot access console method", se);
+        } finally {
+            SYS_CONSOLE_REF = systemConsoleMethod;
+        }
+    }
+
     static final ClassCache _methodAccessors = new ClassCacheImpl();
     static final ClassCache _propertyAccessors = new ClassCacheImpl();
     static final ClassCache _elementsAccessors = new ClassCacheImpl();
@@ -397,6 +535,24 @@ public class OgnlRuntime {
         _jdkChecked = true;
 
         return _jdk15;
+    }
+
+    /**
+     * Get the Major Java Version detected by OGNL.
+     *
+     * @return Detected Major Java Version, or 5 (minimum supported version for OGNL) if unable to detect.
+     */
+    public static int getMajorJavaVersion() {
+        return _majorJavaVersion;
+    }
+
+    /**
+     * Check if the detected Major Java Version is 9 or higher (JDK 9+).
+     *
+     * @return Return true if the Detected Major Java version is 9 or higher, otherwise false.
+     */
+    public static boolean isJdk9Plus() {
+        return _jdk9Plus;
     }
 
     public static String getNumericValueGetter(Class type)
@@ -824,6 +980,28 @@ public class OgnlRuntime {
         Boolean methodAccessCacheValue;
         Boolean methodPermCacheValue;
 
+        if (_useStricterInvocation) {
+            final Class methodDeclaringClass = method.getDeclaringClass();  // Note: synchronized(method) call below will already NPE, so no null check.
+            if ( (AO_SETACCESSIBLE_REF != null && AO_SETACCESSIBLE_REF.equals(method)) ||
+                 (AO_SETACCESSIBLE_ARR_REF != null && AO_SETACCESSIBLE_ARR_REF.equals(method)) ||
+                 (SYS_EXIT_REF != null && SYS_EXIT_REF.equals(method)) ||
+                 (SYS_CONSOLE_REF != null && SYS_CONSOLE_REF.equals(method)) ||
+                 AccessibleObjectHandler.class.isAssignableFrom(methodDeclaringClass) ||
+                 ClassResolver.class.isAssignableFrom(methodDeclaringClass) ||
+                 MethodAccessor.class.isAssignableFrom(methodDeclaringClass) ||
+                 MemberAccess.class.isAssignableFrom(methodDeclaringClass) ||
+                 OgnlContext.class.isAssignableFrom(methodDeclaringClass) ||
+                 Runtime.class.isAssignableFrom(methodDeclaringClass) ||
+                 ClassLoader.class.isAssignableFrom(methodDeclaringClass) ||
+                 ProcessBuilder.class.isAssignableFrom(methodDeclaringClass) ||
+                 AccessibleObjectHandlerJDK9Plus.unsafeOrDescendant(methodDeclaringClass) ) {
+                // Prevent calls to some specific methods, as well as all methods of certain classes/interfaces
+                //   for which no (apparent) legitimate use cases exist for their usage within OGNL invokeMethod().
+                throw new IllegalAccessException("Method [" + method + "] cannot be called from within OGNL invokeMethod() " +
+                        "under stricter invocation mode.");
+            }
+        }
+
         // only synchronize method invocation if it actually requires it
 
         synchronized(method) {
@@ -886,11 +1064,11 @@ public class OgnlRuntime {
                     }
                 }
 
-                ((AccessibleObject) method).setAccessible(true);
+                _accessibleObjectHandler.setAccessible(method, true);
                 try {
                     result = method.invoke(target, argsArray);
                 } finally {
-                    ((AccessibleObject) method).setAccessible(false);
+                    _accessibleObjectHandler.setAccessible(method, false);
                 }
             }
         } else
@@ -3397,5 +3575,104 @@ public class OgnlRuntime {
 
     }
 
+    /**
+     * Detect the (reported) Major Java version running OGNL.
+     *
+     * Should support naming conventions of pre-JDK9 and JDK9+.
+     * See <a href="https://openjdk.java.net/jeps/223">JEP 223: New Version-String Scheme</a> for details.
+     *
+     * @return Detected Major Java Version, or 5 (minimum supported version for OGNL) if unable to detect.
+     *
+     * @since 3.1.24
+     */
+    static int detectMajorJavaVersion() {
+        int majorVersion = -1;
+        try {
+            majorVersion = parseMajorJavaVersion(System.getProperty("java.version"));
+        } catch (Exception ex) {
+            // Unavailable (SecurityException, etc.)
+        }
+        if (majorVersion == -1) {
+            majorVersion = 5;  // Return minimum supported Java version for OGNL
+        }
+
+        return majorVersion;
+    }
+
+    /**
+     * Parse a Java version string to determine the Major Java version.
+     *
+     * Should support naming conventions of pre-JDK9 and JDK9+.
+     * See <a href="https://openjdk.java.net/jeps/223">JEP 223: New Version-String Scheme</a> for details.
+     *
+     * @return Detected Major Java Version, or 5 (minimum supported version for OGNL) if unable to detect.
+     *
+     * @since 3.1.24
+     */
+    static int parseMajorJavaVersion(String versionString) {
+        int majorVersion = -1;
+        try {
+            if (versionString != null && versionString.length() > 0) {
+                final String[] sections = versionString.split("[\\.\\-\\+]");
+                final int firstSection;
+                final int secondSection;
+                if (sections.length > 0) {  // Should not happen, guard anyway
+                    if (sections[0].length() > 0) {
+                        if (sections.length > 1  && sections[1].length() > 0) {
+                            firstSection = Integer.parseInt(sections[0]);
+                            if (sections[1].matches("\\d+")) {
+                                secondSection = Integer.parseInt(sections[1]);
+                            } else {
+                                secondSection = -1;
+                            }
+                        } else  {
+                            firstSection = Integer.parseInt(sections[0]);
+                            secondSection = -1;
+                        }
+                        if (firstSection == 1 && secondSection != -1) {
+                            majorVersion = secondSection;  // Pre-JDK 9 versioning
+                        } else {
+                            majorVersion = firstSection;   // JDK9+ versioning
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            // Unavailable (NumberFormatException, etc.)
+        }
+        if (majorVersion == -1) {
+            majorVersion = 5;  // Return minimum supported Java version for OGNL
+        }
+
+        return majorVersion;
+    }
+
+    /**
+     * Returns the value of the flag indicating whether the pre-JDK9 access handler
+     *   will always be used (instead of deciding based on Major Java Version number).
+     *
+     * Note: Value is controlled by a Java option flag {@link OgnlRuntime#USE_PREJDK9_ACESS_HANDLER}.
+     *
+     * @return true if always using the pre-JDK9 access handler, false otherwise (use Java version to decide).
+     *
+     * @since 3.1.24
+     */
+    public static boolean getUsePreJDK9AccessHandlerValue() {
+        return _usePreJDK9AccessHandler;
+    }
+
+    /**
+     * Returns the value of the flag indicating whether "stricter" invocation is
+     *   in effect or not.
+     *
+     * Note: Value is controlled by a Java option flag {@link OgnlRuntime#USE_STRICTER_INVOCATION}.
+     *
+     * @return true if stricter invocation is in effect, false otherwise.
+     *
+     * @since 3.1.24
+     */
+    public static boolean getUseStricterInvocationValue() {
+        return _useStricterInvocation;
+    }
 
 }
