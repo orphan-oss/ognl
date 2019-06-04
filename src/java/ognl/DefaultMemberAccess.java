@@ -51,9 +51,11 @@ public class DefaultMemberAccess implements MemberAccess
      * Assign an accessibility modification mechanism, based on Major Java Version.
      *   Note: Can be override using a Java option flag {@link OgnlRuntime#USE_PREJDK9_ACESS_HANDLER}.
      */
-    private static final AccessibleObjectHandler _accessibleObjectHandler =
-            (OgnlRuntime.isJdk9Plus() && !OgnlRuntime.getUsePreJDK9AccessHandlerValue()) ? new AccessibleObjectHandlerJDK9Plus() :
-            new AccessibleObjectHandlerPreJDK9();
+    private static final AccessibleObjectHandler _accessibleObjectHandler;
+    static {
+        _accessibleObjectHandler = OgnlRuntime.usingJDK9PlusAccessHandler() ? AccessibleObjectHandlerJDK9Plus.createHandler() :
+            AccessibleObjectHandlerPreJDK9.createHandler();
+    }
 
     public boolean      allowPrivateAccess = false;
     public boolean      allowProtectedAccess = false;

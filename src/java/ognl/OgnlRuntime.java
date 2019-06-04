@@ -191,9 +191,11 @@ public class OgnlRuntime {
      * Assign an accessibility modification mechanism, based on Major Java Version.
      *   Note: Can be override using a Java option flag {@link OgnlRuntime#USE_PREJDK9_ACESS_HANDLER}.
      */
-    private static final AccessibleObjectHandler _accessibleObjectHandler =
-            (_jdk9Plus && !_usePreJDK9AccessHandler) ? new AccessibleObjectHandlerJDK9Plus() :
-            new AccessibleObjectHandlerPreJDK9();
+    private static final AccessibleObjectHandler _accessibleObjectHandler;
+    static {
+        _accessibleObjectHandler = usingJDK9PlusAccessHandler() ? AccessibleObjectHandlerJDK9Plus.createHandler() :
+            AccessibleObjectHandlerPreJDK9.createHandler();
+    }
 
     /**
      * Private references for use in blocking direct invocation by invokeMethod().
@@ -3673,6 +3675,20 @@ public class OgnlRuntime {
      */
     public static boolean getUseStricterInvocationValue() {
         return _useStricterInvocation;
+    }
+
+    /**
+     * Returns an indication as to whether the current state indicates the
+     *   JDK9 and later access handler is being used / should be used.  This
+     *   is based on a combination of the detected Major Java Version and the
+     *   Java option flag {@link OgnlRuntime#USE_PREJDK9_ACESS_HANDLER}.
+     *
+     * @return true if the JDK9 and later access hander is being used / should be used, false otherwise.
+     *
+     * @since 3.1.24
+     */
+    public static boolean usingJDK9PlusAccessHandler() {
+        return (_jdk9Plus && !_usePreJDK9AccessHandler);
     }
 
 }
