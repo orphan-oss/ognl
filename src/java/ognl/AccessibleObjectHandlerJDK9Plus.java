@@ -202,12 +202,20 @@ class AccessibleObjectHandlerJDK9Plus implements AccessibleObjectHandler
      *
      * Not intended for use outside of the package.
      *
+     * Note: An AccessibleObjectHandlerJDK9Plus will only be created if running on a
+     *   JDK9+ and the environment flag is set.  Otherwise this method will return
+     *   an AccessibleHandlerPreJDK9 instance instead,
+     *
      * @return an AccessibleObjectHandler instance
      *
      * @since 3.1.24
      */
     static AccessibleObjectHandler createHandler() {
-        return new AccessibleObjectHandlerJDK9Plus();
+        if (OgnlRuntime.usingJDK9PlusAccessHandler()){
+            return new AccessibleObjectHandlerJDK9Plus();
+        } else {
+            return AccessibleObjectHandlerPreJDK9.createHandler();
+        }
     }
 
     /**

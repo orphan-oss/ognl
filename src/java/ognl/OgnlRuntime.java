@@ -123,21 +123,30 @@ public class OgnlRuntime {
     private static boolean _jdkChecked = false;
 
     /**
-     * Control usage of pre-JDK9 access handler using the JVM option:
-     *   -Dognl.UsePreJDK9AccessHandler=true
-     *   -Dognl.UsePreJDK9AccessHandler=false
-     * Note: Set to "true" to force the original pre-JDK9 behaviour even if a newer JDK9+
-     *   is detected (in the event the newer processing causes issues for existing applications).
+     * Control usage of JDK9+ access handler using the JVM option:
+     *   -Dognl.UseJDK9PlusAccessHandler=true
+     *   -Dognl.UseJDK9PlusAccessHandler=false
+     *
+     * Note: Set to "true" to allow the new JDK9 and later behaviour, <b>provided a newer JDK9+
+     *   is detected</b>.  By default the standard pre-JDK9 AccessHandler will be used even when
+     *   running on JDK9+, so users must "opt-in" in order to enable the alternate JDK9+ AccessHandler.
+     *   Using the JDK9PlusAccessHandler <b>may</b> avoid / mask JDK9+ warnings of the form:
+     *     "WARNING: Illegal reflective access by ognl.OgnlRuntime"
+     *   or provide an alternative  when running in environments set with "--illegal-access=deny".
+     *
+     * Note:  The default behaviour is to use the standard pre-JDK9 access handler.
      *   Using the "false" value has the same effect as omitting the option completely.
-     *   The default behaviour is checking JVM version to decide whether to use PreJDK9 or
-     *   JDK9Plus AccessibleObjectHandler.
+     *
+     * Warning: Users are <b>strongly advised</b> to review their code and confirm they really
+     *   need the AccessHandler modifying access levels, looking at alternatives to avoid that need.
      */
-    static final String USE_PREJDK9_ACESS_HANDLER = "ognl.UsePreJDK9AccessHandler";
+    static final String USE_JDK9PLUS_ACESS_HANDLER = "ognl.UseJDK9PlusAccessHandler";
 
     /**
      * Control usage of "stricter" invocation processing by invokeMethod() using the JVM options:
      *    -Dognl.UseStricterInvocation=true
      *    -Dognl.UseStricterInvocation=false
+     *
      * Note: Using the "true" value has the same effect as omitting the option completely.
      *   The default behaviour is to use the "stricter" invocation processing.
      *   Using the "false" value reverts to the older "less strict" invocation processing
@@ -146,21 +155,21 @@ public class OgnlRuntime {
     static final String USE_STRICTER_INVOCATION = "ognl.UseStricterInvocation";
 
     /**
-     * Hold environment flag state associated with USE_PREJDK9_ACESS_HANDLER.
+     * Hold environment flag state associated with USE_JDK9PLUS_ACESS_HANDLER.
      *   Default: false (if not set)
      */
-    private static final boolean _usePreJDK9AccessHandler;
+    private static final boolean _useJDK9PlusAccessHandler;
     static {
         boolean initialFlagState = false;
         try {
-            final String propertyString = System.getProperty(USE_PREJDK9_ACESS_HANDLER);
+            final String propertyString = System.getProperty(USE_JDK9PLUS_ACESS_HANDLER);
             if (propertyString != null && propertyString.length() > 0) {
                 initialFlagState = Boolean.parseBoolean(propertyString);
             }
         } catch (Exception ex) {
             // Unavailable (SecurityException, etc.)
         }
-        _usePreJDK9AccessHandler = initialFlagState;
+        _useJDK9PlusAccessHandler = initialFlagState;
     }
 
     /**
@@ -188,8 +197,11 @@ public class OgnlRuntime {
     private static final boolean _jdk9Plus = _majorJavaVersion >= 9;
 
     /*
-     * Assign an accessibility modification mechanism, based on Major Java Version.
-     *   Note: Can be override using a Java option flag {@link OgnlRuntime#USE_PREJDK9_ACESS_HANDLER}.
+     * Assign an accessibility modification mechanism, based on Major Java Version and Java option flag
+     *   flag {@link OgnlRuntime#USE_JDK9PLUS_ACESS_HANDLER}.
+     *
+     * Note: Will use the standard Pre-JDK9 accessibility modification mechanism unless OGNL is running
+     *   on JDK9+ and the Java option flag has also been set true.
      */
     private static final AccessibleObjectHandler _accessibleObjectHandler;
     static {
@@ -3650,17 +3662,17 @@ public class OgnlRuntime {
     }
 
     /**
-     * Returns the value of the flag indicating whether the pre-JDK9 access handler
-     *   will always be used (instead of deciding based on Major Java Version number).
+     * Returns the value of the flag indicating whether the JDK9+ access handler has been
+     *   been requested (it can then be used if the Major Java Version number is 9+).
      *
-     * Note: Value is controlled by a Java option flag {@link OgnlRuntime#USE_PREJDK9_ACESS_HANDLER}.
+     * Note: Value is controlled by a Java option flag {@link OgnlRuntime#USE_JDK9PLUS_ACESS_HANDLER}.
      *
-     * @return true if always using the pre-JDK9 access handler, false otherwise (use Java version to decide).
+     * @return true if a request to use the JDK9+ access handler is requested, false otherwise (always use pre-JDK9 handler).
      *
      * @since 3.1.24
      */
-    public static boolean getUsePreJDK9AccessHandlerValue() {
-        return _usePreJDK9AccessHandler;
+    public static boolean getUseJDK9PlusAccessHandlerValue() {
+        return _useJDK9PlusAccessHandler;
     }
 
     /**
@@ -3679,16 +3691,16 @@ public class OgnlRuntime {
 
     /**
      * Returns an indication as to whether the current state indicates the
-     *   JDK9 and later access handler is being used / should be used.  This
+     *   JDK9+ (9 and later) access handler is being used / should be used.  This
      *   is based on a combination of the detected Major Java Version and the
-     *   Java option flag {@link OgnlRuntime#USE_PREJDK9_ACESS_HANDLER}.
+     *   Java option flag {@link OgnlRuntime#USE_JDK9PLUS_ACESS_HANDLER}.
      *
-     * @return true if the JDK9 and later access hander is being used / should be used, false otherwise.
+     * @return true if the JDK9 and later access handler is being used / should be used, false otherwise.
      *
      * @since 3.1.24
      */
     public static boolean usingJDK9PlusAccessHandler() {
-        return (_jdk9Plus && !_usePreJDK9AccessHandler);
+        return (_jdk9Plus && _useJDK9PlusAccessHandler);
     }
 
 }

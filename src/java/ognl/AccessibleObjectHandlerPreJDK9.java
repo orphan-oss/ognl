@@ -49,6 +49,7 @@ class AccessibleObjectHandlerPreJDK9 implements AccessibleObjectHandler
 
     /**
      * Utilize accessibility modification mechanism for JDK 8 (Java Major Version 8) and earlier.
+     *   It is also the default modification mechanism for JDK 9+.
      *
      * @param accessibleObject
      * @param flag
