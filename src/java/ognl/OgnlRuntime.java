@@ -34,12 +34,14 @@ import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
 import ognl.internal.ClassCache;
 import ognl.internal.ClassCacheImpl;
+import ognl.security.OgnlSecurityManagerFactory;
+import ognl.security.UserMethod;
 
 import java.beans.*;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.security.Permission;
+import java.security.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -888,7 +890,7 @@ public class OgnlRuntime {
 
                 ((AccessibleObject) method).setAccessible(true);
                 try {
-                    result = method.invoke(target, argsArray);
+                    result = invokeMethodInsideSandbox(target, method, argsArray);
                 } finally {
                     ((AccessibleObject) method).setAccessible(false);
                 }
@@ -905,10 +907,62 @@ public class OgnlRuntime {
                 }
             }
 
-            result = method.invoke(target, argsArray);
+            result = invokeMethodInsideSandbox(target, method, argsArray);
         }
 
         return result;
+    }
+
+    private static Object invokeMethodInsideSandbox(Object target, Method method, Object[] argsArray)
+            throws InvocationTargetException, IllegalAccessException {
+
+        try {
+            if (System.getProperty("ognl.security.manager") == null) {
+                return method.invoke(target, argsArray);
+            }
+        } catch (SecurityException ignored) {
+            // already enabled or user has applied a policy that doesn't allow read property so we have to honor user's sandbox
+        }
+
+        if (ClassLoader.class.isAssignableFrom(method.getDeclaringClass())) {
+            // to support OgnlSecurityManager.isAccessDenied
+            throw new IllegalAccessException("OGNL direct access to class loader denied!");
+        }
+
+        // creating object before entering sandbox to load classes out of the sandbox
+        UserMethod userMethod = new UserMethod(target, method, argsArray);
+        Permissions p = new Permissions(); // not any permission
+        ProtectionDomain pd = new ProtectionDomain(null, p);
+        AccessControlContext acc = new AccessControlContext(new ProtectionDomain[]{pd});
+
+        Object ognlSecurityManager = OgnlSecurityManagerFactory.getOgnlSecurityManager();
+
+        Long token;
+        try {
+            token = (Long) ognlSecurityManager.getClass().getMethod("enter").invoke(ognlSecurityManager);
+        } catch (NoSuchMethodException e) {
+            throw new InvocationTargetException(e);
+        }
+        if (token == null) {
+            // user has applied a policy that doesn't allow setSecurityManager so we have to honor user's sandbox
+            return method.invoke(target, argsArray);
+        }
+
+        // execute user method body with all permissions denied
+        try {
+            return AccessController.doPrivileged(userMethod, acc);
+        } catch (PrivilegedActionException e) {
+            if (e.getException() instanceof InvocationTargetException) {
+                throw (InvocationTargetException) e.getException();
+            }
+            throw new InvocationTargetException(e);
+        } finally {
+            try {
+                ognlSecurityManager.getClass().getMethod("leave", long.class).invoke(ognlSecurityManager, token);
+            } catch (NoSuchMethodException e) {
+                throw new InvocationTargetException(e);
+            }
+        }
     }
 
     /**
