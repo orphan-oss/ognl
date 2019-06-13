@@ -1922,7 +1922,7 @@ public class OgnlRuntime {
      *
      * @return true If method qualifies as a non-Default public Interface method, false otherwise.
      *
-     * @since 3.1.24
+     * @since 3.1.25
      */
     private static boolean isNonDefaultPublicInterfaceMethod(Method method) {
         return ((method.getModifiers()
@@ -2368,7 +2368,7 @@ public class OgnlRuntime {
     /**
      * Returns a qualifying get (getter) method, if one is available for the given targetClass and propertyName.
      *
-     * Note: From OGNL 3.1.24 onward, this method will attempt to find the first get getter method(s) that match:
+     * Note: From OGNL 3.1.25 onward, this method will attempt to find the first get getter method(s) that match:
      *         1) First get (getter) method, whether public or not.
      *         2) First public get (getter) method, provided the method's declaring class is also public.
      *            This may be the same as 1), if 1) is also public and its declaring class is also public.
@@ -2461,7 +2461,7 @@ public class OgnlRuntime {
     /**
      * Returns a qualifying set (setter) method, if one is available for the given targetClass and propertyName.
      *
-     * Note: From OGNL 3.1.24 onward, this method will attempt to find the first set setter method(s) that match:
+     * Note: From OGNL 3.1.25 onward, this method will attempt to find the first set setter method(s) that match:
      *         1) First set (setter) method, whether public or not.
      *         2) First public set (setter) method, provided the method's declaring class is also public.
      *            This may be the same as 1), if 1) is also public and its declaring class is also public.
