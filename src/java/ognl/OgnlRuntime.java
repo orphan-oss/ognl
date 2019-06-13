@@ -276,6 +276,41 @@ public class OgnlRuntime {
         }
     }
 
+    /**
+     * Control usage of the OGNL Security Manager using the JVM option:
+     *   -Dognl.security.manager=true  (or any non-null value other than 'disable')
+     *
+     * Omit '-Dognl.security.manager=' or nullify the property to disable the feature.
+     *
+     * To forcibly disable the feature (only possible at OGNL Library initialization, use the option:
+     *   -Dognl.security.manager=forceDisableOnInit
+     *
+     * Users that have their own Security Manager implementations and no intention to use the OGNL SecurityManager
+     *   sandbox may choose to use the 'forceDisableOnInit' flag option for performance reasons (avoiding overhead
+     *   involving the system property security checks - when that feature will not be used).
+     */
+    static final String OGNL_SECURITY_MANAGER = "ognl.security.manager";
+    static final String OGNL_SM_FORCE_DISABLE_ON_INIT = "forceDisableOnInit";
+
+    /**
+     * Hold environment flag state associated with OGNL_SECURITY_MANAGER.  See
+     * {@link OgnlRuntime#OGNL_SECURITY_MANAGER} for more details.
+     *   Default: false (if not set).
+     */
+    private static final boolean _disableOgnlSecurityManagerOnInit;
+    static {
+        boolean initialFlagState = false;
+        try {
+            final String propertyString = System.getProperty(OGNL_SECURITY_MANAGER);
+            if (propertyString != null && propertyString.length() > 0) {
+                initialFlagState = OGNL_SM_FORCE_DISABLE_ON_INIT.equalsIgnoreCase(propertyString);
+            }
+        } catch (Exception ex) {
+            // Unavailable (SecurityException, etc.)
+        }
+        _disableOgnlSecurityManagerOnInit = initialFlagState;
+    }
+
     static final ClassCache _methodAccessors = new ClassCacheImpl();
     static final ClassCache _propertyAccessors = new ClassCacheImpl();
     static final ClassCache _elementsAccessors = new ClassCacheImpl();
@@ -1108,8 +1143,12 @@ public class OgnlRuntime {
     private static Object invokeMethodInsideSandbox(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException {
 
+        if (_disableOgnlSecurityManagerOnInit) {
+            return method.invoke(target, argsArray);  // Feature was disabled at OGNL initialization.
+        }
+
         try {
-            if (System.getProperty("ognl.security.manager") == null) {
+            if (System.getProperty(OGNL_SECURITY_MANAGER) == null) {
                 return method.invoke(target, argsArray);
             }
         } catch (SecurityException ignored) {
@@ -3651,7 +3690,7 @@ public class OgnlRuntime {
      *
      * @return Detected Major Java Version, or 5 (minimum supported version for OGNL) if unable to detect.
      *
-     * @since 3.1.24
+     * @since 3.1.25
      */
     static int detectMajorJavaVersion() {
         int majorVersion = -1;
@@ -3675,7 +3714,7 @@ public class OgnlRuntime {
      *
      * @return Detected Major Java Version, or 5 (minimum supported version for OGNL) if unable to detect.
      *
-     * @since 3.1.24
+     * @since 3.1.25
      */
     static int parseMajorJavaVersion(String versionString) {
         int majorVersion = -1;
@@ -3723,7 +3762,7 @@ public class OgnlRuntime {
      *
      * @return true if a request to use the JDK9+ access handler is requested, false otherwise (always use pre-JDK9 handler).
      *
-     * @since 3.1.24
+     * @since 3.1.25
      */
     public static boolean getUseJDK9PlusAccessHandlerValue() {
         return _useJDK9PlusAccessHandler;
@@ -3737,10 +3776,27 @@ public class OgnlRuntime {
      *
      * @return true if stricter invocation is in effect, false otherwise.
      *
-     * @since 3.1.24
+     * @since 3.1.25
      */
     public static boolean getUseStricterInvocationValue() {
         return _useStricterInvocation;
+    }
+
+    /**
+     * Returns the value of the flag indicating whether the OGNL SecurityManager was disabled
+     *   on initialization or not.
+     *
+     * Note: Value is controlled by a Java option flag {@link OgnlRuntime#OGNL_SECURITY_MANAGER} using
+     *       the value {@link OgnlRuntime#OGNL_SM_FORCE_DISABLE_ON_INIT}.
+     *
+     * @return true if OGNL SecurityManager was disabled on initialization, false otherwise.
+     *
+     * @since 3.1.25
+     *
+     * @return
+     */
+    public static boolean getDisableOgnlSecurityManagerOnInitValue() {
+        return _disableOgnlSecurityManagerOnInit;
     }
 
     /**
@@ -3751,7 +3807,7 @@ public class OgnlRuntime {
      *
      * @return true if the JDK9 and later access handler is being used / should be used, false otherwise.
      *
-     * @since 3.1.24
+     * @since 3.1.25
      */
     public static boolean usingJDK9PlusAccessHandler() {
         return (_jdk9Plus && _useJDK9PlusAccessHandler);
