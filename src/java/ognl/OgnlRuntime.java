@@ -2410,12 +2410,10 @@ public class OgnlRuntime {
                     }
                     if (firstPublicGetter == null && Modifier.isPublic(m.getModifiers()) && declaringClassIsPublic) {
                         firstPublicGetter = m;
+                        break;  // Stop looking (this is the best possible match)
                     }
                     if (firstNonDefaultPublicInterfaceGetter == null && isNonDefaultPublicInterfaceMethod(m) && declaringClassIsPublic) {
                         firstNonDefaultPublicInterfaceGetter = m;
-                    }
-                    if (firstGetter != null && firstPublicGetter != null && firstNonDefaultPublicInterfaceGetter != null) {
-                        break;
                     }
                 }
             }
@@ -2502,12 +2500,10 @@ public class OgnlRuntime {
                     }
                     if (firstPublicSetter == null && Modifier.isPublic(m.getModifiers()) && declaringClassIsPublic) {
                         firstPublicSetter = m;
+                        break;  // Stop looking (this is the best possible match)
                     }
                     if (firstNonDefaultPublicInterfaceSetter == null && isNonDefaultPublicInterfaceMethod(m) && declaringClassIsPublic) {
                         firstNonDefaultPublicInterfaceSetter = m;
-                    }
-                    if (firstSetter != null && firstPublicSetter != null && firstNonDefaultPublicInterfaceSetter != null) {
-                        break;
                     }
                 }
             }
