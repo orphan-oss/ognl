@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.1.24
+ * Adds optional Security Manager to allow run expressions in a sandbox [#69](../../../pull/69) -
+   thanks to Yasser Zamani
+
 ## Release notes - version 3.1.22
  * Restores unrestricted access to public static fields [#67](../../../pull/67) -
    thanks to JCgH4164838Gh792C124B5
