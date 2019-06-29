@@ -1554,8 +1554,16 @@ public class OgnlRuntime {
                             }
                         }
                         if (scoreCurr == scoreOther) {
-                            if (failure == null)
-                                System.err.println("Two methods with same score("+score+"): \""+mm.mMethod+"\" and \""+m+"\" please report!");
+                            if (failure == null) {
+                                boolean currentIsAbstract = Modifier.isAbstract(mm.mMethod.getModifiers());
+                                boolean otherIsAbstract = Modifier.isAbstract(m.getModifiers());
+                                if (! (currentIsAbstract ^ otherIsAbstract) ) {
+                                    // Only report as an error when the score is equal and BOTH methods are abstract or BOTH are concrete.
+                                    // If one is abstract and the other concrete then either choice should work for OGNL,
+                                    // so we just keep the current choice and continue (without error output).
+                                    System.err.println("Two methods with same score("+score+"): \""+mm.mMethod+"\" and \""+m+"\" please report!");
+                                }
+                            }
                         } else if (scoreCurr > scoreOther) {
                             // other wins...
                             mm = new MatchingMethod(m, score, report, mParameterTypes);
