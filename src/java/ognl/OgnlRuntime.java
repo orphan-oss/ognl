@@ -365,19 +365,63 @@ public class OgnlRuntime {
      */
     public static void clearCache()
     {
-        _methodParameterTypesCache.clear();
-        _ctorParameterTypesCache.clear();
-        _propertyDescriptorCache.clear();
-        _constructorCache.clear();
-        _staticMethodCache.clear();
-        _instanceMethodCache.clear();
-        _invokePermissionCache.clear();
-        _fieldCache.clear();
-        _superclasses.clear();
-        _declaredMethods[0].clear();
-        _declaredMethods[1].clear();
+        synchronized(_methodParameterTypesCache) {
+            _methodParameterTypesCache.clear();
+        }
+        synchronized(_ctorParameterTypesCache) {
+            _ctorParameterTypesCache.clear();
+        }
+        synchronized(_propertyDescriptorCache) {
+            _propertyDescriptorCache.clear();
+        }
+        synchronized(_constructorCache) {
+            _constructorCache.clear();
+        }
+        synchronized(_staticMethodCache) {
+            _staticMethodCache.clear();
+        }
+        synchronized(_instanceMethodCache) {
+            _instanceMethodCache.clear();
+        }
+        synchronized(_invokePermissionCache) {
+            _invokePermissionCache.clear();
+        }
+        synchronized(_fieldCache) {
+            _fieldCache.clear();
+            _superclasses.clear();  // Used by fieldCache lookup (synchronized on _fieldCache).
+        }
+        synchronized(_declaredMethods[0]) {
+            _declaredMethods[0].clear();
+        }
+        synchronized(_declaredMethods[1]) {
+            _declaredMethods[1].clear();
+        }
         _methodAccessCache.clear();
         _methodPermCache.clear();
+    }
+
+    /**
+     * Clears some additional caches used by OgnlRuntime.  The existing {@link OgnlRuntime#clearCache()}
+     * clears the standard reflection-related caches, but some applications may have need to clear
+     * the additional caches as well.
+     *
+     * Clearing the additional caches may have greater impact than the {@link OgnlRuntime#clearCache()}
+     * method so it should only be used when the normal cache clear is insufficient.
+     *
+     * <p>
+     * <strong>Warning:</strong> Calling this method too often can be a huge performance
+     * drain on your expressions - use with care.
+     * </p>
+     *
+     * @since 3.1.25
+     */
+    public static void clearAdditionalCache()
+    {
+        cacheSetMethod.clear();
+        cacheGetMethod.clear();
+        synchronized(_genericMethodParameterTypesCache) {
+          _genericMethodParameterTypesCache.clear();
+        }
     }
 
     /**
@@ -3449,7 +3493,15 @@ public class OgnlRuntime {
             return methodsByPropertyName.containsKey(propertyName);
         }
 
-    }
+        /**
+         * Allow clearing for the underlying cache of the ClassPropertyMethodCache.
+         *
+         * @since 3.1.25
+         */
+        void clear() {
+            this.cache.clear();
+        }
 
+    }
 
 }

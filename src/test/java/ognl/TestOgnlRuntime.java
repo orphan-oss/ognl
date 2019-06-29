@@ -452,7 +452,9 @@ public class TestOgnlRuntime extends TestCase {
             throws Exception
     {
         OgnlRuntime.clearCache();
+        OgnlRuntime.clearAdditionalCache();  // Testing no exception only.
         assertEquals(0, OgnlRuntime._propertyDescriptorCache.getSize());
+        assertEquals(0, OgnlRuntime._genericMethodParameterTypesCache.size());
 
         Root root = new Root();
         OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
@@ -464,7 +466,9 @@ public class TestOgnlRuntime extends TestCase {
         assertTrue(size > 0);
 
         OgnlRuntime.clearCache();
+        OgnlRuntime.clearAdditionalCache();  // Testing no exception only.
         assertEquals(0, OgnlRuntime._propertyDescriptorCache.getSize());
+        assertEquals(0, OgnlRuntime._genericMethodParameterTypesCache.size());
 
         // now register class cache prevention
 
