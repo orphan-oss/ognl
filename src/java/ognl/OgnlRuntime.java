@@ -124,6 +124,36 @@ public class OgnlRuntime {
     private static boolean _jdk15 = false;
     private static boolean _jdkChecked = false;
 
+    /**
+     * Allow users to revert to the old "first match" lookup for getters/setters by OGNL using the JVM options:
+     *    -Dognl.UseFirstMatchGetSetLookup=true
+     *    -Dognl.UseFirstMatchGetSetLookup=false
+     *
+     * Note: Using the "false" value has the same effect as omitting the option completely.
+     *   The default behaviour is to use the "best match" lookup for getters/setters.
+     *   Using the "true" value reverts to the older "first match" lookup for getters/setters
+     *   (in the event the "best match" processing causes issues for existing applications).
+     */
+    static final String USE_FIRSTMATCH_GETSET_LOOKUP = "ognl.UseFirstMatchGetSetLookup";
+
+    /**
+     * Hold environment flag state associated with USE_FIRSTMATCH_GETSET_LOOKUP.
+     *   Default: false (if not set)
+     */
+    private static final boolean _useFirstMatchGetSetLookup;
+    static {
+        boolean initialFlagState = false;
+        try {
+            final String propertyString = System.getProperty(USE_FIRSTMATCH_GETSET_LOOKUP);
+            if (propertyString != null && propertyString.length() > 0) {
+                initialFlagState = Boolean.parseBoolean(propertyString);
+            }
+        } catch (Exception ex) {
+            // Unavailable (SecurityException, etc.)
+        }
+        _useFirstMatchGetSetLookup = initialFlagState;
+    }
+
     static final ClassCache _methodAccessors = new ClassCacheImpl();
     static final ClassCache _propertyAccessors = new ClassCacheImpl();
     static final ClassCache _elementsAccessors = new ClassCacheImpl();
@@ -2407,6 +2437,9 @@ public class OgnlRuntime {
                     boolean declaringClassIsPublic = Modifier.isPublic(m.getDeclaringClass().getModifiers());
                     if (firstGetter == null) {
                         firstGetter = m;
+                        if (_useFirstMatchGetSetLookup) {
+                            break;  // Stop looking (emulate original logic, return 1st match)
+                        }
                     }
                     if (firstPublicGetter == null && Modifier.isPublic(m.getModifiers()) && declaringClassIsPublic) {
                         firstPublicGetter = m;
@@ -2497,6 +2530,9 @@ public class OgnlRuntime {
                     boolean declaringClassIsPublic = Modifier.isPublic(m.getDeclaringClass().getModifiers());
                     if (firstSetter == null) {
                         firstSetter = m;
+                        if (_useFirstMatchGetSetLookup) {
+                            break;  // Stop looking (emulate original logic, return 1st match)
+                        }
                     }
                     if (firstPublicSetter == null && Modifier.isPublic(m.getModifiers()) && declaringClassIsPublic) {
                         firstPublicSetter = m;
@@ -3545,5 +3581,18 @@ public class OgnlRuntime {
 
     }
 
+    /**
+     * Returns the value of the flag indicating whether the old "first match" lookup for
+     *   getters/setters is in effect or not.
+     *
+     * Note: Value is controlled by a Java option flag {@link OgnlRuntime#USE_FIRSTMATCH_GETSET_LOOKUP}.
+     *
+     * @return true if the old "first match" lookup is in effect, false otherwise.
+     *
+     * @since 3.1.25
+     */
+    public static boolean getUseFirstMatchGetSetLookupValue() {
+        return _useFirstMatchGetSetLookup;
+    }
 
 }
