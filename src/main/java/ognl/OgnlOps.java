@@ -128,9 +128,11 @@ public abstract class OgnlOps implements NumericTypes
 
         if (object1 == object2) {
             result = true;
+        } else if (object1 == null || object2 == null) {
+            result = false;
         } else {
-            if ((object1 != null) && object1.getClass().isArray()) {
-                if ((object2 != null) && object2.getClass().isArray() && (object2.getClass() == object1.getClass())) {
+            if (object1.getClass().isArray()) {
+                if (object2.getClass().isArray() && (object2.getClass() == object1.getClass())) {
                     result = (Array.getLength(object1) == Array.getLength(object2));
                     if (result) {
                         for(int i = 0, icount = Array.getLength(object1); result && (i < icount); i++) {
@@ -139,9 +141,15 @@ public abstract class OgnlOps implements NumericTypes
                     }
                 }
             } else {
-                // Check for converted equivalence first, then equals() equivalence
-                result = (object1 != null) && (object2 != null)
-                        && (object1.equals(object2) || (compareWithConversion(object1, object2) == 0));
+                int t1 = getNumericType(object1);
+                int t2 = getNumericType(object2);
+
+                // compare non-comparable non-numeric types by equals only
+                if (t1 == NONNUMERIC && t2 == NONNUMERIC && !(object1 instanceof Comparable)) {
+                    result = object1.equals(object2);
+                } else {
+                    result = compareWithConversion(object1, object2) == 0;
+                }
             }
         }
         return result;
