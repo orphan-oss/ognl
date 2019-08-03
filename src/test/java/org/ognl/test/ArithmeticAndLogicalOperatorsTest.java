@@ -141,6 +141,10 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
             { "#a = new java.lang.Object(), #a == #a", Boolean.TRUE},
             { "#a = new java.lang.Object(), #b = new java.lang.Object(), #a == #b", Boolean.FALSE},
 
+            // Comparable and non-Comparable
+            { "#a = new java.lang.Object(), #a == ''", Boolean.FALSE},
+            { "#a = new java.lang.Object(), '' == #a", Boolean.FALSE},
+
             { "#x > 0", Boolean.TRUE },
             { "#x < 0", Boolean.FALSE },
             { "#x == 0", Boolean.FALSE },

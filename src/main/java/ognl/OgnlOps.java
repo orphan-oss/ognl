@@ -145,7 +145,7 @@ public abstract class OgnlOps implements NumericTypes
                 int t2 = getNumericType(object2);
 
                 // compare non-comparable non-numeric types by equals only
-                if (t1 == NONNUMERIC && t2 == NONNUMERIC && !(object1 instanceof Comparable)) {
+                if (t1 == NONNUMERIC && t2 == NONNUMERIC && (!(object1 instanceof Comparable) || !(object2 instanceof Comparable))) {
                     result = object1.equals(object2);
                 } else {
                     result = compareWithConversion(object1, object2) == 0;
