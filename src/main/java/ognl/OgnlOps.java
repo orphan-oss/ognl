@@ -128,9 +128,7 @@ public abstract class OgnlOps implements NumericTypes
 
         if (object1 == object2) {
             result = true;
-        } else if (object1 == null || object2 == null) {
-            result = false;
-        } else {
+        } else if (object1 != null && object2 != null) {
             if (object1.getClass().isArray()) {
                 if (object2.getClass().isArray() && (object2.getClass() == object1.getClass())) {
                     result = (Array.getLength(object1) == Array.getLength(object2));
