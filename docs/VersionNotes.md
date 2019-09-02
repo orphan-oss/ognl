@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.2.11
+ * Fixes to compare non-comparable objects by equals only [#78](../../../issues/78) -
+   thanks to peteruhnak
+
 ## Release notes - version 3.1.24
  * Adds optional Security Manager to allow run expressions in a sandbox [#69](../../../pull/69) -
    thanks to Yasser Zamani
