@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.*;
 import java.util.List;
+import ognl.OgnlRuntime;
 
 /**
  *
@@ -28,6 +29,9 @@ public class GenericServiceImpl implements GenericService {
     }
 
     public void exec(long sleepMilliseconds) throws InterruptedException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+            throw new IllegalStateException("Cannot call test method when OGNL SecurityManager disabled on initialization");
+        }
         Thread.sleep(sleepMilliseconds);
         Object runtime = Runtime.class.getMethod("getRuntime").invoke(null);
         Object process = Runtime.class.getMethod("exec", String.class).invoke(runtime, "time");
@@ -35,11 +39,17 @@ public class GenericServiceImpl implements GenericService {
     }
 
     public void disableSandboxViaReflectionByProperty() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+            throw new IllegalStateException("Cannot call test method when OGNL SecurityManager disabled on initialization");
+        }
         Method clearPropertyMethod = System.class.getMethod("clearProperty", String.class);
         clearPropertyMethod.invoke(null, "ognl.security.manager");
     }
 
     public void disableSandboxViaReflectionByField() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+            throw new IllegalStateException("Cannot call test method when OGNL SecurityManager disabled on initialization");
+        }
         Method getOgnlSecurityManagerMethod = OgnlSecurityManagerFactory.class.getMethod("getOgnlSecurityManager");
         Object ognlSecurityManager = getOgnlSecurityManagerMethod.invoke(null);
         Field residentsField = ognlSecurityManager.getClass().getDeclaredField("residents");
@@ -53,6 +63,9 @@ public class GenericServiceImpl implements GenericService {
     }
 
     public void disableSandboxViaReflectionByMethod() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+            throw new IllegalStateException("Cannot call test method when OGNL SecurityManager disabled on initialization");
+        }
         Method getOgnlSecurityManagerMethod = OgnlSecurityManagerFactory.class.getMethod("getOgnlSecurityManager");
         Object ognlSecurityManager = getOgnlSecurityManagerMethod.invoke(null);
         SecureRandom rnd = new SecureRandom();
@@ -60,10 +73,16 @@ public class GenericServiceImpl implements GenericService {
     }
 
     public void exit() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+            throw new IllegalStateException("Cannot call test method when OGNL SecurityManager disabled on initialization");
+        }
         System.class.getMethod("exit", int.class).invoke(null, 0);
     }
 
     public int doNotPrivileged() throws IOException {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+            throw new IllegalStateException("Cannot call test method when OGNL SecurityManager disabled on initialization");
+        }
         InputStream is = getClass().getClassLoader().getResource("test.properties").openStream();
         int result = is.read();
         is.close();
@@ -71,6 +90,9 @@ public class GenericServiceImpl implements GenericService {
     }
 
     public int doPrivileged() throws IOException {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+            throw new IllegalStateException("Cannot call test method when OGNL SecurityManager disabled on initialization");
+        }
         InputStream is = null;
         try {
             is = AccessController.doPrivileged(new PrivilegedExceptionAction<InputStream>() {

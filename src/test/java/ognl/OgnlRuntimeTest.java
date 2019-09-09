@@ -318,6 +318,160 @@ public class OgnlRuntimeTest {
     }
 
     /**
+     * Test OgnlRuntime version parsing mechanism.
+     */
+    @Test
+    public void testMajorJavaVersionParse() {
+        // Pre-JDK 9 version strings.
+        Assert.assertEquals("JDK 5 version check failed ?", 5, OgnlRuntime.parseMajorJavaVersion("1.5"));
+        Assert.assertEquals("JDK 5 version check failed ?", 5, OgnlRuntime.parseMajorJavaVersion("1.5.0"));
+        Assert.assertEquals("JDK 5 version check failed ?", 5, OgnlRuntime.parseMajorJavaVersion("1.5.0_21-b11"));
+        Assert.assertEquals("JDK 6 version check failed ?", 6, OgnlRuntime.parseMajorJavaVersion("1.6"));
+        Assert.assertEquals("JDK 6 version check failed ?", 6, OgnlRuntime.parseMajorJavaVersion("1.6.0"));
+        Assert.assertEquals("JDK 6 version check failed ?", 6, OgnlRuntime.parseMajorJavaVersion("1.6.0_43-b19"));
+        Assert.assertEquals("JDK 7 version check failed ?", 7, OgnlRuntime.parseMajorJavaVersion("1.7"));
+        Assert.assertEquals("JDK 7 version check failed ?", 7, OgnlRuntime.parseMajorJavaVersion("1.7.0"));
+        Assert.assertEquals("JDK 7 version check failed ?", 7, OgnlRuntime.parseMajorJavaVersion("1.7.0_79-b15"));
+        Assert.assertEquals("JDK 8 version check failed ?", 8, OgnlRuntime.parseMajorJavaVersion("1.8"));
+        Assert.assertEquals("JDK 8 version check failed ?", 8, OgnlRuntime.parseMajorJavaVersion("1.8.0"));
+        Assert.assertEquals("JDK 8 version check failed ?", 8, OgnlRuntime.parseMajorJavaVersion("1.8.0_201-b20"));
+        Assert.assertEquals("JDK 8 version check failed ?", 8, OgnlRuntime.parseMajorJavaVersion("1.8.0-someopenjdkstyle"));
+        Assert.assertEquals("JDK 8 version check failed ?", 8, OgnlRuntime.parseMajorJavaVersion("1.8.0_201-someopenjdkstyle"));
+        // JDK 9 and later version strings.
+        Assert.assertEquals("JDK 9 version check failed ?", 9, OgnlRuntime.parseMajorJavaVersion("9"));
+        Assert.assertEquals("JDK 9 version check failed ?", 9, OgnlRuntime.parseMajorJavaVersion("9-ea+19"));
+        Assert.assertEquals("JDK 9 version check failed ?", 9, OgnlRuntime.parseMajorJavaVersion("9+100"));
+        Assert.assertEquals("JDK 9 version check failed ?", 9, OgnlRuntime.parseMajorJavaVersion("9-ea+19"));
+        Assert.assertEquals("JDK 9 version check failed ?", 9, OgnlRuntime.parseMajorJavaVersion("9.1.3+15"));
+        Assert.assertEquals("JDK 9 version check failed ?", 9, OgnlRuntime.parseMajorJavaVersion("9-someopenjdkstyle"));
+        Assert.assertEquals("JDK 10 version check failed ?", 10, OgnlRuntime.parseMajorJavaVersion("10"));
+        Assert.assertEquals("JDK 10 version check failed ?", 10, OgnlRuntime.parseMajorJavaVersion("10-ea+11"));
+        Assert.assertEquals("JDK 10 version check failed ?", 10, OgnlRuntime.parseMajorJavaVersion("10+10"));
+        Assert.assertEquals("JDK 10 version check failed ?", 10, OgnlRuntime.parseMajorJavaVersion("10-ea+11"));
+        Assert.assertEquals("JDK 10 version check failed ?", 10, OgnlRuntime.parseMajorJavaVersion("10.1.3+15"));
+        Assert.assertEquals("JDK 10 version check failed ?", 10, OgnlRuntime.parseMajorJavaVersion("10-someopenjdkstyle"));
+        Assert.assertEquals("JDK 11 version check failed ?", 11, OgnlRuntime.parseMajorJavaVersion("11"));
+        Assert.assertEquals("JDK 11 version check failed ?", 11, OgnlRuntime.parseMajorJavaVersion("11-ea+22"));
+        Assert.assertEquals("JDK 11 version check failed ?", 11, OgnlRuntime.parseMajorJavaVersion("11+33"));
+        Assert.assertEquals("JDK 11 version check failed ?", 11, OgnlRuntime.parseMajorJavaVersion("11-ea+19"));
+        Assert.assertEquals("JDK 11 version check failed ?", 11, OgnlRuntime.parseMajorJavaVersion("11.1.3+15"));
+        Assert.assertEquals("JDK 11 version check failed ?", 11, OgnlRuntime.parseMajorJavaVersion("11-someopenjdkstyle"));
+    }
+
+    /**
+     * Test OgnlRuntime Major Version Check mechanism.
+     */
+    @Test
+    public void testMajorJavaVersionCheck() {
+        // Ensure no exceptions, basic ouput for test report and sanity check on minimum version.
+        final int majorJavaVersion = OgnlRuntime.detectMajorJavaVersion();
+        System.out.println("Major Java Version detected: " + majorJavaVersion);
+        Assert.assertTrue("Major Java Version Check returned value (" + majorJavaVersion + ") less than minimum (5) ?", majorJavaVersion >= 5);
+    }
+
+    /**
+     * Test OgnlRuntime value for _useJDK9PlusAccessHandler based on the System property
+     *   represented by {@link OgnlRuntime#USE_JDK9PLUS_ACESS_HANDLER}.
+     */
+    @Test
+    public void testAccessHanderStateFlag() {
+        // Ensure no exceptions, basic ouput for test report and sanity check on flag state.
+        final boolean defaultValue = false;          // Expected non-configured default
+        boolean optionDefinedInEnvironment = false;  // Track if option defined in environment
+        boolean flagValueFromEnvironment = false;    // Value result from environment retrieval
+        try {
+            final String propertyString = System.getProperty(OgnlRuntime.USE_JDK9PLUS_ACESS_HANDLER);
+            if (propertyString != null && propertyString.length() > 0) {
+                optionDefinedInEnvironment = true;
+                flagValueFromEnvironment = Boolean.parseBoolean(propertyString);
+            }
+        } catch (Exception ex) {
+            // Unavailable (SecurityException, etc.)
+        }
+        if (optionDefinedInEnvironment) {
+            System.out.println("System property " + OgnlRuntime.USE_JDK9PLUS_ACESS_HANDLER + " value: " + flagValueFromEnvironment);
+        } else {
+            System.out.println("System property " + OgnlRuntime.USE_JDK9PLUS_ACESS_HANDLER + " not present.  Default value should be: " + defaultValue);
+        }
+        System.out.println("Current OGNL value for use JDK9+ Access Handler: " + OgnlRuntime.getUseJDK9PlusAccessHandlerValue());
+        Assert.assertEquals("Mismatch between system property (or default) and OgnlRuntime _usJDK9PlusAccessHandler flag state ?",
+                optionDefinedInEnvironment ? flagValueFromEnvironment : defaultValue, OgnlRuntime.getUseJDK9PlusAccessHandlerValue());
+    }
+
+    /**
+     * Test OgnlRuntime value for _useStricterInvocation based on the System properties
+     *   represented by {@link OgnlRuntime#USE_STRICTER_INVOCATION}.
+     */
+    @Test
+    public void testUseStricterInvocationStateFlag() {
+        // Ensure no exceptions, basic ouput for test report and sanity check on flag state.
+        final boolean defaultValue = true;           // Expected non-configured default
+        boolean optionDefinedInEnvironment = false;  // Track if option defined in environment
+        boolean flagValueFromEnvironment = true;     // Expected non-configured default
+        try {
+            final String propertyString = System.getProperty(OgnlRuntime.USE_STRICTER_INVOCATION);
+            if (propertyString != null && propertyString.length() > 0) {
+                optionDefinedInEnvironment = true;
+                flagValueFromEnvironment = Boolean.parseBoolean(propertyString);
+            }
+        } catch (Exception ex) {
+            // Unavailable (SecurityException, etc.)
+        }
+        if (optionDefinedInEnvironment) {
+            System.out.println("System property " + OgnlRuntime.USE_STRICTER_INVOCATION + " value: " + flagValueFromEnvironment);
+        } else {
+            System.out.println("System property " + OgnlRuntime.USE_STRICTER_INVOCATION + " not present.  Default value should be: " + defaultValue);
+        }
+        System.out.println("Current OGNL value for use stricter invocation: " + OgnlRuntime.getUseStricterInvocationValue());
+        Assert.assertEquals("Mismatch between system property (or default) and OgnlRuntime _useStricterInvocation flag state ?",
+                optionDefinedInEnvironment ? flagValueFromEnvironment : defaultValue, OgnlRuntime.getUseStricterInvocationValue());
+    }
+
+    /**
+     * Test OgnlRuntime stricter invocation mode.
+     */
+    @Test
+    public void testStricterInvocationMode() {
+        // Ensure no exceptions, basic ouput for test report and sanity check on flag state.
+        // Note: If stricter invocation mode is disabled (due to a system property being set for
+        //   the JVM running the test) this test will not fail, but just skip the test.
+        if ( OgnlRuntime.getUseStricterInvocationValue()) {
+            try {
+                final Class<?>[] singleClassArgument = new Class<?>[1];
+                singleClassArgument[0] = int.class;
+                final Method exitMethod = System.class.getMethod("exit", singleClassArgument);
+                try {
+                    OgnlRuntime.invokeMethod(System.class, exitMethod, new Object[] { -1 });
+                    Assert.fail("Somehow got past invocation of a restricted exit call (nonsensical result) ?");
+                } catch (IllegalAccessException iae) {
+                    // Expected failure (failed during invocation)
+                    System.out.println("Stricter invocation mode blocked restricted call (as expected).  Exception: " + iae);
+                } catch (SecurityException se) {
+                    // Possible exception if test is run with an active security manager)
+                    System.out.println("Stricter invocation mode blocked by security manager (may be valid).  Exception: " + se);
+                }
+
+                singleClassArgument[0] = String.class;
+                final Method execMethod = Runtime.class.getMethod("exec", singleClassArgument);
+                try {
+                    OgnlRuntime.invokeMethod(Runtime.getRuntime(), execMethod, new Object[] { "fakeCommand" });
+                    Assert.fail("Somehow got past invocation of a restricted exec call ?");
+                } catch (IllegalAccessException iae) {
+                    // Expected failure (failed during invocation)
+                    System.out.println("Stricter invocation mode blocked restricted call (as expected).  Exception: " + iae);
+                } catch (SecurityException se) {
+                    // Possible exception if test is run with an active security manager)
+                    System.out.println("Stricter invocation mode blocked by security manager (may be valid).  Exception: " + se);
+                }
+            } catch (Exception ex) {
+                Assert.fail("Unable to fully test stricter invocation mode.  Exception: " + ex);
+            }
+        } else {
+            System.out.println("Not testing stricter invocation mode (disabled via system property).");
+        }
+    }
+
+    /**
      * Test OgnlRuntime value for _useFirstMatchGetSetLookup based on the System property
      *   represented by {@link OgnlRuntime#USE_FIRSTMATCH_GETSET_LOOKUP}.
      */
