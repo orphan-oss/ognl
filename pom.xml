@@ -122,6 +122,9 @@
                     <archive>
                         <compress>true</compress>
                         <index>true</index>
+                        <manifestEntries>
+                            <Automatic-Module-Name>ognl</Automatic-Module-Name>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
