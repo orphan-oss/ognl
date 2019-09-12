@@ -2274,7 +2274,7 @@ public class OgnlRuntime {
     private static void collectAccessors(Class c, String baseName, List result, boolean findSets)
     {
         Method[] methods;
-        try{
+        try {
             methods = c.getDeclaredMethods();
         } catch (SecurityException ignored) {
             methods = c.getMethods();
