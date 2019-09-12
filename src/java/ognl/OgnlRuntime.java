@@ -311,6 +311,36 @@ public class OgnlRuntime {
         _disableOgnlSecurityManagerOnInit = initialFlagState;
     }
 
+    /**
+     * Allow users to revert to the old "first match" lookup for getters/setters by OGNL using the JVM options:
+     *    -Dognl.UseFirstMatchGetSetLookup=true
+     *    -Dognl.UseFirstMatchGetSetLookup=false
+     *
+     * Note: Using the "false" value has the same effect as omitting the option completely.
+     *   The default behaviour is to use the "best match" lookup for getters/setters.
+     *   Using the "true" value reverts to the older "first match" lookup for getters/setters
+     *   (in the event the "best match" processing causes issues for existing applications).
+     */
+    static final String USE_FIRSTMATCH_GETSET_LOOKUP = "ognl.UseFirstMatchGetSetLookup";
+
+    /**
+     * Hold environment flag state associated with USE_FIRSTMATCH_GETSET_LOOKUP.
+     *   Default: false (if not set)
+     */
+    private static final boolean _useFirstMatchGetSetLookup;
+    static {
+        boolean initialFlagState = false;
+        try {
+            final String propertyString = System.getProperty(USE_FIRSTMATCH_GETSET_LOOKUP);
+            if (propertyString != null && propertyString.length() > 0) {
+                initialFlagState = Boolean.parseBoolean(propertyString);
+            }
+        } catch (Exception ex) {
+            // Unavailable (SecurityException, etc.)
+        }
+        _useFirstMatchGetSetLookup = initialFlagState;
+    }
+
     static final ClassCache _methodAccessors = new ClassCacheImpl();
     static final ClassCache _propertyAccessors = new ClassCacheImpl();
     static final ClassCache _elementsAccessors = new ClassCacheImpl();
@@ -2128,11 +2158,36 @@ public class OgnlRuntime {
 
     /**
      * Backport of java.lang.reflect.Method#isDefault()
+     *
+     * JDK8+ supports Default Methods for interfaces.  Default Methods are defined as:
+     *   public, non-abstract and declared within an interface (must also be non-static).
+     *
+     * @param method The Method to check against the requirements for a Default Method.
+     *
+     * @return true If the Method qualifies as a Default Method, false otherwise.
      */
     private static boolean isDefaultMethod(Method method)
     {
         return ((method.getModifiers()
                 & (Modifier.ABSTRACT | Modifier.PUBLIC | Modifier.STATIC)) == Modifier.PUBLIC)
+                && method.getDeclaringClass().isInterface();
+    }
+
+    /**
+     * Determine if the provided Method is a non-Default public Interface method.
+     *
+     * Public non-Default Methods are defined as:
+     *   public, abstract, non-static and declared within an interface.
+     *
+     * @param method The Method to check against the requirements for a non-Default Method.
+     *
+     * @return true If method qualifies as a non-Default public Interface method, false otherwise.
+     *
+     * @since 3.1.25
+     */
+    private static boolean isNonDefaultPublicInterfaceMethod(Method method) {
+        return ((method.getModifiers()
+                & (Modifier.ABSTRACT | Modifier.PUBLIC | Modifier.STATIC)) == (Modifier.ABSTRACT | Modifier.PUBLIC))
                 && method.getDeclaringClass().isInterface();
     }
 
@@ -2498,7 +2553,7 @@ public class OgnlRuntime {
         final Method[] methods = c.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
             if (c.isInterface()) {
-                if (isDefaultMethod(methods[i])) {
+                if (isDefaultMethod(methods[i]) || isNonDefaultPublicInterfaceMethod(methods[i])) {
                     addIfAccessor(result, methods[i], baseName, findSets);
                 }
                 continue;
@@ -2571,6 +2626,26 @@ public class OgnlRuntime {
         return method;
     }
 
+    /**
+     * Returns a qualifying get (getter) method, if one is available for the given targetClass and propertyName.
+     *
+     * Note: From OGNL 3.1.25 onward, this method will attempt to find the first get getter method(s) that match:
+     *         1) First get (getter) method, whether public or not.
+     *         2) First public get (getter) method, provided the method's declaring class is also public.
+     *            This may be the same as 1), if 1) is also public and its declaring class is also public.
+     *         3) First public non-Default interface get (getter) method, provided the method's declaring class is also public.
+     *       The <b>order of preference (priority)<b> for the above matches will be <b>2</b> (1st public getter),
+     *       <b>3</b> (1st public non-Default interface getter), <b>1</b> (1st getter of any kind).
+     *   This updated methodology should help limit the need to modify method accessibility levels in some circumstances.
+     *
+     * @param context The current execution context.
+     * @param targetClass Class to search for a get method (getter).
+     * @param propertyName Name of the property for the get method (getter).
+     *
+     * @return
+     * @throws IntrospectionException
+     * @throws OgnlException
+     */
     private static Method _getGetMethod(OgnlContext context, Class targetClass, String propertyName)
             throws IntrospectionException, OgnlException
     {
@@ -2580,6 +2655,9 @@ public class OgnlRuntime {
 
         if (methods != null)
         {
+            Method firstGetter = null;
+            Method firstPublicGetter = null;
+            Method firstNonDefaultPublicInterfaceGetter = null;
             for (int i = 0, icount = methods.size(); i < icount; i++)
             {
                 Method m = (Method) methods.get(i);
@@ -2587,10 +2665,24 @@ public class OgnlRuntime {
 
                 if (mParameterTypes.length == 0)
                 {
-                    result = m;
-                    break;
+                    boolean declaringClassIsPublic = Modifier.isPublic(m.getDeclaringClass().getModifiers());
+                    if (firstGetter == null) {
+                        firstGetter = m;
+                        if (_useFirstMatchGetSetLookup) {
+                            break;  // Stop looking (emulate original logic, return 1st match)
+                        }
+                    }
+                    if (firstPublicGetter == null && Modifier.isPublic(m.getModifiers()) && declaringClassIsPublic) {
+                        firstPublicGetter = m;
+                        break;  // Stop looking (this is the best possible match)
+                    }
+                    if (firstNonDefaultPublicInterfaceGetter == null && isNonDefaultPublicInterfaceMethod(m) && declaringClassIsPublic) {
+                        firstNonDefaultPublicInterfaceGetter = m;
+                    }
                 }
             }
+            result = (firstPublicGetter != null) ? firstPublicGetter :
+                    (firstNonDefaultPublicInterfaceGetter != null) ? firstNonDefaultPublicInterfaceGetter : firstGetter;
         }
 
         return result;
@@ -2628,6 +2720,26 @@ public class OgnlRuntime {
         return method;
     }
 
+    /**
+     * Returns a qualifying set (setter) method, if one is available for the given targetClass and propertyName.
+     *
+     * Note: From OGNL 3.1.25 onward, this method will attempt to find the first set setter method(s) that match:
+     *         1) First set (setter) method, whether public or not.
+     *         2) First public set (setter) method, provided the method's declaring class is also public.
+     *            This may be the same as 1), if 1) is also public and its declaring class is also public.
+     *         3) First public non-Default interface set (setter) method, provided the method's declaring class is also public.
+     *       The <b>order of preference (priority)<b> for the above matches will be <b>2</b> (1st public setter),
+     *       <b>3</b> (1st public non-Default interface setter), <b>1</b> (1st setter of any kind).
+     *   This updated methodology should help limit the need to modify method accessibility levels in some circumstances.
+     *
+     * @param context The current execution context.
+     * @param targetClass Class to search for a set method (setter).
+     * @param propertyName Name of the property for the set method (setter).
+     *
+     * @return
+     * @throws IntrospectionException
+     * @throws OgnlException
+     */
     private static Method _getSetMethod(OgnlContext context, Class targetClass, String propertyName)
             throws IntrospectionException, OgnlException
     {
@@ -2637,16 +2749,34 @@ public class OgnlRuntime {
 
         if (methods != null)
         {
+            Method firstSetter = null;
+            Method firstPublicSetter = null;
+            Method firstNonDefaultPublicInterfaceSetter = null;
             for (int i = 0, icount = methods.size(); i < icount; i++)
             {
                 Method m = (Method) methods.get(i);
                 Class[] mParameterTypes = findParameterTypes(targetClass, m); //getParameterTypes(m);
 
                 if (mParameterTypes.length == 1) {
-                    result = m;
-                    break;
+                    boolean declaringClassIsPublic = Modifier.isPublic(m.getDeclaringClass().getModifiers());
+                    if (firstSetter == null) {
+                        firstSetter = m;
+                        if (_useFirstMatchGetSetLookup) {
+                            break;  // Stop looking (emulate original logic, return 1st match)
+                        }
+                    }
+                    if (firstPublicSetter == null && Modifier.isPublic(m.getModifiers()) && declaringClassIsPublic) {
+                        firstPublicSetter = m;
+                        break;  // Stop looking (this is the best possible match)
+                    }
+                    if (firstNonDefaultPublicInterfaceSetter == null && isNonDefaultPublicInterfaceMethod(m) && declaringClassIsPublic) {
+                        firstNonDefaultPublicInterfaceSetter = m;
+                    }
                 }
             }
+
+            result = (firstPublicSetter != null) ? firstPublicSetter :
+                    (firstNonDefaultPublicInterfaceSetter != null) ? firstNonDefaultPublicInterfaceSetter : firstSetter;
         }
 
         return result;
@@ -3811,6 +3941,20 @@ public class OgnlRuntime {
      */
     public static boolean usingJDK9PlusAccessHandler() {
         return (_jdk9Plus && _useJDK9PlusAccessHandler);
+    }
+
+    /**
+     * Returns the value of the flag indicating whether the old "first match" lookup for
+     *   getters/setters is in effect or not.
+     *
+     * Note: Value is controlled by a Java option flag {@link OgnlRuntime#USE_FIRSTMATCH_GETSET_LOOKUP}.
+     *
+     * @return true if the old "first match" lookup is in effect, false otherwise.
+     *
+     * @since 3.1.25
+     */
+    public static boolean getUseFirstMatchGetSetLookupValue() {
+        return _useFirstMatchGetSetLookup;
     }
 
 }
