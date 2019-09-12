@@ -184,7 +184,9 @@ public class TestOgnlRuntime extends TestCase {
             throws Exception
     {
         OgnlRuntime.clearCache();
+        OgnlRuntime.clearAdditionalCache();  // Testing no exception only.
         assertEquals(0, OgnlRuntime._propertyDescriptorCache.getSize());
+        assertEquals(0, OgnlRuntime._genericMethodParameterTypesCache.size());
 
         Root root = new Root();
         OgnlContext context = (OgnlContext) this.context;
@@ -196,7 +198,9 @@ public class TestOgnlRuntime extends TestCase {
         assertTrue(size > 0);
 
         OgnlRuntime.clearCache();
+        OgnlRuntime.clearAdditionalCache();  // Testing no exception only.
         assertEquals(0, OgnlRuntime._propertyDescriptorCache.getSize());
+        assertEquals(0, OgnlRuntime._genericMethodParameterTypesCache.size());
 
         // now register class cache prevention
 
@@ -346,4 +350,40 @@ public class TestOgnlRuntime extends TestCase {
         Object obj = OgnlRuntime.getStaticField(context, "org.ognl.test.objects.OtherEnum", "STATIC_STRING");
         assertEquals(OtherEnum.STATIC_STRING, obj);
     }
+
+    /**
+     * This test indirectly confirms an error output (syserr) is no longer produced when OgnlRuntime
+     * encounters the condition reported in issue #17.  {@link OgnlRuntime#findBestMethod} can find
+     * two appropriate methods with the same score where one is abstract and one is concrete.  Either
+     * choice in that scenario actually worked when invoked, but produced the unwanted syserr output.
+     *
+     * @throws Exception
+     */
+    public void testAbstractConcreteMethodScoringNoSysErr() throws Exception {
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        ObjectMethodAccessor methodAccessor = new ObjectMethodAccessor();
+        ConcreteTestClass concreteTestClass = new ConcreteTestClass();
+        Object result = methodAccessor.callMethod(context, concreteTestClass, "testMethod", new Object[]{"Test", 1});
+        // The "Two methods with same score(0) ..." error output should no longer be seen with the above call.
+        assertEquals("Result not concatenation of parameters ?", "Test" + 1, result);
+    }
+
+    /**
+     * Abstract test class for issue #42 - equal score syserr output for abstract class/method hierarchy.
+     *
+     * @param <T>
+     */
+    abstract class AbstractTestClass <T> {
+        public abstract String testMethod (T element, int i);
+    }
+
+    /**
+     * Concrete test class for issue #42 - equal score syserr output for abstract class/method hierarchy.
+     */
+    class ConcreteTestClass extends AbstractTestClass < String > {
+        public String testMethod (String element, int i) {
+            return element + i;
+        }
+    }
+
 }
