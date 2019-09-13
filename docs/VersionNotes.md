@@ -1,5 +1,13 @@
 # Version Notes
 
+## Release notes - version 3.1.25
+ * improves getter/setter detection algorithm [#75](../../../pull/75) -
+   thanks to JCgH4164838Gh792C124B5
+* enhances cache clearing [#77](../../../pull/77) -
+   thanks to JCgH4164838Gh792C124B5
+* does not fail on getDeclaredXXX when user has used a SecurityManager [#79](../../../pull/79) -
+   thanks to Yasser Zamani
+
 ## Release notes - version 3.2.11
  * Fixes to compare non-comparable objects by equals only [#78](../../../issues/78) -
    thanks to peteruhnak
