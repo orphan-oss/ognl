@@ -360,7 +360,7 @@ public class TestOgnlRuntime extends TestCase {
      * @throws Exception
      */
     public void testAbstractConcreteMethodScoringNoSysErr() throws Exception {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
         ObjectMethodAccessor methodAccessor = new ObjectMethodAccessor();
         ConcreteTestClass concreteTestClass = new ConcreteTestClass();
         Object result = methodAccessor.callMethod(context, concreteTestClass, "testMethod", new Object[]{"Test", 1});
