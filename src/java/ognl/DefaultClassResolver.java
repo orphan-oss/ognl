@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultClassResolver extends Object implements ClassResolver
 {
-    private final Map<String, Class> classes = new ConcurrentHashMap<>(101);
+    private final Map<String, Class> classes = new ConcurrentHashMap<String, Class>(101);
 
     public DefaultClassResolver()
     {
