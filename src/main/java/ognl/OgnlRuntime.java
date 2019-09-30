@@ -863,46 +863,56 @@ public class OgnlRuntime {
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException
     {
-        boolean syncInvoke = false;
+        boolean syncInvoke;
+        boolean checkPermission;
+        Boolean methodAccessCacheValue;
+        Boolean methodPermCacheValue;
 
         // only synchronize method invocation if it actually requires it
 
         synchronized(method) {
-            if (_methodAccessCache.get(method) == null) {
+            methodAccessCacheValue = _methodAccessCache.get(method);
+            if (methodAccessCacheValue == null) {
                 if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
                 {
                     if (!(((AccessibleObject) method).isAccessible()))
                     {
-                        _methodAccessCache.put(method, Boolean.TRUE);
+                        methodAccessCacheValue = Boolean.TRUE;
+                        _methodAccessCache.put(method, methodAccessCacheValue);
                     } else
                     {
-                        _methodAccessCache.put(method, Boolean.FALSE);
+                        methodAccessCacheValue = Boolean.FALSE;
+                        _methodAccessCache.put(method, methodAccessCacheValue);
                     }
                 } else
                 {
-                    _methodAccessCache.put(method, Boolean.FALSE);
+                    methodAccessCacheValue = Boolean.FALSE;
+                    _methodAccessCache.put(method, methodAccessCacheValue);
                 }
             }
-            if (_methodAccessCache.get(method) == Boolean.TRUE) {
-                syncInvoke = true;
-            }
+            syncInvoke = Boolean.TRUE.equals(methodAccessCacheValue);
 
-            if (_methodPermCache.get(method) == null) {
+            methodPermCacheValue = _methodPermCache.get(method);
+            if (methodPermCacheValue == null) {
                 if (_securityManager != null) {
                     try
                     {
                         _securityManager.checkPermission(getPermission(method));
-                        _methodPermCache.put(method, Boolean.TRUE);
+                        methodPermCacheValue = Boolean.TRUE;
+                        _methodPermCache.put(method, methodPermCacheValue);
                     } catch (SecurityException ex) {
-                        _methodPermCache.put(method, Boolean.FALSE);
+                        methodPermCacheValue = Boolean.FALSE;
+                        _methodPermCache.put(method, methodPermCacheValue);
                         throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
                     }
                 }
                 else {
-                    _methodPermCache.put(method, Boolean.TRUE);
+                    methodPermCacheValue = Boolean.TRUE;
+                    _methodPermCache.put(method, methodPermCacheValue);
                 }
             }
-            if (_methodPermCache.get(method) == Boolean.FALSE) {
+            checkPermission = Boolean.FALSE.equals(methodPermCacheValue);
+            if (checkPermission) { // TODO: ***** This check/block to be removed if/when SecurityManager sandbox logic is merged from v3.1.x *****
                 throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
             }
         }
@@ -2305,7 +2315,6 @@ public class OgnlRuntime {
             throws IntrospectionException, OgnlException
     {
         Method result = null;
-
 
         List methods = getDeclaredMethods(targetClass, propertyName, false /* find 'get' methods */);
 
