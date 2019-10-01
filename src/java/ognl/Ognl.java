@@ -100,6 +100,7 @@ public abstract class Ognl
      *            the OGNL expressions maximum allowed length. Use null (default) to disable this functionality.
      * @throws SecurityException
      *            if the caller is inside OGNL expression itself.
+     * @since 3.1.26
      */
     public static void applyExpressionMaxLength(Integer expressionMaxLength) {
         if (System.getSecurityManager() instanceof OgnlSecurityManager) {
