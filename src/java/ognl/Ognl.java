@@ -31,6 +31,7 @@
 package ognl;
 
 import ognl.enhance.ExpressionAccessor;
+import ognl.security.OgnlSecurityManager;
 
 import java.io.StringReader;
 import java.util.Map;
@@ -90,6 +91,24 @@ import java.util.Map;
 public abstract class Ognl
 {
 
+    private static Integer expressionMaxLength;
+
+    /**
+     * Applies a maximum allowed length on OGNL expressions for security reasons.
+     *
+     * @param expressionMaxLength
+     *            the OGNL expressions maximum allowed length. Use null (default) to disable this functionality.
+     * @throws SecurityException
+     *            if the caller is inside OGNL expression itself.
+     * @since 3.1.26
+     */
+    public static void applyExpressionMaxLength(Integer expressionMaxLength) {
+        if (System.getSecurityManager() instanceof OgnlSecurityManager) {
+            throw new SecurityException("the OGNL expressions maximum allowed length is not accessible inside expression itself!");
+        }
+        Ognl.expressionMaxLength = expressionMaxLength;
+    }
+
     /**
      * Parses the given OGNL expression and returns a tree representation of the expression that can
      * be used by <CODE>Ognl</CODE> static methods.
@@ -105,6 +124,10 @@ public abstract class Ognl
     public static Object parseExpression(String expression)
             throws OgnlException
     {
+        if (expressionMaxLength != null && expression != null && expression.length() > expressionMaxLength) {
+            throw new OgnlException("Parsing blocked due to security reasons!",
+                    new SecurityException("This expression exceeded maximum allowed length: " + expression));
+        }
         try {
             OgnlParser parser = new OgnlParser(new StringReader(expression));
             return parser.topLevelExpression();
