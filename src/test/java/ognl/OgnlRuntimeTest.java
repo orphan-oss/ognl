@@ -471,4 +471,33 @@ public class OgnlRuntimeTest {
         }
     }
 
+    /**
+     * Test OgnlRuntime value for _useFirstMatchGetSetLookup based on the System property
+     *   represented by {@link OgnlRuntime#USE_FIRSTMATCH_GETSET_LOOKUP}.
+     */
+    @Test
+    public void testUseFirstMatchGetSetStateFlag() {
+        // Ensure no exceptions, basic ouput for test report and sanity check on flag state.
+        final boolean defaultValue = false;          // Expected non-configured default
+        boolean optionDefinedInEnvironment = false;  // Track if option defined in environment
+        boolean flagValueFromEnvironment = false;    // Value result from environment retrieval
+        try {
+            final String propertyString = System.getProperty(OgnlRuntime.USE_FIRSTMATCH_GETSET_LOOKUP);
+            if (propertyString != null && propertyString.length() > 0) {
+                optionDefinedInEnvironment = true;
+                flagValueFromEnvironment = Boolean.parseBoolean(propertyString);
+            }
+        } catch (Exception ex) {
+            // Unavailable (SecurityException, etc.)
+        }
+        if (optionDefinedInEnvironment) {
+            System.out.println("System property " + OgnlRuntime.USE_FIRSTMATCH_GETSET_LOOKUP + " value: " + flagValueFromEnvironment);
+        } else {
+            System.out.println("System property " + OgnlRuntime.USE_FIRSTMATCH_GETSET_LOOKUP + " not present.  Default value should be: " + defaultValue);
+        }
+        System.out.println("Current OGNL value for Use First Match Get/Set State Flag: " + OgnlRuntime.getUseFirstMatchGetSetLookupValue());
+        Assert.assertEquals("Mismatch between system property (or default) and OgnlRuntime _useFirstMatchGetSetLookup flag state ?",
+                optionDefinedInEnvironment ? flagValueFromEnvironment : defaultValue, OgnlRuntime.getUseFirstMatchGetSetLookupValue());
+    }
+
 }

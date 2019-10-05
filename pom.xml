@@ -75,6 +75,7 @@
     <build>
         <plugins>
             <plugin>
+                <!-- Source/target levels are at 1.7 (Travis CI now rejects 1.5) -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
