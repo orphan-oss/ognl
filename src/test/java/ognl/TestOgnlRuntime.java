@@ -188,6 +188,11 @@ public class TestOgnlRuntime extends TestCase {
 
     public void test_Call_Method_In_JDK_Sandbox()
             throws Exception {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox() -invocation test.");
+            return;  // JVM option was set to disable sandbox, do not attempt invocation.
+        }
+
         OgnlContext context = (OgnlContext) this.context;
         GenericService service = new GenericServiceImpl();
 
@@ -196,7 +201,7 @@ public class TestOgnlRuntime extends TestCase {
 
         boolean temporaryEnabled = false;
         try {
-            System.setProperty("ognl.security.manager", "");
+            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
             temporaryEnabled = true;
         } catch (Exception ignore) {
             // already enabled
@@ -210,19 +215,24 @@ public class TestOgnlRuntime extends TestCase {
             assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("execute"));
         } finally {
             if (temporaryEnabled) {
-                System.clearProperty("ognl.security.manager");
+                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
             }
         }
     }
 
     public void test_Call_Method_In_JDK_Sandbox_Thread_Safety()
             throws Exception {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox_Thread_Safety() invocation test.");
+            return;  // JVM option was set to disable sandbox, do not attempt invocation.
+        }
+
         final OgnlContext context = (OgnlContext) this.context;
         final GenericService service = new GenericServiceImpl();
 
         boolean temporaryEnabled = false;
         try {
-            System.setProperty("ognl.security.manager", "");
+            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
             temporaryEnabled = true;
         } catch (Exception ignore) {
             // already enabled
@@ -277,13 +287,18 @@ public class TestOgnlRuntime extends TestCase {
             assertEquals(0, numThreadsFailedTest.get());
         } finally {
             if (temporaryEnabled) {
-                System.clearProperty("ognl.security.manager");
+                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
             }
         }
     }
 
     public void test_Disable_JDK_Sandbox()
             throws Exception {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Disable_JDK_Sandbox() invocation test.");
+            return;  // JVM option was set to disable sandbox, do not attempt invocation.
+        }
+
         OgnlContext context = (OgnlContext) this.context;
         GenericService service = new GenericServiceImpl();
 
@@ -291,7 +306,7 @@ public class TestOgnlRuntime extends TestCase {
 
         boolean temporaryEnabled = false;
         try {
-            System.setProperty("ognl.security.manager", "");
+            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
             temporaryEnabled = true;
         } catch (Exception ignore) {
             // already enabled
@@ -302,17 +317,17 @@ public class TestOgnlRuntime extends TestCase {
             fail("JDK sandbox should block execution");
         } catch (Exception ex) {
             assertTrue(ex.getCause() instanceof InvocationTargetException);
-            assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("ognl.security.manager"));
+            assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains(OgnlRuntime.OGNL_SECURITY_MANAGER));
             assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("write"));
         } finally {
             if (temporaryEnabled) {
-                System.clearProperty("ognl.security.manager");
+                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
             }
         }
 
         temporaryEnabled = false;
         try {
-            System.setProperty("ognl.security.manager", "");
+            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
             temporaryEnabled = true;
         } catch (Exception ignore) {
             // already enabled
@@ -325,13 +340,13 @@ public class TestOgnlRuntime extends TestCase {
             assertTrue(ex.getCause().getMessage().contains("accessDeclaredMembers"));
         } finally {
             if (temporaryEnabled) {
-                System.clearProperty("ognl.security.manager");
+                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
             }
         }
 
         temporaryEnabled = false;
         try {
-            System.setProperty("ognl.security.manager", "");
+            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
             temporaryEnabled = true;
         } catch (Exception ignore) {
             // already enabled
@@ -346,13 +361,18 @@ public class TestOgnlRuntime extends TestCase {
             assertNull(((InvocationTargetException)ex.getCause()).getTargetException().getMessage());
         } finally {
             if (temporaryEnabled) {
-                System.clearProperty("ognl.security.manager");
+                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
             }
         }
     }
 
     public void test_Exit_JDK_Sandbox()
             throws Exception {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Exit_JDK_Sandbox() invocation test.");
+            return;  // JVM option was set to disable sandbox, do not attempt invocation.
+        }
+
         OgnlContext context = (OgnlContext) this.context;
         GenericService service = new GenericServiceImpl();
 
@@ -360,7 +380,7 @@ public class TestOgnlRuntime extends TestCase {
 
         boolean temporaryEnabled = false;
         try {
-            System.setProperty("ognl.security.manager", "");
+            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
             temporaryEnabled = true;
         } catch (Exception ignore) {
             // already enabled
@@ -374,13 +394,18 @@ public class TestOgnlRuntime extends TestCase {
             assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("exit"));
         } finally {
             if (temporaryEnabled) {
-                System.clearProperty("ognl.security.manager");
+                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
             }
         }
     }
 
     public void test_Call_Method_In_JDK_Sandbox_Privileged()
             throws Exception {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox_Privileged() invocation test.");
+            return;  // JVM option was set to disable sandbox, do not attempt invocation.
+        }
+
         OgnlContext context = (OgnlContext) this.context;
         GenericService service = new GenericServiceImpl();
 
@@ -388,7 +413,7 @@ public class TestOgnlRuntime extends TestCase {
 
         boolean temporaryEnabled = false;
         try {
-            System.setProperty("ognl.security.manager", "");
+            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
             temporaryEnabled = true;
         } catch (Exception ignore) {
             // already enabled
@@ -404,13 +429,13 @@ public class TestOgnlRuntime extends TestCase {
             assertTrue(ex.getCause().getMessage().contains("test.properties"));
         } finally {
             if (temporaryEnabled) {
-                System.clearProperty("ognl.security.manager");
+                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
             }
         }
 
         temporaryEnabled = false;
         try {
-            System.setProperty("ognl.security.manager", "");
+            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
             temporaryEnabled = true;
         } catch (Exception ignore) {
             // already enabled
@@ -422,13 +447,18 @@ public class TestOgnlRuntime extends TestCase {
             assertNotSame(-1, result);
         } finally {
             if (temporaryEnabled) {
-                System.clearProperty("ognl.security.manager");
+                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
             }
         }
     }
 
     public void test_Class_Loader_Direct_Access()
             throws Exception {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Class_Loader_Direct_Access() invocation test.");
+            return;  // JVM option was set to disable sandbox, do not attempt invocation.
+        }
+
         OgnlContext context = (OgnlContext) this.context;
         ClassLoader classLoader = getClass().getClassLoader();
 
@@ -437,7 +467,7 @@ public class TestOgnlRuntime extends TestCase {
 
         boolean temporaryEnabled = false;
         try {
-            System.setProperty("ognl.security.manager", "");
+            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
             temporaryEnabled = true;
         } catch (Exception ignore) {
             // already enabled
@@ -448,10 +478,17 @@ public class TestOgnlRuntime extends TestCase {
             fail("JDK sandbox should block execution");
         } catch (Exception ex) {
             assertTrue(ex.getCause() instanceof IllegalAccessException);
-            assertEquals("OGNL direct access to class loader denied!", ex.getCause().getMessage());
+            if (OgnlRuntime.getUseStricterInvocationValue() == true) {
+                // Blocked by stricter invocation check first, if active.
+                assertTrue("Didn't find expected stricter invocation mode exception message ?",
+                        ex.getCause().getMessage().endsWith("] cannot be called from within OGNL invokeMethod() under stricter invocation mode."));
+            } else {
+                // Otherwise, blocked by OGNL SecurityManager sandbox.
+                assertEquals("OGNL direct access to class loader denied!", ex.getCause().getMessage());
+            }
         } finally {
             if (temporaryEnabled) {
-                System.clearProperty("ognl.security.manager");
+                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
             }
         }
     }
