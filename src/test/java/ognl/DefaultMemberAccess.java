@@ -47,6 +47,16 @@ import java.util.*;
  */
 public class DefaultMemberAccess implements MemberAccess
 {
+    /*
+     * Assign an accessibility modification mechanism, based on Major Java Version.
+     *   Note: Can be override using a Java option flag {@link OgnlRuntime#USE_PREJDK9_ACESS_HANDLER}.
+     */
+    private static final AccessibleObjectHandler _accessibleObjectHandler;
+    static {
+        _accessibleObjectHandler = OgnlRuntime.usingJDK9PlusAccessHandler() ? AccessibleObjectHandlerJDK9Plus.createHandler() :
+            AccessibleObjectHandlerPreJDK9.createHandler();
+    }
+
     public boolean      allowPrivateAccess = false;
     public boolean      allowProtectedAccess = false;
     public boolean      allowPackageProtectedAccess = false;
@@ -112,7 +122,7 @@ public class DefaultMemberAccess implements MemberAccess
 
             if (!accessible.isAccessible()) {
                 result = Boolean.FALSE;
-                accessible.setAccessible(true);
+                _accessibleObjectHandler.setAccessible(accessible, true);
             }
         }
         return result;
@@ -124,7 +134,7 @@ public class DefaultMemberAccess implements MemberAccess
             final AccessibleObject  accessible = (AccessibleObject) member;
             final boolean           stateboolean = ((Boolean) state).booleanValue();  // Using twice (avoid unboxing)
             if (!stateboolean) {
-                accessible.setAccessible(stateboolean);
+                _accessibleObjectHandler.setAccessible(accessible, stateboolean);
             } else {
                 throw new IllegalArgumentException("Improper restore state [" + stateboolean + "] for target [" + target +
                                                    "], member [" + member + "], propertyName [" + propertyName + "]");
