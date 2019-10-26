@@ -99,6 +99,9 @@ public final class ObjectArrayPool extends Object
     }
 
     /**
+     * Recycle an array of Objects.
+     * 
+     * @param value an Object array to recycle (not used).
      * @deprecated object-pooling now relies on the jvm garbage collection
      */
     public void recycle(Object[] value)

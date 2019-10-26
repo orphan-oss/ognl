@@ -62,7 +62,11 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
         super(p, id);
     }
 
-    /** Called from parser action. */
+    /** 
+     * Called from parser action.
+     *
+     * @param methodName the method name.
+     */
     public void setMethodName(String methodName)
     {
         _methodName = methodName;
@@ -70,6 +74,8 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
 
     /**
      * Returns the method name that this node will call.
+     * 
+     * @return the method name.
      */
     public String getMethodName()
     {

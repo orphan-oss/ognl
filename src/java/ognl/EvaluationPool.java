@@ -49,6 +49,10 @@ public final class EvaluationPool extends Object
         Returns an Evaluation that contains the node, source and whether it
         is a set operation.  If there are no Evaluation objects in the
         pool one is created and returned.
+     *
+     * @param node a SimpleNode for an Evaluation to be created.
+     * @param source a source Object for an Evaluation to be created.
+     * @return an Evaluation based on the parameters.
      */
     public Evaluation create(SimpleNode node, Object source)
     {
@@ -58,6 +62,11 @@ public final class EvaluationPool extends Object
     /**
         Returns an Evaluation that contains the node, source and whether it
         is a set operation. 
+     *
+     * @param node a SimpleNode for an Evaluation to be created.
+     * @param source a source Object for an Evaluation to be created.
+     * @param setOperation true to identify the Evaluation to be created as a set operation, false to identify it as a get operation.
+     * @return an Evaluation based on the parameters.
      */
     public Evaluation create(SimpleNode node, Object source, boolean setOperation)
     {
@@ -67,6 +76,8 @@ public final class EvaluationPool extends Object
 
     /**
         Recycles an Evaluation
+     *
+     * @param value an Evaluation to be recycled (not used).
      * @deprecated object-pooling now relies on the jvm garbage collection
      */
     public void recycle(Evaluation value)
@@ -77,6 +88,8 @@ public final class EvaluationPool extends Object
     /**
         Recycles an of Evaluation and all of it's siblings
         and children.
+     *
+     * @param value an Evaluation to be recycled along with its siblings (not used).
      * @deprecated object-pooling now relies on the jvm garbage collection
      */
     public void recycleAll(Evaluation value)
@@ -86,6 +99,8 @@ public final class EvaluationPool extends Object
 
     /**
         Recycles a List of Evaluation objects
+     *
+     * @param value a List of Evaluation objects to be recycled (not used).
      * @deprecated object-pooling now relies on the jvm garbage collection
      */
     public void recycleAll(List value)
@@ -95,6 +110,8 @@ public final class EvaluationPool extends Object
 
     /**
         Returns the number of items in the pool
+     *
+     * @return the size of the Evaluation pool (always 0).
      * @deprecated object-pooling now relies on the jvm garbage collection
      */
     public int getSize()
@@ -105,6 +122,8 @@ public final class EvaluationPool extends Object
     /**
         Returns the number of items this pool has created since
         it's construction.
+     *
+     * @return the creation count for the Evaluation pool (always 0).
      * @deprecated object-pooling now relies on the jvm garbage collection
      */
     public int getCreatedCount()
@@ -115,6 +134,8 @@ public final class EvaluationPool extends Object
     /**
         Returns the number of items this pool has recovered from
         the pool since its construction.
+     *
+     * @return the recovered count for the Evaluation pool (always 0).
      * @deprecated object-pooling now relies on the jvm garbage collection
      */
     public int getRecoveredCount()
@@ -125,6 +146,8 @@ public final class EvaluationPool extends Object
     /**
         Returns the number of items this pool has recycled since
         it's construction.
+     *
+     * @return the recycled count for the Evaluation pool (always 0).
      * @deprecated object-pooling now relies on the jvm garbage collection
      */
     public int getRecycledCount()

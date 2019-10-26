@@ -43,12 +43,23 @@ public interface NullHandler
 {
     /**
         Method called on target returned null.
+     *
+     * @param context the current execution context.
+     * @param target the Object on which the method was called.
+     * @param methodName the name of the method which was called.
+     * @param args the arguments to the method that was called.
+     * @return the result Object containing the state of the method call that returned null.
      */
     public Object nullMethodResult(Map context, Object target, String methodName, Object[] args);
 
     /**
         Property in target evaluated to null.  Property can be a constant
         String property name or a DynamicSubscript.
+     *
+     * @param context the current execution context.
+     * @param target the Object to which the property belongs.
+     * @param property the property whose value evaluated to null.
+     * @return the result Object containing the state of the property that evaluated to null.
      */
     public Object nullPropertyValue(Map context, Object target, Object property);
 }

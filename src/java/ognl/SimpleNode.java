@@ -261,7 +261,14 @@ public abstract class SimpleNode implements Node, Serializable {
         return result;
     }
 
-    /** Subclasses implement this method to do the actual work of extracting the appropriate value from the source object. */
+    /**
+     * Subclasses implement this method to do the actual work of extracting the appropriate value from the source object.
+     * 
+     * @param context the OgnlContext within which to perform the operation.
+     * @param source the Object from which to get the value body.
+     * @return the value body from the source (as appropriate within the provided context).
+     * @throws OgnlException if the value body get fails.
+     */
     protected abstract Object getValueBody(OgnlContext context, Object source)
             throws OgnlException;
 
@@ -305,6 +312,11 @@ public abstract class SimpleNode implements Node, Serializable {
     /**
      * Subclasses implement this method to do the actual work of setting the appropriate value in the target object. The default implementation throws an
      * <code>InappropriateExpressionException</code>, meaning that it cannot be a set expression.
+     * 
+     * @param context the OgnlContext within which to perform the operation.
+     * @param target the Object upon which to set the value body.
+     * @param value the Object representing the value body to apply to the target.
+     * @throws OgnlException if the value body set fails.
      */
     protected void setValueBody(OgnlContext context, Object target, Object value)
             throws OgnlException
@@ -312,7 +324,13 @@ public abstract class SimpleNode implements Node, Serializable {
         throw new InappropriateExpressionException(this);
     }
 
-    /** Returns true iff this node is constant without respect to the children. */
+    /** 
+     * Returns true iff this node is constant without respect to the children.
+     * 
+     * @param context the OgnlContext within which to perform the operation.
+     * @return true if this node is a constant, false otherwise.
+     * @throws OgnlException if the check fails.
+     */
     public boolean isNodeConstant(OgnlContext context)
             throws OgnlException
     {

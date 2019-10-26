@@ -153,6 +153,10 @@
                         <compress>true</compress>
                         <index>true</index>
                     </archive>
+                    <source>1.6</source>
+                    <links>
+                        <link>http://docs.oracle.com/javase/6/docs/api/</link>
+                    </links>
                 </configuration>
                 <executions>
                     <execution>
