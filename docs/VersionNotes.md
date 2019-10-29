@@ -1,5 +1,11 @@
 # Version Notes
 
+## Release notes - version 3.1.26
+ * add expression max length functionality to improve security [#82](../../../pull/82) -
+   thanks to Yasser Zamani
+ * plus additional enhancements related to max lenght functionality [#87](../../../pull/87) -
+   thanks to JCgH4164838Gh792C124B5
+
 ## Release notes - version 3.1.25
  * improves getter/setter detection algorithm [#75](../../../pull/75) -
    thanks to JCgH4164838Gh792C124B5
