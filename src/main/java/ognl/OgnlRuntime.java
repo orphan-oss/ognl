@@ -1913,8 +1913,12 @@ public class OgnlRuntime {
                         {
                             varArgs = new Object[0];
                         }
-
-                        convertedArgs[i] = varArgs;
+                        // If this is the only parameter, explode the array
+                        if (actualArgs.length == 1) {
+                            convertedArgs = varArgs;
+                        } else { // there are more parameters, varargs is the last one
+                            convertedArgs[i] = varArgs;
+                        }
                         break;
                     }
                 }
