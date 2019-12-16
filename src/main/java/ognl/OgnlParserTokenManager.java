@@ -84,8 +84,14 @@ public class OgnlParserTokenManager implements OgnlParserConstants
 
   /** Debug output. */
   public  java.io.PrintStream debugStream = System.out;
-  /** Set debug output. */
+
+  /** 
+   * Set debug output.
+   * 
+   * @param ds the PrintStream to use for debugging output capture.
+   */
   public  void setDebugStream(java.io.PrintStream ds) { debugStream = ds; }
+
 private final int jjStopStringLiteralDfa_0(int pos, long active0, long active1)
 {
    switch (pos)
@@ -1360,20 +1366,34 @@ private final StringBuffer image = new StringBuffer();
 private int jjimageLen;
 private int lengthOfMatch;
 protected char curChar;
-/** Constructor. */
+
+/** 
+ * Constructor.
+ * 
+ * @param stream the JavaCharStream to parse.
+ */
 public OgnlParserTokenManager(JavaCharStream stream){
    if (JavaCharStream.staticFlag)
       throw new Error("ERROR: Cannot use a static CharStream class with a non-static lexical analyzer.");
    input_stream = stream;
 }
 
-/** Constructor. */
+/** 
+ * Constructor.
+ * 
+ * @param stream the JavaCharStream to parse.
+ * @param lexState the lexical state to use for the OgnlParserTokenManager instance.
+ */
 public OgnlParserTokenManager(JavaCharStream stream, int lexState){
    this(stream);
    SwitchTo(lexState);
 }
 
-/** Reinitialise parser. */
+/** 
+ * Reinitialise parser.
+ * 
+ * @param stream the JavaCharStream to parse.
+ */
 public void ReInit(JavaCharStream stream)
 {
    jjmatchedPos = jjnewStateCnt = 0;
@@ -1389,14 +1409,24 @@ private void ReInitRounds()
       jjrounds[i] = 0x80000000;
 }
 
-/** Reinitialise parser. */
+/** 
+ * Reinitialise parser.
+ * 
+ * @param stream the JavaCharStream to parse.
+ * @param lexState the lexical state to use for the OgnlParserTokenManager instance.
+ */
 public void ReInit(JavaCharStream stream, int lexState)
 {
    ReInit(stream);
    SwitchTo(lexState);
 }
 
-/** Switch to specified lex state. */
+/**
+ * Switch to specified lex state.
+ * 
+ * @param lexState the lexical state (0 to 3) to use for the OgnlParserTokenManager instance.
+ * @throws TokenMgrError (an unchecked Error exception) if the lexical state is invalid.
+ */
 public void SwitchTo(int lexState)
 {
    if (lexState >= 4 || lexState < 0)
@@ -1436,7 +1466,11 @@ int jjround;
 int jjmatchedPos;
 int jjmatchedKind;
 
-/** Get the next Token. */
+/** 
+ * Get the next Token.
+ * 
+ * @return the next Token parsed from the stream.
+ */
 public Token getNextToken() 
 {
   Token matchedToken;

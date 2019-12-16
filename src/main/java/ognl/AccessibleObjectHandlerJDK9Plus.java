@@ -60,7 +60,7 @@ class AccessibleObjectHandlerJDK9Plus implements AccessibleObjectHandler
      * Package-accessible method to determine if a given class is Unsafe or a descendant
      *   of Unsafe.
      *
-     * @param clazz
+     * @param clazz the Class upon which to perform the unsafe check.
      * @return true if parameter is Unsafe or a descendant, false otherwise
      */
     static boolean unsafeOrDescendant(final Class clazz) {
@@ -222,8 +222,8 @@ class AccessibleObjectHandlerJDK9Plus implements AccessibleObjectHandler
      * Utilize accessibility modification mechanism for JDK 9 (Java Major Version 9) and later.
      *   Should that mechanism fail, attempt a standard pre-JDK9 accessibility modification.
      *
-     * @param accessibleObject
-     * @param flag
+     * @param accessibleObject the AccessibleObject upon which to apply the flag.
+     * @param flag the new accessible flag value.
      */
     public void setAccessible(AccessibleObject accessibleObject, boolean flag) {
         boolean operationComplete = false;

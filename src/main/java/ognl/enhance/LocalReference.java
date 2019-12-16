@@ -14,7 +14,7 @@ public interface LocalReference {
     String getName();
 
     /**
-     * The expression that sets the value, ie the part after <code><class type> refName = <expression></code>.
+     * The expression that sets the value, ie the part after <code>&lt;class type&gt; refName = &lt;expression&gt;</code>.
      * @return The setting expression.
      */
     String getExpression();

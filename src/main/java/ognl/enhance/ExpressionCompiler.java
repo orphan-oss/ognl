@@ -66,7 +66,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     /**
      * Returns the appropriate casting expression (minus parens) for the specified class type.
      *
-     * <p/>
+     * <p>
      * For instance, if given an {@link Integer} object the string <code>"java.lang.Integer"</code>
      * would be returned. For an array of primitive ints <code>"int[]"</code> and so on..
      * </p>
@@ -260,7 +260,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     }
 
     /**
-     * Helper utility method used by compiler to help resolve class->method mappings
+     * Helper utility method used by compiler to help resolve class-&gt;method mappings
      * during method calls to {@link OgnlExpressionCompiler#getSuperOrInterfaceClass(java.lang.reflect.Method, Class)}.
      *
      * @param m
