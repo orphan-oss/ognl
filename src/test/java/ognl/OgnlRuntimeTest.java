@@ -1,5 +1,6 @@
 package ognl;
 
+import org.hamcrest.core.IsEqual;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -7,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -498,6 +500,52 @@ public class OgnlRuntimeTest {
         System.out.println("Current OGNL value for Use First Match Get/Set State Flag: " + OgnlRuntime.getUseFirstMatchGetSetLookupValue());
         Assert.assertEquals("Mismatch between system property (or default) and OgnlRuntime _useFirstMatchGetSetLookup flag state ?",
                 optionDefinedInEnvironment ? flagValueFromEnvironment : defaultValue, OgnlRuntime.getUseFirstMatchGetSetLookupValue());
+    }
+
+    private Map defaultContext = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+
+    @Test // Success
+    public void testForArray() throws Exception {
+        Bean bean = new Bean();
+        Ognl.setValue("chars", defaultContext, bean, new Character[]{'%', '_'});
+        Assert.assertThat(bean.chars.length, IsEqual.equalTo(2));
+        Assert.assertThat(bean.chars[0], IsEqual.equalTo('%'));
+        Assert.assertThat(bean.chars[1], IsEqual.equalTo('_'));
+    }
+
+    @Test // Fail
+    public void testForVarArgs() throws Exception {
+        Bean bean = new Bean();
+        Ognl.setValue("strings", defaultContext, bean, new String[]{"%", "_"});
+        Assert.assertThat(bean.strings.length, IsEqual.equalTo(2));
+        Assert.assertThat(bean.strings[0], IsEqual.equalTo("%"));
+        Assert.assertThat(bean.strings[1], IsEqual.equalTo("_"));
+    }
+
+    static class Bean {
+        private Character[] chars;
+        private Integer index;
+        private String[] strings;
+
+        public void setChars(Character[] chars) {
+            this.chars = chars;
+        }
+        public Character[] getChars() {
+            return chars;
+        }
+        public void setStrings(String... strings) {
+            this.strings = strings;
+        }
+        public String[] getStrings() {
+            return strings;
+        }
+        public void setMix(Integer index, String... strings) {
+            this.index = index;
+            this.strings = strings;
+        }
+        public Integer getIndex() {
+            return index;
+        }
     }
 
 }
