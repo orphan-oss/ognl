@@ -31,6 +31,7 @@
 package ognl;
 
 import ognl.enhance.ExpressionAccessor;
+import ognl.security.OgnlSecurityManager;
 
 import java.io.StringReader;
 import java.util.Map;
@@ -90,6 +91,67 @@ import java.util.Map;
 public abstract class Ognl
 {
 
+    private static volatile Integer expressionMaxLength = null;
+    private static volatile Boolean expressionMaxLengthFrozen = Boolean.FALSE;
+
+    /**
+     * Applies a maximum allowed length on OGNL expressions for security reasons.
+     *
+     * @param expressionMaxLength
+     *            the OGNL expressions maximum allowed length. Use null (default) to disable this functionality.
+     * @throws SecurityException
+     *            if the caller is inside OGNL expression itself.
+     * @throws IllegalStateException
+     *            if the expression maximum allowed length is frozen.
+     * @throws IllegalArgumentException
+     *            if the provided expressionMaxLength is < 0.
+     * @since 3.1.26
+     */
+    public static synchronized void applyExpressionMaxLength(Integer expressionMaxLength) {
+        if (System.getSecurityManager() instanceof OgnlSecurityManager) {
+            throw new SecurityException("the OGNL expressions maximum allowed length is not accessible inside expression itself!");
+        }
+        if (expressionMaxLengthFrozen) {
+            throw new IllegalStateException("The OGNL expression maximum allowed length has been frozen and cannot be changed.");
+        }
+        if (expressionMaxLength != null && expressionMaxLength < 0) {
+            throw new IllegalArgumentException("The provided OGNL expression maximum allowed length, " + expressionMaxLength + ", is illegal." );
+        }
+        else {
+            Ognl.expressionMaxLength = expressionMaxLength;
+        }
+    }
+
+    /**
+     * Freezes (prevents updates to) the maximum allowed length on OGNL expressions at the current value.
+     * This makes it clear to other OGNL callers that the value should not be changed.
+     *
+     * @throws SecurityException
+     *            if the caller is inside OGNL expression itself.
+     * @since 3.1.26
+     */
+    public static synchronized void freezeExpressionMaxLength() {
+        if (System.getSecurityManager() instanceof OgnlSecurityManager) {
+            throw new SecurityException("Freezing the OGNL expressions maximum allowed length is not accessible inside expression itself!");
+        }
+        Ognl.expressionMaxLengthFrozen = Boolean.TRUE;
+    }
+
+    /**
+     * Thaws (allows updates to) the maximum allowed length on OGNL expressions.
+     * This makes it clear to other OGNL callers that the value can (again) be changed.
+     *
+     * @throws SecurityException
+     *            if the caller is inside OGNL expression itself.
+     * @since 3.1.26
+     */
+    public static final synchronized void thawExpressionMaxLength() {
+        if (System.getSecurityManager() instanceof OgnlSecurityManager) {
+            throw new SecurityException("Thawing the OGNL expressions maximum allowed length is not accessible inside expression itself!");
+        }
+        Ognl.expressionMaxLengthFrozen = Boolean.FALSE;
+    }
+
     /**
      * Parses the given OGNL expression and returns a tree representation of the expression that can
      * be used by <CODE>Ognl</CODE> static methods.
@@ -105,6 +167,11 @@ public abstract class Ognl
     public static Object parseExpression(String expression)
             throws OgnlException
     {
+        final Integer currentExpressionMaxLength = Ognl.expressionMaxLength;  // Limit access to the volatile variable to a single operation
+        if (currentExpressionMaxLength != null && expression != null && expression.length() > currentExpressionMaxLength) {
+            throw new OgnlException("Parsing blocked due to security reasons!",
+                    new SecurityException("This expression exceeded maximum allowed length: " + expression));
+        }
         try {
             OgnlParser parser = new OgnlParser(new StringReader(expression));
             return parser.topLevelExpression();

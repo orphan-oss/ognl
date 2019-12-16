@@ -2181,7 +2181,12 @@ public class OgnlRuntime {
     }
 
     private static void collectMethods(Class c, Map result, boolean staticMethods) {
-        final Method[] ma = c.getDeclaredMethods();
+        Method[] ma;
+        try {
+            ma = c.getDeclaredMethods();
+        } catch (SecurityException ignored) {
+            ma = c.getMethods();
+        }
         for (int i = 0, icount = ma.length; i < icount; i++)
         {
             if (c.isInterface())
@@ -2311,7 +2316,11 @@ public class OgnlRuntime {
                     Field fa[];
 
                     result = new HashMap(23);
-                    fa = targetClass.getDeclaredFields();
+                    try {
+                        fa = targetClass.getDeclaredFields();
+                    } catch (SecurityException ignored) {
+                        fa = targetClass.getFields();
+                    }
                     for (int i = 0; i < fa.length; i++) {
                         result.put(fa[i].getName(), fa[i]);
                     }
@@ -2599,7 +2608,12 @@ public class OgnlRuntime {
 
     private static void collectAccessors(Class c, String baseName, List result, boolean findSets)
     {
-        final Method[] methods = c.getDeclaredMethods();
+        Method[] methods;
+        try {
+            methods = c.getDeclaredMethods();
+        } catch (SecurityException ignored) {
+            methods = c.getMethods();
+        }
         for (int i = 0; i < methods.length; i++) {
             if (c.isInterface()) {
                 if (isDefaultMethod(methods[i]) || isNonDefaultPublicInterfaceMethod(methods[i])) {
