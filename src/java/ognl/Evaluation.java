@@ -51,6 +51,9 @@ public class Evaluation extends Object
 
     /**
         Constructs a new "get" <code>Evaluation</code> from the node and source given.
+     *
+     * @param node a SimpleNode for this Evaluation.
+     * @param source a source Object for this Evaluation.
      */
     public Evaluation(SimpleNode node, Object source)
     {
@@ -63,6 +66,10 @@ public class Evaluation extends Object
         Constructs a new <code>Evaluation</code> from the node and source given.
         If <code>setOperation</code> is true this <code>Evaluation</code> represents
         a "set" as opposed to a "get".
+     *
+     * @param node a SimpleNode for this Evaluation.
+     * @param source a source Object for this Evaluation.
+     * @param setOperation true to identify this Evaluation as a set operation, false to identify it as a get operation.
      */
     public Evaluation(SimpleNode node, Object source, boolean setOperation)
     {
@@ -72,6 +79,8 @@ public class Evaluation extends Object
 
     /**
         Returns the <code>SimpleNode</code> for this <code>Evaluation</code>
+     *
+     * @return the SimpleNode for this Evaluation.
      */
     public SimpleNode getNode()
     {
@@ -83,6 +92,8 @@ public class Evaluation extends Object
         set this.  Notable exceptions to this rule are custom evaluators that
         choose between navigable objects (as in a multi-root evaluator where
         the navigable node is chosen at runtime).
+     *
+     * @param value the SimpleNode to set for this Evaluation.
      */
     public void setNode(SimpleNode value)
     {
@@ -91,6 +102,8 @@ public class Evaluation extends Object
 
     /**
         Returns the source object on which this Evaluation operated.
+     *
+     * @return the source Object operated upon by this Evaluation.
      */
     public Object getSource()
     {
@@ -102,6 +115,8 @@ public class Evaluation extends Object
         set this.  Notable exceptions to this rule are custom evaluators that
         choose between navigable objects (as in a multi-root evaluator where
         the navigable node is chosen at runtime).
+     *
+     * @param value the source Object to be set for this Evaluation.
      */
     public void setSource(Object value)
     {
@@ -110,6 +125,8 @@ public class Evaluation extends Object
 
     /**
         Returns true if this Evaluation represents a set operation.
+     *
+     * @return true if this Evaluation represents a set operation, false otherwise.
      */
     public boolean isSetOperation()
     {
@@ -119,6 +136,8 @@ public class Evaluation extends Object
     /**
         Marks the Evaluation as a set operation if the value is true, else
         marks it as a get operation.
+     *
+     * @param value true to identify this Evaluation as a set operation, false to identify it as a get operation.
      */
     public void setSetOperation(boolean value)
     {
@@ -127,6 +146,8 @@ public class Evaluation extends Object
 
     /**
         Returns the result of the Evaluation, or null if it was a set operation.
+     *
+     * @return the result of the Evaluation (for a get operation), or null (for a set operation).
      */
     public Object getResult()
     {
@@ -136,6 +157,8 @@ public class Evaluation extends Object
     /**
         Sets the result of the Evaluation.  This method is normally only used
         interally and should not be set without knowledge of what you are doing.
+     *
+     * @param value the result Object for this Evaluation.
      */
     public void setResult(Object value)
     {
@@ -145,6 +168,8 @@ public class Evaluation extends Object
     /**
         Returns the exception that occurred as a result of evaluating the
         Evaluation, or null if no exception occurred.
+     * 
+     * @return an exception if one occurred during evaluation, or null (no exception) otherwise.
      */
     public Throwable getException()
     {
@@ -155,6 +180,8 @@ public class Evaluation extends Object
         Sets the exception that occurred as a result of evaluating the
         Evaluation.  This method is normally only used interally and
         should not be set without knowledge of what you are doing.
+     *
+     * @param value the Throwable exception that occurred during the evaluation of this Evaluation.
      */
     public void setException(Throwable value)
     {
@@ -164,6 +191,8 @@ public class Evaluation extends Object
     /**
         Returns the parent evaluation of this evaluation.  If this returns
         null then it is is the root evaluation of a tree.
+     *
+     * @return the parent Evaluation of the current Evaluation, or null if no parent exists.
      */
     public Evaluation getParent()
     {
@@ -173,6 +202,8 @@ public class Evaluation extends Object
     /**
         Returns the next sibling of this evaluation.  Returns null if
         this is the last in a chain of evaluations.
+     *
+     * @return the next sibling Evaluation of the current Evaluation, or null if this is the last Evaluation in a chain.
      */
     public Evaluation getNext()
     {
@@ -182,6 +213,8 @@ public class Evaluation extends Object
     /**
         Returns the previous sibling of this evaluation.  Returns null if
         this is the first in a chain of evaluations.
+     *
+     * @return the previous sibling Evaluation of the current Evaluation, or null if this is the first Evaluation in a chain.
      */
     public Evaluation getPrevious()
     {
@@ -191,6 +224,8 @@ public class Evaluation extends Object
     /**
         Returns the first child of this evaluation.  Returns null if
         there are no children.
+     *
+     * @return the first child Evaluation of the current Evaluation, or null if no children exist.
      */
     public Evaluation getFirstChild()
     {
@@ -200,6 +235,8 @@ public class Evaluation extends Object
     /**
         Returns the last child of this evaluation.  Returns null if
         there are no children.
+     *
+     * @return the last child Evaluation of the current Evaluation, or null if no children exist.
      */
     public Evaluation getLastChild()
     {
@@ -209,6 +246,8 @@ public class Evaluation extends Object
     /**
         Gets the first descendent.  In any Evaluation tree this will the
         Evaluation that was first executed.
+     *
+     * @return the first descendant Evaluation (first Evaluation executed in the tree).
      */
     public Evaluation getFirstDescendant()
     {
@@ -221,6 +260,8 @@ public class Evaluation extends Object
     /**
         Gets the last descendent.  In any Evaluation tree this will the
         Evaluation that was most recently executing.
+     *
+    * @return the last descendant Evaluation (most recent Evaluation executed in the tree).
      */
     public Evaluation getLastDescendant()
     {
@@ -236,6 +277,8 @@ public class Evaluation extends Object
         references are modified in the receiver to reflect the new child.
         The lastChild of the receiver is set to the child, and the
         firstChild is set also if child is the first (or only) child.
+     *
+     * @param child an Evaluation to add as a child to the current Evaluation.
      */
     public void addChild(Evaluation child)
     {
@@ -257,6 +300,10 @@ public class Evaluation extends Object
 
     /**
         Reinitializes this Evaluation to the parameters specified.
+     *
+     * @param node a SimpleNode for this Evaluation.
+     * @param source a source Object for this Evaluation.
+     * @param setOperation true to identify this Evaluation as a set operation, false to identify it as a get operation.
      */
     public void init(SimpleNode node, Object source, boolean setOperation)
     {
@@ -287,6 +334,11 @@ public class Evaluation extends Object
         description including source and result are shown.  If showChildren
         is true the child evaluations are printed using the depth string
         given as a prefix.
+     *
+     * @param compact true to generate a compact form of the description for this Evaluation, false for a full form.
+     * @param showChildren true to generate descriptions for child Evaluation elements of this Evaluation.
+     * @param depth prefix String to use in front of child Evaluation description output - used when showChildren is true.
+     * @return the description of this Evaluation as a String.
      */
     public String toString(boolean compact, boolean showChildren, String depth)
     {
@@ -318,6 +370,10 @@ public class Evaluation extends Object
         the node type and unique identifier is shown, else a full
         description including source and result are shown.  Child
         evaluations are printed using the depth string given as a prefix.
+     *
+     * @param compact true to generate a compact form of the description for this Evaluation, false for a full form.
+     * @param depth prefix String to use in front of child Evaluation description output - used when showChildren is true.
+     * @return the description of this Evaluation as a String.
      */
     public String toString(boolean compact, String depth)
     {
@@ -326,6 +382,8 @@ public class Evaluation extends Object
 
     /**
         Returns a String description of the Evaluation.
+     *
+     * @return the description of this Evaluation as a String.
      */
     public String toString()
     {

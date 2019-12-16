@@ -65,6 +65,7 @@ import java.lang.reflect.*;
  * following way:
  *</p>
  *<table>
+ *  <caption>OGNL Expression</caption>
  *  <tr><th>OGNL Expression</th>
  *      <th>Handling</th>
  *  </tr>

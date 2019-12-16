@@ -56,7 +56,11 @@ public class ASTConst extends SimpleNode implements NodeType
         super(p, id);
     }
 
-    /** Called from parser actions. */
+    /** 
+     * Called from parser actions.
+     *
+     * @param value the Object representing the value.
+     */
     public void setValue(Object value)
     {
         this.value = value;

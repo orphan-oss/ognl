@@ -49,6 +49,12 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
     /**
      * Returns OgnlRuntime.NotFound if the property does not exist.
+     * 
+     * @param context the current execution context.
+     * @param target the object to get the property from.
+     * @param name the name of the property to get.
+     * @return the current value of the given property in the given object.
+     * @throws OgnlException if there is an error locating the property in the given object.
      */
     public Object getPossibleProperty(Map context, Object target, String name)
             throws OgnlException
@@ -74,6 +80,13 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
     /**
      * Returns OgnlRuntime.NotFound if the property does not exist.
+     * 
+     * @param context the current execution context.
+     * @param target the object to set the property in.
+     * @param name the name of the property to set.
+     * @param value the new value for the property.
+     * @return the Object result of the property set operation.
+     * @throws OgnlException if there is an error setting the property in the given object.
      */
     public Object setPossibleProperty(Map context, Object target, String name, Object value)
             throws OgnlException

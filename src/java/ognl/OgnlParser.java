@@ -8,9 +8,12 @@ package ognl;
 public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, OgnlParserConstants {/*@bgen(jjtree)*/
   protected JJTOgnlParserState jjtree = new JJTOgnlParserState();
 
-/**
- * This is the top-level construct of OGNL.
- */
+  /**
+   * This is the top-level construct of OGNL.
+   * 
+   * @return the Node representing the top-level expression.
+   * @throws ParseException if the expression parsing fails.
+   */
   final public Node topLevelExpression() throws ParseException {
     expression();
     jj_consume_token(0);
@@ -2172,10 +2175,12 @@ public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, Ognl
     }
   }
 
-/**
- * Apply an expression to all elements of a collection, creating a new collection
- * as the result.
- */
+  /**
+   * Apply an expression to all elements of a collection, creating a new collection
+   * as the result.
+   * 
+   * @throws ParseException if the application of the projection expression fails.
+   */
   final public void projection() throws ParseException {
                               /*@bgen(jjtree) Project */
   ASTProject jjtn000 = new ASTProject(JJTPROJECT);
@@ -2219,10 +2224,12 @@ public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, Ognl
     }
   }
 
-/**
- * Apply a boolean expression to all elements of a collection, creating a new collection
- * containing those elements for which the expression returned true.
- */
+  /**
+   * Apply a boolean expression to all elements of a collection, creating a new collection
+   * containing those elements for which the expression returned true.
+   * 
+   * @throws ParseException if the application of the select all expression fails.
+   */
   final public void selectAll() throws ParseException {
                             /*@bgen(jjtree) Select */
   ASTSelect jjtn000 = new ASTSelect(JJTSELECT);
@@ -2254,10 +2261,12 @@ public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, Ognl
     }
   }
 
-/**
- * Apply a boolean expression to all elements of a collection, creating a new collection
- * containing those elements for the first element for which the expression returned true.
- */
+  /**
+   * Apply a boolean expression to all elements of a collection, creating a new collection
+   * containing those elements for the first element for which the expression returned true.
+   * 
+   * @throws ParseException if the application of the select first expression fails.
+   */
   final public void selectFirst() throws ParseException {
                                    /*@bgen(jjtree) SelectFirst */
   ASTSelectFirst jjtn000 = new ASTSelectFirst(JJTSELECTFIRST);
@@ -2289,10 +2298,12 @@ public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, Ognl
     }
   }
 
-/**
- * Apply a boolean expression to all elements of a collection, creating a new collection
- * containing those elements for the first element for which the expression returned true.
- */
+  /**
+   * Apply a boolean expression to all elements of a collection, creating a new collection
+   * containing those elements for the last element for which the expression returned true.
+   * 
+   * @throws ParseException if the application of the select last expression fails.
+   */
   final public void selectLast() throws ParseException {
                                  /*@bgen(jjtree) SelectLast */
   ASTSelectLast jjtn000 = new ASTSelectLast(JJTSELECTLAST);
@@ -2952,11 +2963,21 @@ public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, Ognl
   private boolean jj_rescan = false;
   private int jj_gc = 0;
 
-  /** Constructor with InputStream. */
+  /**
+   * Constructor with InputStream.
+   * 
+   * @param stream the InputStream to parse.
+   */
   public OgnlParser(java.io.InputStream stream) {
      this(stream, null);
   }
-  /** Constructor with InputStream and supplied encoding */
+
+  /**
+   * Constructor with InputStream and supplied encoding
+   * 
+  * @param stream the InputStream to parse.
+  * @param encoding the encoding to use for the stream.
+   */
   public OgnlParser(java.io.InputStream stream, String encoding) {
     try { jj_input_stream = new JavaCharStream(stream, encoding, 1, 1); } catch(java.io.UnsupportedEncodingException e) { throw new RuntimeException(e); }
     token_source = new OgnlParserTokenManager(jj_input_stream);
@@ -2967,11 +2988,21 @@ public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, Ognl
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
-  /** Reinitialise. */
+  /** 
+   * Reinitialise.
+   * 
+  * @param stream the InputStream to parse.
+   */
   public void ReInit(java.io.InputStream stream) {
      ReInit(stream, null);
   }
-  /** Reinitialise. */
+
+  /** 
+   * Reinitialise.
+   * 
+   * @param stream the InputStream to parse.
+   * @param encoding the encoding to use for the stream.
+   */
   public void ReInit(java.io.InputStream stream, String encoding) {
     try { jj_input_stream.ReInit(stream, encoding, 1, 1); } catch(java.io.UnsupportedEncodingException e) { throw new RuntimeException(e); }
     token_source.ReInit(jj_input_stream);
@@ -2983,7 +3014,11 @@ public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, Ognl
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
-  /** Constructor. */
+  /**
+   * Constructor.
+   * 
+   * @param stream the Reader to parse.
+   */
   public OgnlParser(java.io.Reader stream) {
     jj_input_stream = new JavaCharStream(stream, 1, 1);
     token_source = new OgnlParserTokenManager(jj_input_stream);
@@ -2994,7 +3029,11 @@ public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, Ognl
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
-  /** Reinitialise. */
+  /** 
+   * Reinitialise.
+   * 
+   * @param stream the Reader to parse.
+   */
   public void ReInit(java.io.Reader stream) {
     jj_input_stream.ReInit(stream, 1, 1);
     token_source.ReInit(jj_input_stream);
@@ -3006,7 +3045,11 @@ public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, Ognl
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
-  /** Constructor with generated Token Manager. */
+  /**
+   * Constructor with generated Token Manager.
+   * 
+   * @param tm the OgnParserTokenManager to use during parsing.
+   */
   public OgnlParser(OgnlParserTokenManager tm) {
     token_source = tm;
     token = new Token();
@@ -3016,7 +3059,11 @@ public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, Ognl
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
-  /** Reinitialise. */
+  /** 
+   * Reinitialise.
+   * 
+   * @param tm the OgnParserTokenManager to use during parsing.
+   */
   public void ReInit(OgnlParserTokenManager tm) {
     token_source = tm;
     token = new Token();
@@ -3075,7 +3122,11 @@ public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, Ognl
   }
 
 
-/** Get the next Token. */
+  /** 
+   * Get the next Token.
+   * 
+   * @return the next Token result from parsing.
+   */
   final public Token getNextToken() {
     if (token.next != null) token = token.next;
     else token = token.next = token_source.getNextToken();
@@ -3084,7 +3135,12 @@ public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, Ognl
     return token;
   }
 
-/** Get the specific Token. */
+  /** 
+   * Get the specific Token.
+   * 
+   * @param index specifies how far to scan ahead for the Token.
+   * @return the Token at the given index.
+   */
   final public Token getToken(int index) {
     Token t = jj_lookingAhead ? jj_scanpos : token;
     for (int i = 0; i < index; i++) {
@@ -3132,7 +3188,11 @@ public class OgnlParser/*@bgen(jjtree)*/implements OgnlParserTreeConstants, Ognl
     }
   }
 
-  /** Generate ParseException. */
+  /** 
+   * Generate ParseException.
+   * 
+   * @return a ParseException with information about current token parsing state.
+   */
   public ParseException generateParseException() {
     jj_expentries.clear();
     boolean[] la1tokens = new boolean[86];

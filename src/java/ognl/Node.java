@@ -55,19 +55,33 @@ public interface Node extends JavaSource
     public void jjtClose();
 
     /** This pair of methods are used to inform the node of its
-        parent. */
+        parent.
+     *
+     * @param n the Node to make the parent of this node.
+     */
     public void jjtSetParent(Node n);
     public Node jjtGetParent();
 
     /** This method tells the node to add its argument to the node's
-        list of children.  */
+        list of children.
+     *
+     * @param n the Node to add as a child of this node.
+     * @param i the position at which to add the child node.
+     */
     public void jjtAddChild(Node n, int i);
 
     /** This method returns a child node.  The children are numbered
-        from zero, left to right. */
+        from zero, left to right.
+     *
+     * @param i the position from which to get the child node.
+     * @return the child Node at position i.
+     */
     public Node jjtGetChild(int i);
 
-    /** Return the number of children the node has. */
+    /** Return the number of children the node has.
+     *
+     * @return the number of children for this node.
+     */
     public int jjtGetNumChildren();
 
 
@@ -76,12 +90,22 @@ public interface Node extends JavaSource
     /**
      * Extracts the value from the given source object that is appropriate for this node
      * within the given context.
+     * 
+     * @param context the OgnlContext within which to perform the operation.
+     * @param source the Object from which to get the value.
+     * @return the value from the source (as appropriate within the provided context).
+     * @throws OgnlException if the value get fails.
      */
     public Object getValue( OgnlContext context, Object source ) throws OgnlException;
 
     /**
      * Sets the given value in the given target as appropriate for this node within the
      * given context.
+     * 
+     * @param context the OgnlContext within which to perform the operation.
+     * @param target the Object upon which to set the value.
+     * @param value the Object representing the value to apply to the target.
+     * @throws OgnlException if the value set fails.
      */
     public void setValue( OgnlContext context, Object target, Object value ) throws OgnlException;
     
