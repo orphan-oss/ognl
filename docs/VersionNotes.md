@@ -1,9 +1,27 @@
 # Version Notes
 
+## Release notes - version 3.2.12
+ * DefaultClassResolver should resolve classes in the default package [#93](../../../pull/93) -
+   thanks to Iwao AVE!
+ * Resolves problem with setting varargs parameter [#92](../../../pull/92) -
+   thanks to Łukasz Lenart
+ * Various minor cleanup changes [#85](../../../pull/85) -
+   thanks to JCgH4164838Gh792C124B5
+ * add expression max length functionality to improve security [#82](../../../pull/82) -
+   thanks to Yasser Zamani
+ * plus additional enhancements related to max length functionality [#87](../../../pull/87) -
+   thanks to JCgH4164838Gh792C124B5
+ * improves getter/setter detection algorithm [#75](../../../pull/75) -
+   thanks to JCgH4164838Gh792C124B5
+* enhances cache clearing [#77](../../../pull/77) -
+   thanks to JCgH4164838Gh792C124B5
+* does not fail on getDeclaredXXX when user has used a SecurityManager [#79](../../../pull/79) -
+   thanks to Yasser Zamani
+
 ## Release notes - version 3.1.26
  * add expression max length functionality to improve security [#82](../../../pull/82) -
    thanks to Yasser Zamani
- * plus additional enhancements related to max lenght functionality [#87](../../../pull/87) -
+ * plus additional enhancements related to max length functionality [#87](../../../pull/87) -
    thanks to JCgH4164838Gh792C124B5
 
 ## Release notes - version 3.1.25
