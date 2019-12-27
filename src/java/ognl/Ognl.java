@@ -104,7 +104,7 @@ public abstract class Ognl
      * @throws IllegalStateException
      *            if the expression maximum allowed length is frozen.
      * @throws IllegalArgumentException
-     *            if the provided expressionMaxLength is < 0.
+     *            if the provided expressionMaxLength is &lt; 0.
      * @since 3.1.26
      */
     public static synchronized void applyExpressionMaxLength(Integer expressionMaxLength) {
