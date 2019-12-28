@@ -78,12 +78,12 @@
 
         <plugins>
             <plugin>
-                <!-- Raised source/target levels to 1.6 as Travis CI now rejects 1.5 -->
+                <!-- Raised source/target levels to 1.7 as Travis CI now rejects 1.5 -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
                 <executions>
                     <execution>
@@ -93,8 +93,8 @@
                             <goal>testCompile</goal>
                         </goals>
                         <configuration>
-                            <source>1.6</source>
-                            <target>1.6</target>
+                            <source>1.7</source>
+                            <target>1.7</target>
                         </configuration>
                     </execution>
                 </executions>
@@ -102,7 +102,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.1</version>  <!-- Most recent 2.x available -->
+                <version>2.22.2</version>  <!-- Most recent 2.x available -->
                 <configuration>
                     <excludes>
                         <exclude>**/OgnlTestCase.java</exclude>
@@ -153,9 +153,9 @@
                         <compress>true</compress>
                         <index>true</index>
                     </archive>
-                    <source>1.6</source>
+                    <source>1.7</source>
                     <links>
-                        <link>http://docs.oracle.com/javase/6/docs/api/</link>
+                        <link>http://docs.oracle.com/javase/7/docs/api/</link>
                     </links>
                 </configuration>
                 <executions>
