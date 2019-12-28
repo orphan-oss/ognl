@@ -45,18 +45,36 @@ import java.util.Map;
 public interface MemberAccess
 {
     /**
-        Sets the member up for accessibility
+     * Sets the member up for accessibility
+     * 
+     * @param context the current execution context.
+     * @param target the Object upon which to perform the setup operation.
+     * @param member the Member upon which to perform the setup operation.
+     * @param propertyName the property upon which to perform the setup operation.
+     * @return the Object representing the original accessibility state of the target prior to the setup operation.
      */
     public Object setup(Map context, Object target, Member member, String propertyName);
 
     /**
-        Restores the member from the previous setup call.
+     * Restores the member from the previous setup call.
+     * 
+     * @param context the current execution context.
+     * @param target the Object upon which to perform the setup operation.
+     * @param member the Member upon which to perform the setup operation.
+     * @param propertyName the property upon which to perform the setup operation.
+     * @param state the Object holding the state to restore (target state prior to the setup operation).
      */
     public void restore(Map context, Object target, Member member, String propertyName, Object state);
 
     /**
         Returns true if the given member is accessible or can be made accessible
         by this object.
+     * 
+     * @param context the current execution context.
+     * @param target the Object to test accessibility for.
+     * @param member the Member to test accessibility for.
+     * @param propertyName the property to test accessibility for.
+     * @return true if the target/member/propertyName is accessible in the context, false otherwise.
      */
-	public boolean isAccessible(Map context, Object target, Member member, String propertyName);
+    public boolean isAccessible(Map context, Object target, Member member, String propertyName);
 }

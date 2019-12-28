@@ -61,7 +61,7 @@ public abstract class OgnlOps implements NumericTypes
      * @param v2
      *            second value to compare
      * @return integer describing the comparison between the two objects. A negative number
-     *         indicates that v1 < v2. Positive indicates that v1 > v2. Zero indicates v1 == v2.
+     *         indicates that v1 &lt; v2. Positive indicates that v1 &gt; v2. Zero indicates v1 == v2.
      * @throws IllegalArgumentException
      *             if the objects are both non-numeric yet of incompatible types or do not implement
      *             Comparable.
@@ -297,6 +297,8 @@ public abstract class OgnlOps implements NumericTypes
      * 
      * @param value
      *            an object to interpret as a String
+     * @param trim
+     *            true if result should be whitespace-trimmed, false otherwise.
      * @return the String value implied by the given object as returned by the toString() method, or
      *         "null" if the object is null.
      */

@@ -50,10 +50,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <ul>
  * <li>Handles majority of reflection logic / caching. </li>
- * <li>Utility methods for casting strings / various numeric types used by {@link OgnlExpressionCompiler}.</li.
+ * <li>Utility methods for casting strings / various numeric types used by {@link OgnlExpressionCompiler}.</li>
  * <li>Core runtime configuration point for setting/using global {@link TypeConverter} / {@link OgnlExpressionCompiler} /
  * {@link NullHandler} instances / etc.. </li>
- *</ul>
+ * </ul>
  *
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
@@ -642,7 +642,7 @@ public class OgnlRuntime {
     }
 
     /**
-     * Checks if the current jvm is java language >= 1.5 compatible.
+     * Checks if the current jvm is java language &gt;= 1.5 compatible.
      *
      * @return True if jdk15 features are present.
      */
@@ -720,6 +720,9 @@ public class OgnlRuntime {
      * Gets the "target" class of an object for looking up accessors that are registered on the
      * target. If the object is a Class object this will return the Class itself, else it will
      * return object's getClass() result.
+     * 
+     * @param o the Object from which to retrieve its Class.
+     * @return the Class of o.
      */
     public static Class getTargetClass(Object o)
     {
@@ -729,6 +732,9 @@ public class OgnlRuntime {
     /**
      * Returns the base name (the class name without the package name prepended) of the object
      * given.
+     * 
+     * @param o the Object from which to retrieve its base classname.
+     * @return the base classname of o's Class.
      */
     public static String getBaseName(Object o)
     {
@@ -737,6 +743,9 @@ public class OgnlRuntime {
 
     /**
      * Returns the base name (the class name without the package name prepended) of the class given.
+     * 
+     * @param c the Class from which to retrieve its name.
+     * @return the base classname of c.
      */
     public static String getClassBaseName(Class c)
     {
@@ -762,6 +771,9 @@ public class OgnlRuntime {
 
     /**
      * Returns the package name of the object's class.
+     * 
+     * @param o the Object from which to retrieve its Class package name.
+     * @return the package name of o's Class.
      */
     public static String getPackageName(Object o)
     {
@@ -770,6 +782,9 @@ public class OgnlRuntime {
 
     /**
      * Returns the package name of the class given.
+     * 
+     * @param c the Class from which to retrieve its package name.
+     * @return the package name of c.
      */
     public static String getClassPackageName(Class c)
     {
@@ -780,7 +795,10 @@ public class OgnlRuntime {
     }
 
     /**
-     * Returns a "pointer" string in the usual format for these things - 0x<hex digits>.
+     * Returns a "pointer" string in the usual format for these things - 0x&lt;hex digits&gt;.
+     * 
+     * @param num the int to convert into a "pointer" string in hex format.
+     * @return the String representing num as a "pointer" string in hex format.
      */
     public static String getPointerString(int num)
     {
@@ -804,8 +822,11 @@ public class OgnlRuntime {
     }
 
     /**
-     * Returns a "pointer" string in the usual format for these things - 0x<hex digits> for the
+     * Returns a "pointer" string in the usual format for these things - 0x&lt;hex digits&gt; for the
      * object given. This will always return a unique value for each object.
+     * 
+     * @param o the Object to convert into a "pointer" string in hex format.
+     * @return the String representing o as a "pointer" string in hex format.
      */
     public static String getPointerString(Object o)
     {
@@ -816,6 +837,10 @@ public class OgnlRuntime {
      * Returns a unique descriptor string that includes the object's class and a unique integer
      * identifier. If fullyQualified is true then the class name will be fully qualified to include
      * the package name, else it will be just the class' base name.
+     * 
+     * @param object the Object for which a unique descriptor string is desired.
+     * @param fullyQualified true if the descriptor string is fully-qualified (package name), false for just the Class' base name.
+     * @return the unique descriptor String for the object, qualified as per fullyQualified parameter.
      */
     public static String getUniqueDescriptor(Object object, boolean fullyQualified)
     {
@@ -841,6 +866,9 @@ public class OgnlRuntime {
     /**
      * Returns a unique descriptor string that includes the object's class' base name and a unique
      * integer identifier.
+     * 
+     * @param object the Object for which a unique descriptor string is desired.
+     * @return the unique descriptor String for the object, NOT fully-qualified.
      */
     public static String getUniqueDescriptor(Object object)
     {
@@ -851,6 +879,9 @@ public class OgnlRuntime {
      * Utility to convert a List into an Object[] array. If the list is zero elements this will
      * return a constant array; toArray() on List always returns a new object and this is wasteful
      * for our purposes.
+     * 
+     * @param list the List to convert into an Object array.
+     * @return the array of Objects from the list.
      */
     public static Object[] toArray(List list)
     {
@@ -870,6 +901,9 @@ public class OgnlRuntime {
 
     /**
      * Returns the parameter types of the given method.
+     * 
+     * @param m the Method whose parameter types are being queried.
+     * @return the array of Class elements representing m's parameters.  May be null if m does not utilize parameters.
      */
     public static Class[] getParameterTypes(Method m)
     {
@@ -888,7 +922,7 @@ public class OgnlRuntime {
     /**
      * Finds the appropriate parameter types for the given {@link Method} and
      * {@link Class} instance of the type the method is associated with.  Correctly
-     * finds generic types if running in >= 1.5 jre as well.
+     * finds generic types if running in &gt;= 1.5 jre as well.
      *
      * @param type The class type the method is being executed against.
      * @param m The method to find types for.
@@ -1041,6 +1075,9 @@ public class OgnlRuntime {
 
     /**
      * Returns the parameter types of the given method.
+     * 
+     * @param c the Constructor whose parameter types are being queried.
+     * @return the array of Class elements representing c's parameters.  May be null if c does not utilize parameters.
      */
     public static Class[] getParameterTypes(Constructor c)
     {
@@ -1076,7 +1113,10 @@ public class OgnlRuntime {
     }
 
     /**
-     * Permission will be named "invoke.<declaring-class>.<method-name>".
+     * Permission will be named "invoke.&lt;declaring-class&gt;.&lt;method-name&gt;".
+     * 
+     * @param method the Method whose Permission is being requested.
+     * @return the Permission for method named "invoke.&lt;declaring-class&gt;.&lt;method-name&gt;".
      */
     public static Permission getPermission(Method method)
     {
@@ -1320,6 +1360,10 @@ public class OgnlRuntime {
      * given object can be passed as an argument to a method or constructor whose parameter type is
      * the given class. If object is null this will return true because null is compatible with any
      * type.
+     * 
+     * @param object the Object to check for type-compatibility with Class c.
+     * @param c the Class for which object's type-compatibility is being checked.
+     * @return true if object is type-compatible with c.
      */
     public static final boolean isTypeCompatible(Object object, Class c) {
         if (object == null)
@@ -1498,6 +1542,10 @@ public class OgnlRuntime {
     /**
      * Tells whether the first array of classes is more specific than the second. Assumes that the
      * two arrays are of the same length.
+     * 
+     * @param classes1 the Class array being checked to see if it is "more specific" than classes2.
+     * @param classes2 the Class array that classes1 is being checked against to see if classes1 is "more specific" than classes2.
+     * @return true if the classes1 Class contents are "more specific" than classes2 Class contents, false otherwise.
      */
     public static final boolean isMoreSpecific(Class[] classes1, Class[] classes2)
     {
@@ -1645,6 +1693,7 @@ public class OgnlRuntime {
      * @param source Target object to run against or method name.
      * @param target Instance of object to be run against.
      * @param propertyName Name of property to get method of.
+     * @param methodName Name of the method to get from known methods.
      * @param methods List of current known methods.
      * @param args Arguments originally passed in.
      * @param actualArgs Converted arguments.
@@ -2057,6 +2106,15 @@ public class OgnlRuntime {
 
     /**
      * Don't use this method as it doesn't check member access rights via {@link MemberAccess} interface
+     * 
+     * @param context the current execution context.
+     * @param target the object to invoke the property name get on.
+     * @param propertyName the name of the property to be retrieved from target.
+     * @return the result invoking property retrieval of propertyName for target.
+     * @throws OgnlException for lots of different reasons.
+     * @throws IllegalAccessException if access not permitted.
+     * @throws NoSuchMethodException if no property accessor exists.
+     * @throws IntrospectionException on errors using {@link Introspector}.
      */
     @Deprecated
     public static final Object getMethodValue(OgnlContext context, Object target, String propertyName)
@@ -2069,6 +2127,16 @@ public class OgnlRuntime {
      * If the checkAccessAndExistence flag is true this method will check to see if the method
      * exists and if it is accessible according to the context's MemberAccess. If neither test
      * passes this will return NotFound.
+     * 
+     * @param context the current execution context.
+     * @param target the object to invoke the property name get on.
+     * @param propertyName the name of the property to be retrieved from target.
+     * @param checkAccessAndExistence true if this method should check access levels and existence for propertyName of target, false otherwise.
+     * @return the result invoking property retrieval of propertyName for target.
+     * @throws OgnlException for lots of different reasons.
+     * @throws IllegalAccessException if access not permitted.
+     * @throws NoSuchMethodException if no property accessor exists.
+     * @throws IntrospectionException on errors using {@link Introspector}.
      */
     public static final Object getMethodValue(OgnlContext context, Object target, String propertyName,
                                               boolean checkAccessAndExistence)
@@ -2102,6 +2170,16 @@ public class OgnlRuntime {
 
     /**
      * Don't use this method as it doesn't check member access rights via {@link MemberAccess} interface
+     * 
+     * @param context the current execution context.
+     * @param target the object to invoke the property name get on.
+     * @param propertyName the name of the property to be set for target.
+     * @param value the value to set for propertyName of target.
+     * @return true if the operation succeeded, false otherwise.
+     * @throws OgnlException for lots of different reasons.
+     * @throws IllegalAccessException if access not permitted.
+     * @throws NoSuchMethodException if no property accessor exists.
+     * @throws IntrospectionException on errors using {@link Introspector}.
      */
     @Deprecated
     public static boolean setMethodValue(OgnlContext context, Object target, String propertyName, Object value)
@@ -2381,6 +2459,12 @@ public class OgnlRuntime {
 
     /**
      * Don't use this method as it doesn't check member access rights via {@link MemberAccess} interface
+     * 
+     * @param context the current execution context.
+     * @param target the object to invoke the property name get on.
+     * @param propertyName the name of the property to be set for target.
+     * @return the result invoking field retrieval of propertyName for target.
+     * @throws NoSuchFieldException if the field does not exist.
      */
     @Deprecated
     public static Object getFieldValue(OgnlContext context, Object target, String propertyName)
@@ -2474,17 +2558,17 @@ public class OgnlRuntime {
 
     /**
      * Method name is getStaticField(), but actually behaves more like "getStaticFieldValue()".
-     * <p/>
+     * <p>
      * Typical usage: Returns the value (not the actual {@link Field}) for the given (static) fieldName.
      * May return the {@link Enum} constant value for the given fieldName when className is an {@link Enum}.
      * May return a {@link Class} instance when the given fieldName is "class".
-     * <p/>
+     * </p>
      * @param context    The current ognl context
      * @param className  The name of the class which contains the field
      * @param fieldName  The name of the field whose value should be returned
      * 
      * @return           The value of the (static) fieldName
-     * @throws OgnlException
+     * @throws OgnlException for lots of different reasons.
      */
     public static Object getStaticField(OgnlContext context, String className, String fieldName)
             throws OgnlException
@@ -2670,6 +2754,13 @@ public class OgnlRuntime {
 
     /**
      * cache get methods
+     * 
+     * @param context the current execution context.
+     * @param targetClass the Class to invoke the property name "getter" retrieval on.
+     * @param propertyName the name of the property for which a "getter" is sought.
+     * @return the Method representing a "getter" for propertyName of targetClass.
+     * @throws OgnlException for lots of different reasons.
+     * @throws IntrospectionException on errors using {@link Introspector}.
      */
     public static Method getGetMethod(OgnlContext context, Class targetClass, String propertyName)
             throws IntrospectionException, OgnlException
@@ -2764,6 +2855,13 @@ public class OgnlRuntime {
 
     /**
      * cache set methods method
+     * 
+     * @param context the current execution context.
+     * @param targetClass the Class to invoke the property name "setter" retrieval on.
+     * @param propertyName the name of the property for which a "setter" is sought.
+     * @return the Method representing a "setter" for propertyName of targetClass.
+     * @throws IntrospectionException on errors using {@link Introspector}.
+     * @throws OgnlException for lots of different reasons.
      */
     public static Method getSetMethod(OgnlContext context, Class targetClass, String propertyName)
             throws IntrospectionException, OgnlException
@@ -3030,6 +3128,12 @@ public class OgnlRuntime {
     /**
      * This method returns a PropertyDescriptor for the given class and property name using a Map
      * lookup (using getPropertyDescriptorsMap()).
+     * 
+     * @param targetClass the class to get the descriptors for.
+     * @param propertyName the property name of targetClass for which a Descriptor is requested.
+     * @return the PropertyDescriptor for propertyName of targetClass.
+     * @throws IntrospectionException on errors using {@link Introspector}.
+     * @throws OgnlException On general errors.
      */
     public static PropertyDescriptor getPropertyDescriptor(Class targetClass, String propertyName)
             throws IntrospectionException, OgnlException
@@ -3087,6 +3191,7 @@ public class OgnlRuntime {
      * @param name        Name of property
      * @return PropertyDescriptor of the named property or null if the class has no property with
      *         the given name
+     * @throws IntrospectionException on errors using {@link Introspector}.
      */
     public static PropertyDescriptor getPropertyDescriptorFromArray(Class targetClass, String name)
             throws IntrospectionException
@@ -3254,6 +3359,12 @@ public class OgnlRuntime {
      * then this will return whether it is a JavaBeans indexed property, conforming to the indexed
      * property patterns (returns <code>INDEXED_PROPERTY_INT</code>) or if it conforms to the
      * OGNL arbitrary object indexable (returns <code>INDEXED_PROPERTY_OBJECT</code>).
+     * 
+     * @param context the current execution context.
+     * @param sourceClass the Class to invoke indexed property type retrieval on.
+     * @param name the name of the property for which an indexed property type is sought.
+     * @return the indexed property type (int) for the property name of sourceClass. Returns <code>INDEXED_PROPERTY_NONE</code> if name is not an indexed property.
+     * @throws OgnlException for lots of different reasons.
      */
     public static int getIndexedPropertyType(OgnlContext context, Class sourceClass, String name)
             throws OgnlException
@@ -3684,14 +3795,13 @@ public class OgnlRuntime {
     /**
      * Compares the {@link OgnlContext#getCurrentType()} and {@link OgnlContext#getPreviousType()} class types
      * on the stack to determine if a numeric expression should force object conversion.
-     * <p/>
-     * <p/>
+     * <p>
      * Normally used in conjunction with the <code>forceConversion</code> parameter of
      * {@link OgnlRuntime#getChildSource(OgnlContext,Object,Node,boolean)}.
      * </p>
      *
      * @param context The current context.
-     * @return True, if the class types on the stack wouldn't be comparable in a pure numeric expression such as <code>o1 >= o2</code>.
+     * @return True, if the class types on the stack wouldn't be comparable in a pure numeric expression such as <code>o1 &gt;= o2</code>.
      */
     public static boolean shouldConvertNumericTypes(OgnlContext context)
     {
@@ -3995,7 +4105,6 @@ public class OgnlRuntime {
      *
      * @since 3.1.25
      *
-     * @return
      */
     public static boolean getDisableOgnlSecurityManagerOnInitValue() {
         return _disableOgnlSecurityManagerOnInit;

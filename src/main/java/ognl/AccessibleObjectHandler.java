@@ -32,8 +32,8 @@ public abstract interface AccessibleObjectHandler
     /**
      * Provides an appropriate implementation to change the accessibility of accessibleObject.
      *
-     * @param accessibleObject
-     * @param flag
+     * @param accessibleObject the AccessibleObject upon which to apply the flag.
+     * @param flag the new accessible flag value.
      */
     void setAccessible(AccessibleObject accessibleObject, boolean flag);
 }

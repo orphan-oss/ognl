@@ -103,6 +103,10 @@ public class OgnlContext extends Object implements Map
     /**
      * Constructs a new OgnlContext with the given class resolver, type converter and member access.
      * If any of these parameters is null the default will be used.
+     * 
+     * @param classResolver the ClassResolver for a new OgnlContext.
+     * @param typeConverter the TypeConverter for a new OgnlContext.
+     * @param memberAccess the MemberAccess for a new OgnlContext.
      */
     public OgnlContext(ClassResolver classResolver, TypeConverter typeConverter, MemberAccess memberAccess)
     {
@@ -241,6 +245,8 @@ public class OgnlContext extends Object implements Map
     /**
      * Returns true if the last evaluation that was done on this context is retained and available
      * through <code>getLastEvaluation()</code>. The default is true.
+     * 
+     * @return true if the last evaluation for this context is retained and available through <code>getLastEvaluation()</code>, false otherwise.
      */
     public boolean getKeepLastEvaluation()
     {
@@ -250,6 +256,8 @@ public class OgnlContext extends Object implements Map
     /**
      * Sets whether the last evaluation that was done on this context is retained and available
      * through <code>getLastEvaluation()</code>. The default is true.
+     * 
+     * @param value true if the last evaluation for this context should be retained and available through <code>getLastEvaluation()</code>, false otherwise.
      */
     public void setKeepLastEvaluation(boolean value)
     {
@@ -362,6 +370,8 @@ public class OgnlContext extends Object implements Map
     /**
      * Gets the current Evaluation from the top of the stack. This is the Evaluation that is in
      * process of evaluating.
+     * 
+     * @return the current Evaluation from the top of the stack (being evaluated).
      */
     public Evaluation getCurrentEvaluation()
     {
@@ -376,6 +386,8 @@ public class OgnlContext extends Object implements Map
     /**
      * Gets the root of the evaluation stack. This Evaluation contains the node representing the
      * root expression and the source is the root source object.
+     * 
+     * @return the root Evaluation from the stack (the root expression node).
      */
     public Evaluation getRootEvaluation()
     {
@@ -391,6 +403,9 @@ public class OgnlContext extends Object implements Map
      * Returns the Evaluation at the relative index given. This should be zero or a negative number
      * as a relative reference back up the evaluation stack. Therefore getEvaluation(0) returns the
      * current Evaluation.
+     * 
+     * @param relativeIndex the relative index for the Evaluation to retrieve from the stack (with 0 being the current Evaluation).  relativeIndex should be &lt;= 0.
+     * @return the Evaluation at relativeIndex, or null if relativeIndex is &gt; 0.
      */
     public Evaluation getEvaluation(int relativeIndex)
     {
@@ -408,6 +423,8 @@ public class OgnlContext extends Object implements Map
     /**
      * Pushes a new Evaluation onto the stack. This is done before a node evaluates. When evaluation
      * is complete it should be popped from the stack via <code>popEvaluation()</code>.
+     * 
+     * @param value the Evaluation to push onto the stack.
      */
     public void pushEvaluation(Evaluation value)
     {
@@ -422,6 +439,8 @@ public class OgnlContext extends Object implements Map
     /**
      * Pops the current Evaluation off of the top of the stack. This is done after a node has
      * completed its evaluation.
+     * 
+     * @return the Evaluation popped from the top of the stack.
      */
     public Evaluation popEvaluation()
     {
