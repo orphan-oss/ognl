@@ -89,6 +89,10 @@ public abstract class OgnlOps implements NumericTypes
                     if ((v1 instanceof Comparable) && v1.getClass().isAssignableFrom(v2.getClass())) {
                         result = ((Comparable) v1).compareTo(v2);
                         break;
+                    } else if ((v1 instanceof Enum<?> && v2 instanceof Enum<?>) &&
+                               (v1.getClass() == v2.getClass() || ((Enum) v1).getDeclaringClass() == ((Enum) v2).getDeclaringClass())) {
+                        result = ((Enum) v1).compareTo(v2);
+                        break;
                     } else {
                         throw new IllegalArgumentException("invalid comparison: " + v1.getClass().getName() + " and "
                                 + v2.getClass().getName());
