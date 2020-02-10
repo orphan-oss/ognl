@@ -1,7 +1,7 @@
 # Version Notes
 
-## Release notes - version 3.2.12, 3.1.27
- * fixes Enum comparison failure [#99](../../../pull/99) -
+## Release notes - version 3.2.12, 3.1.28
+ * fixes Enum comparison failure [#98](../../../pull/98),[#99](../../../pull/99) -
    thanks to JCgH4164838Gh792C124B5
 
 ## Release notes - version 3.2.12
