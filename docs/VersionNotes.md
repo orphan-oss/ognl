@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.2.12, 3.1.27
+ * fixes Enum comparison failure [#99](../../../pull/99) -
+   thanks to JCgH4164838Gh792C124B5
+
 ## Release notes - version 3.2.12
  * DefaultClassResolver should resolve classes in the default package [#93](../../../pull/93) -
    thanks to Iwao AVE!
