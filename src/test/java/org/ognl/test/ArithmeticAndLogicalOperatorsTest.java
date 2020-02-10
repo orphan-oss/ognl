@@ -37,6 +37,12 @@ import java.math.BigDecimal;
 public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
 {
 
+    public enum EnumNoBody { ENUM1, ENUM2; };  // Basic enumeration
+    public enum EnumEmptyBody { ENUM1{}, ENUM2{}; };  // Enumeration whose elements have (empty) bodies
+    public enum EnumBasicBody { ENUM1{ public final Integer value() { return Integer.valueOf(10);} }, 
+                                ENUM2{ public final Integer value() { return Integer.valueOf(20);} }; };  // Enumeration whose elements have bodies
+    protected static final String FULLY_QUALIFIED_CLASSNAME = ArithmeticAndLogicalOperatorsTest.class.getName();
+
     private static Object[][] TESTS = {
             // Double-valued arithmetic expressions
             { "-1d", new Double(-1) },
@@ -166,7 +172,73 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase
             { "#y == 1", Boolean.TRUE },
             { "#y == \"1\"", Boolean.TRUE },
             { "#y + \"1\"", "11" },
-            { "\"1\" + #y", "11" }
+            { "\"1\" + #y", "11" },
+
+            // Enumerated type equality and inequality comparisons (with and without element bodies, reversing order for completeness).
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", Boolean.TRUE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", Boolean.FALSE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", Boolean.TRUE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", Boolean.FALSE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", Boolean.TRUE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", Boolean.FALSE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", Boolean.TRUE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", Boolean.FALSE },
+
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", Boolean.TRUE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", Boolean.FALSE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", Boolean.TRUE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", Boolean.FALSE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", Boolean.TRUE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", Boolean.FALSE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", Boolean.TRUE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", Boolean.FALSE },
+
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", Boolean.TRUE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", Boolean.FALSE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", Boolean.TRUE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", Boolean.FALSE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", Boolean.TRUE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", Boolean.FALSE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", Boolean.TRUE },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", Boolean.FALSE },
+
+            // As per JDK JavaDocs it is only possible to compare Enum elements of the same type.  Attempting to compare different types 
+            //   will normally result in ClassCastExceptions.  However, OGNL should avoid that and produce an IllegalArgumentException instead.
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", IllegalArgumentException.class },
+
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", IllegalArgumentException.class },
+
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", IllegalArgumentException.class },
+
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", IllegalArgumentException.class },
+            { "@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", IllegalArgumentException.class }
     };
 
     /*
