@@ -102,11 +102,11 @@ public class OgnlContext extends Object implements Map
 
     /**
      * Constructs a new OgnlContext with the given class resolver, type converter and member access.
-     * If any of these parameters is null the default will be used.
+     * If any of these parameters is null the default will be used, except <span class="strong">memberAccess which must be non-null</span>.
      * 
      * @param classResolver the ClassResolver for a new OgnlContext.
      * @param typeConverter the TypeConverter for a new OgnlContext.
-     * @param memberAccess the MemberAccess for a new OgnlContext.
+     * @param memberAccess the MemberAccess for a new OgnlContext.  <span class="strong">Must be non-null</span>.
      */
     public OgnlContext(ClassResolver classResolver, TypeConverter typeConverter, MemberAccess memberAccess)
     {
@@ -115,19 +115,22 @@ public class OgnlContext extends Object implements Map
     }
 
     /**
-     * @deprecated use on of the constructors which require {@link MemberAccess}, this one can be removed soon
+     * Constructs a new OgnlContext with the given member access, class resolver, type converter and values.
+     * If any of these parameters is null the default will be used, except <span class="strong">memberAccess which must be non-null</span>.
+     * 
+     * @param memberAccess the MemberAccess for a new OgnlContext.  <span class="strong">Must be non-null</span>.
+     * @param classResolver the ClassResolver for a new OgnlContext.
+     * @param typeConverter the TypeConverter for a new OgnlContext.
+     * @param values the Map of values to provide for a new OgnlContext.
      */
-    @Deprecated
-    public OgnlContext(Map values)
-    {
-        // nulls will prevent overriding the default class resolver, type converter and member access
-        this(null, null, null, values);
-    }
-
     public OgnlContext(MemberAccess memberAccess, ClassResolver classResolver, TypeConverter typeConverter, Map values)
     {
         super();
-        this._values = values;
+        if (values != null) {
+            this._values = values;
+        } else {
+            this._values = new HashMap(23);  // No 'values' map has been specified, so we create one of the default size: 23 entries
+        }
         if (classResolver != null) {
             this._classResolver = classResolver;
         } else {
@@ -141,10 +144,15 @@ public class OgnlContext extends Object implements Map
         if (memberAccess != null) {
             this._memberAccess = memberAccess;
         } else {
-            throw new RuntimeException("MemberAccess implementation must be provided!");
+            throw new IllegalArgumentException("MemberAccess implementation must be provided - null not permitted!");
         }
     }
 
+    /**
+     * Set (put) the provided value map content into the existing values Map for this OgnlContext.
+     * 
+     * @param value a Map of additional values to put into this OgnlContext.
+     */
     public void setValues(Map value)
     {
         for (Object k : value.keySet()) {
@@ -152,6 +160,11 @@ public class OgnlContext extends Object implements Map
         }
     }
 
+    /**
+     * Get the values Map for this OgnlContext.
+     * 
+     * @return Map of values for this OgnlContext.
+     */
     public Map getValues()
     {
         return _values;
@@ -477,26 +490,31 @@ public class OgnlContext extends Object implements Map
     }
 
     /* ================= Map interface ================= */
+    @Override
     public int size()
     {
         return _values.size();
     }
 
+    @Override
     public boolean isEmpty()
     {
         return _values.isEmpty();
     }
 
+    @Override
     public boolean containsKey(Object key)
     {
         return _values.containsKey(key);
     }
 
+    @Override
     public boolean containsValue(Object value)
     {
         return _values.containsValue(value);
     }
 
+    @Override
     public Object get(Object key)
     {
         Object result;
@@ -529,6 +547,7 @@ public class OgnlContext extends Object implements Map
         return result;
     }
 
+    @Override
     public Object put(Object key, Object value)
     {
         Object result;
@@ -567,6 +586,7 @@ public class OgnlContext extends Object implements Map
         return result;
     }
 
+    @Override
     public Object remove(Object key)
     {
         Object result;
@@ -604,6 +624,7 @@ public class OgnlContext extends Object implements Map
         return result;
     }
 
+    @Override
     public void putAll(Map t)
     {
         for (Object k : t.keySet()) {
@@ -611,6 +632,7 @@ public class OgnlContext extends Object implements Map
         }
     }
 
+    @Override
     public void clear()
     {
         _values.clear();
@@ -631,29 +653,34 @@ public class OgnlContext extends Object implements Map
         setCurrentNode(null);
     }
 
+    @Override
     public Set keySet()
     {
         /* Should root, currentObject, classResolver, typeConverter & memberAccess be included here? */
         return _values.keySet();
     }
 
+    @Override
     public Collection values()
     {
         /* Should root, currentObject, classResolver, typeConverter & memberAccess be included here? */
         return _values.values();
     }
 
+    @Override
     public Set entrySet()
     {
         /* Should root, currentObject, classResolver, typeConverter & memberAccess be included here? */
         return _values.entrySet();
     }
 
+    @Override
     public boolean equals(Object o)
     {
         return _values.equals(o);
     }
 
+    @Override
     public int hashCode()
     {
         return _values.hashCode();
