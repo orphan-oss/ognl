@@ -1,6 +1,10 @@
 # Version Notes
 
-## Release notes - version 3.2.12, 3.1.28
+## Release notes - version 3.2.14
+ * deprecated constructor always throws an exception [#81](../../../issues/81),[#101](../../../pull/101) -
+   thanks to JCgH4164838Gh792C124B5
+
+## Release notes - version 3.2.13, 3.1.28
  * fixes Enum comparison failure [#98](../../../pull/98),[#99](../../../pull/99) -
    thanks to JCgH4164838Gh792C124B5
 
