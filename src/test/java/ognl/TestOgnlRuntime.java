@@ -699,4 +699,23 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
+    protected static class ProtectedParent {
+        public void setName(String name) {
+        }
+        public String getName() {
+            return "name";
+        }
+    }
+
+    public static class PublicChild extends ProtectedParent {
+    }
+
+    public void testSyntheticReadMethod() throws Exception {
+        assertNotNull(OgnlRuntime.getReadMethod(PublicChild.class, "name"));
+    }
+
+    public void testSyntheticWriteMethod() throws Exception {
+        assertNotNull(OgnlRuntime.getWriteMethod(PublicChild.class, "name"));
+    }
+
 }

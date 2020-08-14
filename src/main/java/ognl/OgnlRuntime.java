@@ -3597,9 +3597,6 @@ public class OgnlRuntime {
 
             for (int i = 0; i < methods.length; i++)
             {
-                if (!isMethodCallable(methods[i]))
-                    continue;
-
                 if ((methods[i].getName().equalsIgnoreCase(name)
                      || methods[i].getName().toLowerCase().equals("get" + name)
                      || methods[i].getName().toLowerCase().equals("has" + name)
@@ -3617,9 +3614,6 @@ public class OgnlRuntime {
 
             for (int i = 0; i < methods.length; i++)
             {
-                if (!isMethodCallable(methods[i]))
-                    continue;
-
                 if (methods[i].getName().equalsIgnoreCase(name)
                     && !methods[i].getName().startsWith("set")
                     && !methods[i].getName().startsWith("get")
