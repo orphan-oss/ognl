@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.2.15
+ * fixes `OgnlRuntime#getReadMethod()` returns `null` if the method is a bridge method [#104](../../../pull/104) -
+   thanks to harawata
+
 ## Release notes - version 3.2.14
  * deprecated constructor always throws an exception [#81](../../../issues/81),[#101](../../../pull/101) -
    thanks to JCgH4164838Gh792C124B5
