@@ -2773,10 +2773,6 @@ public class OgnlRuntime {
         if (method != null)
             return method;
 
-        // By checking key existence now and not before calling 'get', we will save a map resolution 90% of the times
-//        if (cacheGetMethod.containsKey(targetClass, propertyName))
-//            return null;
-
         method = _getGetMethod(context, targetClass, propertyName); // will be null if not found - will cache it anyway
         cacheGetMethod.put(targetClass, propertyName, method);
 
@@ -3974,14 +3970,6 @@ public class OgnlRuntime {
             methodsByPropertyName.putIfAbsent(propertyName, (method == null? NULL_REPLACEMENT : method));
         }
 
-//        boolean containsKey(Class clazz, String propertyName)
-//        {
-//            ConcurrentHashMap<String,Method> methodsByPropertyName = this.cache.get(clazz);
-//            if (methodsByPropertyName == null)
-//                return false;
-//
-//            return methodsByPropertyName.containsKey(propertyName);
-//        }
 
         /**
          * Allow clearing for the underlying cache of the ClassPropertyMethodCache.
