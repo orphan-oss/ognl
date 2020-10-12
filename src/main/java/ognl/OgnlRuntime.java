@@ -1211,9 +1211,6 @@ public class OgnlRuntime {
                 }
             }
             checkPermission = Boolean.FALSE.equals(methodPermCacheValue);
-            if (checkPermission) { // TODO: ***** This check/block to be removed if/when SecurityManager sandbox logic is merged from v3.1.x *****
-                throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-            }
         }
 
         Object result;
@@ -2520,7 +2517,7 @@ public class OgnlRuntime {
 
             if (f != null) {
                 final int fModifiers = f.getModifiers();
-                if (!Modifier.isStatic(f.getModifiers()) && !Modifier.isFinal(fModifiers)) {
+                if (!Modifier.isStatic(fModifiers) && !Modifier.isFinal(fModifiers)) {
                     final Object state = context.getMemberAccess().setup(context, target, f, propertyName);
                     try {
                         if (isTypeCompatible(value, f.getType())
