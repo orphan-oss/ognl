@@ -2764,12 +2764,11 @@ public class OgnlRuntime {
     {
         // Cache is a map in two levels, so we provide two keys (see comments in ClassPropertyMethodCache below)
         Method method = cacheGetMethod.get(targetClass, propertyName);
+        if (method == ClassPropertyMethodCache.NULL_REPLACEMENT) {
+            return null;
+        }
         if (method != null)
             return method;
-
-        // By checking key existence now and not before calling 'get', we will save a map resolution 90% of the times
-        if (cacheGetMethod.containsKey(targetClass, propertyName))
-            return null;
 
         method = _getGetMethod(context, targetClass, propertyName); // will be null if not found - will cache it anyway
         cacheGetMethod.put(targetClass, propertyName, method);
@@ -2865,12 +2864,15 @@ public class OgnlRuntime {
     {
         // Cache is a map in two levels, so we provide two keys (see comments in ClassPropertyMethodCache below)
         Method method = cacheSetMethod.get(targetClass, propertyName);
+        if (method == ClassPropertyMethodCache.NULL_REPLACEMENT) {
+            return null;
+        }
         if (method != null)
             return method;
 
         // By checking key existence now and not before calling 'get', we will save a map resolution 90% of the times
-        if (cacheSetMethod.containsKey(targetClass, propertyName))
-            return null;
+//        if (cacheSetMethod.containsKey(targetClass, propertyName))
+//            return null;
 
         method = _getSetMethod(context, targetClass, propertyName); // will be null if not found - will cache it anyway
         cacheSetMethod.put(targetClass, propertyName, method);
@@ -3945,12 +3947,9 @@ public class OgnlRuntime {
             ConcurrentHashMap<String,Method> methodsByPropertyName = this.cache.get(clazz);
             if (methodsByPropertyName == null)
             {
-                methodsByPropertyName = new ConcurrentHashMap<String, Method>();
-                this.cache.put(clazz, methodsByPropertyName);
+                return null;
             }
             Method method = methodsByPropertyName.get(propertyName);
-            if (method == NULL_REPLACEMENT)
-                return null;
             return method;
         }
 
@@ -3960,19 +3959,14 @@ public class OgnlRuntime {
             if (methodsByPropertyName == null)
             {
                 methodsByPropertyName = new ConcurrentHashMap<String, Method>();
-                this.cache.put(clazz, methodsByPropertyName);
+                ConcurrentHashMap<String,Method> old = this.cache.putIfAbsent(clazz, methodsByPropertyName);
+                if (null != old) {
+                    methodsByPropertyName = old;
+                }
             }
-            methodsByPropertyName.put(propertyName, (method == null? NULL_REPLACEMENT : method));
+            methodsByPropertyName.putIfAbsent(propertyName, (method == null? NULL_REPLACEMENT : method));
         }
 
-        boolean containsKey(Class clazz, String propertyName)
-        {
-            ConcurrentHashMap<String,Method> methodsByPropertyName = this.cache.get(clazz);
-            if (methodsByPropertyName == null)
-                return false;
-
-            return methodsByPropertyName.containsKey(propertyName);
-        }
 
         /**
          * Allow clearing for the underlying cache of the ClassPropertyMethodCache.
