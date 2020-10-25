@@ -2738,18 +2738,46 @@ public class OgnlRuntime {
     }
 
     /**
-     * Convenience used to check if a method is volatile or synthetic so as to avoid
-     * calling un-callable methods.
+     * Convenience used to check if a method is a synthetic method so as to avoid
+     * calling un-callable methods.  These methods are not considered callable by
+     * OGNL in almost all circumstances.
+     * 
+     * This method considers any synthetic method (even bridge methods) as being un-callable.
+     * Even though synthetic and bridge methods can technically be called, by default
+     * OGNL excludes them from consideration.
+     * 
+     * Synthetic methods should be excluded in general, since calling such methods
+     * could introduce unanticipated risks.
      *
      * @param m The method to check.
-     * @return True if the method should be callable, false otherwise.
+     * @return True if the method should be callable (non-synthetic), false otherwise.
      */
     static boolean isMethodCallable(Method m)
     {
-        if ((isJdk15() && m.isSynthetic()) || Modifier.isVolatile(m.getModifiers()))
-            return false;
+        return !(m.isSynthetic() || m.isBridge());
+    }
 
-        return true;
+    /**
+     * Convenience used to check if a method is either a non-synthetic method or
+     * a bridge method.
+     * 
+     * Warning:  This method should <b>NOT<b> be used as a direct replacement for 
+     * {@link #isMethodCallable(Method)}.  Almost all OGNL processing assumes the
+     * exlcusion of synthetic methods in order to process correctly.  <b>Only</b>
+     * use this method to determine method callability for any OGNL processing
+     * after <b>careful</b> consideration.
+     * 
+     * This method considers synthetic methods that are not also bridge methods
+     * as being un-callable.
+     * 
+     * Synthetic methods should be excluded in general, since calling such methods
+     * could introduce unanticipated risks.
+     *
+     * @param m The method to check.
+     * @return True if the method should be callable (non-synethetic or bridge), false otherwise.
+     */
+    static boolean isMethodCallable_BridgeOrNonSynthetic(Method m) {
+        return !m.isSynthetic() || m.isBridge();  // Reference: See PR#104.
     }
 
     /**
@@ -3597,6 +3625,11 @@ public class OgnlRuntime {
 
             for (int i = 0; i < methods.length; i++)
             {
+                // Consider bridge methods as callable (also) for Read methods.
+                if (!isMethodCallable_BridgeOrNonSynthetic(methods[i])) {
+                    continue;
+                }
+
                 if ((methods[i].getName().equalsIgnoreCase(name)
                      || methods[i].getName().toLowerCase().equals("get" + name)
                      || methods[i].getName().toLowerCase().equals("has" + name)
@@ -3614,6 +3647,11 @@ public class OgnlRuntime {
 
             for (int i = 0; i < methods.length; i++)
             {
+                // Consider bridge methods as callable (also) for Read methods.
+                if (!isMethodCallable_BridgeOrNonSynthetic(methods[i])) {
+                    continue;
+                }
+
                 if (methods[i].getName().equalsIgnoreCase(name)
                     && !methods[i].getName().startsWith("set")
                     && !methods[i].getName().startsWith("get")
@@ -3676,8 +3714,10 @@ public class OgnlRuntime {
             ArrayList<Method> candidates = new ArrayList<Method>();
 
             for (int i = 0; i < methods.length; i++) {
-                if (!isMethodCallable(methods[i].getMethod()))
+                // Consider bridge methods as callable (also) for Write methods.
+                if (!isMethodCallable_BridgeOrNonSynthetic(methods[i].getMethod())) {
                     continue;
+                }
 
                 if ((methods[i].getName().equalsIgnoreCase(name)
                      || methods[i].getName().toLowerCase().equals(name.toLowerCase())
@@ -3697,8 +3737,10 @@ public class OgnlRuntime {
 
             Method[] cmethods = target.getClass().getMethods();
             for (int i = 0; i < cmethods.length; i++) {
-                if (!isMethodCallable(cmethods[i]))
+                // Consider bridge methods as callable (also) for Write methods.
+                if (!isMethodCallable_BridgeOrNonSynthetic(cmethods[i])) {
                     continue;
+                }
 
                 if ((cmethods[i].getName().equalsIgnoreCase(name)
                      || cmethods[i].getName().toLowerCase().equals(name.toLowerCase())
