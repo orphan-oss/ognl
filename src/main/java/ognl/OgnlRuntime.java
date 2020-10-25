@@ -2772,6 +2772,8 @@ public class OgnlRuntime {
      * 
      * Synthetic methods should be excluded in general, since calling such methods
      * could introduce unanticipated risks.
+     * 
+     * @since 3.2.16
      *
      * @param m The method to check.
      * @return True if the method should be callable (non-synethetic or bridge), false otherwise.
