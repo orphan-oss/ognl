@@ -1491,10 +1491,14 @@ public class OgnlRuntime {
         boolean varArgs = m != null && isJdk15() && m.isVarArgs();
 
         if ( args==null || args.length == 0 ) {	// handle methods without arguments
-            if ( classes == null || classes.length == 0 )
+            if ( classes == null || classes.length == 0 ) {
                 return NoArgsReport;
-            else
+            } else {
+                if (varArgs) {
+                    return NoArgsReport;
+                }
                 return null;
+            }
         }
         if (args.length != classes.length && !varArgs) {
             return null;
@@ -1717,13 +1721,13 @@ public class OgnlRuntime {
                 Class[] mParameterTypes = mm.mParameterTypes;
                 System.arraycopy(args, 0, actualArgs, 0, args.length);
 
-                for (int j = 0; j < mParameterTypes.length; j++)
-                {
-                    Class type = mParameterTypes[j];
+                if (actualArgs.length > 0) {
+                    for (int j = 0; j < mParameterTypes.length; j++) {
+                        Class type = mParameterTypes[j];
 
-                    if (mm.report.conversionNeeded[j] || (type.isPrimitive() && (actualArgs[j] == null)))
-                    {
-                        actualArgs[j] = getConvertedType(context, source, result, propertyName, args[j], type);
+                        if (mm.report.conversionNeeded[j] || (type.isPrimitive() && (actualArgs[j] == null))) {
+                            actualArgs[j] = getConvertedType(context, source, result, propertyName, args[j], type);
+                        }
                     }
                 }
             }
@@ -1937,7 +1941,9 @@ public class OgnlRuntime {
                     if (parmTypes[i].isArray())
                     {
                         convertedArgs = new Object[i + 1];
-                        System.arraycopy(actualArgs, 0, convertedArgs, 0, convertedArgs.length);
+                        if (actualArgs.length > 0) {
+                            System.arraycopy(actualArgs, 0, convertedArgs, 0, convertedArgs.length);
+                        }
 
                         Object[] varArgs;
 

@@ -33,8 +33,11 @@ package org.ognl.test;
 import junit.framework.TestSuite;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
+import ognl.Ognl;
+import ognl.OgnlException;
 import org.ognl.test.objects.*;
 
 public class MethodTest extends OgnlTestCase
@@ -60,6 +63,7 @@ public class MethodTest extends OgnlTestCase
             { LIST, "addValue(name)", Boolean.TRUE},
             { "getDisplayValue(methodsTest.allowDisplay)", "test"},
             { "isThisVarArgsWorking(three, rootValue)", Boolean.TRUE},
+            { "isThisVarArgsWorking()", Boolean.TRUE },
             { GENERIC, "service.getFullMessageFor(value, null)", "Halo 3"},
             // TestCase for https://github.com/jkuhnert/ognl/issues/17 -  ArrayIndexOutOfBoundsException when trying to access BeanFactory
             { "testMethods.getBean('TestBean')", ROOT.getTestMethods().getBean("TestBean") } ,
@@ -82,6 +86,13 @@ public class MethodTest extends OgnlTestCase
             //	https://github.com/jkuhnert/ognl/issues/23 - Exception selecting overloaded method in 3.1.4
             { "testMethods.avg({ 5, 5 })", ROOT.getTestMethods().avg((List)Arrays.asList(5, 5)) },
     };
+
+    public void testNullVarArgs() throws OgnlException {
+        Object value = Ognl.getValue("isThisVarArgsWorking()", new HashMap(), ROOT);
+
+        assertTrue(value instanceof Boolean);
+        assertTrue((Boolean) value);
+    }
 
     public static class A
     {
