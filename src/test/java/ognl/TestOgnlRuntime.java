@@ -699,6 +699,9 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
+    /**
+     * Protected class for synthetic/bridge method tests.
+     */
     protected static class ProtectedParent {
         public void setName(String name) {
         }
@@ -707,15 +710,114 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
+    /**
+     * Public descendant class for synthetic/bridge method tests.
+     */
     public static class PublicChild extends ProtectedParent {
     }
 
-    public void testSyntheticReadMethod() throws Exception {
+    /**
+     * Test that synthetic bridge read methods can be found successfully.
+     * 
+     * Note: Only bridge methods should qualify, non-bridge synthetic methods should not.
+     * 
+     * @throws Exception 
+     */
+    public void testSyntheticBridgeReadMethod() throws Exception {
         assertNotNull(OgnlRuntime.getReadMethod(PublicChild.class, "name"));
     }
 
-    public void testSyntheticWriteMethod() throws Exception {
+    /**
+     * Test that synthetic bridge write methods can be found successfully.
+     * 
+     * Note: Only bridge methods should qualify, non-bridge synthetic methods should not.
+     * 
+     * @throws Exception 
+     */
+    public void testSyntheticBridgeWriteMethod() throws Exception {
         assertNotNull(OgnlRuntime.getWriteMethod(PublicChild.class, "name"));
     }
 
+    /**
+     * Public class for "is callable" method tests.
+     */
+    public static class SimplePublicClass {
+        String name = "name contents";
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    /**
+     * Public class with non-public nested class for "is callable" method tests.
+     */
+    public static class SimpleNestingClass {
+        class NestedClass {
+            private String name = "nested name contents";
+        }
+
+        public String getNestedName() {
+            return new NestedClass().name;  // Should force creation of a synthetic method for NestedClass (to access its name field).
+        }
+    }
+
+    /**
+     * Test that normal non-synthetic methods are considered callable by both isMethodCallable() and isMethodCallable_BridgeOrNonSynthetic().
+     */
+    public void testConfirmStandardMethodCallability() {
+        Method method = null;
+        try {
+            method = SimplePublicClass.class.getDeclaredMethod("getName", (Class<?>[]) null);
+        } catch (NoSuchMethodException nsme) {
+            fail("SimplePublicClass.getName() method retrieval by reflection failed (NoSuchMethodException) ?");
+        }
+        assertNotNull("getName() method retrieval failed ?", method);
+        assertTrue("SimplePublicClass.getName() is a synthetic or bridge method ?", !(method.isBridge() || method.isSynthetic()));
+        assertTrue("SimplePublicClass.getName() is not considered callable by isMethodCallable() ?", OgnlRuntime.isMethodCallable(method));
+        assertTrue("SimplePublicClass.getName() is not considered callable by isMethodCallable_BridgeOrNonSynthetic() ?", OgnlRuntime.isMethodCallable_BridgeOrNonSynthetic(method));
+    }
+
+    /**
+     * Test that bridge methods ARE considered callable by isMethodCallable_BridgeOrNonSynthetic() ONLY, and NOT by isMethodCallable().
+     */
+    public void testConfirmBridgeMethodCallability() {
+        Method method = null;
+        try {
+            method = PublicChild.class.getDeclaredMethod("getName", (Class<?>[]) null);
+        } catch (NoSuchMethodException nsme) {
+            fail("PublicChild.getName() method retrieval by reflection failed (NoSuchMethodException) ?");
+        }
+        assertNotNull("getName() method retrieval failed ?", method);
+        assertTrue("PublicChild.getName() is not a bridge method ?", method.isBridge());
+        assertFalse("PublicChild.getName() is considered callable by isMethodCallable() ?", OgnlRuntime.isMethodCallable(method));
+        assertTrue("PublicChild.getName() is not considered callable by isMethodCallable_BridgeOrNonSynthetic() ?", OgnlRuntime.isMethodCallable_BridgeOrNonSynthetic(method));
+
+        try {
+            Class<?>[] argumentTypes = {String.class};
+            method = PublicChild.class.getDeclaredMethod("setName", argumentTypes);
+        } catch (NoSuchMethodException nsme) {
+            fail("PublicChild.setName() method retrieval by reflection failed (NoSuchMethodException) ?");
+        }
+        assertNotNull("setName() method retrieval failed ?", method);
+        assertTrue("PublicChild.setName() is not a bridge method ?", method.isBridge());
+        assertFalse("PublicChild.setName() is considered callable by isMethodCallable() ?", OgnlRuntime.isMethodCallable(method));
+        assertTrue("PublicChild.setName() is not considered callable by isMethodCallable_BridgeOrNonSynthetic() ?", OgnlRuntime.isMethodCallable_BridgeOrNonSynthetic(method));
+    }
+
+    /**
+     * Test that non-bridge synthetic methods are NOT considered callable by either isMethodCallable() or isMethodCallable_BridgeOrNonSynthetic().
+     */
+    public void testConfirmSyntheticMethodNonCallablility() {
+        Method method;
+        Method[] methods = SimpleNestingClass.NestedClass.class.getDeclaredMethods();
+        assertNotNull("Nested class has no methods ?", methods);
+        assertTrue("Nested class has no methods ?", methods.length > 0);
+        method = methods[0];
+        assertNotNull("Nested class method at index 0 is null ?", method);
+        assertTrue("SimpleAbstractClass.getName() is a synthetic method ?", method.isSynthetic());
+        assertFalse("SimpleAbstractClass.getName() is a bridge method ?", method.isBridge());
+        assertFalse("SimpleAbstractClass.getName() is considered callable by isMethodCallable() ?", OgnlRuntime.isMethodCallable(method));
+        assertFalse("SimpleAbstractClass.getName() is considered callable by isMethodCallable_BridgeOrNonSynthetic() ?", OgnlRuntime.isMethodCallable_BridgeOrNonSynthetic(method));
+    }
 }
