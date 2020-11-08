@@ -34,6 +34,8 @@ import ognl.enhance.ExpressionAccessor;
 import ognl.security.OgnlSecurityManager;
 
 import java.io.StringReader;
+import java.lang.reflect.Member;
+import java.lang.reflect.Modifier;
 import java.util.Map;
 
 /**
@@ -223,7 +225,14 @@ public abstract class Ognl
     @Deprecated
     public static Map createDefaultContext(Object root)
     {
-        return addDefaultContext(root, null, null, null, new OgnlContext(null, null, null));
+        MemberAccess memberAccess = new AbstractMemberAccess() {
+            @Override
+            public boolean isAccessible(Map context, Object target, Member member, String propertyName) {
+                int modifiers = member.getModifiers();
+                return Modifier.isPublic(modifiers);
+            }
+        };
+        return addDefaultContext(root, memberAccess, null, null, new OgnlContext(null, null, null));
     }
 
     /**
@@ -477,7 +486,7 @@ public abstract class Ognl
      *
      * @param context
      *          The context to get the root object from.
-     * 
+     *
      * @return The root object - or null if none found.
      */
     public static Object getRoot(Map context)
@@ -490,7 +499,7 @@ public abstract class Ognl
      *
      * @param context
      *          The context to get the evaluation from.
-     * 
+     *
      * @return The {@link Evaluation} - or null if none was found.
      */
     public static Evaluation getLastEvaluation(Map context)
@@ -517,7 +526,9 @@ public abstract class Ognl
      *             if the expression can't be used in this context
      * @throws OgnlException
      *             if there is a pathological environmental problem
+     * @deprecated
      */
+    @Deprecated
     public static Object getValue(Object tree, Map context, Object root)
             throws OgnlException
     {
@@ -545,7 +556,9 @@ public abstract class Ognl
      *             if the expression can't be used in this context
      * @throws OgnlException
      *             if there is a pathological environmental problem
+     * @deprecated
      */
+    @Deprecated
     public static Object getValue(Object tree, Map context, Object root, Class resultType)
             throws OgnlException
     {
@@ -566,11 +579,11 @@ public abstract class Ognl
     }
 
     /**
-     * Gets the value represented by the given pre-compiled expression on the specified root 
+     * Gets the value represented by the given pre-compiled expression on the specified root
      * object.
      *
      * @param expression
-     *          The pre-compiled expression, as found in {@link Node#getAccessor()}. 
+     *          The pre-compiled expression, as found in {@link Node#getAccessor()}.
      * @param context
      *          The ognl context.
      * @param root
@@ -584,11 +597,11 @@ public abstract class Ognl
     }
 
     /**
-     * Gets the value represented by the given pre-compiled expression on the specified root 
+     * Gets the value represented by the given pre-compiled expression on the specified root
      * object.
      *
      * @param expression
-     *          The pre-compiled expression, as found in {@link Node#getAccessor()}. 
+     *          The pre-compiled expression, as found in {@link Node#getAccessor()}.
      * @param context
      *          The ognl context.
      * @param root
@@ -947,7 +960,7 @@ public abstract class Ognl
      *
      * @param tree
      *          The {@link Node} to check.
-     * 
+     *
      * @return True if the node represents a constant expression - false otherwise.
      * @throws OgnlException If an exception occurs.
      */
