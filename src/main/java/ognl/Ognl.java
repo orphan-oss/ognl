@@ -327,7 +327,14 @@ public abstract class Ognl
     @Deprecated
     public static Map addDefaultContext(Object root, Map context)
     {
-        return addDefaultContext(root, null, null, null, context);
+        MemberAccess memberAccess = new AbstractMemberAccess() {
+            @Override
+            public boolean isAccessible(Map context, Object target, Member member, String propertyName) {
+                int modifiers = member.getModifiers();
+                return Modifier.isPublic(modifiers);
+            }
+        };
+        return addDefaultContext(root, memberAccess, null, null, context);
     }
 
     /**
