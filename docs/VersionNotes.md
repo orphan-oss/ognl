@@ -1,5 +1,19 @@
 # Version Notes
 
+## Release notes - version 3.2.16 (2020-11-14)
+ * adds support for null varargs [#113](../../../pull/113) -
+   thanks to lukaszlenart
+ * updates `isMethodCallable()` logic, re-introduce its usage for `getReadMethod()` [#110](../../../pull/110) -
+   thanks to JCgH4164838Gh792C124B5
+ * introduces `AbstractMemberAccess` to allow create it on-fly [#109](../../../pull/109) -
+   thanks to lukaszlenart
+ * bumps junit from 4.12 to 4.13.1 [#108](../../../pull/108) -
+   thanks to dependabot
+ * minor cleanups related to previous 3.1.x merges [#107](../../../pull/107) -
+   thanks to JCgH4164838Gh792C124B5
+ * fixes resolve race condition when there are to many threads since [#106](../../../pull/106) -
+   thanks to rolandhe
+
 ## Release notes - version 3.2.15
  * fixes `OgnlRuntime#getReadMethod()` returns `null` if the method is a bridge method [#104](../../../pull/104) -
    thanks to harawata
