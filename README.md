@@ -36,7 +36,17 @@ We pronounce OGNL as a word, like the last syllables of a drunken pronunciation 
  - How to define an AccessMember?
    - the best way is to implement your own `AccessMember` which will suite your project best, you can base on existing
      [DefaultAccessMember](src/test/java/ognl/DefaultMemberAccess.java) and adjust it to your needs.
-
+     Since version 3.2.16 there is `AbstractAccessMemeber` which can be used a start point for your own implementation,
+     see the example below:
+     ```
+        MemberAccess memberAccess = new AbstractMemberAccess() {
+            @Override
+            public boolean isAccessible(Map context, Object target, Member member, String propertyName) {
+                int modifiers = member.getModifiers();
+                return Modifier.isPublic(modifiers);
+            }
+        };
+     ```
  - How to run OGNL in Google AppEngine?
    - you need to tell OGNL to not do security manager permission checks, which will fail since GAE has a security manager 
      and you don't have the ability to add the OGNL-specific permissions. Therefore, somewhere in your initialization code, 
