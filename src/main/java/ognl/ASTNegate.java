@@ -34,7 +34,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTNegate extends NumericExpression
+public class ASTNegate extends NumericExpression
 {
     public ASTNegate(int id) {
         super(id);

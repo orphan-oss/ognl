@@ -34,7 +34,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTShiftLeft extends NumericExpression
+public class ASTShiftLeft extends NumericExpression
 {
     public ASTShiftLeft(int id) {
         super(id);

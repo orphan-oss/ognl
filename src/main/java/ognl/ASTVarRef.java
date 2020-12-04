@@ -33,15 +33,14 @@ package ognl;
 import ognl.enhance.OrderedReturn;
 import ognl.enhance.UnsupportedCompilationException;
 
-
 /**
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
 public class ASTVarRef extends SimpleNode implements NodeType, OrderedReturn {
-    
+
     private String _name;
-    
+
     protected Class _getterClass;
 
     protected String _core;
@@ -51,7 +50,7 @@ public class ASTVarRef extends SimpleNode implements NodeType, OrderedReturn {
     {
         super(id);
     }
-    
+
     public ASTVarRef(OgnlParser p, int id)
     {
         super(p, id);
@@ -61,7 +60,7 @@ public class ASTVarRef extends SimpleNode implements NodeType, OrderedReturn {
     {
         this._name = name;
     }
-    
+
     protected Object getValueBody(OgnlContext context, Object source)
         throws OgnlException
     {
@@ -73,12 +72,12 @@ public class ASTVarRef extends SimpleNode implements NodeType, OrderedReturn {
     {
         context.put(_name, value);
     }
-    
+
     public Class getGetterClass()
     {
         return _getterClass;
     }
-    
+
     public Class getSetterClass()
     {
         return null;
@@ -98,22 +97,22 @@ public class ASTVarRef extends SimpleNode implements NodeType, OrderedReturn {
     {
         return "#" + _name;
     }
-    
+
     public String toGetSourceString(OgnlContext context, Object target)
     {
         Object value = context.get(_name);
 
         if (value != null) {
-            
+
             _getterClass = value.getClass();
         }
 
         context.setCurrentType(_getterClass);
         context.setCurrentAccessor(context.getClass());
-        
+
         context.setCurrentObject(value);
         //context.setRoot(context.get(_name));
-        
+
         if (context.getCurrentObject() == null)
             throw new UnsupportedCompilationException("Current context object is null, can't compile var reference.");
 
@@ -123,17 +122,17 @@ public class ASTVarRef extends SimpleNode implements NodeType, OrderedReturn {
             pre = "((" + OgnlRuntime.getCompiler().getInterfaceClass(context.getCurrentType()).getName() + ")";
             post = ")";
         }
-        
+
         if (_parent != null && ASTAssign.class.isInstance(_parent)) {
             _core = "$1.put(\"" + _name + "\",";
             _last = pre + "$1.get(\"" + _name + "\")" + post;
-            
+
             return _core;
         }
 
         return pre + "$1.get(\"" + _name + "\")" + post;
     }
-    
+
     public String toSetSourceString(OgnlContext context, Object target)
     {
         return toGetSourceString(context, target);

@@ -39,7 +39,7 @@ import java.util.Map;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTMap extends SimpleNode
+public class ASTMap extends SimpleNode
 {
 
     private static Class DEFAULT_MAP_CLASS;
@@ -53,7 +53,7 @@ class ASTMap extends SimpleNode
             DEFAULT_MAP_CLASS = HashMap.class;
         }
     }
-    
+
     public ASTMap(int id)
     {
         super(id);
@@ -73,7 +73,7 @@ class ASTMap extends SimpleNode
         throws OgnlException
     {
         Map answer;
-        
+
         if (className == null) {
             try {
                 answer = (Map) DEFAULT_MAP_CLASS.newInstance();
@@ -89,25 +89,25 @@ class ASTMap extends SimpleNode
                 throw new OgnlException("Map implementor '" + className + "' not found", ex);
             }
         }
-        
+
         for(int i = 0; i < jjtGetNumChildren(); ++i) {
             ASTKeyValue kv = (ASTKeyValue) _children[i];
             Node k = kv.getKey(), v = kv.getValue();
-            
+
             answer.put(k.getValue(context, source), (v == null) ? null : v.getValue(context, source));
         }
-        
+
         return answer;
     }
 
     public String toString()
     {
         String result = "#";
-        
+
         if (className != null) {
             result = result + "@" + className + "@";
         }
-        
+
         result = result + "{ ";
         for(int i = 0; i < jjtGetNumChildren(); ++i) {
             ASTKeyValue kv = (ASTKeyValue) _children[i];
@@ -119,12 +119,12 @@ class ASTMap extends SimpleNode
         }
         return result + " }";
     }
-    
+
     public String toGetSourceString(OgnlContext context, Object target)
     {
         throw new UnsupportedCompilationException("Map expressions not supported as native java yet.");
     }
-    
+
     public String toSetSourceString(OgnlContext context, Object target)
     {
         throw new UnsupportedCompilationException("Map expressions not supported as native java yet.");

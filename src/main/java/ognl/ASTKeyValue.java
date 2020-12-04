@@ -34,7 +34,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTKeyValue extends SimpleNode
+public class ASTKeyValue extends SimpleNode
 {
     public ASTKeyValue(int id) {
         super(id);

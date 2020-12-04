@@ -34,7 +34,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTBitAnd extends NumericExpression
+public class ASTBitAnd extends NumericExpression
 {
     public ASTBitAnd(int id) {
         super(id);
@@ -60,7 +60,7 @@ class ASTBitAnd extends NumericExpression
     {
         return "&";
     }
-    
+
     public String coerceToNumeric(String source, OgnlContext context, Node child)
     {
         return "(long)" + super.coerceToNumeric(source, context, child);

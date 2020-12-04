@@ -35,7 +35,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTEq extends ComparisonExpression
+public class ASTEq extends ComparisonExpression
 {
     public ASTEq(int id) {
         super(id);
@@ -51,12 +51,12 @@ class ASTEq extends ComparisonExpression
         Object v2 = _children[1].getValue( context, source );
         return OgnlOps.equal( v1, v2 )? Boolean.TRUE : Boolean.FALSE;
     }
-    
+
     public String getExpressionOperator(int index)
     {
         return "==";
     }
-    
+
     public String getComparisonFunction()
     {
         return "ognl.OgnlOps.equal";

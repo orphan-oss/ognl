@@ -36,7 +36,7 @@ import ognl.enhance.UnsupportedCompilationException;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTEval extends SimpleNode
+public class ASTEval extends SimpleNode
 {
 
     public ASTEval(int id)
@@ -91,12 +91,12 @@ class ASTEval extends SimpleNode
     {
         return "(" + _children[0] + ")(" + _children[1] + ")";
     }
-    
+
     public String toGetSourceString(OgnlContext context, Object target)
     {
         throw new UnsupportedCompilationException("Eval expressions not supported as native java yet.");
     }
-    
+
     public String toSetSourceString(OgnlContext context, Object target)
     {
         throw new UnsupportedCompilationException("Map expressions not supported as native java yet.");

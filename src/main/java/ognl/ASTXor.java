@@ -34,7 +34,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTXor extends NumericExpression
+public class ASTXor extends NumericExpression
 {
     public ASTXor(int id) {
         super(id);

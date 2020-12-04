@@ -34,7 +34,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTDivide extends NumericExpression
+public class ASTDivide extends NumericExpression
 {
     public ASTDivide(int id) {
         super(id);
@@ -55,5 +55,5 @@ class ASTDivide extends NumericExpression
     {
         return "/";
     }
-    
+
 }
