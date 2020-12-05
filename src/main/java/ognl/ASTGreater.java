@@ -35,7 +35,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTGreater extends ComparisonExpression
+public class ASTGreater extends ComparisonExpression
 {
     public ASTGreater(int id) {
         super(id);
@@ -49,7 +49,7 @@ class ASTGreater extends ComparisonExpression
     {
         Object v1 = _children[0].getValue( context, source );
         Object v2 = _children[1].getValue( context, source );
-        
+
         return OgnlOps.greater( v1, v2 )? Boolean.TRUE : Boolean.FALSE;
     }
 
@@ -57,7 +57,7 @@ class ASTGreater extends ComparisonExpression
     {
         return ">";
     }
-    
+
     public String getComparisonFunction()
     {
         return "ognl.OgnlOps.greater";

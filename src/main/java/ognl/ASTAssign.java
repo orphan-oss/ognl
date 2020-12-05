@@ -37,7 +37,7 @@ import ognl.enhance.UnsupportedCompilationException;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTAssign extends SimpleNode
+public class ASTAssign extends SimpleNode
 {
     public ASTAssign(int id) {
         super(id);
@@ -58,20 +58,20 @@ class ASTAssign extends SimpleNode
     {
         return _children[0] + " = " + _children[1];
     }
-    
+
     public String toGetSourceString(OgnlContext context, Object target)
     {
         String result = "";
 
         String first = _children[0].toGetSourceString(context, target);
         String second = "";
-        
+
         if (ASTProperty.class.isInstance(_children[1])) {
             second += "((" + OgnlRuntime.getCompiler().getClassName(target.getClass()) + ")$2).";
         }
-        
+
         second += _children[1].toGetSourceString(context, target);
-        
+
         if (ASTSequence.class.isAssignableFrom(_children[1].getClass())) {
             ASTSequence seq = (ASTSequence)_children[1];
 
@@ -89,10 +89,10 @@ class ASTAssign extends SimpleNode
         if (NodeType.class.isInstance(_children[1])
                 && !ASTProperty.class.isInstance(_children[1])
                 && ((NodeType)_children[1]).getGetterClass() != null && !OrderedReturn.class.isInstance(_children[1])) {
-            
+
             second = "new " + ((NodeType)_children[1]).getGetterClass().getName() + "(" + second + ")";
         }
-        
+
         if (OrderedReturn.class.isAssignableFrom(_children[0].getClass())
             && ((OrderedReturn)_children[0]).getCoreExpression() != null) {
             context.setCurrentType(Object.class);
@@ -108,35 +108,35 @@ class ASTAssign extends SimpleNode
 
         return result;
     }
-    
+
     public String toSetSourceString(OgnlContext context, Object target)
     {
         String result = "";
-        
+
         result += _children[0].toSetSourceString(context, target);
-        
+
         if (ASTProperty.class.isInstance(_children[1])) {
             result += "((" + OgnlRuntime.getCompiler().getClassName(target.getClass()) + ")$2).";
         }
-        
+
         String value =_children[1].toSetSourceString(context, target);
-        
+
         if (value == null)
             throw new UnsupportedCompilationException("Value for assignment is null, can't enhance statement to bytecode.");
-        
+
         if (ASTSequence.class.isAssignableFrom(_children[1].getClass())) {
             ASTSequence seq = (ASTSequence)_children[1];
             result = seq.getCoreExpression() + result;
             value = seq.getLastExpression();
         }
-        
-        if (NodeType.class.isInstance(_children[1]) 
+
+        if (NodeType.class.isInstance(_children[1])
                 && !ASTProperty.class.isInstance(_children[1])
                 && ((NodeType)_children[1]).getGetterClass() != null) {
-            
+
             value = "new " + ((NodeType)_children[1]).getGetterClass().getName() + "(" + value + ")";
         }
-        
+
         return result + value + ")";
     }
 

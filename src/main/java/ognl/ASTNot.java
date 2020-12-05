@@ -34,7 +34,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTNot extends BooleanExpression
+public class ASTNot extends BooleanExpression
 {
     public ASTNot(int id) {
         super(id);
@@ -53,20 +53,20 @@ class ASTNot extends BooleanExpression
     {
         return "!";
     }
-    
+
     public String toGetSourceString(OgnlContext context, Object target)
     {
         try {
-            
+
             String srcString = super.toGetSourceString(context, target);
-            
+
             if (srcString == null || srcString.trim().length() < 1)
                 srcString = "null";
-            
+
             context.setCurrentType(Boolean.TYPE);
 
             return "(! ognl.OgnlOps.booleanValue(" + srcString + ") )";
-            
+
         } catch (Throwable t)
         {
             throw OgnlOps.castToRuntime(t);

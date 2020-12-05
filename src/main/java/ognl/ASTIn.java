@@ -36,7 +36,7 @@ import ognl.enhance.UnsupportedCompilationException;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTIn extends SimpleNode implements NodeType
+public class ASTIn extends SimpleNode implements NodeType
 {
     public ASTIn(int id) {
         super(id);
@@ -46,7 +46,7 @@ class ASTIn extends SimpleNode implements NodeType
         super(p, id);
     }
 
-    protected Object getValueBody( OgnlContext context, Object source ) 
+    protected Object getValueBody( OgnlContext context, Object source )
     throws OgnlException
     {
         Object v1 = _children[0].getValue( context, source );
@@ -59,41 +59,41 @@ class ASTIn extends SimpleNode implements NodeType
     {
         return _children[0] + " in " + _children[1];
     }
-    
+
     public Class getGetterClass()
     {
         return Boolean.TYPE;
     }
-    
+
     public Class getSetterClass()
     {
         return null;
     }
-    
+
     public String toGetSourceString(OgnlContext context, Object target)
     {
         try {
             String result = "ognl.OgnlOps.in( ($w) ";
-            
+
             result += OgnlRuntime.getChildSource(context, target, _children[0]) + ", ($w) " + OgnlRuntime.getChildSource(context, target, _children[1]);
-            
+
             result += ")";
 
             context.setCurrentType(Boolean.TYPE);
 
             return result;
         } catch (NullPointerException e) {
-            
+
             // expected to happen in some instances
             e.printStackTrace();
-            
+
             throw new UnsupportedCompilationException("evaluation resulted in null expression.");
         } catch (Throwable t)
         {
             throw OgnlOps.castToRuntime(t);
         }
     }
-    
+
     public String toSetSourceString(OgnlContext context, Object target)
     {
         throw new UnsupportedCompilationException("Map expressions not supported as native java yet.");

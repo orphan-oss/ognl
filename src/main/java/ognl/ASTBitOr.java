@@ -34,7 +34,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTBitOr extends NumericExpression
+public class ASTBitOr extends NumericExpression
 {
     public ASTBitOr(int id) {
         super(id);

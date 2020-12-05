@@ -40,7 +40,7 @@ import java.util.List;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTSelectLast extends SimpleNode
+public class ASTSelectLast extends SimpleNode
 {
     public ASTSelectLast(int id) {
         super(id);
@@ -71,12 +71,12 @@ class ASTSelectLast extends SimpleNode
     {
         return "{$ " + _children[0] + " }";
     }
-    
+
     public String toGetSourceString(OgnlContext context, Object target)
     {
         throw new UnsupportedCompilationException("Eval expressions not supported as native java yet.");
     }
-    
+
     public String toSetSourceString(OgnlContext context, Object target)
     {
         throw new UnsupportedCompilationException("Eval expressions not supported as native java yet.");

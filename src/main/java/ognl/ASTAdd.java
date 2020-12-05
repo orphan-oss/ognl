@@ -40,7 +40,7 @@ import java.math.BigInteger;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTAdd extends NumericExpression
+public class ASTAdd extends NumericExpression
 {
     public ASTAdd(int id)
     {

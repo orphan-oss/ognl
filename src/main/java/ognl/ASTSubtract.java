@@ -34,7 +34,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTSubtract extends NumericExpression
+public class ASTSubtract extends NumericExpression
 {
     public ASTSubtract(int id) {
         super(id);

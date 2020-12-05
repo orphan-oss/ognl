@@ -36,7 +36,7 @@ import ognl.enhance.UnsupportedCompilationException;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTTest extends ExpressionNode
+public class ASTTest extends ExpressionNode
 {
     public ASTTest(int id) {
         super(id);
@@ -64,7 +64,7 @@ class ASTTest extends ExpressionNode
     {
         return (index == 1) ? "?" : ":";
     }
-    
+
     public String toGetSourceString(OgnlContext context, Object target)
     {
         if (target == null)
@@ -74,32 +74,32 @@ class ASTTest extends ExpressionNode
             throw new UnsupportedCompilationException("Can only compile test expressions with two children." + _children.length);
 
         String result = "";
-        
+
         try {
 
-            String first = OgnlRuntime.getChildSource(context, target, _children[0]);            
+            String first = OgnlRuntime.getChildSource(context, target, _children[0]);
             if (!OgnlRuntime.isBoolean(first) && !context.getCurrentType().isPrimitive())
                 first = OgnlRuntime.getCompiler().createLocalReference(context, first, context.getCurrentType());
-            
+
             if (ExpressionNode.class.isInstance(_children[0]))
             {
                 first = "(" + first + ")";
             }
-            
+
             String second = OgnlRuntime.getChildSource(context, target, _children[1]);
             Class secondType = context.getCurrentType();
 
             if (!OgnlRuntime.isBoolean(second) && !context.getCurrentType().isPrimitive())
                 second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());
 
-            if (ExpressionNode.class.isInstance(_children[1])) 
+            if (ExpressionNode.class.isInstance(_children[1]))
             {
                 second = "(" + second + ")";
             }
 
             String third = OgnlRuntime.getChildSource(context, target, _children[2]);
             Class thirdType = context.getCurrentType();
-            
+
             if (!OgnlRuntime.isBoolean(third) && !context.getCurrentType().isPrimitive())
                 third = OgnlRuntime.getCompiler().createLocalReference(context, third, context.getCurrentType());
             if (ExpressionNode.class.isInstance(_children[2]))
@@ -123,9 +123,9 @@ class ASTTest extends ExpressionNode
             context.setCurrentType(mismatched ? Object.class : secondType);
 
             return result;
-        
+
         } catch (NullPointerException e) {
-            
+
             // expected to happen in some instances
             throw new UnsupportedCompilationException("evaluation resulted in null expression.");
         } catch (Throwable t)

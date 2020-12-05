@@ -34,7 +34,7 @@ package ognl;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTUnsignedShiftRight extends NumericExpression
+public class ASTUnsignedShiftRight extends NumericExpression
 {
     public ASTUnsignedShiftRight(int id) {
         super(id);
@@ -67,7 +67,7 @@ class ASTUnsignedShiftRight extends NumericExpression
 
             String child2 = OgnlRuntime.getChildSource(context, target, _children[1]);
             child2 = coerceToNumeric(child2, context, _children[1]);
-            
+
             Object v1 = _children[0].getValue(context, target);
             int type = OgnlOps.getNumericType(v1);
 

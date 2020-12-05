@@ -36,7 +36,7 @@ import ognl.enhance.UnsupportedCompilationException;
  * @author Luke Blanshard (blanshlu@netscape.net)
  * @author Drew Davidson (drew@ognl.org)
  */
-class ASTNotIn extends SimpleNode implements NodeType
+public class ASTNotIn extends SimpleNode implements NodeType
 {
     public ASTNotIn(int id) {
         super(id);
@@ -57,34 +57,34 @@ class ASTNotIn extends SimpleNode implements NodeType
     {
         return _children[0] + " not in " + _children[1];
     }
-    
+
     public Class getGetterClass()
     {
         return Boolean.TYPE;
     }
-    
+
     public Class getSetterClass()
     {
         return null;
     }
-    
+
     public String toGetSourceString(OgnlContext context, Object target)
     {
         try {
             String result = "(! ognl.OgnlOps.in( ($w) ";
-            
+
             result += OgnlRuntime.getChildSource(context, target, _children[0]) + ", ($w) " + OgnlRuntime.getChildSource(context, target, _children[1]);
-            
+
             result += ") )";
 
             context.setCurrentType(Boolean.TYPE);
 
             return result;
         } catch (NullPointerException e) {
-            
+
             // expected to happen in some instances
             e.printStackTrace();
-            
+
             throw new UnsupportedCompilationException("evaluation resulted in null expression.");
         } catch (Throwable t)
         {
