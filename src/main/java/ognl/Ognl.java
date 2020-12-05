@@ -245,13 +245,17 @@ public abstract class Ognl
      *
      * @return a new OgnlContext with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
-     *
-     * @deprecated it will be removed soon
      */
-    @Deprecated
     public static Map createDefaultContext(Object root, ClassResolver classResolver)
     {
-        return addDefaultContext(root, null, classResolver, null, new OgnlContext(classResolver, null, null));
+        MemberAccess memberAccess = new AbstractMemberAccess() {
+            @Override
+            public boolean isAccessible(Map context, Object target, Member member, String propertyName) {
+                int modifiers = member.getModifiers();
+                return Modifier.isPublic(modifiers);
+            }
+        };
+        return addDefaultContext(root, memberAccess, classResolver, null, new OgnlContext(classResolver, null, null));
     }
 
     /**
@@ -266,13 +270,17 @@ public abstract class Ognl
      *
      * @return a new Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
-     *
-     * @deprecated it will be removed soon
      */
-    @Deprecated
     public static Map createDefaultContext(Object root, ClassResolver classResolver, TypeConverter converter)
     {
-        return addDefaultContext(root, null, classResolver, converter, new OgnlContext(classResolver, converter, null));
+        MemberAccess memberAccess = new AbstractMemberAccess() {
+            @Override
+            public boolean isAccessible(Map context, Object target, Member member, String propertyName) {
+                int modifiers = member.getModifiers();
+                return Modifier.isPublic(modifiers);
+            }
+        };
+        return addDefaultContext(root, memberAccess, classResolver, converter, new OgnlContext(classResolver, converter, null));
     }
 
     /**
@@ -322,9 +330,7 @@ public abstract class Ognl
      *            the context to which OGNL context will be added.
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
-     * @deprecated will be removed soon
      */
-    @Deprecated
     public static Map addDefaultContext(Object root, Map context)
     {
         MemberAccess memberAccess = new AbstractMemberAccess() {
@@ -353,7 +359,14 @@ public abstract class Ognl
      */
     public static Map addDefaultContext(Object root, ClassResolver classResolver, Map context)
     {
-        return addDefaultContext(root, null, classResolver, null, context);
+        MemberAccess memberAccess = new AbstractMemberAccess() {
+            @Override
+            public boolean isAccessible(Map context, Object target, Member member, String propertyName) {
+                int modifiers = member.getModifiers();
+                return Modifier.isPublic(modifiers);
+            }
+        };
+        return addDefaultContext(root, memberAccess, classResolver, null, context);
     }
 
     /**
