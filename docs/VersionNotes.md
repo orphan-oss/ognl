@@ -1,5 +1,11 @@
 # Version Notes
 
+## Release notes - version 3.2.17 (2020-12-05)
+ * makes AST classes public [#115](../../../pull/115) -
+   thanks to sebthom 
+ * un-deprecates previously deprecated API by providing missing instance of `MemberAccess` [#114](../../../issues/114) -
+   thanks to lukaszlenart
+
 ## Release notes - version 3.2.16 (2020-11-14)
  * adds support for null varargs [#113](../../../pull/113) -
    thanks to lukaszlenart
