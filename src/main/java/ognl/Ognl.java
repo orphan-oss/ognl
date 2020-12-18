@@ -219,10 +219,7 @@ public abstract class Ognl
      *            the root of the object graph
      * @return a new Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      *         appropriately
-     *
-     * @deprecated it will be removed soon
      */
-    @Deprecated
     public static Map createDefaultContext(Object root)
     {
         MemberAccess memberAccess = new AbstractMemberAccess() {
@@ -546,9 +543,7 @@ public abstract class Ognl
      *             if the expression can't be used in this context
      * @throws OgnlException
      *             if there is a pathological environmental problem
-     * @deprecated
      */
-    @Deprecated
     public static Object getValue(Object tree, Map context, Object root)
             throws OgnlException
     {
@@ -576,9 +571,7 @@ public abstract class Ognl
      *             if the expression can't be used in this context
      * @throws OgnlException
      *             if there is a pathological environmental problem
-     * @deprecated
      */
-    @Deprecated
     public static Object getValue(Object tree, Map context, Object root, Class resultType)
             throws OgnlException
     {
@@ -711,10 +704,7 @@ public abstract class Ognl
      *             if the expression can't be used in this context
      * @throws OgnlException
      *             if there is a pathological environmental problem
-     *
-     * @deprecated it will be removed soon
      */
-    @Deprecated
     public static Object getValue(Object tree, Object root)
             throws OgnlException
     {
