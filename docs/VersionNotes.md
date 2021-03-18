@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.2.19 (2021-03-18)
+ * uses `MemberAccess` to create a new default context to avoid NPE [#118](../../../pull/118) -
+   thanks to zhuster
+
 ## Release notes - version 3.2.18 (2020-12-18)
  * un-deprecates previously deprecated API by providing missing instance of `MemberAccess` [#114](../../../issues/114) -
    thanks to lukaszlenart
