@@ -229,7 +229,7 @@ public abstract class Ognl
                 return Modifier.isPublic(modifiers);
             }
         };
-        return addDefaultContext(root, memberAccess, null, null, new OgnlContext(null, null, null));
+        return addDefaultContext(root, memberAccess, null, null, new OgnlContext(null, null, memberAccess));
     }
 
     /**
