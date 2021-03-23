@@ -112,6 +112,8 @@
                     <includes>
                         <include>**/*Test.java</include>
                         <include>**/TestOgnlRuntime.java</include>
+                        <include>**/TestOgnlException.java</include>
+                        <include>**/TestExpressionCompiler.java</include>
                     </includes>
                 </configuration>
             </plugin>

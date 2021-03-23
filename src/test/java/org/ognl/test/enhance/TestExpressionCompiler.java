@@ -14,6 +14,7 @@ import org.ognl.test.objects.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import ognl.ExpressionSyntaxException;
 import ognl.OgnlException;
 
 
@@ -222,329 +223,337 @@ public class TestExpressionCompiler extends TestCase
         final String longFakeExpression = new String(new char[1000]).replace('\0', 'S');
         final String veryLongFakeExpression = new String(new char[10000]).replace('\0', 'S');
 
-        // ---------------------------------------------------------------------
-        // Test initial default state.  Any length expression should work
         try {
-            Ognl.parseExpression(shortFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(mediumFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(longFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(veryLongFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        // ---------------------------------------------------------------------
-        // Confirm illegal length values are rejected
-        try {
-            Ognl.applyExpressionMaxLength(Integer.MIN_VALUE);
-            fail("applyExpressionMaxLength illegal value " + Integer.MIN_VALUE + " was permitted ?");
-        } catch (IllegalArgumentException iaex) {
-            // Expected result
-        } catch (Exception ex) {
-            fail ("applyExpressionMaxLength illegal value " + Integer.MIN_VALUE + " failed unexpectedly - Error: " + ex);
-        }
-
-        // ---------------------------------------------------------------------
-        // Confirm maximum length value are accepted
-        try {
-            Ognl.applyExpressionMaxLength(Integer.MAX_VALUE);
-        } catch (Exception ex) {
-            fail("applyExpressionMaxLength value " + Integer.MAX_VALUE + " failed unexpectedly - Error: " + ex);
-        }
-
-        // Test state with maximum length limit.  Any length expression should work
-        try {
-            Ognl.parseExpression(shortFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(mediumFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(longFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(veryLongFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        // ---------------------------------------------------------------------
-        // Confirm all lengths up to and equal to the largest testing string are accepted
-        try {
-            Ognl.applyExpressionMaxLength(veryLongFakeExpression.length());
-        } catch (Exception ex) {
-            fail("applyExpressionMaxLength value " + veryLongFakeExpression.length() + " failed unexpectedly - Error: " + ex);
-        }
-
-        // Test state with veryLongFakeExpression.length() limit.  All tested length expressions should work
-        try {
-            Ognl.parseExpression(shortFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(mediumFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(longFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(veryLongFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        // ---------------------------------------------------------------------
-        // Confirm all lengths less than the largest testing string length are accepted
-        try {
-            Ognl.applyExpressionMaxLength(veryLongFakeExpression.length() - 1);
-        } catch (Exception ex) {
-            fail("applyExpressionMaxLength value " + (veryLongFakeExpression.length() - 1) + " failed unexpectedly - Error: " + ex);
-        }
-
-        // Test state with veryLongFakeExpression.length() -1 limit.  Only veryLongFakeExpression should fail
-        try {
-            Ognl.parseExpression(shortFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(mediumFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(longFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(veryLongFakeExpression);
-            fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
-        } catch (OgnlException oex) {
-            if (oex.getCause() instanceof SecurityException) {
-                // Expected result
-            } else {
-                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+            // ---------------------------------------------------------------------
+            // Test initial default state.  Any length expression should work
+            try {
+                Ognl.parseExpression(shortFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
             }
-        } catch (Exception ex) {
-            fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
 
-        // ---------------------------------------------------------------------
-        // Confirm all lengths greater than the shortest testing string length are rejected
-        try {
-            Ognl.applyExpressionMaxLength(shortFakeExpression.length());
-        } catch (Exception ex) {
-            fail("applyExpressionMaxLength value " + shortFakeExpression.length() + " failed unexpectedly - Error: " + ex);
-        }
-
-        // Test state with shortFakeExpression.length() limit.  Only shortFakeExpression should succeed
-        try {
-            Ognl.parseExpression(shortFakeExpression);
-        } catch (Exception ex) {
-            fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(mediumFakeExpression);
-            fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
-        } catch (OgnlException oex) {
-            if (oex.getCause() instanceof SecurityException) {
-                // Expected result
-            } else {
-                fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+            try {
+                Ognl.parseExpression(mediumFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
             }
-        } catch (Exception ex) {
-            fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
 
-        try {
-            Ognl.parseExpression(longFakeExpression);
-            fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
-        } catch (OgnlException oex) {
-            if (oex.getCause() instanceof SecurityException) {
-                // Expected result
-            } else {
-                fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+            try {
+                Ognl.parseExpression(longFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
             }
-        } catch (Exception ex) {
-            fail ("Parse of longFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
 
-        try {
-            Ognl.parseExpression(veryLongFakeExpression);
-            fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
-        } catch (OgnlException oex) {
-            if (oex.getCause() instanceof SecurityException) {
-                // Expected result
-            } else {
-                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+            try {
+                Ognl.parseExpression(veryLongFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
             }
-        } catch (Exception ex) {
-            fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
 
-        // ---------------------------------------------------------------------
-        // Confirm even the shortest testing string length is rejected
-        try {
-            Ognl.applyExpressionMaxLength(shortFakeExpression.length() - 1);
-        } catch (Exception ex) {
-            fail("applyExpressionMaxLength value " + (shortFakeExpression.length() - 1) + " failed unexpectedly - Error: " + ex);
-        }
-
-        // Test state with shortFakeExpression.length() limit.  Only shortFakeExpression should succeed
-        try {
-            Ognl.parseExpression(shortFakeExpression);
-            fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
-        } catch (OgnlException oex) {
-            if (oex.getCause() instanceof SecurityException) {
+            // ---------------------------------------------------------------------
+            // Confirm illegal length values are rejected
+            try {
+                Ognl.applyExpressionMaxLength(Integer.MIN_VALUE);
+                fail("applyExpressionMaxLength illegal value " + Integer.MIN_VALUE + " was permitted ?");
+            } catch (IllegalArgumentException iaex) {
                 // Expected result
-            } else {
-                fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+            } catch (Exception ex) {
+                fail ("applyExpressionMaxLength illegal value " + Integer.MIN_VALUE + " failed unexpectedly - Error: " + ex);
             }
-        } catch (Exception ex) {
-            fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
 
-        try {
-            Ognl.parseExpression(mediumFakeExpression);
-            fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
-        } catch (OgnlException oex) {
-            if (oex.getCause() instanceof SecurityException) {
-                // Expected result
-            } else {
-                fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+            // ---------------------------------------------------------------------
+            // Confirm maximum length value are accepted
+            try {
+                Ognl.applyExpressionMaxLength(Integer.MAX_VALUE);
+            } catch (Exception ex) {
+                fail("applyExpressionMaxLength value " + Integer.MAX_VALUE + " failed unexpectedly - Error: " + ex);
             }
-        } catch (Exception ex) {
-            fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
 
-        try {
-            Ognl.parseExpression(longFakeExpression);
-            fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
-        } catch (OgnlException oex) {
-            if (oex.getCause() instanceof SecurityException) {
-                // Expected result
-            } else {
-                fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+            // Test state with maximum length limit.  Any length expression should work
+            try {
+                Ognl.parseExpression(shortFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
             }
-        } catch (Exception ex) {
-            fail ("Parse of longFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
 
-        try {
-            Ognl.parseExpression(veryLongFakeExpression);
-            fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
-        } catch (OgnlException oex) {
-            if (oex.getCause() instanceof SecurityException) {
-                // Expected result
-            } else {
-                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+            try {
+                Ognl.parseExpression(mediumFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
             }
-        } catch (Exception ex) {
-            fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
 
-        // ---------------------------------------------------------------------
-        // Confirm only the empty string is not rejected
-        try {
-            Ognl.applyExpressionMaxLength(0);
-        } catch (Exception ex) {
-            fail("applyExpressionMaxLength value 0 failed unexpectedly - Error: " + ex);
-        }
-
-        // Test state with 0 length limit.  Only the empty string should succeed
-        try {
-            Ognl.parseExpression("");
-        } catch (Exception ex) {
-            fail ("Parse of empty string failed unexpectedly - Error: " + ex);
-        }
-
-        try {
-            Ognl.parseExpression(shortFakeExpression);
-            fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
-        } catch (OgnlException oex) {
-            if (oex.getCause() instanceof SecurityException) {
-                // Expected result
-            } else {
-                fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+            try {
+                Ognl.parseExpression(longFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
             }
-        } catch (Exception ex) {
-            fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
 
-        try {
-            Ognl.parseExpression(mediumFakeExpression);
-            fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
-        } catch (OgnlException oex) {
-            if (oex.getCause() instanceof SecurityException) {
-                // Expected result
-            } else {
-                fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+            try {
+                Ognl.parseExpression(veryLongFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
             }
-        } catch (Exception ex) {
-            fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
 
-        try {
-            Ognl.parseExpression(longFakeExpression);
-            fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
-        } catch (OgnlException oex) {
-            if (oex.getCause() instanceof SecurityException) {
-                // Expected result
-            } else {
-                fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+            // ---------------------------------------------------------------------
+            // Confirm all lengths up to and equal to the largest testing string are accepted
+            try {
+                Ognl.applyExpressionMaxLength(veryLongFakeExpression.length());
+            } catch (Exception ex) {
+                fail("applyExpressionMaxLength value " + veryLongFakeExpression.length() + " failed unexpectedly - Error: " + ex);
             }
-        } catch (Exception ex) {
-            fail ("Parse of longFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
-        }
 
-        try {
-            Ognl.parseExpression(veryLongFakeExpression);
-            fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
-        } catch (OgnlException oex) {
-            if (oex.getCause() instanceof SecurityException) {
-                // Expected result
-            } else {
-                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+            // Test state with veryLongFakeExpression.length() limit.  All tested length expressions should work
+            try {
+                Ognl.parseExpression(shortFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
             }
-        } catch (Exception ex) {
-            fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+
+            try {
+                Ognl.parseExpression(mediumFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(longFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(veryLongFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            // ---------------------------------------------------------------------
+            // Confirm all lengths less than the largest testing string length are accepted
+            try {
+                Ognl.applyExpressionMaxLength(veryLongFakeExpression.length() - 1);
+            } catch (Exception ex) {
+                fail("applyExpressionMaxLength value " + (veryLongFakeExpression.length() - 1) + " failed unexpectedly - Error: " + ex);
+            }
+
+            // Test state with veryLongFakeExpression.length() -1 limit.  Only veryLongFakeExpression should fail
+            try {
+                Ognl.parseExpression(shortFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(mediumFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(longFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(veryLongFakeExpression);
+                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
+            } catch (OgnlException oex) {
+                if (oex.getCause() instanceof SecurityException) {
+                    // Expected result
+                } else {
+                    fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+                }
+            } catch (Exception ex) {
+                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            // ---------------------------------------------------------------------
+            // Confirm all lengths greater than the shortest testing string length are rejected
+            try {
+                Ognl.applyExpressionMaxLength(shortFakeExpression.length());
+            } catch (Exception ex) {
+                fail("applyExpressionMaxLength value " + shortFakeExpression.length() + " failed unexpectedly - Error: " + ex);
+            }
+
+            // Test state with shortFakeExpression.length() limit.  Only shortFakeExpression should succeed
+            try {
+                Ognl.parseExpression(shortFakeExpression);
+            } catch (Exception ex) {
+                fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(mediumFakeExpression);
+                fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
+            } catch (OgnlException oex) {
+                if (oex.getCause() instanceof SecurityException) {
+                    // Expected result
+                } else {
+                    fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+                }
+            } catch (Exception ex) {
+                fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(longFakeExpression);
+                fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
+            } catch (OgnlException oex) {
+                if (oex.getCause() instanceof SecurityException) {
+                    // Expected result
+                } else {
+                    fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+                }
+            } catch (Exception ex) {
+                fail ("Parse of longFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(veryLongFakeExpression);
+                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
+            } catch (OgnlException oex) {
+                if (oex.getCause() instanceof SecurityException) {
+                    // Expected result
+                } else {
+                    fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+                }
+            } catch (Exception ex) {
+                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            // ---------------------------------------------------------------------
+            // Confirm even the shortest testing string length is rejected
+            try {
+                Ognl.applyExpressionMaxLength(shortFakeExpression.length() - 1);
+            } catch (Exception ex) {
+                fail("applyExpressionMaxLength value " + (shortFakeExpression.length() - 1) + " failed unexpectedly - Error: " + ex);
+            }
+
+            // Test state with shortFakeExpression.length() limit.  Only shortFakeExpression should succeed
+            try {
+                Ognl.parseExpression(shortFakeExpression);
+                fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
+            } catch (OgnlException oex) {
+                if (oex.getCause() instanceof SecurityException) {
+                    // Expected result
+                } else {
+                    fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+                }
+            } catch (Exception ex) {
+                fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(mediumFakeExpression);
+                fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
+            } catch (OgnlException oex) {
+                if (oex.getCause() instanceof SecurityException) {
+                    // Expected result
+                } else {
+                    fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+                }
+            } catch (Exception ex) {
+                fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(longFakeExpression);
+                fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
+            } catch (OgnlException oex) {
+                if (oex.getCause() instanceof SecurityException) {
+                    // Expected result
+                } else {
+                    fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+                }
+            } catch (Exception ex) {
+                fail ("Parse of longFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(veryLongFakeExpression);
+                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
+            } catch (OgnlException oex) {
+                if (oex.getCause() instanceof SecurityException) {
+                    // Expected result
+                } else {
+                    fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+                }
+            } catch (Exception ex) {
+                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            // ---------------------------------------------------------------------
+            // Confirm only the empty string is not rejected
+            try {
+                Ognl.applyExpressionMaxLength(0);
+            } catch (Exception ex) {
+                fail("applyExpressionMaxLength value 0 failed unexpectedly - Error: " + ex);
+            }
+
+            // Test state with 0 length limit.  Only the empty string should succeed
+            try {
+                Ognl.parseExpression("");
+            } catch (ExpressionSyntaxException esx) {
+                // Expected for an empty expression (acceptable state).
+            } catch (Exception ex) {
+                fail ("Parse of empty string failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(shortFakeExpression);
+                fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
+            } catch (OgnlException oex) {
+                if (oex.getCause() instanceof SecurityException) {
+                    // Expected result
+                } else {
+                    fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+                }
+            } catch (Exception ex) {
+                fail ("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(mediumFakeExpression);
+                fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
+            } catch (OgnlException oex) {
+                if (oex.getCause() instanceof SecurityException) {
+                    // Expected result
+                } else {
+                    fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+                }
+            } catch (Exception ex) {
+                fail ("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(longFakeExpression);
+                fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
+            } catch (OgnlException oex) {
+                if (oex.getCause() instanceof SecurityException) {
+                    // Expected result
+                } else {
+                    fail ("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+                }
+            } catch (Exception ex) {
+                fail ("Parse of longFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+
+            try {
+                Ognl.parseExpression(veryLongFakeExpression);
+                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
+            } catch (OgnlException oex) {
+                if (oex.getCause() instanceof SecurityException) {
+                    // Expected result
+                } else {
+                    fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
+                }
+            } catch (Exception ex) {
+                fail ("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly - Error: " + ex);
+            }
+        } finally {
+            try {
+                Ognl.applyExpressionMaxLength(null);  // Reset to default state before leaving test.
+            } catch (Exception ex) {} // Do not care for cleanup
         }
     }
 
@@ -556,81 +565,90 @@ public class TestExpressionCompiler extends TestCase
     public void test_FreezeThawExpressionMaxLength() throws Exception {
         final OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
 
-        // ---------------------------------------------------------------------
-        // Test initial default state.  Can change maximum length to valid values without any issues
         try {
-            Ognl.applyExpressionMaxLength(0);
-            Ognl.applyExpressionMaxLength(Integer.MAX_VALUE);
-            Ognl.applyExpressionMaxLength(0);
-            Ognl.applyExpressionMaxLength(10000);
-            Ognl.applyExpressionMaxLength(1000);
-            Ognl.applyExpressionMaxLength(100);
-            Ognl.applyExpressionMaxLength(10);
-        } catch (Exception ex) {
-            fail ("applyExpressionMaxLength in default (initial) state with legal values failed unexpectedly - Error: " + ex);
-        }
+            // ---------------------------------------------------------------------
+            // Test initial default state.  Can change maximum length to valid values without any issues
+            try {
+                Ognl.applyExpressionMaxLength(0);
+                Ognl.applyExpressionMaxLength(Integer.MAX_VALUE);
+                Ognl.applyExpressionMaxLength(0);
+                Ognl.applyExpressionMaxLength(10000);
+                Ognl.applyExpressionMaxLength(1000);
+                Ognl.applyExpressionMaxLength(100);
+                Ognl.applyExpressionMaxLength(10);
+            } catch (Exception ex) {
+                fail ("applyExpressionMaxLength in default (initial) state with legal values failed unexpectedly - Error: " + ex);
+            }
 
-        // ---------------------------------------------------------------------
-        // Test thawing permitted even if never frozen, does not prevent setting afterward
-        try {
-            Ognl.thawExpressionMaxLength();
-            Ognl.applyExpressionMaxLength(Integer.MAX_VALUE);
-            Ognl.thawExpressionMaxLength();
-        } catch (IllegalStateException ise) {
-            fail ("applyExpressionMaxLength was blocked when thawed ?");
-            // Expected result
-        } catch (Exception ex) {
-            fail ("applyExpressionMaxLength (thaw attempt) failed unexpectedly - Error: " + ex);
-        }
+            // ---------------------------------------------------------------------
+            // Test thawing permitted even if never frozen, does not prevent setting afterward
+            try {
+                Ognl.thawExpressionMaxLength();
+                Ognl.applyExpressionMaxLength(Integer.MAX_VALUE);
+                Ognl.thawExpressionMaxLength();
+            } catch (IllegalStateException ise) {
+                fail ("applyExpressionMaxLength was blocked when thawed ?");
+                // Expected result
+            } catch (Exception ex) {
+                fail ("applyExpressionMaxLength (thaw attempt) failed unexpectedly - Error: " + ex);
+            }
 
-        // ---------------------------------------------------------------------
-        // Test freezing maximum length
-        try {
-            Ognl.freezeExpressionMaxLength();
-            Ognl.applyExpressionMaxLength(Integer.MAX_VALUE);
-            fail ("applyExpressionMaxLength was not blocked when frozen ?");
-        } catch (IllegalStateException ise) {
-            // Expected result
-        } catch (Exception ex) {
-            fail ("applyExpressionMaxLength (freeze attempt) failed unexpectedly - Error: " + ex);
-        }
+            // ---------------------------------------------------------------------
+            // Test freezing maximum length
+            try {
+                Ognl.freezeExpressionMaxLength();
+                Ognl.applyExpressionMaxLength(Integer.MAX_VALUE);
+                fail ("applyExpressionMaxLength was not blocked when frozen ?");
+            } catch (IllegalStateException ise) {
+                // Expected result
+            } catch (Exception ex) {
+                fail ("applyExpressionMaxLength (freeze attempt) failed unexpectedly - Error: " + ex);
+            }
 
-        // ---------------------------------------------------------------------
-        // Test repetative freezing
-        try {
-            Ognl.freezeExpressionMaxLength();
-            Ognl.freezeExpressionMaxLength();
-        } catch (Exception ex) {
-            fail ("freezeExpressionMaxLength failed during repetative freeze operations - Error: " + ex);
-        }
+            // ---------------------------------------------------------------------
+            // Test repetative freezing
+            try {
+                Ognl.freezeExpressionMaxLength();
+                Ognl.freezeExpressionMaxLength();
+            } catch (Exception ex) {
+                fail ("freezeExpressionMaxLength failed during repetative freeze operations - Error: " + ex);
+            }
 
-        // ---------------------------------------------------------------------
-        // Confirm still frozen, then thaw and demonstrate set permitted
-        try {
-            Ognl.applyExpressionMaxLength(Integer.MAX_VALUE);
-            fail ("applyExpressionMaxLength was not blocked when frozen ?");
-        } catch (IllegalStateException ise) {
-            // Expected result
-        } catch (Exception ex) {
-            fail ("applyExpressionMaxLength (when frozen) failed unexpectedly - Error: " + ex);
-        }
-        try {
-            Ognl.thawExpressionMaxLength();
-            Ognl.applyExpressionMaxLength(Integer.MAX_VALUE);
-        } catch (IllegalStateException ise) {
-            fail ("applyExpressionMaxLength was blocked when thawed ?");
-            // Expected result
-        } catch (Exception ex) {
-            fail ("applyExpressionMaxLength (thaw attempt) failed unexpectedly - Error: " + ex);
-        }
+            // ---------------------------------------------------------------------
+            // Confirm still frozen, then thaw and demonstrate set permitted
+            try {
+                Ognl.applyExpressionMaxLength(Integer.MAX_VALUE);
+                fail ("applyExpressionMaxLength was not blocked when frozen ?");
+            } catch (IllegalStateException ise) {
+                // Expected result
+            } catch (Exception ex) {
+                fail ("applyExpressionMaxLength (when frozen) failed unexpectedly - Error: " + ex);
+            }
+            try {
+                Ognl.thawExpressionMaxLength();
+                Ognl.applyExpressionMaxLength(Integer.MAX_VALUE);
+            } catch (IllegalStateException ise) {
+                fail ("applyExpressionMaxLength was blocked when thawed ?");
+                // Expected result
+            } catch (Exception ex) {
+                fail ("applyExpressionMaxLength (thaw attempt) failed unexpectedly - Error: " + ex);
+            }
 
-        // ---------------------------------------------------------------------
-        // Test repetative thawing
-        try {
-            Ognl.thawExpressionMaxLength();
-            Ognl.thawExpressionMaxLength();
-        } catch (Exception ex) {
-            fail ("thawExpressionMaxLength failed during repetative thaw operations - Error: " + ex);
+            // ---------------------------------------------------------------------
+            // Test repetative thawing
+            try {
+                Ognl.thawExpressionMaxLength();
+                Ognl.thawExpressionMaxLength();
+            } catch (Exception ex) {
+                fail ("thawExpressionMaxLength failed during repetative thaw operations - Error: " + ex);
+            }
+        } finally {
+            try {
+                Ognl.thawExpressionMaxLength();  // Reset to default state before leaving test.
+            } catch (Exception ex) {} // Do not care for cleanup
+            try {
+                Ognl.applyExpressionMaxLength(null);  // Reset to default state before leaving test.
+            } catch (Exception ex) {} // Do not care for cleanup
         }
     }
 
