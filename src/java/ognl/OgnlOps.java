@@ -810,7 +810,9 @@ public abstract class OgnlOps implements NumericTypes
 
     public static boolean equal(Object v1, Object v2)
     {
-        return isEqual(v1, v2);
+        if (v1 == null) return v2 == null; 
+        if (v1 == v2 || isEqual(v1, v2)) return true; 
+        return false;
     }
 
     public static boolean less(Object v1, Object v2)
