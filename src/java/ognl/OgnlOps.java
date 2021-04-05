@@ -807,13 +807,11 @@ public abstract class OgnlOps implements NumericTypes
         if (type == BIGINT || type == BIGDEC) return bigIntValue(v1).and(bigIntValue(v2));
         return newInteger(type, longValue(v1) & longValue(v2));
     }
-    
+
     public static boolean equal(Object v1, Object v2)
     {
-        if (v1 == null) return v2 == null;
-        if (v1 == v2 || isEqual(v1, v2)) return true;
-        if (v1 instanceof Number && v2 instanceof Number)
-            return ((Number) v1).doubleValue() == ((Number) v2).doubleValue();
+        if (v1 == null) return v2 == null; 
+        if (v1 == v2 || isEqual(v1, v2)) return true; 
         return false;
     }
 
