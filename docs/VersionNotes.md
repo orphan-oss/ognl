@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.2.20, 3.1.29 (2021-04-05)
+ * fixes `OgnlOps#equal`, see [#116](../../../pull/116) & [#123](../../../pull/123) -
+   thanks to aleksandr-m
+
 ## Release notes - version 3.2.19 (2021-03-18)
  * uses `MemberAccess` to create a new default context to avoid NPE [#118](../../../pull/118) -
    thanks to zhuster
