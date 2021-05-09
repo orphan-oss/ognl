@@ -27,10 +27,45 @@ public class VarArgsMethodTest extends TestCase {
     private static Simple ROOT = new Simple();
 
     public void testNullVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("isThisVarArgsWorking()", new HashMap(), ROOT);
+        Object value = Ognl.getValue("isNullVarArgs()", new HashMap(), ROOT);
 
-        assertTrue(value instanceof Boolean);
-        assertTrue((Boolean) value);
+        assertTrue(value instanceof String);
+        assertEquals("null", value);
+    }
+
+    public void testVarArgsWithSingleArg() throws Exception {
+        Object value = Ognl.getValue("isStringVarArgs(new String())", new HashMap(), ROOT);
+
+        assertTrue(value instanceof String);
+        assertEquals("args", value);
+    }
+
+    public void testVarArgsWithMultipleArgs() throws Exception {
+        Object value = Ognl.getValue("isStringVarArgs(new String(), new String())", new HashMap(), ROOT);
+
+        assertTrue(value instanceof String);
+        assertEquals("args", value);
+    }
+
+    public void testNestedNullVarArgs() throws OgnlException {
+        Object value = Ognl.getValue("get().request()", new HashMap(), ROOT);
+
+        assertTrue(value instanceof String);
+        assertEquals("null", value);
+    }
+
+    public void testNestedSingleVarArgs() throws OgnlException {
+        Object value = Ognl.getValue("get().request(new String())", new HashMap(), ROOT);
+
+        assertTrue(value instanceof String);
+        assertEquals("args", value);
+    }
+
+    public void testNestedMultipleVarArgs() throws OgnlException {
+        Object value = Ognl.getValue("get().request(new String(), new String())", new HashMap(), ROOT);
+
+        assertTrue(value instanceof String);
+        assertEquals("args", value);
     }
 
 }

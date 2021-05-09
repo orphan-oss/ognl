@@ -84,7 +84,7 @@ public class ASTStaticField extends SimpleNode implements NodeType
             if (fieldName.equals("class"))
             {
                 result = true;
-            } else if (OgnlRuntime.isJdk15() && c.isEnum())
+            } else if (c.isEnum())
             {
                 result = true;
             } else
@@ -129,7 +129,7 @@ public class ASTStaticField extends SimpleNode implements NodeType
             if (fieldName.equals("class"))
             {
                 return c;
-            } else if (OgnlRuntime.isJdk15() && c.isEnum())
+            } else if (c.isEnum())
             {
                 return c;
             } else

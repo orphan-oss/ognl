@@ -243,4 +243,34 @@ public class Simple extends Object
     {
         return true;
     }
+
+    public String isNullVarArgs() {
+        return "null";
+    }
+
+    public String isStringVarArgs(String... arguments)
+    {
+        return "args";
+    }
+
+    public TestInterface get() {
+        return new TestInterface() {
+            @Override
+            public String request() {
+                return "null";
+            }
+            @Override
+            public String request(Object... args) {
+                return "args";
+            }
+        };
+    }
+
+    interface TestInterface {
+
+        String request();
+        String request(Object... args);
+
+    }
+
 }
