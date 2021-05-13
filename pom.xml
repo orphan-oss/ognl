@@ -171,7 +171,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>2.6.1</version>  <!-- Most recent 2.x available -->
+                <version>3.1.0</version>  <!-- Most recent 2.x available -->
             </plugin>
         </plugins>
 
