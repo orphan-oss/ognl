@@ -642,27 +642,6 @@ public class OgnlRuntime {
     }
 
     /**
-     * Checks if the current jvm is java language &gt;= 1.5 compatible.
-     *
-     * @return True if jdk15 features are present.
-     */
-    public static boolean isJdk15()
-    {
-        if (_jdkChecked)
-            return _jdk15;
-
-        try
-        {
-            Class.forName("java.lang.annotation.Annotation");
-            _jdk15 = true;
-        } catch (Exception e) { /* ignore */ }
-
-        _jdkChecked = true;
-
-        return _jdk15;
-    }
-
-    /**
      * Get the Major Java Version detected by OGNL.
      *
      * @return Detected Major Java Version, or 5 (minimum supported version for OGNL) if unable to detect.
@@ -720,7 +699,7 @@ public class OgnlRuntime {
      * Gets the "target" class of an object for looking up accessors that are registered on the
      * target. If the object is a Class object this will return the Class itself, else it will
      * return object's getClass() result.
-     * 
+     *
      * @param o the Object from which to retrieve its Class.
      * @return the Class of o.
      */
@@ -732,7 +711,7 @@ public class OgnlRuntime {
     /**
      * Returns the base name (the class name without the package name prepended) of the object
      * given.
-     * 
+     *
      * @param o the Object from which to retrieve its base classname.
      * @return the base classname of o's Class.
      */
@@ -743,7 +722,7 @@ public class OgnlRuntime {
 
     /**
      * Returns the base name (the class name without the package name prepended) of the class given.
-     * 
+     *
      * @param c the Class from which to retrieve its name.
      * @return the base classname of c.
      */
@@ -771,7 +750,7 @@ public class OgnlRuntime {
 
     /**
      * Returns the package name of the object's class.
-     * 
+     *
      * @param o the Object from which to retrieve its Class package name.
      * @return the package name of o's Class.
      */
@@ -782,7 +761,7 @@ public class OgnlRuntime {
 
     /**
      * Returns the package name of the class given.
-     * 
+     *
      * @param c the Class from which to retrieve its package name.
      * @return the package name of c.
      */
@@ -796,7 +775,7 @@ public class OgnlRuntime {
 
     /**
      * Returns a "pointer" string in the usual format for these things - 0x&lt;hex digits&gt;.
-     * 
+     *
      * @param num the int to convert into a "pointer" string in hex format.
      * @return the String representing num as a "pointer" string in hex format.
      */
@@ -824,7 +803,7 @@ public class OgnlRuntime {
     /**
      * Returns a "pointer" string in the usual format for these things - 0x&lt;hex digits&gt; for the
      * object given. This will always return a unique value for each object.
-     * 
+     *
      * @param o the Object to convert into a "pointer" string in hex format.
      * @return the String representing o as a "pointer" string in hex format.
      */
@@ -837,7 +816,7 @@ public class OgnlRuntime {
      * Returns a unique descriptor string that includes the object's class and a unique integer
      * identifier. If fullyQualified is true then the class name will be fully qualified to include
      * the package name, else it will be just the class' base name.
-     * 
+     *
      * @param object the Object for which a unique descriptor string is desired.
      * @param fullyQualified true if the descriptor string is fully-qualified (package name), false for just the Class' base name.
      * @return the unique descriptor String for the object, qualified as per fullyQualified parameter.
@@ -866,7 +845,7 @@ public class OgnlRuntime {
     /**
      * Returns a unique descriptor string that includes the object's class' base name and a unique
      * integer identifier.
-     * 
+     *
      * @param object the Object for which a unique descriptor string is desired.
      * @return the unique descriptor String for the object, NOT fully-qualified.
      */
@@ -879,7 +858,7 @@ public class OgnlRuntime {
      * Utility to convert a List into an Object[] array. If the list is zero elements this will
      * return a constant array; toArray() on List always returns a new object and this is wasteful
      * for our purposes.
-     * 
+     *
      * @param list the List to convert into an Object array.
      * @return the array of Objects from the list.
      */
@@ -901,7 +880,7 @@ public class OgnlRuntime {
 
     /**
      * Returns the parameter types of the given method.
-     * 
+     *
      * @param m the Method whose parameter types are being queried.
      * @return the array of Class elements representing m's parameters.  May be null if m does not utilize parameters.
      */
@@ -948,7 +927,7 @@ public class OgnlRuntime {
             return types;
         }
 
-        if (type == null || !isJdk15())
+        if (type == null)
         {
             return getParameterTypes(m);
         }
@@ -1075,7 +1054,7 @@ public class OgnlRuntime {
 
     /**
      * Returns the parameter types of the given method.
-     * 
+     *
      * @param c the Constructor whose parameter types are being queried.
      * @return the array of Class elements representing c's parameters.  May be null if c does not utilize parameters.
      */
@@ -1114,7 +1093,7 @@ public class OgnlRuntime {
 
     /**
      * Permission will be named "invoke.&lt;declaring-class&gt;.&lt;method-name&gt;".
-     * 
+     *
      * @param method the Method whose Permission is being requested.
      * @return the Permission for method named "invoke.&lt;declaring-class&gt;.&lt;method-name&gt;".
      */
@@ -1357,7 +1336,7 @@ public class OgnlRuntime {
      * given object can be passed as an argument to a method or constructor whose parameter type is
      * the given class. If object is null this will return true because null is compatible with any
      * type.
-     * 
+     *
      * @param object the Object to check for type-compatibility with Class c.
      * @param c the Class for which object's type-compatibility is being checked.
      * @return true if object is type-compatible with c.
@@ -1488,7 +1467,7 @@ public class OgnlRuntime {
 
     public static ArgsCompatbilityReport areArgsCompatible(Class[] args, Class[] classes, Method m)
     {
-        boolean varArgs = m != null && isJdk15() && m.isVarArgs();
+        boolean varArgs = m != null && m.isVarArgs();
 
         if ( args==null || args.length == 0 ) {	// handle methods without arguments
             if ( classes == null || classes.length == 0 ) {
@@ -1543,7 +1522,7 @@ public class OgnlRuntime {
     /**
      * Tells whether the first array of classes is more specific than the second. Assumes that the
      * two arrays are of the same length.
-     * 
+     *
      * @param classes1 the Class array being checked to see if it is "more specific" than classes2.
      * @param classes2 the Class array that classes1 is being checked against to see if classes1 is "more specific" than classes2.
      * @return true if the classes1 Class contents are "more specific" than classes2 Class contents, false otherwise.
@@ -1822,7 +1801,7 @@ public class OgnlRuntime {
                 } else {
                     // two methods with same score - direct compare to find the better one...
                     // legacy wins over varargs
-                    if (isJdk15() && (m.isVarArgs() || mm.mMethod.isVarArgs())) {
+                    if (m.isVarArgs() || mm.mMethod.isVarArgs()) {
                         if (m.isVarArgs() && !mm.mMethod.isVarArgs()) {
                             // keep with current
                         } else if (!m.isVarArgs() && mm.mMethod.isVarArgs()) {
@@ -1928,7 +1907,7 @@ public class OgnlRuntime {
 
             Object[] convertedArgs = actualArgs;
 
-            if (isJdk15() && method.isVarArgs())
+            if (method.isVarArgs())
             {
                 Class[] parmTypes = method.getParameterTypes();
 
@@ -1960,13 +1939,17 @@ public class OgnlRuntime {
                                 }
                             }
 
-                            varArgs = varArgsList.toArray();
-                        } else
-                        {
+                            if (actualArgs.length == 1) {
+                                varArgs = (Object[]) Array.newInstance(args[0].getClass(), 1);
+                            } else {
+                                varArgs = (Object[]) Array.newInstance(parmTypes[i].getComponentType(), varArgsList.size());
+                            }
+                            System.arraycopy(varArgsList.toArray(), 0, varArgs, 0, varArgs.length);
+                        } else {
                             varArgs = new Object[0];
                         }
                         // If this is the only parameter, explode the array
-                        if (actualArgs.length == 1) {
+                        if (actualArgs.length == 1 && args[0].getClass().isArray()) {
                             convertedArgs = varArgs;
                         } else { // there are more parameters, varargs is the last one
                             convertedArgs[i] = varArgs;
@@ -2109,7 +2092,7 @@ public class OgnlRuntime {
 
     /**
      * Don't use this method as it doesn't check member access rights via {@link MemberAccess} interface
-     * 
+     *
      * @param context the current execution context.
      * @param target the object to invoke the property name get on.
      * @param propertyName the name of the property to be retrieved from target.
@@ -2130,7 +2113,7 @@ public class OgnlRuntime {
      * If the checkAccessAndExistence flag is true this method will check to see if the method
      * exists and if it is accessible according to the context's MemberAccess. If neither test
      * passes this will return NotFound.
-     * 
+     *
      * @param context the current execution context.
      * @param target the object to invoke the property name get on.
      * @param propertyName the name of the property to be retrieved from target.
@@ -2173,7 +2156,7 @@ public class OgnlRuntime {
 
     /**
      * Don't use this method as it doesn't check member access rights via {@link MemberAccess} interface
-     * 
+     *
      * @param context the current execution context.
      * @param target the object to invoke the property name get on.
      * @param propertyName the name of the property to be set for target.
@@ -2462,7 +2445,7 @@ public class OgnlRuntime {
 
     /**
      * Don't use this method as it doesn't check member access rights via {@link MemberAccess} interface
-     * 
+     *
      * @param context the current execution context.
      * @param target the object to invoke the property name get on.
      * @param propertyName the name of the property to be set for target.
@@ -2569,7 +2552,7 @@ public class OgnlRuntime {
      * @param context    The current ognl context
      * @param className  The name of the class which contains the field
      * @param fieldName  The name of the field whose value should be returned
-     * 
+     *
      * @return           The value of the (static) fieldName
      * @throws OgnlException for lots of different reasons.
      */
@@ -2591,7 +2574,7 @@ public class OgnlRuntime {
             if (fieldName.equals("class"))
             {
                 return c;
-            } else if (OgnlRuntime.isJdk15() && c.isEnum())
+            } else if (c.isEnum())
             {
                 try {
                     return Enum.valueOf(c, fieldName);
@@ -2744,11 +2727,11 @@ public class OgnlRuntime {
      * Convenience used to check if a method is a synthetic method so as to avoid
      * calling un-callable methods.  These methods are not considered callable by
      * OGNL in almost all circumstances.
-     * 
+     *
      * This method considers any synthetic method (even bridge methods) as being un-callable.
      * Even though synthetic and bridge methods can technically be called, by default
      * OGNL excludes them from consideration.
-     * 
+     *
      * Synthetic methods should be excluded in general, since calling such methods
      * could introduce unanticipated risks.
      *
@@ -2763,19 +2746,19 @@ public class OgnlRuntime {
     /**
      * Convenience used to check if a method is either a non-synthetic method or
      * a bridge method.
-     * 
-     * Warning:  This method should <b>NOT<b> be used as a direct replacement for 
+     *
+     * Warning:  This method should <b>NOT<b> be used as a direct replacement for
      * {@link #isMethodCallable(Method)}.  Almost all OGNL processing assumes the
      * exlcusion of synthetic methods in order to process correctly.  <b>Only</b>
      * use this method to determine method callability for any OGNL processing
      * after <b>careful</b> consideration.
-     * 
+     *
      * This method considers synthetic methods that are not also bridge methods
      * as being un-callable.
-     * 
+     *
      * Synthetic methods should be excluded in general, since calling such methods
      * could introduce unanticipated risks.
-     * 
+     *
      * @since 3.2.16
      *
      * @param m The method to check.
@@ -2787,7 +2770,7 @@ public class OgnlRuntime {
 
     /**
      * cache get methods
-     * 
+     *
      * @param context the current execution context.
      * @param targetClass the Class to invoke the property name "getter" retrieval on.
      * @param propertyName the name of the property for which a "getter" is sought.
@@ -2887,7 +2870,7 @@ public class OgnlRuntime {
 
     /**
      * cache set methods method
-     * 
+     *
      * @param context the current execution context.
      * @param targetClass the Class to invoke the property name "setter" retrieval on.
      * @param propertyName the name of the property for which a "setter" is sought.
@@ -3163,7 +3146,7 @@ public class OgnlRuntime {
     /**
      * This method returns a PropertyDescriptor for the given class and property name using a Map
      * lookup (using getPropertyDescriptorsMap()).
-     * 
+     *
      * @param targetClass the class to get the descriptors for.
      * @param propertyName the property name of targetClass for which a Descriptor is requested.
      * @return the PropertyDescriptor for propertyName of targetClass.
@@ -3394,7 +3377,7 @@ public class OgnlRuntime {
      * then this will return whether it is a JavaBeans indexed property, conforming to the indexed
      * property patterns (returns <code>INDEXED_PROPERTY_INT</code>) or if it conforms to the
      * OGNL arbitrary object indexable (returns <code>INDEXED_PROPERTY_OBJECT</code>).
-     * 
+     *
      * @param context the current execution context.
      * @param sourceClass the Class to invoke indexed property type retrieval on.
      * @param name the name of the property for which an indexed property type is sought.
@@ -3557,7 +3540,7 @@ public class OgnlRuntime {
         for (int i = 0; i < methods.size(); i++)
         {
             Method m = (Method) methods.get(i);
-            boolean varArgs = isJdk15() && m.isVarArgs();
+            boolean varArgs = m.isVarArgs();
 
             if (parms.length != m.getParameterTypes().length && !varArgs)
                 continue;

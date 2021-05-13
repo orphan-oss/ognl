@@ -62,7 +62,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
         super(p, id);
     }
 
-    /** 
+    /**
      * Called from parser action.
      *
      * @param methodName the method name.
@@ -74,7 +74,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
 
     /**
      * Returns the method name that this node will call.
-     * 
+     *
      * @return the method name.
      */
     public String getMethodName()
@@ -192,7 +192,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
 
             // TODO:  This is a hacky workaround until javassist supports varargs method invocations
 
-            boolean varArgs = OgnlRuntime.isJdk15() && m.isVarArgs();
+            boolean varArgs = m.isVarArgs();
 
             if (varArgs)
             {
@@ -353,7 +353,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType
             _getterClass = wrapper;
         }
 
-        boolean varArgs = OgnlRuntime.isJdk15() && m.isVarArgs();
+        boolean varArgs = m.isVarArgs();
 
         if (varArgs)
         {
