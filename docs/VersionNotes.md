@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.2.21 (2021-05-13)
+* fixes issue with VarArgs, see [#125](../../../issues/125) & [#126](../../../pull/126) -
+  thanks to lukaszlenart
+
 ## Release notes - version 3.2.20, 3.1.29 (2021-04-05)
  * fixes `OgnlOps#equal`, see [#116](../../../pull/116) & [#123](../../../pull/123) -
    thanks to aleksandr-m
