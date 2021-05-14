@@ -52,3 +52,31 @@ We pronounce OGNL as a word, like the last syllables of a drunken pronunciation 
    - you need to tell OGNL to not do security manager permission checks, which will fail since GAE has a security manager 
      and you don't have the ability to add the OGNL-specific permissions. Therefore, somewhere in your initialization code, 
      add this `OgnlRuntime.setSecurityManager(null);`.
+ - How to use the latest SNAPSHOT version?
+   - Define OSS Sonatype repository in `~/.m2/settings.xml` as follows:
+     ```xml
+     <settings>
+         <servers>
+         ...
+         </servers>
+         <profiles>
+             <profile>
+                 <id>local</id>
+                 <activation>
+                     <activeByDefault>true</activeByDefault>
+                 </activation>
+                 <repositories>
+                     <repository>
+                         <id>oss-snapshots</id>
+                         <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+                         <layout>default</layout>
+                         <snapshots>
+                             <enabled>true</enabled>
+                         </snapshots>
+                     </repository>
+                 </repositories>
+             </profile>
+         </profiles>
+     </settings>
+     ```
+     and now you can use SNAPSHOT version of OGNL in your project,
