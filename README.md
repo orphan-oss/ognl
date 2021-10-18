@@ -1,6 +1,5 @@
 # Object-Graph Navigation Language - OGNL
 
-[![Build Status](https://travis-ci.org/jkuhnert/ognl.svg?branch=master)](https://travis-ci.org/jkuhnert/ognl)
 [![Java CI](https://github.com/jkuhnert/ognl/actions/workflows/maven.yml/badge.svg)](https://github.com/jkuhnert/ognl/actions/workflows/maven.yml)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ognl/ognl/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ognl/ognl/)
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)

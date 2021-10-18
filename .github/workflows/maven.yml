@@ -19,12 +19,10 @@ on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 8, 11 ]
-
+        java: [ 8, 11, 17 ]
     steps:
     - uses: actions/checkout@v2.3.4
     - uses: actions/cache@v2.1.4
@@ -38,5 +36,5 @@ jobs:
       with:
         distribution: adopt
         java-version: ${{ matrix.java }}
-    - name: Build with Maven
+    - name: Build with Maven on Java ${{ matrix.java }}
       run: mvn -V test -Ddoclint=all --file pom.xml --no-transfer-progress
