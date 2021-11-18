@@ -41,26 +41,10 @@ import java.lang.reflect.Method;
  */
 public class OgnlException extends Exception
 {
-    // cache initCause method - if available..to be used during throwable constructor
-    // to properly setup superclass.
-
-    static Method _initCause;
-    static {
-        try {
-            _initCause = OgnlException.class.getMethod("initCause", new Class[] { Throwable.class});
-        } catch (NoSuchMethodException e) { /** ignore */ }
-    }
-
-    /**
+     /**
      * The root evaluation of the expression when the exception was thrown
      */
     private Evaluation _evaluation;
-
-    /**
-     * Why this exception was thrown.
-     * @serial
-     */
-    private Throwable _reason;
 
     /** Constructs an OgnlException with no message or encapsulated exception. */
     public OgnlException()
@@ -84,15 +68,7 @@ public class OgnlException extends Exception
      */
     public OgnlException( String msg, Throwable reason )
     {
-        super( msg );
-        this._reason = reason;
-
-        if (_initCause != null)
-        {
-            try {
-                _initCause.invoke(this, new Object[] { reason });
-            } catch (Exception t) { /** ignore */ }
-        }
+        super( msg , reason, true, false);
     }
 
     /**
@@ -101,7 +77,7 @@ public class OgnlException extends Exception
      */
     public Throwable getReason()
     {
-        return _reason;
+        return getCause();
     }
 
     /**
@@ -130,10 +106,10 @@ public class OgnlException extends Exception
      */
     public String toString()
     {
-        if ( _reason == null )
+        if ( getCause() == null )
             return super.toString();
 
-        return super.toString() + " [" + _reason + "]";
+        return super.toString() + " [" + getCause() + "]";
     }
 
 
@@ -155,9 +131,9 @@ public class OgnlException extends Exception
         synchronized (s)
         {
             super.printStackTrace(s);
-            if ( _reason != null ) {
+            if ( getCause() != null ) {
                 s.println(  "/-- Encapsulated exception ------------\\" );
-                _reason.printStackTrace(s);
+                getCause().printStackTrace(s);
                 s.println( "\\--------------------------------------/" );
             }
         }
@@ -172,9 +148,9 @@ public class OgnlException extends Exception
         synchronized (s)
         {
             super.printStackTrace(s);
-            if ( _reason != null ) {
+            if ( getCause() != null ) {
                 s.println(  "/-- Encapsulated exception ------------\\" );
-                _reason.printStackTrace(s);
+                getCause().printStackTrace(s);
                 s.println( "\\--------------------------------------/" );
             }
         }
