@@ -2,7 +2,7 @@
 
 ## Release notes - version 3.3.0 (2021-11-19)
  * As from this release OGNL requires Java 8 at least
- * fixes issue with Eclipse JDT by explicitly casting the Enum#compareTo argument, see [#126](../../../pull/139) -
+ * fixes issue with Eclipse JDT by explicitly casting the Enum#compareTo argument, see [#139](../../../pull/139) -
    thanks to harawata
 
 ## Release notes - version 3.2.21 (2021-05-13)
