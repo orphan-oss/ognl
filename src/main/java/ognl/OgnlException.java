@@ -71,7 +71,7 @@ public class OgnlException extends Exception
     /**
      * Constructs an OgnlException with the given message and encapsulated exception,
      * with control on exception suppression and stack trace collection.
-     * See @ {@code java.lang.Throwable.Throwable(String, Throwable, boolean, boolean)} for more info.
+     * See {@code java.lang.Throwable.Throwable(String, Throwable, boolean, boolean)} for more info.
      */
     protected OgnlException(String message, Throwable reason, boolean enableSuppression, boolean writableStackTrace) {
         super(message, reason, enableSuppression, writableStackTrace);
@@ -116,39 +116,5 @@ public class OgnlException extends Exception
             return super.toString();
 
         return super.toString() + " [" + getCause() + "]";
-    }
-
-    /**
-     * Prints the stack trace for this (and possibly the encapsulated) exception on the
-     * given print stream.
-     */
-    public void printStackTrace(java.io.PrintStream s)
-    {
-        synchronized (s)
-        {
-            super.printStackTrace(s);
-            if ( getCause() != null ) {
-                s.println(  "/-- Encapsulated exception ------------\\" );
-                getCause().printStackTrace(s);
-                s.println( "\\--------------------------------------/" );
-            }
-        }
-    }
-
-    /**
-     * Prints the stack trace for this (and possibly the encapsulated) exception on the
-     * given print writer.
-     */
-    public void printStackTrace(java.io.PrintWriter s)
-    {
-        synchronized (s)
-        {
-            super.printStackTrace(s);
-            if ( getCause() != null ) {
-                s.println(  "/-- Encapsulated exception ------------\\" );
-                getCause().printStackTrace(s);
-                s.println( "\\--------------------------------------/" );
-            }
-        }
     }
 }
