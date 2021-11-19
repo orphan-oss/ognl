@@ -30,9 +30,6 @@
 //--------------------------------------------------------------------------
 package ognl;
 
-import java.lang.reflect.Method;
-
-
 /**
  * Superclass for OGNL exceptions, incorporating an optional encapsulated exception.
  *
@@ -69,6 +66,15 @@ public class OgnlException extends Exception
     public OgnlException( String msg, Throwable reason )
     {
         super( msg , reason, true, false);
+    }
+
+    /**
+     * Constructs an OgnlException with the given message and encapsulated exception,
+     * with control on exception suppression and stack trace collection.
+     * See @ {@code java.lang.Throwable.Throwable(String, Throwable, boolean, boolean)} for more info.
+     */
+    protected OgnlException(String message, Throwable reason, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, reason, enableSuppression, writableStackTrace);
     }
 
     /**
@@ -110,16 +116,6 @@ public class OgnlException extends Exception
             return super.toString();
 
         return super.toString() + " [" + getCause() + "]";
-    }
-
-
-    /**
-     * Prints the stack trace for this (and possibly the encapsulated) exception on
-     * System.err.
-     */
-    public void printStackTrace()
-    {
-        printStackTrace( System.err );
     }
 
     /**
