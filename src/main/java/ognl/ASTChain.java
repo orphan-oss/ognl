@@ -55,8 +55,12 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
 
     protected Object getValueBody(OgnlContext context, Object source)
             throws OgnlException {
-        Object result = source;
+        // short-circuit the chain only in case if the root is null
+        if (source == null) {
+            return null;
+        }
 
+        Object result = source;
         for (int i = 0, ilast = children.length - 1; i <= ilast; ++i) {
             boolean handled = false;
 

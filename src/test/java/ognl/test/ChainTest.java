@@ -15,19 +15,26 @@
  */
 package ognl.test;
 
-import junit.framework.TestCase;
 import ognl.DefaultMemberAccess;
 import ognl.Ognl;
 import ognl.OgnlContext;
+import ognl.OgnlException;
 import ognl.SimpleNode;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for {@link SimpleNode#isChain(OgnlContext)}.
  */
-public class ChainTest extends TestCase {
+public class ChainTest {
 
+    @Test
     public void test_isChain() throws Exception {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+        OgnlContext context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
 
         SimpleNode node = (SimpleNode) Ognl.parseExpression("#name");
         assertFalse(node.isChain(context));
@@ -46,6 +53,52 @@ public class ChainTest extends TestCase {
 
         node = (SimpleNode) Ognl.parseExpression("(name.lastChar, #boo, foo())");
         assertTrue(node.isChain(context));
+    }
+
+    @Test
+    public void shouldShortCircuitAccessingNullChild() {
+        // given
+        OgnlContext context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+        Parent parent = new Parent(new Parent(null));
+        context.put("parent", parent);
+
+        // when
+        try {
+            Ognl.getValue("#parent.child.child.name", context, parent);
+            fail();
+        } catch (OgnlException ox) {
+            assertEquals("source is null for getProperty(null, \"name\")", ox.getMessage());
+        }
+    }
+
+    public static class Child {
+        private final String name;
+
+        public Child(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    public static class Parent extends Child {
+        private final Child child;
+
+        public Parent(Child child) {
+            super("parent of " + child);
+            this.child = child;
+        }
+
+        public Child getChild() {
+            return child;
+        }
     }
 
 }
