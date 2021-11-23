@@ -3239,7 +3239,7 @@ public class OgnlRuntime {
         if (answer != null)
             return answer;
 
-        throw new OgnlException("No property accessor for class " + cls);
+        throw new OgnlException("No property accessor for " + getTargetClass(cls).getName());
     }
 
     public static ElementsAccessor getElementsAccessor(Class cls)
@@ -3326,32 +3326,23 @@ public class OgnlRuntime {
     public static Object getProperty(OgnlContext context, Object source, Object name)
             throws OgnlException
     {
-        PropertyAccessor accessor;
-
         if (source == null)
         {
             throw new OgnlException("source is null for getProperty(null, \"" + name + "\")");
         }
-        if ((accessor = getPropertyAccessor(getTargetClass(source))) == null)
-        {
-            throw new OgnlException("No property accessor for " + getTargetClass(source).getName());
-        }
 
+        PropertyAccessor accessor = getPropertyAccessor(getTargetClass(source));
         return accessor.getProperty(context, source, name);
     }
 
     public static void setProperty(OgnlContext context, Object target, Object name, Object value)
             throws OgnlException
     {
-        PropertyAccessor accessor;
-
         if (target == null) {
             throw new OgnlException("target is null for setProperty(null, \"" + name + "\", " + value + ")");
         }
-        if ((accessor = getPropertyAccessor(getTargetClass(target))) == null) {
-            throw new OgnlException("No property accessor for " + getTargetClass(target).getName());
-        }
 
+        PropertyAccessor accessor = getPropertyAccessor(getTargetClass(target));
         accessor.setProperty(context, target, name, value);
     }
 
