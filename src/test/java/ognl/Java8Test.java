@@ -23,7 +23,7 @@ public class Java8Test extends TestCase {
         Method method = OgnlRuntime.getReadMethod(SubClassWithDefaults.class, "defaultMethod");
         assertNotNull(method);
     }
-    
+
     public void testGetDeclaredMethods() throws IntrospectionException, OgnlException{
     	List defaultMethod = OgnlRuntime.getDeclaredMethods(SubClassWithDefaults.class, "name", false);
     	assertNotNull(defaultMethod);
@@ -39,17 +39,13 @@ class SubClassWithDefaults extends ClassWithDefaults {
 
 }
 
-class ClassWithDefaults /* implements SubInterfaceWithDefaults */ {
+class ClassWithDefaults implements SubInterfaceWithDefaults {
 
 }
 
-/**
- * This won't work till switching to Java 8
- *
 interface InterfaceWithDefaults {
-    default public void defaultMethod() { }
-    default public String getName() { return "name"; }
+    default void defaultMethod() { }
+    default String getName() { return "name"; }
 }
 interface SubInterfaceWithDefaults extends InterfaceWithDefaults {
 }
- */
