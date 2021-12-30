@@ -1,7 +1,11 @@
 # Version Notes
 
+## Release notes - version 3.3.1 (2021-12-30)
+* avoid collecting stacktrace when building an OgnlException, see [#138](../../../pull/138) -
+  thanks to davoustp
+
 ## Release notes - version 3.3.0 (2021-11-19)
- * As from this release OGNL requires Java 8 at least
+ * as from this release OGNL requires Java 8 at least
  * fixes issue with Eclipse JDT by explicitly casting the Enum#compareTo argument, see [#139](../../../pull/139) -
    thanks to harawata
 
