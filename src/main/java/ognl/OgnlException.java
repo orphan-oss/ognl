@@ -30,9 +30,6 @@
 //--------------------------------------------------------------------------
 package ognl;
 
-import java.lang.reflect.Method;
-
-
 /**
  * Superclass for OGNL exceptions, incorporating an optional encapsulated exception.
  *
@@ -41,26 +38,10 @@ import java.lang.reflect.Method;
  */
 public class OgnlException extends Exception
 {
-    // cache initCause method - if available..to be used during throwable constructor
-    // to properly setup superclass.
-
-    static Method _initCause;
-    static {
-        try {
-            _initCause = OgnlException.class.getMethod("initCause", new Class[] { Throwable.class});
-        } catch (NoSuchMethodException e) { /** ignore */ }
-    }
-
-    /**
+     /**
      * The root evaluation of the expression when the exception was thrown
      */
     private Evaluation _evaluation;
-
-    /**
-     * Why this exception was thrown.
-     * @serial
-     */
-    private Throwable _reason;
 
     /** Constructs an OgnlException with no message or encapsulated exception. */
     public OgnlException()
@@ -84,15 +65,16 @@ public class OgnlException extends Exception
      */
     public OgnlException( String msg, Throwable reason )
     {
-        super( msg );
-        this._reason = reason;
+        super( msg , reason, true, false);
+    }
 
-        if (_initCause != null)
-        {
-            try {
-                _initCause.invoke(this, new Object[] { reason });
-            } catch (Exception t) { /** ignore */ }
-        }
+    /**
+     * Constructs an OgnlException with the given message and encapsulated exception,
+     * with control on exception suppression and stack trace collection.
+     * See {@code java.lang.Throwable.Throwable(String, Throwable, boolean, boolean)} for more info.
+     */
+    protected OgnlException(String message, Throwable reason, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, reason, enableSuppression, writableStackTrace);
     }
 
     /**
@@ -101,7 +83,7 @@ public class OgnlException extends Exception
      */
     public Throwable getReason()
     {
-        return _reason;
+        return getCause();
     }
 
     /**
@@ -130,53 +112,9 @@ public class OgnlException extends Exception
      */
     public String toString()
     {
-        if ( _reason == null )
+        if ( getCause() == null )
             return super.toString();
 
-        return super.toString() + " [" + _reason + "]";
-    }
-
-
-    /**
-     * Prints the stack trace for this (and possibly the encapsulated) exception on
-     * System.err.
-     */
-    public void printStackTrace()
-    {
-        printStackTrace( System.err );
-    }
-
-    /**
-     * Prints the stack trace for this (and possibly the encapsulated) exception on the
-     * given print stream.
-     */
-    public void printStackTrace(java.io.PrintStream s)
-    {
-        synchronized (s)
-        {
-            super.printStackTrace(s);
-            if ( _reason != null ) {
-                s.println(  "/-- Encapsulated exception ------------\\" );
-                _reason.printStackTrace(s);
-                s.println( "\\--------------------------------------/" );
-            }
-        }
-    }
-
-    /**
-     * Prints the stack trace for this (and possibly the encapsulated) exception on the
-     * given print writer.
-     */
-    public void printStackTrace(java.io.PrintWriter s)
-    {
-        synchronized (s)
-        {
-            super.printStackTrace(s);
-            if ( _reason != null ) {
-                s.println(  "/-- Encapsulated exception ------------\\" );
-                _reason.printStackTrace(s);
-                s.println( "\\--------------------------------------/" );
-            }
-        }
+        return super.toString() + " [" + getCause() + "]";
     }
 }
