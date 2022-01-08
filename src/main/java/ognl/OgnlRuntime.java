@@ -2253,13 +2253,6 @@ public class OgnlRuntime {
         }
         for (int i = 0, icount = ma.length; i < icount; i++)
         {
-            if (c.isInterface())
-            {
-                if (isDefaultMethod(ma[i]))
-                    addMethodToResult(result, ma[i]);
-                continue;
-            }
-
             if (!isMethodCallable_BridgeOrNonSynthetic(ma[i]))
                 continue;
 

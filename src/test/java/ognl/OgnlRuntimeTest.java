@@ -562,4 +562,10 @@ public class OgnlRuntimeTest {
         Assert.assertTrue((Boolean) Ognl.getValue("containsKey(3L)",
                 defaultContext, root));
     }
+
+    @Test
+    public void shouldInvokeInterfaceMethod() throws Exception {
+        Assert.assertTrue((Boolean) Ognl.getValue("isEmpty()", defaultContext,
+                Collections.checkedCollection(new ArrayList<>(), String.class)));
+    }
 }
