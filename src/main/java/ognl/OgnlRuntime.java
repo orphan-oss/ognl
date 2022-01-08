@@ -1782,12 +1782,12 @@ public class OgnlRuntime {
                 failure = null;
             } else if (mm.score == score) {
                 // it happens that we see the same method signature multiple times - for the current class or interfaces ...
-                // TODO why are all of them on the list and not only the most specific one?
                 // check for same signature
                 if (Arrays.equals(mm.mMethod.getParameterTypes(), m.getParameterTypes()) && mm.mMethod.getName().equals(m.getName())) {
                     boolean retsAreEqual = mm.mMethod.getReturnType().equals(m.getReturnType());
-                    // it is the same method. we use the most specific one...
-                    if (mm.mMethod.getDeclaringClass().isAssignableFrom(m.getDeclaringClass())) {
+                    // it is the same method. we use the public one...
+                    if (!Modifier.isPublic(mm.mMethod.getDeclaringClass().getModifiers())
+                            && Modifier.isPublic(m.getDeclaringClass().getModifiers())) {
                         if (!retsAreEqual && !mm.mMethod.getReturnType().isAssignableFrom(m.getReturnType()))
                             System.err.println("Two methods with same method signature but return types conflict? \""+mm.mMethod+"\" and \""+m+"\" please report!");
 

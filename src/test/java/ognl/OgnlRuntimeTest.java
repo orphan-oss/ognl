@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -555,4 +556,10 @@ public class OgnlRuntimeTest {
                 Ognl.getValue("codePointAt(1)", defaultContext, root));
     }
 
+    @Test
+    public void shouldInvokeSuperclassMethod() throws Exception {
+        Map<Long, Long> root = Collections.singletonMap(3L, 33L);
+        Assert.assertTrue((Boolean) Ognl.getValue("containsKey(3L)",
+                defaultContext, root));
+    }
 }
