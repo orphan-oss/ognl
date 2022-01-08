@@ -593,10 +593,14 @@ public class OgnlRuntimeTest {
         T get();
     }
 
+    public interface I4 {
+        Long get();
+    }
+
     @Test
     public void shouldTwoMethodsWithDifferentReturnTypeBeFine()
             throws Exception {
-        class C1 implements I3<Long> {
+        class C1 implements I3<Long>, I4 {
             @Override
             public Long get() {
                 return 3L;

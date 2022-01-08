@@ -1790,8 +1790,7 @@ public class OgnlRuntime {
                             && Modifier.isPublic(m.getDeclaringClass().getModifiers())) {
                         mm = new MatchingMethod(m, score, report, mParameterTypes);
                         failure = null;
-                    } else if (!retsAreEqual && !m.getReturnType().isAssignableFrom(mm.mMethod.getReturnType()))
-                        System.err.println("Two methods with same method signature but return types conflict? \""+mm.mMethod+"\" and \""+m+"\" please report!");
+                    }
                 } else {
                     // two methods with same score - direct compare to find the better one...
                     // legacy wins over varargs
