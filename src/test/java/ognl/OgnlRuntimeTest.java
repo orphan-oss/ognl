@@ -568,4 +568,24 @@ public class OgnlRuntimeTest {
         Assert.assertTrue((Boolean) Ognl.getValue("isEmpty()", defaultContext,
                 Collections.checkedCollection(new ArrayList<>(), String.class)));
     }
+
+    public interface I1 {
+        Integer getId();
+    }
+
+    public interface I2 {
+        Integer getId();
+    }
+
+    @Test
+    public void shouldMultipleInterfaceWithTheSameMethodBeFine()
+            throws Exception {
+        class C1 implements I1, I2 {
+            public Integer getId() {
+                return 100;
+            }
+        }
+        Assert.assertEquals(100,
+                Ognl.getValue("getId()", defaultContext, new C1()));
+    }
 }

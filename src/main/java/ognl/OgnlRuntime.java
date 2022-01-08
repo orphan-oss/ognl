@@ -1793,9 +1793,6 @@ public class OgnlRuntime {
 
                         mm = new MatchingMethod(m, score, report, mParameterTypes);
                         failure = null;
-                    } else if (!m.getDeclaringClass().isAssignableFrom(mm.mMethod.getDeclaringClass())) {
-                        // this should't happen
-                        System.err.println("Two methods with same method signature but not providing classes assignable? \""+mm.mMethod+"\" and \""+m+"\" please report!");
                     } else if (!retsAreEqual && !m.getReturnType().isAssignableFrom(mm.mMethod.getReturnType()))
                         System.err.println("Two methods with same method signature but return types conflict? \""+mm.mMethod+"\" and \""+m+"\" please report!");
                 } else {
