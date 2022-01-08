@@ -588,4 +588,21 @@ public class OgnlRuntimeTest {
         Assert.assertEquals(100,
                 Ognl.getValue("getId()", defaultContext, new C1()));
     }
+
+    public interface I3<T> {
+        T get();
+    }
+
+    @Test
+    public void shouldTwoMethodsWithDifferentReturnTypeBeFine()
+            throws Exception {
+        class C1 implements I3<Long> {
+            @Override
+            public Long get() {
+                return 3L;
+            }
+        }
+        Assert.assertEquals(3L,
+                Ognl.getValue("get()", defaultContext, new C1()));
+    }
 }

@@ -1788,9 +1788,6 @@ public class OgnlRuntime {
                     // it is the same method. we use the public one...
                     if (!Modifier.isPublic(mm.mMethod.getDeclaringClass().getModifiers())
                             && Modifier.isPublic(m.getDeclaringClass().getModifiers())) {
-                        if (!retsAreEqual && !mm.mMethod.getReturnType().isAssignableFrom(m.getReturnType()))
-                            System.err.println("Two methods with same method signature but return types conflict? \""+mm.mMethod+"\" and \""+m+"\" please report!");
-
                         mm = new MatchingMethod(m, score, report, mParameterTypes);
                         failure = null;
                     } else if (!retsAreEqual && !m.getReturnType().isAssignableFrom(mm.mMethod.getReturnType()))
