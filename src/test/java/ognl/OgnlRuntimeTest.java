@@ -548,4 +548,11 @@ public class OgnlRuntimeTest {
         }
     }
 
+    @Test
+    public void shouldInvokeSyntheticBridgeMethod() throws Exception {
+        StringBuilder root = new StringBuilder("abc");
+        Assert.assertEquals((int) 'b',
+                Ognl.getValue("codePointAt(1)", defaultContext, root));
+    }
+
 }

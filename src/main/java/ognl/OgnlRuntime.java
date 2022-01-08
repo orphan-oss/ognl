@@ -2260,8 +2260,7 @@ public class OgnlRuntime {
                 continue;
             }
 
-            // skip over synthetic methods
-            if (!isMethodCallable(ma[i]))
+            if (!isMethodCallable_BridgeOrNonSynthetic(ma[i]))
                 continue;
 
             if (Modifier.isStatic(ma[i].getModifiers()) == staticMethods)
