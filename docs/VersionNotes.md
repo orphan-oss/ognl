@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.3.2 (2022-01-09)
+* Avoid illegal reflective access when possible and use public method, see [#144](../../../pull/144) -
+  thanks to harawata
+
 ## Release notes - version 3.3.1 (2021-12-30)
 * avoid collecting stacktrace when building an OgnlException, see [#138](../../../pull/138) -
   thanks to davoustp
