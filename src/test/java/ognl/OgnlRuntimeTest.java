@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -548,4 +549,64 @@ public class OgnlRuntimeTest {
         }
     }
 
+    @Test
+    public void shouldInvokeSyntheticBridgeMethod() throws Exception {
+        StringBuilder root = new StringBuilder("abc");
+        Assert.assertEquals((int) 'b',
+                Ognl.getValue("codePointAt(1)", defaultContext, root));
+    }
+
+    @Test
+    public void shouldInvokeSuperclassMethod() throws Exception {
+        Map<Long, Long> root = Collections.singletonMap(3L, 33L);
+        Assert.assertTrue((Boolean) Ognl.getValue("containsKey(3L)",
+                defaultContext, root));
+    }
+
+    @Test
+    public void shouldInvokeInterfaceMethod() throws Exception {
+        Assert.assertTrue((Boolean) Ognl.getValue("isEmpty()", defaultContext,
+                Collections.checkedCollection(new ArrayList<>(), String.class)));
+    }
+
+    public interface I1 {
+        Integer getId();
+    }
+
+    public interface I2 {
+        Integer getId();
+    }
+
+    @Test
+    public void shouldMultipleInterfaceWithTheSameMethodBeFine()
+            throws Exception {
+        class C1 implements I1, I2 {
+            public Integer getId() {
+                return 100;
+            }
+        }
+        Assert.assertEquals(100,
+                Ognl.getValue("getId()", defaultContext, new C1()));
+    }
+
+    public interface I3<T> {
+        T get();
+    }
+
+    public interface I4 {
+        Long get();
+    }
+
+    @Test
+    public void shouldTwoMethodsWithDifferentReturnTypeBeFine()
+            throws Exception {
+        class C1 implements I3<Long>, I4 {
+            @Override
+            public Long get() {
+                return 3L;
+            }
+        }
+        Assert.assertEquals(3L,
+                Ognl.getValue("get()", defaultContext, new C1()));
+    }
 }

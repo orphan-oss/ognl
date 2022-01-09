@@ -1782,22 +1782,15 @@ public class OgnlRuntime {
                 failure = null;
             } else if (mm.score == score) {
                 // it happens that we see the same method signature multiple times - for the current class or interfaces ...
-                // TODO why are all of them on the list and not only the most specific one?
                 // check for same signature
                 if (Arrays.equals(mm.mMethod.getParameterTypes(), m.getParameterTypes()) && mm.mMethod.getName().equals(m.getName())) {
                     boolean retsAreEqual = mm.mMethod.getReturnType().equals(m.getReturnType());
-                    // it is the same method. we use the most specific one...
-                    if (mm.mMethod.getDeclaringClass().isAssignableFrom(m.getDeclaringClass())) {
-                        if (!retsAreEqual && !mm.mMethod.getReturnType().isAssignableFrom(m.getReturnType()))
-                            System.err.println("Two methods with same method signature but return types conflict? \""+mm.mMethod+"\" and \""+m+"\" please report!");
-
+                    // it is the same method. we use the public one...
+                    if (!Modifier.isPublic(mm.mMethod.getDeclaringClass().getModifiers())
+                            && Modifier.isPublic(m.getDeclaringClass().getModifiers())) {
                         mm = new MatchingMethod(m, score, report, mParameterTypes);
                         failure = null;
-                    } else if (!m.getDeclaringClass().isAssignableFrom(mm.mMethod.getDeclaringClass())) {
-                        // this should't happen
-                        System.err.println("Two methods with same method signature but not providing classes assignable? \""+mm.mMethod+"\" and \""+m+"\" please report!");
-                    } else if (!retsAreEqual && !m.getReturnType().isAssignableFrom(mm.mMethod.getReturnType()))
-                        System.err.println("Two methods with same method signature but return types conflict? \""+mm.mMethod+"\" and \""+m+"\" please report!");
+                    }
                 } else {
                     // two methods with same score - direct compare to find the better one...
                     // legacy wins over varargs
@@ -2253,15 +2246,7 @@ public class OgnlRuntime {
         }
         for (int i = 0, icount = ma.length; i < icount; i++)
         {
-            if (c.isInterface())
-            {
-                if (isDefaultMethod(ma[i]))
-                    addMethodToResult(result, ma[i]);
-                continue;
-            }
-
-            // skip over synthetic methods
-            if (!isMethodCallable(ma[i]))
+            if (!isMethodCallable_BridgeOrNonSynthetic(ma[i]))
                 continue;
 
             if (Modifier.isStatic(ma[i].getModifiers()) == staticMethods)
