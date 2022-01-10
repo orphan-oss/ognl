@@ -1784,7 +1784,6 @@ public class OgnlRuntime {
                 // it happens that we see the same method signature multiple times - for the current class or interfaces ...
                 // check for same signature
                 if (Arrays.equals(mm.mMethod.getParameterTypes(), m.getParameterTypes()) && mm.mMethod.getName().equals(m.getName())) {
-                    boolean retsAreEqual = mm.mMethod.getReturnType().equals(m.getReturnType());
                     // it is the same method. we use the public one...
                     if (!Modifier.isPublic(mm.mMethod.getDeclaringClass().getModifiers())
                             && Modifier.isPublic(m.getDeclaringClass().getModifiers())) {
