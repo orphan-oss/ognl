@@ -36,8 +36,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import ognl.Ognl;
-import ognl.OgnlException;
+import org.ognl.Ognl;
+import org.ognl.OgnlContext;
+import org.ognl.OgnlException;
 import org.ognl.test.objects.*;
 
 public class MethodTest extends OgnlTestCase
@@ -88,7 +89,9 @@ public class MethodTest extends OgnlTestCase
     };
 
     public void testNullVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("isThisVarArgsWorking()", new HashMap(), ROOT);
+        OgnlContext context = Ognl.createDefaultContext(ROOT);
+
+        Object value = Ognl.getValue("isThisVarArgsWorking()", context, ROOT);
 
         assertTrue(value instanceof Boolean);
         assertTrue((Boolean) value);

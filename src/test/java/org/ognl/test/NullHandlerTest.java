@@ -31,7 +31,7 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import ognl.OgnlRuntime;
+import org.ognl.OgnlRuntime;
 import org.ognl.test.objects.CorrectedObject;
 
 public class NullHandlerTest extends OgnlTestCase

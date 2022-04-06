@@ -31,7 +31,7 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import ognl.OgnlException;
+import org.ognl.OgnlException;
 import org.ognl.test.objects.Bean1;
 import org.ognl.test.objects.ObjectIndexed;
 
@@ -41,7 +41,7 @@ public class ObjectIndexedPropertyTest extends OgnlTestCase {
     private static Bean1 root = new Bean1();
     private static Object[][] TESTS = {
             // Arbitrary indexed properties
-            {OBJECT_INDEXED, "attributes[\"bar\"]", "baz"}, // get non-indexed property through 
+            {OBJECT_INDEXED, "attributes[\"bar\"]", "baz"}, // get non-indexed property through
             // attributes Map
             {OBJECT_INDEXED, "attribute[\"foo\"]", "bar"}, // get indexed property
             {OBJECT_INDEXED, "attribute[\"bar\"]", "baz", "newValue", "newValue"}, // set

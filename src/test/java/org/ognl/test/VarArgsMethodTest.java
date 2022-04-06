@@ -16,53 +16,54 @@
 package org.ognl.test;
 
 import junit.framework.TestCase;
-import ognl.Ognl;
-import ognl.OgnlException;
+import org.ognl.Ognl;
+import org.ognl.OgnlContext;
+import org.ognl.OgnlException;
 import org.ognl.test.objects.Simple;
-
-import java.util.HashMap;
 
 public class VarArgsMethodTest extends TestCase {
 
-    private static Simple ROOT = new Simple();
+    private static final Simple ROOT = new Simple();
+
+    private final OgnlContext context = Ognl.createDefaultContext(ROOT);
 
     public void testNullVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("isNullVarArgs()", new HashMap(), ROOT);
+        Object value = Ognl.getValue("isNullVarArgs()", context, ROOT);
 
         assertTrue(value instanceof String);
         assertEquals("null", value);
     }
 
     public void testVarArgsWithSingleArg() throws Exception {
-        Object value = Ognl.getValue("isStringVarArgs(new String())", new HashMap(), ROOT);
+        Object value = Ognl.getValue("isStringVarArgs(new String())", context, ROOT);
 
         assertTrue(value instanceof String);
         assertEquals("args", value);
     }
 
     public void testVarArgsWithMultipleArgs() throws Exception {
-        Object value = Ognl.getValue("isStringVarArgs(new String(), new String())", new HashMap(), ROOT);
+        Object value = Ognl.getValue("isStringVarArgs(new String(), new String())", context, ROOT);
 
         assertTrue(value instanceof String);
         assertEquals("args", value);
     }
 
     public void testNestedNullVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("get().request()", new HashMap(), ROOT);
+        Object value = Ognl.getValue("get().request()", context, ROOT);
 
         assertTrue(value instanceof String);
         assertEquals("null", value);
     }
 
     public void testNestedSingleVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("get().request(new String())", new HashMap(), ROOT);
+        Object value = Ognl.getValue("get().request(new String())", context, ROOT);
 
         assertTrue(value instanceof String);
         assertEquals("args", value);
     }
 
     public void testNestedMultipleVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("get().request(new String(), new String())", new HashMap(), ROOT);
+        Object value = Ognl.getValue("get().request(new String(), new String())", context, ROOT);
 
         assertTrue(value instanceof String);
         assertEquals("args", value);

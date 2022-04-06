@@ -16,10 +16,10 @@
 package org.ognl.test;
 
 import junit.framework.TestCase;
-import ognl.DefaultMemberAccess;
-import ognl.Ognl;
-import ognl.OgnlContext;
-import ognl.SimpleNode;
+import org.ognl.DefaultMemberAccess;
+import org.ognl.Ognl;
+import org.ognl.OgnlContext;
+import org.ognl.SimpleNode;
 
 /**
  * Tests for {@link SimpleNode#isChain(OgnlContext)}.

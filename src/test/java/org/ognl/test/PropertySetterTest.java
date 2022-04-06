@@ -1,10 +1,10 @@
 package org.ognl.test;
 
 import junit.framework.TestCase;
-import ognl.DefaultMemberAccess;
-import ognl.Node;
-import ognl.Ognl;
-import ognl.OgnlContext;
+import org.ognl.DefaultMemberAccess;
+import org.ognl.Node;
+import org.ognl.Ognl;
+import org.ognl.OgnlContext;
 
 import java.util.Map;
 
@@ -23,7 +23,7 @@ public class PropertySetterTest extends TestCase {
     }
 
     public class TestObject implements TestInterface {
-        
+
         private String property;
         private Integer integerProperty = 1;
 

@@ -31,7 +31,7 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import ognl.TypeConverter;
+import org.ognl.TypeConverter;
 import org.ognl.test.objects.Root;
 
 import java.util.Arrays;

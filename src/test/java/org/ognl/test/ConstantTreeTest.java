@@ -31,29 +31,29 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import ognl.Ognl;
+import org.ognl.Ognl;
 
 public class ConstantTreeTest extends OgnlTestCase
 {
 
     public static int nonFinalStaticVariable = 15;
 
-    private static Object[][] TESTS = { 
-        { "true", Boolean.TRUE }, 
-        { "55", Boolean.TRUE }, 
-        { "@java.awt.Color@black", Boolean.TRUE }, 
-        { "@org.ognl.test.ConstantTreeTest@nonFinalStaticVariable", Boolean.FALSE }, 
+    private static Object[][] TESTS = {
+        { "true", Boolean.TRUE },
+        { "55", Boolean.TRUE },
+        { "@java.awt.Color@black", Boolean.TRUE },
+        { "@org.ognl.test.ConstantTreeTest@nonFinalStaticVariable", Boolean.FALSE },
         { "@org.ognl.test.ConstantTreeTest@nonFinalStaticVariable + 10", Boolean.FALSE },
         { "55 + 24 + @java.awt.Event@ALT_MASK", Boolean.TRUE },
         { "name", Boolean.FALSE },
         { "name[i]", Boolean.FALSE },
-        { "name[i].property", Boolean.FALSE }, 
+        { "name[i].property", Boolean.FALSE },
         { "name.{? foo }", Boolean.FALSE },
-        { "name.{ foo }", Boolean.FALSE }, 
+        { "name.{ foo }", Boolean.FALSE },
         { "name.{ 25 }", Boolean.FALSE }
-        
+
     };
-    
+
     /*
      * =================================================================== Public static methods
      * ===================================================================

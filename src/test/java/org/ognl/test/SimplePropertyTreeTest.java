@@ -31,7 +31,7 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import ognl.Ognl;
+import org.ognl.Ognl;
 
 public class SimplePropertyTreeTest extends OgnlTestCase
 {

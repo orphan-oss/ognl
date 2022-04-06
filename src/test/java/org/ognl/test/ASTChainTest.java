@@ -1,13 +1,14 @@
 package org.ognl.test;
 
 import junit.framework.TestCase;
-import ognl.DefaultMemberAccess;
-import ognl.Ognl;
-import ognl.OgnlContext;
+import org.ognl.ASTChain;
+import org.ognl.DefaultMemberAccess;
+import org.ognl.Ognl;
+import org.ognl.OgnlContext;
 import org.ognl.test.objects.IndexedSetObject;
 
 /**
- * Tests for {@link ognl.ASTChain}.
+ * Tests for {@link ASTChain}.
  */
 public class ASTChainTest extends TestCase {
 
@@ -21,7 +22,7 @@ public class ASTChainTest extends TestCase {
         assertEquals(1, Ognl.getValue(expr, context, root));
 
         Ognl.setValue(expr, context, root, new Integer(2));
-        
+
         assertEquals(2, Ognl.getValue(expr, context, root));
     }
 }

@@ -31,8 +31,8 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import ognl.MethodFailedException;
-import ognl.NoSuchPropertyException;
+import org.ognl.MethodFailedException;
+import org.ognl.NoSuchPropertyException;
 import org.ognl.test.objects.IndexedSetObject;
 import org.ognl.test.objects.Root;
 

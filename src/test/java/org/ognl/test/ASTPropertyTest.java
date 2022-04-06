@@ -1,15 +1,16 @@
 package org.ognl.test;
 
 import junit.framework.TestCase;
-import ognl.*;
 import static org.ognl.test.OgnlTestCase.isEqual;
+
+import org.ognl.*;
 import org.ognl.test.objects.*;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * Tests functionality of {@link ognl.ASTProperty}.
+ * Tests functionality of {@link ASTProperty}.
  */
 public class ASTPropertyTest extends TestCase {
 
@@ -91,11 +92,11 @@ public class ASTPropertyTest extends TestCase {
         p.jjtAddChild(pRef, 0);
 
         Map root = new Root().getMap();
-        
+
         context.setRoot(root);
         context.setCurrentObject(root);
         context.setCurrentNode(pRef);
-        
+
         assertEquals(".get(\"nested\")", p.toGetSourceString(context, root));
         assertEquals(Object.class, context.getCurrentType());
         assertEquals(Map.class, context.getCurrentAccessor());
@@ -119,13 +120,13 @@ public class ASTPropertyTest extends TestCase {
         pRef.setValue("nested");
         pRef.jjtSetParent(p);
         p.jjtAddChild(pRef, 0);
-        
+
         Map root = new Root().getMap();
 
         context.setRoot(root);
         context.setCurrentObject(root);
         context.setCurrentNode(pRef);
-        
+
         assertEquals(".put(\"nested\", $3)", p.toSetSourceString(context, root));
         assertEquals(Object.class, context.getCurrentType());
         assertEquals(root.get("nested"), context.getCurrentObject());
@@ -140,7 +141,7 @@ public class ASTPropertyTest extends TestCase {
             throws Throwable
     {
         //ASTChain chain = new ASTChain(0);
-        
+
         ASTProperty listp = new ASTProperty(0);
         listp.setIndexedAccess(false);
         //listp.jjtSetParent(chain);
@@ -161,10 +162,10 @@ public class ASTPropertyTest extends TestCase {
         pRef.setValue("genericIndex");
         pRef.jjtSetParent(pindex);
         pindex.jjtAddChild(pRef, 0);
-        
+
         p.jjtAddChild(pindex, 0);
         //chain.jjtAddChild(p, 1);
-        
+
         Root root = new Root();
 
         context.setRoot(root);
@@ -179,7 +180,7 @@ public class ASTPropertyTest extends TestCase {
         assertEquals(root.getList(), context.getCurrentObject());
 
         // re test with chain
-        
+
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
         context.setRoot(root);
         context.setCurrentObject(root);
@@ -199,7 +200,7 @@ public class ASTPropertyTest extends TestCase {
 
         // test with only getIndex
 
-        assertEquals(".get(ognl.OgnlOps#getIntValue(((org.ognl.test.objects.Root)$2)..getGenericIndex().toString()))", p.toGetSourceString(context, root.getList()));
+        assertEquals(".get(org.ognl.OgnlOps#getIntValue(((org.ognl.test.objects.Root)$2)..getGenericIndex().toString()))", p.toGetSourceString(context, root.getList()));
         assertEquals(root.getArray(), context.getCurrentObject());
         assertEquals(Object.class, context.getCurrentType());
     }
@@ -220,7 +221,7 @@ public class ASTPropertyTest extends TestCase {
                     "new org.ognl.test.objects.MenuItem('admin/Admin', getMessages().getMessage('menu.admin'), " +
                     "{ new org.ognl.test.objects.MenuItem('admin/AddEvent', 'Add event'), " +
                     "new org.ognl.test.objects.MenuItem('admin/AddResult', 'Add result') })}");
-        
+
         assertTrue(List.class.isAssignableFrom(node.getAccessor().get(context, root).getClass()));
     }
 

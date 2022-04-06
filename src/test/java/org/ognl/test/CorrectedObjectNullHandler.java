@@ -30,38 +30,26 @@
 //--------------------------------------------------------------------------
 package org.ognl.test;
 
-import ognl.NullHandler;
+import org.ognl.NullHandler;
+import org.ognl.OgnlContext;
 
-import java.util.Map;
+public class CorrectedObjectNullHandler implements NullHandler {
 
-public class CorrectedObjectNullHandler extends Object implements NullHandler
-{
-    private String          defaultValue;
+    private final String defaultValue;
 
-    /*===================================================================
-        Constructors
-      ===================================================================*/
-    public CorrectedObjectNullHandler(String defaultValue)
-    {
+    public CorrectedObjectNullHandler(String defaultValue) {
         super();
         this.defaultValue = defaultValue;
     }
 
-    /*===================================================================
-        TypeConverter interface (overridden)
-      ===================================================================*/
-    public Object nullMethodResult(Map context, Object target, String methodName, Object[] args)
-    {
+    public Object nullMethodResult(OgnlContext context, Object target, String methodName, Object[] args) {
         if (methodName.equals("getStringValue")) {
             return defaultValue;
         }
         return null;
     }
 
-    public Object nullPropertyValue(Map context, Object target, Object property)
-    {
-        Object      result = null;
-
+    public Object nullPropertyValue(OgnlContext context, Object target, Object property) {
         if (property.equals("stringValue")) {
             return defaultValue;
         }

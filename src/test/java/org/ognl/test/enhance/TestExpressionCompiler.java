@@ -4,19 +4,19 @@
 package org.ognl.test.enhance;
 
 import junit.framework.TestCase;
-import ognl.DefaultMemberAccess;
-import ognl.Node;
-import ognl.Ognl;
-import ognl.OgnlContext;
-import ognl.enhance.ExpressionCompiler;
-import ognl.enhance.OgnlExpressionCompiler;
+import org.ognl.DefaultMemberAccess;
+import org.ognl.Node;
+import org.ognl.Ognl;
+import org.ognl.OgnlContext;
+import org.ognl.enhance.ExpressionCompiler;
+import org.ognl.enhance.OgnlExpressionCompiler;
 import org.ognl.test.objects.*;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import ognl.ExpressionSyntaxException;
-import ognl.OgnlException;
+import org.ognl.ExpressionSyntaxException;
+import org.ognl.OgnlException;
 
 
 /**
@@ -102,7 +102,7 @@ public class TestExpressionCompiler extends TestCase
         assertEquals("baz", Ognl.getValue(expr, _context, root));
         assertEquals("baz", expr.getAccessor().get(_context, root));
     }
-    
+
     public void test_Set_Context_Property()
             throws Throwable
     {
@@ -199,7 +199,7 @@ public class TestExpressionCompiler extends TestCase
     public void test_Set_Generic_Property() throws Exception
     {
         _context.clear();
-        
+
         GenericRoot root = new GenericRoot();
 
         Node node = Ognl.compileExpression(_context, root, "cracker.param");
@@ -214,8 +214,8 @@ public class TestExpressionCompiler extends TestCase
 
     /**
      * Test ApplyExpressionMaxLength() mechanism for OGNL expression parsing.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void test_ApplyExpressionMaxLength() throws Exception {
         final OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
@@ -560,8 +560,8 @@ public class TestExpressionCompiler extends TestCase
 
     /**
      * Test freezing and thawing of maximum expression length mechanism for OGNL expression parsing.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void test_FreezeThawExpressionMaxLength() throws Exception {
         final OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);

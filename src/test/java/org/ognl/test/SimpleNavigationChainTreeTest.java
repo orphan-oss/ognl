@@ -31,10 +31,10 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import ognl.Ognl;
+import org.ognl.Ognl;
 
 public class SimpleNavigationChainTreeTest extends OgnlTestCase {
-    
+
     private static Object[][] TESTS = {
             {"name", Boolean.TRUE},
             {"name[i]", Boolean.FALSE},

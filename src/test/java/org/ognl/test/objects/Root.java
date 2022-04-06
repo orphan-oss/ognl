@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------
 package org.ognl.test.objects;
 
-import ognl.DynamicSubscript;
+import org.ognl.DynamicSubscript;
 
 import java.util.*;
 
@@ -73,7 +73,7 @@ public class Root extends Object
     private ITreeContentProvider _contentProvider = new TreeContentProvider();
     private Indexed _indexed = new Indexed();
     private SearchTab _tab = new SearchTab();
-    
+
     /*===================================================================
 		Public static methods
 	  ===================================================================*/
@@ -116,7 +116,7 @@ public class Root extends Object
         Map newMap = new HashMap();
         Map chain = new HashMap();
         newMap.put("deep", chain);
-        
+
         chain.put("last", Boolean.TRUE);
 
         map.put("nested", newMap);
@@ -292,12 +292,12 @@ public class Root extends Object
     {
         stringValue = value;
     }
-    
+
     public String getIndexedStringValue()
     {
         return "array";
     }
-    
+
     public Object getNullObject()
     {
         return null;
@@ -347,27 +347,27 @@ public class Root extends Object
     {
         return _disabled;
     }
-    
+
     public void setDisabled(boolean disabled)
     {
         _disabled = disabled;
     }
-    
+
     public Locale getSelected()
     {
         return _selected;
     }
-    
+
     public void setSelected(Locale locale)
     {
         _selected = locale;
     }
-    
+
     public Locale getCurrLocale()
     {
         return Locale.getDefault();
     }
-    
+
     public int getCurrentLocaleVerbosity()
     {
         return verbosity;
@@ -467,7 +467,7 @@ public class Root extends Object
     {
         return new Object[] {new Integer("2"), new Integer("2")};
     }
-    
+
     public List getResult()
     {
         List list = new ArrayList();
@@ -481,7 +481,7 @@ public class Root extends Object
     public boolean isEditorDisabled()
     {
         return false;
-    }    
+    }
 
     public boolean isDisabled()
     {

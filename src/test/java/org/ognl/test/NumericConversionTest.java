@@ -31,8 +31,8 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import ognl.OgnlException;
-import ognl.OgnlOps;
+import org.ognl.OgnlException;
+import org.ognl.OgnlOps;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

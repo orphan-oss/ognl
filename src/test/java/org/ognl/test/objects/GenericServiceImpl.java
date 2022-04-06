@@ -1,6 +1,6 @@
 package org.ognl.test.objects;
 
-import ognl.security.OgnlSecurityManagerFactory;
+import org.ognl.security.OgnlSecurityManagerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.*;
 import java.util.List;
-import ognl.OgnlRuntime;
+import org.ognl.OgnlRuntime;
 
 /**
  *
@@ -19,7 +19,7 @@ public class GenericServiceImpl implements GenericService {
     public String getFullMessageFor(GameGenericObject game, Object... arguments)
     {
         game.getHappy();
-        
+
         return game.getDisplayName();
     }
 
@@ -43,7 +43,7 @@ public class GenericServiceImpl implements GenericService {
             throw new IllegalStateException("Cannot call test method when OGNL SecurityManager disabled on initialization");
         }
         Method clearPropertyMethod = System.class.getMethod("clearProperty", String.class);
-        clearPropertyMethod.invoke(null, "ognl.security.manager");
+        clearPropertyMethod.invoke(null, "org.ognl.security.manager");
     }
 
     public void disableSandboxViaReflectionByField() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {

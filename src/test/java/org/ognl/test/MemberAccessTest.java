@@ -31,25 +31,24 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import ognl.DefaultMemberAccess;
-import ognl.Ognl;
-import ognl.OgnlContext;
-import ognl.OgnlException;
+import org.ognl.DefaultMemberAccess;
+import org.ognl.Ognl;
+import org.ognl.OgnlContext;
+import org.ognl.OgnlException;
 import org.ognl.test.objects.Simple;
 
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.util.Map;
 
 public class MemberAccessTest extends OgnlTestCase {
 
-    private static Simple ROOT = new Simple();
+    private static final Simple ROOT = new Simple();
 
-    private static Object[][] TESTS = {
+    private static final Object[][] TESTS = {
             {"@Runtime@getRuntime()", OgnlException.class},
             {"@System@getProperty('java.specification.version')", System.getProperty("java.specification.version")},
             {"bigIntValue", OgnlException.class},
-            {"bigIntValue", OgnlException.class, new Integer(25), OgnlException.class},
+            {"bigIntValue", OgnlException.class, 25, OgnlException.class},
             {"getBigIntValue()", OgnlException.class}, {"stringValue", ROOT.getStringValue()},
     };
 
@@ -57,16 +56,13 @@ public class MemberAccessTest extends OgnlTestCase {
      * =================================================================== Public static methods
      * ===================================================================
      */
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
-        for (int i = 0; i < TESTS.length; i++)
-        {
-            result.addTest(new MemberAccessTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", ROOT,
-                                                (String) TESTS[i][0], TESTS[i][1]));
+        for (Object[] test : TESTS) {
+            result.addTest(new MemberAccessTest(test[0] + " (" + test[1] + ")", ROOT, (String) test[0], test[1]));
         }
-        
+
         return result;
     }
 
@@ -74,29 +70,24 @@ public class MemberAccessTest extends OgnlTestCase {
      * =================================================================== Constructors
      * ===================================================================
      */
-    public MemberAccessTest()
-    {
+    public MemberAccessTest() {
         super();
     }
 
-    public MemberAccessTest(String name)
-    {
+    public MemberAccessTest(String name) {
         super(name);
     }
 
     public MemberAccessTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-                            Object expectedAfterSetResult)
-    {
+                            Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
-    public MemberAccessTest(String name, Object root, String expressionString, Object expectedResult, Object setValue)
-    {
+    public MemberAccessTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public MemberAccessTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public MemberAccessTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 
@@ -104,14 +95,13 @@ public class MemberAccessTest extends OgnlTestCase {
      * =================================================================== Overridden methods
      * ===================================================================
      */
-    public void setUp()
-    {
+    public void setUp() {
         super.setUp();
-        
+
         /* Should allow access at all to the Simple class except for the bigIntValue property */
         DefaultMemberAccess ma = new DefaultMemberAccess(false) {
 
-            public boolean isAccessible(Map context, Object target, Member member, String propertyName) {
+            public boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName) {
                 if (target == Runtime.class) {
                     return false;
                 }
@@ -131,6 +121,6 @@ public class MemberAccessTest extends OgnlTestCase {
             }
         };
 
-        _context = (OgnlContext) Ognl.createDefaultContext(null, ma, null, null);
+        _context = Ognl.createDefaultContext(null, ma, null, null);
     }
 }

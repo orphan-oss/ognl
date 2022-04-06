@@ -43,19 +43,18 @@ efficient. The class then takes an `OgnlContext` and a root object to
 evaluate against.
 
 ```java
-import ognl.Ognl;
-import ognl.OgnlContext;
+import org.ognl.Ognl;
+import org.ognl.OgnlContext;
 
 public class OgnlExpression {
-    
+
     private Object expression;
 
     public OgnlExpression(String expressionString) throws OgnlException {
         expression = Ognl.parseExpression(expressionString);
     }
 
-    public Object getExpression()
-    {
+    public Object getExpression() {
         return expression;
     }
 

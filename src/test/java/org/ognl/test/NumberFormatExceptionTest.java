@@ -31,7 +31,7 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import ognl.OgnlException;
+import org.ognl.OgnlException;
 import org.ognl.test.objects.Simple;
 
 import java.math.BigDecimal;
@@ -43,25 +43,25 @@ public class NumberFormatExceptionTest extends OgnlTestCase
 
     private static Object[][]       TESTS = {
                                         // NumberFormatException handling (default is to throw NumberFormatException on bad string conversions)
-                                        { SIMPLE, "floatValue", new Float(0f), new Float(10f), new Float(10f) },   
-                                        { SIMPLE, "floatValue", new Float(10f), "x10x", OgnlException.class },      
+                                        { SIMPLE, "floatValue", new Float(0f), new Float(10f), new Float(10f) },
+                                        { SIMPLE, "floatValue", new Float(10f), "x10x", OgnlException.class },
 
-                                        { SIMPLE, "intValue", new Integer(0), new Integer(34), new Integer(34) },   
-                                        { SIMPLE, "intValue", new Integer(34), "foobar", OgnlException.class },    
-                                        { SIMPLE, "intValue", new Integer(34), "", OgnlException.class },          
-                                        { SIMPLE, "intValue", new Integer(34), "       \t", OgnlException.class }, 
+                                        { SIMPLE, "intValue", new Integer(0), new Integer(34), new Integer(34) },
+                                        { SIMPLE, "intValue", new Integer(34), "foobar", OgnlException.class },
+                                        { SIMPLE, "intValue", new Integer(34), "", OgnlException.class },
+                                        { SIMPLE, "intValue", new Integer(34), "       \t", OgnlException.class },
                                         { SIMPLE, "intValue", new Integer(34), "       \t1234\t\t", new Integer(1234) },
-                                        
+
                                         { SIMPLE, "bigIntValue", BigInteger.valueOf(0), BigInteger.valueOf(34), BigInteger.valueOf(34) },
                                         { SIMPLE, "bigIntValue", BigInteger.valueOf(34), null, null },
-                                        { SIMPLE, "bigIntValue", null, "", OgnlException.class },    
-                                        { SIMPLE, "bigIntValue", null, "foobar", OgnlException.class },      
+                                        { SIMPLE, "bigIntValue", null, "", OgnlException.class },
+                                        { SIMPLE, "bigIntValue", null, "foobar", OgnlException.class },
 
-                                        { SIMPLE, "bigDecValue", new BigDecimal(0.0), new BigDecimal(34.55), new BigDecimal(34.55) },   
-                                        { SIMPLE, "bigDecValue", new BigDecimal(34.55), null, null },           
-                                        { SIMPLE, "bigDecValue", null, "", OgnlException.class },              
+                                        { SIMPLE, "bigDecValue", new BigDecimal(0.0), new BigDecimal(34.55), new BigDecimal(34.55) },
+                                        { SIMPLE, "bigDecValue", new BigDecimal(34.55), null, null },
+                                        { SIMPLE, "bigDecValue", null, "", OgnlException.class },
                                         { SIMPLE, "bigDecValue", null, "foobar", OgnlException.class }
-                                        
+
                                     };
 
 	/*===================================================================

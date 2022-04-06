@@ -31,8 +31,8 @@
 package org.ognl.test;
 
 import junit.framework.TestSuite;
-import ognl.DefaultMemberAccess;
-import ognl.OgnlContext;
+import org.ognl.DefaultMemberAccess;
+import org.ognl.OgnlContext;
 import org.ognl.test.objects.Root;
 
 public class PrivateAccessorTest extends OgnlTestCase
