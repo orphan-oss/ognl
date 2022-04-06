@@ -16,20 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package ognl;
+package ognl.internal.entry;
 
-/**
- * Optional interface that may be registered with {@link OgnlRuntime#setClassCacheInspector(ClassCacheInspector)}
- * as a means to disallow caching of specific class types.
- */
-public interface ClassCacheInspector {
+import ognl.internal.CacheException;
 
-    /**
-     * Invoked just before storing a class type within a cache instance.
-     *
-     * @param type The class that is to be stored.
-     * @return True if the class can be cached, false otherwise.
-     */
-    boolean shouldCache(Class<?> type);
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+
+public class FieldCacheEntryFactory implements ClassCacheEntryFactory<Map<String, Field>> {
+
+    public Map<String, Field> create(Class<?> key) throws CacheException {
+        Field[] declaredFields = key.getDeclaredFields();
+        Map<String, Field> result = new HashMap<>(declaredFields.length);
+        for (Field field : declaredFields) {
+            result.put(field.getName(), field);
+        }
+        return result;
+    }
 
 }
+

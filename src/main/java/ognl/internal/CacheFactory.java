@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,20 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package ognl;
+package ognl.internal;
 
-/**
- * Optional interface that may be registered with {@link OgnlRuntime#setClassCacheInspector(ClassCacheInspector)}
- * as a means to disallow caching of specific class types.
- */
-public interface ClassCacheInspector {
+import ognl.internal.entry.CacheEntryFactory;
+import ognl.internal.entry.ClassCacheEntryFactory;
 
-    /**
-     * Invoked just before storing a class type within a cache instance.
-     *
-     * @param type The class that is to be stored.
-     * @return True if the class can be cached, false otherwise.
-     */
-    boolean shouldCache(Class<?> type);
+public interface CacheFactory {
+
+    <K, V> Cache<K, V> createCache(CacheEntryFactory<K, V> entryFactory);
+
+    <V> ClassCache<V> createClassCache();
+
+    <V> ClassCache<V> createClassCache(ClassCacheEntryFactory<V> entryFactory);
 
 }

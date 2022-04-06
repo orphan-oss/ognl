@@ -16,20 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package ognl;
+package ognl.internal.entry;
 
-/**
- * Optional interface that may be registered with {@link OgnlRuntime#setClassCacheInspector(ClassCacheInspector)}
- * as a means to disallow caching of specific class types.
- */
-public interface ClassCacheInspector {
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
-    /**
-     * Invoked just before storing a class type within a cache instance.
-     *
-     * @param type The class that is to be stored.
-     * @return True if the class can be cached, false otherwise.
-     */
-    boolean shouldCache(Class<?> type);
+public class DeclaredMethodCacheEntryFactory extends MethodCacheEntryFactory<DeclaredMethodCacheEntry> {
+
+    @Override
+    protected boolean shouldCache(DeclaredMethodCacheEntry key, Method method) {
+        if (key.type == null) {
+            return true;
+        }
+        boolean isStatic = Modifier.isStatic(method.getModifiers());
+        if (key.type == DeclaredMethodCacheEntry.MethodType.STATIC) {
+            return isStatic;
+        }
+        return !isStatic;
+    }
 
 }

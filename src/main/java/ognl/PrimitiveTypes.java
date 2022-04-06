@@ -18,18 +18,26 @@
  */
 package ognl;
 
-/**
- * Optional interface that may be registered with {@link OgnlRuntime#setClassCacheInspector(ClassCacheInspector)}
- * as a means to disallow caching of specific class types.
- */
-public interface ClassCacheInspector {
+import java.util.HashMap;
+import java.util.Map;
 
-    /**
-     * Invoked just before storing a class type within a cache instance.
-     *
-     * @param type The class that is to be stored.
-     * @return True if the class can be cached, false otherwise.
-     */
-    boolean shouldCache(Class<?> type);
+class PrimitiveTypes {
+
+    private final Map<String, Class<?>> PRIMITIVE_TYPES = new HashMap<>(8);
+
+    PrimitiveTypes() {
+        PRIMITIVE_TYPES.put("boolean", Boolean.TYPE);
+        PRIMITIVE_TYPES.put("byte", Byte.TYPE);
+        PRIMITIVE_TYPES.put("short", Short.TYPE);
+        PRIMITIVE_TYPES.put("char", Character.TYPE);
+        PRIMITIVE_TYPES.put("int", Integer.TYPE);
+        PRIMITIVE_TYPES.put("long", Long.TYPE);
+        PRIMITIVE_TYPES.put("float", Float.TYPE);
+        PRIMITIVE_TYPES.put("double", Double.TYPE);
+    }
+
+    Class<?> get(String className) {
+        return PRIMITIVE_TYPES.get(className);
+    }
 
 }

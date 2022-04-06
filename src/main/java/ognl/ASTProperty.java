@@ -61,7 +61,7 @@ public class ASTProperty extends SimpleNode implements NodeType
 
     /**
      * Returns true if this property is itself an index reference.
-     * 
+     *
      * @return true if this property is an index reference, false otherwise.
      */
     public boolean isIndexedAccess()
@@ -73,8 +73,8 @@ public class ASTProperty extends SimpleNode implements NodeType
      * Returns true if this property is described by an IndexedPropertyDescriptor and that if
      * followed by an index specifier it will call the index get/set methods rather than go through
      * property accessors.
-     * 
-     * @param context the OgnlContext within which to perform the operation. 
+     *
+     * @param context the OgnlContext within which to perform the operation.
      * @param source the Object (indexed property) from which to retrieve the indexed property type.
      * @return the int representing the indexed property type of source.
      * @throws OgnlException if source is not an indexed property.
@@ -92,7 +92,7 @@ public class ASTProperty extends SimpleNode implements NodeType
 
                 if (property instanceof String)
                 {
-                    return OgnlRuntime.getIndexedPropertyType(context, (source == null)
+                    return OgnlRuntime.getIndexedPropertyType((source == null)
                             ? null
                             : OgnlRuntime.getCompiler().getInterfaceClass(source.getClass()), (String) property);
                 }
@@ -563,7 +563,7 @@ public class ASTProperty extends SimpleNode implements NodeType
 
                 if (_parent == null)
                 {
-                    // the above pd will be the wrong result sometimes, such as methods like getValue(int) vs String[] getValue() 
+                    // the above pd will be the wrong result sometimes, such as methods like getValue(int) vs String[] getValue()
 
                     m = OgnlRuntime.getWriteMethod(context.getCurrentObject().getClass(), name);
                     Class parm = m.getParameterTypes()[0];

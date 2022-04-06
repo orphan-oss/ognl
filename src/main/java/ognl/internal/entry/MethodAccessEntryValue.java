@@ -16,20 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package ognl;
+package ognl.internal.entry;
 
-/**
- * Optional interface that may be registered with {@link OgnlRuntime#setClassCacheInspector(ClassCacheInspector)}
- * as a means to disallow caching of specific class types.
- */
-public interface ClassCacheInspector {
+public class MethodAccessEntryValue {
 
-    /**
-     * Invoked just before storing a class type within a cache instance.
-     *
-     * @param type The class that is to be stored.
-     * @return True if the class can be cached, false otherwise.
-     */
-    boolean shouldCache(Class<?> type);
+    private final boolean isAccessible;
+    private boolean notPublic;
+
+    public MethodAccessEntryValue(boolean accessible) {
+        this.isAccessible = accessible;
+    }
+
+    public MethodAccessEntryValue(boolean accessible, boolean notPublic) {
+        isAccessible = accessible;
+        this.notPublic = notPublic;
+    }
+
+    public boolean isAccessible() {
+        return isAccessible;
+    }
+
+    public boolean isNotPublic() {
+        return notPublic;
+    }
 
 }

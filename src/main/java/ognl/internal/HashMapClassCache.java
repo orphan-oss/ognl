@@ -16,20 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package ognl;
+package ognl.internal;
 
-/**
- * Optional interface that may be registered with {@link OgnlRuntime#setClassCacheInspector(ClassCacheInspector)}
- * as a means to disallow caching of specific class types.
- */
-public interface ClassCacheInspector {
+import ognl.ClassCacheInspector;
+import ognl.internal.entry.CacheEntryFactory;
 
-    /**
-     * Invoked just before storing a class type within a cache instance.
-     *
-     * @param type The class that is to be stored.
-     * @return True if the class can be cached, false otherwise.
-     */
-    boolean shouldCache(Class<?> type);
+public class HashMapClassCache<T> extends HashMapCache<Class<?>, T> implements ClassCache<T> {
+
+    private ClassCacheInspector inspector;
+
+    public HashMapClassCache(CacheEntryFactory<Class<?>, T> entryFactory) {
+        super(entryFactory);
+    }
+
+    public void setClassInspector(ClassCacheInspector inspector) {
+        this.inspector = inspector;
+    }
+
+    public T put(Class<?> key, T value) {
+        if (inspector != null && !inspector.shouldCache(key)) {
+            return value;
+        }
+        return super.put(key, value);
+    }
 
 }

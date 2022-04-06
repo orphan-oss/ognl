@@ -18,18 +18,29 @@
  */
 package ognl;
 
-/**
- * Optional interface that may be registered with {@link OgnlRuntime#setClassCacheInspector(ClassCacheInspector)}
- * as a means to disallow caching of specific class types.
- */
-public interface ClassCacheInspector {
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 
-    /**
-     * Invoked just before storing a class type within a cache instance.
-     *
-     * @param type The class that is to be stored.
-     * @return True if the class can be cached, false otherwise.
-     */
-    boolean shouldCache(Class<?> type);
+/**
+ * Constant strings for casting different primitive types.
+ */
+class NumericCasts {
+
+    private final Map<Class<? extends Number>, String> NUMERIC_CASTS = new HashMap<>(6);
+
+    NumericCasts() {
+        NUMERIC_CASTS.put(Double.class, "(double)");
+        NUMERIC_CASTS.put(Float.class, "(float)");
+        NUMERIC_CASTS.put(Integer.class, "(int)");
+        NUMERIC_CASTS.put(Long.class, "(long)");
+        NUMERIC_CASTS.put(BigDecimal.class, "(double)");
+        NUMERIC_CASTS.put(BigInteger.class, "");
+    }
+
+    String get(Class<? extends Number> cls) {
+        return NUMERIC_CASTS.get(cls);
+    }
 
 }

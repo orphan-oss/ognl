@@ -16,20 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package ognl;
+package ognl.internal.entry;
 
-/**
- * Optional interface that may be registered with {@link OgnlRuntime#setClassCacheInspector(ClassCacheInspector)}
- * as a means to disallow caching of specific class types.
- */
-public interface ClassCacheInspector {
+import java.lang.reflect.Method;
+import java.util.Objects;
 
-    /**
-     * Invoked just before storing a class type within a cache instance.
-     *
-     * @param type The class that is to be stored.
-     * @return True if the class can be cached, false otherwise.
-     */
-    boolean shouldCache(Class<?> type);
+public class PermissionCacheEntry implements CacheEntry {
+
+    public final Method method;
+
+    public PermissionCacheEntry(Method method) {
+        this.method = method;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PermissionCacheEntry)) {
+            return false;
+        }
+
+        PermissionCacheEntry that = (PermissionCacheEntry) o;
+
+        return Objects.equals(method, that.method);
+    }
+
+    @Override
+    public int hashCode() {
+        return method != null ? method.hashCode() : 0;
+    }
 
 }

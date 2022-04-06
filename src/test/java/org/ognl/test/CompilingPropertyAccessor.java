@@ -129,7 +129,7 @@ public class CompilingPropertyAccessor extends ObjectPropertyAccessor
 
             if ((pool == null) || (loader == null)) {
                 ClassLoader classLoader = new ContextClassLoader(OgnlContext.class.getClassLoader(), context);
-                
+
                 pool = ClassPool.getDefault();
                 pool.insertClassPath(new LoaderClassPath(classLoader));
                 pools.put(context.getClassResolver(), pool);
@@ -169,7 +169,7 @@ public class CompilingPropertyAccessor extends ObjectPropertyAccessor
         }
         if ((result = (Getter) propertyMap.get(propertyName)) == null) {
             try {
-                Method method = OgnlRuntime.getGetMethod(context, targetClass, propertyName);
+                Method method = OgnlRuntime.getGetMethod(targetClass, propertyName);
 
                 if (method != null) {
                     if (Modifier.isPublic(method.getModifiers())) {
