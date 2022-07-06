@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -7,7 +8,7 @@
         <version>9</version>
     </parent>
 
-    <groupId>ognl</groupId>
+    <groupId>org.ognl</groupId>
     <artifactId>ognl</artifactId>
     <packaging>jar</packaging>
     <version>3.4.0-SNAPSHOT</version>
@@ -32,14 +33,9 @@
         <developerConnection>scm:git:git@github.com:jkuhnert/ognl.git</developerConnection>
     </scm>
 
-    <organization>
-        <name>OpenSymphony</name>
-        <url>http://www.opensymphony.com</url>
-    </organization>
-
     <issueManagement>
-        <system>jira</system>
-        <url>http://jira.opensymphony.com/browse/OGNL</url>
+        <system>Github Issues</system>
+        <url>https://github.com/jkuhnert/ognl/issues</url>
     </issueManagement>
 
     <developers>
@@ -99,7 +95,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>  <!-- Most recent 2.x available -->
+                <version>2.22.2</version>
                 <configuration>
                     <includes>
                         <include>**/*Test.java</include>
@@ -166,7 +162,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.2.0</version>  <!-- Most recent 2.x available -->
+                <version>3.2.0</version>
             </plugin>
         </plugins>
 
@@ -192,13 +188,13 @@
                                 <configuration>
                                     <target>
                                         <java classname="org.javacc.jjtree.Main" fork="true">
-                                            <arg value="-OUTPUT_DIRECTORY=${project.build.sourceDirectory}/ognl" />
-                                            <arg value="${project.basedir}/src/etc/ognl.jjt" />
+                                            <arg value="-OUTPUT_DIRECTORY=${project.build.sourceDirectory}/org/ognl"/>
+                                            <arg value="${project.basedir}/src/etc/ognl.jjt"/>
                                         </java>
 
                                         <java classname="org.javacc.parser.Main" fork="true">
-                                            <arg value="-OUTPUT_DIRECTORY=${project.build.sourceDirectory}/ognl" />
-                                            <arg value="${project.basedir}/src/etc/ognl.jj" />
+                                            <arg value="-OUTPUT_DIRECTORY=${project.build.sourceDirectory}/org/ognl"/>
+                                            <arg value="${project.basedir}/src/etc/ognl.jj"/>
                                         </java>
                                     </target>
                                 </configuration>
