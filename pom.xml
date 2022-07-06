@@ -147,6 +147,9 @@
                         <index>true</index>
                     </archive>
                     <source>1.8</source>
+                    <sourceFileExcludes>
+                        <fileExclude>**/target/generated-sources/**/*.java</fileExclude>
+                    </sourceFileExcludes>
                     <links>
                         <link>https://docs.oracle.com/javase/8/docs/api/</link>
                     </links>
@@ -164,6 +167,31 @@
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.2.0</version>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>javacc-maven-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>ognl-jjtree</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/generated-sources/java</outputDirectory>
+                            <packageName>org.ognl</packageName>
+                            <!-- Uncomment if AST files needs to be generated
+                            <nodePackage>*.jtree</nodePackage>
+                             -->
+                            <!-- Uncomment if visitor default implementation needs to be generated
+                            <visitor>true</visitor>
+                            -->
+                        </configuration>
+                        <goals>
+                            <!-- change goal to jtree-javacc to generate AST too -->
+                            <goal>javacc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
         <defaultGoal>install</defaultGoal>
@@ -171,39 +199,6 @@
     </build>
 
     <profiles>
-        <profile>
-            <id>javacc-generate</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>generate</id>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target>
-                                        <java classname="org.javacc.jjtree.Main" fork="true">
-                                            <arg value="-OUTPUT_DIRECTORY=${project.build.sourceDirectory}/org/ognl"/>
-                                            <arg value="${project.basedir}/src/etc/ognl.jjt"/>
-                                        </java>
-
-                                        <java classname="org.javacc.parser.Main" fork="true">
-                                            <arg value="-OUTPUT_DIRECTORY=${project.build.sourceDirectory}/org/ognl"/>
-                                            <arg value="${project.basedir}/src/etc/ognl.jj"/>
-                                        </java>
-                                    </target>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
         <profile>
             <id>jdk17</id>
             <activation>

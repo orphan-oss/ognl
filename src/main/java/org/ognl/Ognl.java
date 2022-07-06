@@ -1,33 +1,21 @@
-// --------------------------------------------------------------------------
-// Copyright (c) 1998-2004, Drew Davidson and Luke Blanshard
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-// Redistributions of source code must retain the above copyright notice,
-// this list of conditions and the following disclaimer.
-// Redistributions in binary form must reproduce the above copyright
-// notice, this list of conditions and the following disclaimer in the
-// documentation and/or other materials provided with the distribution.
-// Neither the name of the Drew Davidson nor the names of its contributors
-// may be used to endorse or promote products derived from this software
-// without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-// AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
-// DAMAGE.
-// --------------------------------------------------------------------------
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * and/or LICENSE file distributed with this work for additional
+ * information regarding copyright ownership.  The ASF licenses
+ * this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ognl;
 
 import org.ognl.enhance.ExpressionAccessor;
@@ -40,56 +28,38 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 
 /**
- * <p>
  * This class provides static methods for parsing and interpreting OGNL expressions.
- * </P>
- * <p>
  * The simplest use of the Ognl class is to get the value of an expression from an object, without
  * extra context or pre-parsing.
- * </P>
- *
- * <PRE>
- * <p>
+ * <pre>
  * import ognl.Ognl; import ognl.OgnlException; try { result = Ognl.getValue(expression, root); }
  * catch (OgnlException ex) { // Report error or recover }
- *
- * </PRE>
- *
+ * </pre>
  * <p>
  * This will parse the expression given and evaluate it against the root object given, returning the
  * result. If there is an error in the expression, such as the property is not found, the exception
  * is encapsulated into an {@link OgnlException OgnlException}.
- * </P>
  * <p>
  * Other more sophisticated uses of Ognl can pre-parse expressions. This provides two advantages: in
  * the case of user-supplied expressions it allows you to catch parse errors before evaluation and
  * it allows you to cache parsed expressions into an AST for better speed during repeated use. The
- * pre-parsed expression is always returned as an <CODE>Object</CODE> to simplify use for programs
+ * pre-parsed expression is always returned as an <code>Object</code> to simplify use for programs
  * that just wish to store the value for repeated use and do not care that it is an AST. If it does
- * care it can always safely cast the value to an <CODE>AST</CODE> type.
- * </P>
+ * care it can always safely cast the value to an <code>AST</code> type.
  * <p>
- * The Ognl class also takes a <I>context map</I> as one of the parameters to the set and get
+ * The Ognl class also takes a <i>context map</i> as one of the parameters to the set and get
  * methods. This allows you to put your own variables into the available namespace for OGNL
- * expressions. The default context contains only the <CODE>#root</CODE> and <CODE>#context</CODE>
- * keys, which are required to be present. The <CODE>addDefaultContext(Object, Map)</CODE> method
- * will alter an existing <CODE>Map</CODE> to put the defaults in. Here is an example that shows
- * how to extract the <CODE>documentName</CODE> property out of the root object and append a
+ * expressions. The default context contains only the <code>#root</code> and <code>#context</code>
+ * keys, which are required to be present. The <code>addDefaultContext(Object, Map)</code> method
+ * will alter an existing <code>Map</code> to put the defaults in. Here is an example that shows
+ * how to extract the <code>documentName</code> property out of the root object and append a
  * string with the current user name in parens:
- * </P>
- *
- * <PRE>
- * <p>
+ * <pre>
  * private Map context = new HashMap(); public void setUserName(String value) {
  * context.put("userName", value); } try { // get value using our own custom context map result =
  * Ognl.getValue("documentName + \" (\" + ((#userName == null) ? \"&lt;nobody&gt;\" : #userName) +
  * \")\"", context, root); } catch (OgnlException ex) { // Report error or recover }
- *
- * </PRE>
- *
- * @author Luke Blanshard (blanshlu@netscape.net)
- * @author Drew Davidson (drew@ognl.org)
- * @version 27 June 1999
+ * </pre>
  */
 public abstract class Ognl {
 
