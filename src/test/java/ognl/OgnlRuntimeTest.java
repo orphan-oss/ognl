@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -608,5 +609,15 @@ public class OgnlRuntimeTest {
         }
         Assert.assertEquals(3L,
                 Ognl.getValue("get()", defaultContext, new C1()));
+    }
+
+    @Test
+    public void shouldSameMethodOfDifferentParentsBeCallable()
+            throws Exception {
+        Map<String, Object> root = new HashMap<>();
+        root.put("d1", java.sql.Date.valueOf("2022-01-01"));
+        root.put("d2", java.sql.Date.valueOf("2022-01-02"));
+        Assert.assertEquals(-1,
+                Ognl.getValue("d1.compareTo(d2)", defaultContext, root));
     }
 }
