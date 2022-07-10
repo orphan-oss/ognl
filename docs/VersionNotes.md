@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.3.3 (2022-07-10)
+* Fixes IllegalArgumentException : Can't decide wich method to use, see [#159](../../../pull/159) -
+  thanks to harawata
+
 ## Release notes - version 3.3.2 (2022-01-09)
 * Avoid illegal reflective access when possible and use public method, see [#144](../../../pull/144) -
   thanks to harawata
