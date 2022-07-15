@@ -8,7 +8,7 @@
         <version>9</version>
     </parent>
 
-    <groupId>org.ognl</groupId>
+    <groupId>ognl</groupId>
     <artifactId>ognl</artifactId>
     <packaging>jar</packaging>
     <version>3.4.0-SNAPSHOT</version>
@@ -177,7 +177,7 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <outputDirectory>${project.build.directory}/generated-sources/java</outputDirectory>
-                            <packageName>org.ognl</packageName>
+                            <packageName>ognl</packageName>
                             <!-- Uncomment if AST files needs to be generated
                             <nodePackage>*.jtree</nodePackage>
                              -->

@@ -43,8 +43,8 @@ efficient. The class then takes an `OgnlContext` and a root object to
 evaluate against.
 
 ```java
-import org.ognl.Ognl;
-import org.ognl.OgnlContext;
+import ognl.Ognl;
+import ognl.OgnlContext;
 
 public class OgnlExpression {
 
