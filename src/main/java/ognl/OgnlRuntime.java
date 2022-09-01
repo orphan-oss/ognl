@@ -2648,7 +2648,6 @@ public class OgnlRuntime {
                 }
 
                 if ((method.getName().equalsIgnoreCase(name)
-                        || method.getName().equalsIgnoreCase(name)
                         || method.getName().toLowerCase().equals("set" + name.toLowerCase()))
                         && !method.getName().startsWith("get")) {
 
