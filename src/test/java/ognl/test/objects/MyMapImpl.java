@@ -18,89 +18,76 @@
  */
 package ognl.test.objects;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
-	This tests the interface inheritence test.  This test implements
-	MyMap->Map but extends Object, therefore should be coded using
-	MapPropertyAccessor instead of ObjectPropertyAccessor.
+ * This tests the interface inheritence test.  This test implements
+ * MyMap->Map but extends Object, therefore should be coded using
+ * MapPropertyAccessor instead of ObjectPropertyAccessor.
  */
-public class MyMapImpl extends Object implements MyMap
-{
-	private Map				map = new HashMap();
+public class MyMapImpl extends Object implements MyMap {
+    private Map map = new HashMap();
 
-	public void clear()
-	{
-		map.clear();
-	}
+    public void clear() {
+        map.clear();
+    }
 
-	public boolean containsKey(Object key)
-	{
-		return map.containsKey(key);
-	}
+    public boolean containsKey(Object key) {
+        return map.containsKey(key);
+    }
 
-	public boolean containsValue(Object value)
-	{
-		return map.containsValue(value);
-	}
+    public boolean containsValue(Object value) {
+        return map.containsValue(value);
+    }
 
-	public Set entrySet()
-	{
-		return map.entrySet();
-	}
+    public Set entrySet() {
+        return map.entrySet();
+    }
 
-	public boolean equals(Object o)
-	{
-		return map.equals(o);
-	}
+    public boolean equals(Object o) {
+        return map.equals(o);
+    }
 
-	public Object get(Object key)
-	{
-		return map.get(key);
-	}
+    public Object get(Object key) {
+        return map.get(key);
+    }
 
-	public int hashCode()
-	{
-		return map.hashCode();
-	}
+    public int hashCode() {
+        return map.hashCode();
+    }
 
-	public boolean isEmpty()
-	{
-		return map.isEmpty();
-	}
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
 
-	public Set keySet()
-	{
-		return map.keySet();
-	}
+    public Set keySet() {
+        return map.keySet();
+    }
 
-	public Object put(Object key, Object value)
-	{
-		return map.put(key, value);
-	}
+    public Object put(Object key, Object value) {
+        return map.put(key, value);
+    }
 
-	public void putAll(Map t)
-	{
-		map.putAll(t);
-	}
+    public void putAll(Map t) {
+        map.putAll(t);
+    }
 
-	public Object remove(Object key)
-	{
-		return map.remove(key);
-	}
+    public Object remove(Object key) {
+        return map.remove(key);
+    }
 
-	public int size()
-	{
-		return map.size();
-	}
+    public int size() {
+        return map.size();
+    }
 
-	public Collection values()
-	{
-		return map.values();
-	}
+    public Collection values() {
+        return map.values();
+    }
 
-	public String getDescription()
-	{
-		return "MyMap implementation";
-	}
+    public String getDescription() {
+        return "MyMap implementation";
+    }
 }

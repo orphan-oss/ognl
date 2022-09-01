@@ -7,7 +7,7 @@ import java.util.HashMap;
  */
 public class IndexedSetObject {
 
-    private final HashMap<String,Object> things = new HashMap<String,Object>();
+    private final HashMap<String, Object> things = new HashMap<String, Object>();
 
     public IndexedSetObject() {
         things.put("x", new Container(1));
@@ -23,8 +23,17 @@ public class IndexedSetObject {
 
     public static class Container {
         private int val;
-        public Container(int val) { this.val = val; }
-        public int getVal() { return val; }
-        public void setVal(int val) { this.val = val; }
+
+        public Container(int val) {
+            this.val = val;
+        }
+
+        public int getVal() {
+            return val;
+        }
+
+        public void setVal(int val) {
+            this.val = val;
+        }
     }
 }

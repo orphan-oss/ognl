@@ -11,28 +11,23 @@ public abstract class BaseBean {
 
     public abstract String getName();
 
-    public boolean getActive()
-    {
+    public boolean getActive() {
         return true;
     }
 
-    public boolean isActive2()
-    {
+    public boolean isActive2() {
         return true;
     }
 
-    public Two getTwo()
-    {
+    public Two getTwo() {
         return new Two();
     }
 
-    public String getMessage(String mes)
-    {
+    public String getMessage(String mes) {
         return "[" + mes + "]";
     }
 
-    public boolean hasChildren(String name)
-    {
+    public boolean hasChildren(String name) {
         return name.length() > 2;
     }
 }

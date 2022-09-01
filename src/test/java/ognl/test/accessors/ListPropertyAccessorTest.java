@@ -25,8 +25,7 @@ public class ListPropertyAccessorTest extends TestCase {
         context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
     }
 
-    public void test_Get_Source_String_Number_Index()
-    {
+    public void test_Get_Source_String_Number_Index() {
         ListPropertyAccessor pa = new ListPropertyAccessor();
 
         Root root = new Root();
@@ -44,8 +43,7 @@ public class ListPropertyAccessorTest extends TestCase {
         assertEquals(null, context.getPreviousAccessor());
     }
 
-    public void test_Get_Source_Object_Number_Index()
-    {
+    public void test_Get_Source_Object_Number_Index() {
         ListPropertyAccessor pa = new ListPropertyAccessor();
 
         Root root = new Root();
@@ -63,8 +61,7 @@ public class ListPropertyAccessorTest extends TestCase {
         assertEquals(null, context.getPreviousAccessor());
     }
 
-    public void test_List_To_Object_Property_Accessor_Read() throws Exception
-    {
+    public void test_List_To_Object_Property_Accessor_Read() throws Exception {
         ListPropertyAccessor pa = new ListPropertyAccessor();
 
         ListSource list = new ListSourceImpl();
@@ -78,5 +75,5 @@ public class ListPropertyAccessorTest extends TestCase {
         assertNull(context.get(ExpressionCompiler.PRE_CAST));
         assertEquals(int.class, context.getCurrentType());
         assertEquals(ListSource.class, context.getCurrentAccessor());
-   }
+    }
 }

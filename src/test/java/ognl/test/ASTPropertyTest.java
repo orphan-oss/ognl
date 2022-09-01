@@ -1,8 +1,6 @@
 package ognl.test;
 
 import junit.framework.TestCase;
-import static ognl.test.OgnlTestCase.isEqual;
-
 import ognl.ASTChain;
 import ognl.ASTConst;
 import ognl.ASTProperty;
@@ -11,10 +9,16 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlRuntime;
 import ognl.SimpleNode;
-import ognl.test.objects.*;
+import ognl.test.objects.BaseGeneric;
+import ognl.test.objects.GameGeneric;
+import ognl.test.objects.GameGenericObject;
+import ognl.test.objects.GenericRoot;
+import ognl.test.objects.Root;
 
 import java.util.List;
 import java.util.Map;
+
+import static ognl.test.OgnlTestCase.isEqual;
 
 /**
  * Tests functionality of {@link ASTProperty}.
@@ -28,8 +32,7 @@ public class ASTPropertyTest extends TestCase {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
     }
 
-    public void test_Get_Indexed_Property_Type() throws Exception
-    {
+    public void test_Get_Indexed_Property_Type() throws Exception {
         ASTProperty p = new ASTProperty(0);
         p.setIndexedAccess(false);
         ASTConst pRef = new ASTConst(0);
@@ -58,8 +61,7 @@ public class ASTPropertyTest extends TestCase {
         assertEquals(null, context.getPreviousAccessor());
     }
 
-    public void test_Get_Value_Body() throws Exception
-    {
+    public void test_Get_Value_Body() throws Exception {
         ASTProperty p = new ASTProperty(0);
         p.setIndexedAccess(false);
         ASTConst pRef = new ASTConst(0);
@@ -89,8 +91,7 @@ public class ASTPropertyTest extends TestCase {
     }
 
     public void test_Get_Source()
-            throws Throwable
-    {
+            throws Throwable {
         ASTProperty p = new ASTProperty(0);
         p.setIndexedAccess(false);
         ASTConst pRef = new ASTConst(0);
@@ -119,8 +120,7 @@ public class ASTPropertyTest extends TestCase {
     }
 
     public void test_Set_Source()
-            throws Throwable
-    {
+            throws Throwable {
         ASTProperty p = new ASTProperty(0);
         p.setIndexedAccess(false);
         ASTConst pRef = new ASTConst(0);
@@ -145,8 +145,7 @@ public class ASTPropertyTest extends TestCase {
     }
 
     public void test_Indexed_Object_Type()
-            throws Throwable
-    {
+            throws Throwable {
         //ASTChain chain = new ASTChain(0);
 
         ASTProperty listp = new ASTProperty(0);
@@ -212,28 +211,26 @@ public class ASTPropertyTest extends TestCase {
         assertEquals(Object.class, context.getCurrentType());
     }
 
-    public void test_Complicated_List() throws Exception
-    {
+    public void test_Complicated_List() throws Exception {
         Root root = new Root();
 
         SimpleNode node = (SimpleNode) Ognl.compileExpression(context, root,
                 "{ new ognl.test.objects.MenuItem('Home', 'Main', "
-                    + "{ new ognl.test.objects.MenuItem('Help', 'Help'), "
-                    + "new ognl.test.objects.MenuItem('Contact', 'Contact') }), " // end first item
-                    + "new ognl.test.objects.MenuItem('UserList', getMessages().getMessage('menu.members')), " +
-                    "new ognl.test.objects.MenuItem('account/BetSlipList', getMessages().getMessage('menu.account'), " +
-                    "{ new ognl.test.objects.MenuItem('account/BetSlipList', 'My Bets'), " +
-                    "new ognl.test.objects.MenuItem('account/TransactionList', 'My Transactions') }), " +
-                    "new ognl.test.objects.MenuItem('About', 'About'), " +
-                    "new ognl.test.objects.MenuItem('admin/Admin', getMessages().getMessage('menu.admin'), " +
-                    "{ new ognl.test.objects.MenuItem('admin/AddEvent', 'Add event'), " +
-                    "new ognl.test.objects.MenuItem('admin/AddResult', 'Add result') })}");
+                        + "{ new ognl.test.objects.MenuItem('Help', 'Help'), "
+                        + "new ognl.test.objects.MenuItem('Contact', 'Contact') }), " // end first item
+                        + "new ognl.test.objects.MenuItem('UserList', getMessages().getMessage('menu.members')), " +
+                        "new ognl.test.objects.MenuItem('account/BetSlipList', getMessages().getMessage('menu.account'), " +
+                        "{ new ognl.test.objects.MenuItem('account/BetSlipList', 'My Bets'), " +
+                        "new ognl.test.objects.MenuItem('account/TransactionList', 'My Transactions') }), " +
+                        "new ognl.test.objects.MenuItem('About', 'About'), " +
+                        "new ognl.test.objects.MenuItem('admin/Admin', getMessages().getMessage('menu.admin'), " +
+                        "{ new ognl.test.objects.MenuItem('admin/AddEvent', 'Add event'), " +
+                        "new ognl.test.objects.MenuItem('admin/AddResult', 'Add result') })}");
 
         assertTrue(List.class.isAssignableFrom(node.getAccessor().get(context, root).getClass()));
     }
 
-    public void test_Set_Chain_Indexed_Property() throws Exception
-    {
+    public void test_Set_Chain_Indexed_Property() throws Exception {
         Root root = new Root();
 
         context.setRoot(root);
@@ -243,8 +240,7 @@ public class ASTPropertyTest extends TestCase {
         node.setValue(context, root, Boolean.FALSE);
     }
 
-    public void test_Set_Generic_Property() throws Exception
-    {
+    public void test_Set_Generic_Property() throws Exception {
         GenericRoot root = new GenericRoot();
 
         context.setRoot(root);
@@ -253,15 +249,14 @@ public class ASTPropertyTest extends TestCase {
         SimpleNode node = (SimpleNode) Ognl.parseExpression("cracker.param");
         node.setValue(context, root, "0");
 
-        assertEquals( new Integer(0), root.getCracker().getParam());
+        assertEquals(new Integer(0), root.getCracker().getParam());
 
         node.setValue(context, root, "10");
 
         assertEquals(new Integer(10), root.getCracker().getParam());
     }
 
-    public void test_Get_Generic_Property() throws Exception
-    {
+    public void test_Get_Generic_Property() throws Exception {
         GenericRoot root = new GenericRoot();
 
         context.setRoot(root);
@@ -277,17 +272,16 @@ public class ASTPropertyTest extends TestCase {
         assertEquals(new Integer(10), node.getValue(context, root));
     }
 
-    public void test_Set_Get_Multiple_Generic_Types_Property() throws Exception
-    {
+    public void test_Set_Get_Multiple_Generic_Types_Property() throws Exception {
         BaseGeneric<GameGenericObject, Long> root = new GameGeneric();
 
         context.setRoot(root);
         context.setCurrentObject(root);
 
         SimpleNode node = (SimpleNode) Ognl.parseExpression("ids");
-        node.setValue(context, root, new String[] {"0", "20", "43"});
+        node.setValue(context, root, new String[]{"0", "20", "43"});
 
-        isEqual(new Long[] {new Long(0), new Long(20), new Long(43)}, root.getIds());
+        isEqual(new Long[]{new Long(0), new Long(20), new Long(43)}, root.getIds());
         isEqual(node.getValue(context, root), root.getIds());
     }
 }

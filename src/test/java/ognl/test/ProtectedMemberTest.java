@@ -30,85 +30,72 @@ import ognl.OgnlRuntime;
  * This is a test program for protected access in OGNL.
  * Shows the failures and a summary.
  */
-public class ProtectedMemberTest extends TestCase
-{
-    protected String                _protectedProperty = "protected value";
-    protected final String          _protectedFinalProperty = "protected final value";
-    protected static String         _protectedStaticProperty = "protected static value";
-    protected static final String   _protectedStaticFinalProperty = "protected static final value";
-    protected OgnlContext           context;
+public class ProtectedMemberTest extends TestCase {
+    protected String _protectedProperty = "protected value";
+    protected final String _protectedFinalProperty = "protected final value";
+    protected static String _protectedStaticProperty = "protected static value";
+    protected static final String _protectedStaticFinalProperty = "protected static final value";
+    protected OgnlContext context;
 
 
     /*===================================================================
       Public static methods
       ===================================================================*/
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         return new TestSuite(ProtectedMemberTest.class);
     }
 
     /*===================================================================
       Constructors
       ===================================================================*/
-    public ProtectedMemberTest(String name)
-    {
+    public ProtectedMemberTest(String name) {
         super(name);
     }
 
     /*===================================================================
       Protected methods
       ===================================================================*/
-    protected String getProtectedProperty()
-    {
+    protected String getProtectedProperty() {
         return _protectedProperty;
     }
 
-    protected String getProtectedFinalProperty()
-    {
+    protected String getProtectedFinalProperty() {
         return _protectedFinalProperty;
     }
 
-    protected static String getProtectedStaticProperty()
-    {
+    protected static String getProtectedStaticProperty() {
         return _protectedStaticProperty;
     }
 
-    protected static String getProtectedStaticFinalProperty()
-    {
+    protected static String getProtectedStaticFinalProperty() {
         return _protectedStaticFinalProperty;
     }
 
     /*===================================================================
       Public methods
       ===================================================================*/
-    public void testProtectedAccessor() throws OgnlException
-    {
+    public void testProtectedAccessor() throws OgnlException {
         assertEquals(Ognl.getValue("protectedProperty", context, this), getProtectedProperty());
     }
 
-    public void testProtectedField() throws OgnlException
-    {
+    public void testProtectedField() throws OgnlException {
         assertEquals(Ognl.getValue("_protectedProperty", context, this), _protectedProperty);
     }
 
-    public void testProtectedFinalAccessor() throws OgnlException
-    {
+    public void testProtectedFinalAccessor() throws OgnlException {
         assertEquals(Ognl.getValue("protectedFinalProperty", context, this), getProtectedFinalProperty());
     }
 
-    public void testProtectedFinalField() throws OgnlException
-    {
+    public void testProtectedFinalField() throws OgnlException {
         assertEquals(Ognl.getValue("_protectedFinalProperty", context, this), _protectedFinalProperty);
     }
 
-    public void testProtectedStaticAccessor() throws OgnlException
-    {
+    public void testProtectedStaticAccessor() throws OgnlException {
         assertEquals(Ognl.getValue("protectedStaticProperty", context, this), getProtectedStaticProperty());
         // Succeeds due to calling the static getter to retrieve it.
     }
 
-    public void testProtectedStaticFieldNormalAccess() throws OgnlException
-    {
+    public void testProtectedStaticFieldNormalAccess() throws OgnlException {
         try {
             assertEquals(Ognl.getValue("_protectedStaticProperty", context, this), _protectedStaticProperty);
             fail("Should not be able to access private static _protectedStaticProperty through getValue()");
@@ -117,20 +104,17 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedStaticFieldStaticAccess() throws OgnlException
-    {
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_protectedStaticProperty"), _protectedStaticProperty);
+    public void testProtectedStaticFieldStaticAccess() throws OgnlException {
+        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_protectedStaticProperty"), _protectedStaticProperty);
         // Only succeeds due to directly using the runtime to access the field as a static field.
     }
 
-    public void testProtectedStaticFinalAccessor() throws OgnlException
-    {
+    public void testProtectedStaticFinalAccessor() throws OgnlException {
         assertEquals(Ognl.getValue("protectedStaticFinalProperty", context, this), getProtectedStaticFinalProperty());
         // Succeeds due to calling the static getter to retrieve it.
     }
 
-    public void testProtectedStaticFinalFieldNormalAccess() throws OgnlException
-    {
+    public void testProtectedStaticFinalFieldNormalAccess() throws OgnlException {
         try {
             assertEquals(Ognl.getValue("_protectedStaticFinalProperty", context, this), _protectedStaticFinalProperty);
             fail("Should not be able to access private static _protectedStaticFinalProperty through getValue()");
@@ -139,14 +123,12 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedStaticFinalFieldStaticAccess() throws OgnlException
-    {
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_protectedStaticFinalProperty"), _protectedStaticFinalProperty);
+    public void testProtectedStaticFinalFieldStaticAccess() throws OgnlException {
+        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_protectedStaticFinalProperty"), _protectedStaticFinalProperty);
         // Only succeeds due to directly using the runtime to access the field as a static field.
     }
 
-    public void testProtectedFieldSet() throws OgnlException
-    {
+    public void testProtectedFieldSet() throws OgnlException {
         final String originalValue = _protectedProperty;
         assertEquals(Ognl.getValue("_protectedProperty", context, this), originalValue);
         Ognl.setValue("_protectedProperty", context, this, "changevalue");
@@ -155,8 +137,7 @@ public class ProtectedMemberTest extends TestCase
         assertEquals(Ognl.getValue("_protectedProperty", context, this), originalValue);
     }
 
-    public void testProtectedFinalFieldSet() throws OgnlException
-    {
+    public void testProtectedFinalFieldSet() throws OgnlException {
         final String originalValue = _protectedFinalProperty;
         assertEquals(Ognl.getValue("_protectedFinalProperty", context, this), originalValue);
         try {
@@ -168,34 +149,31 @@ public class ProtectedMemberTest extends TestCase
         assertEquals(Ognl.getValue("_protectedFinalProperty", context, this), originalValue);
     }
 
-    public void testProtectedStaticFieldSet() throws OgnlException
-    {
+    public void testProtectedStaticFieldSet() throws OgnlException {
         final String originalValue = _protectedStaticProperty;
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_protectedStaticProperty"), originalValue);
+        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_protectedStaticProperty"), originalValue);
         try {
             Ognl.setValue("_protectedStaticProperty", context, this, "changevalue");
             fail("Should not be able to modify static property");
         } catch (OgnlException oex) {
             // Fails as test attempts to modify a static property
         }
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_protectedStaticProperty"), originalValue);
+        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_protectedStaticProperty"), originalValue);
     }
 
-    public void testProtectedStaticFinalFieldSet() throws OgnlException
-    {
+    public void testProtectedStaticFinalFieldSet() throws OgnlException {
         final String originalValue = _protectedStaticFinalProperty;
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_protectedStaticFinalProperty"), originalValue);
+        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_protectedStaticFinalProperty"), originalValue);
         try {
             Ognl.setValue("_protectedStaticFinalProperty", context, this, "changevalue");
             fail("Should not be able to modify static property");
         } catch (OgnlException oex) {
             // Fails as test attempts to modify a static property
         }
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_protectedStaticFinalProperty"), originalValue);
+        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_protectedStaticFinalProperty"), originalValue);
     }
 
-    public void testProtectedFieldSetFail() throws OgnlException
-    {
+    public void testProtectedFieldSetFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
             Ognl.setValue("_protectedProperty", context, this, "changevalue");
@@ -205,8 +183,7 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedFinalFieldSetFail() throws OgnlException
-    {
+    public void testProtectedFinalFieldSetFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
             Ognl.setValue("_protectedFinalProperty", context, this, "changevalue");
@@ -216,8 +193,7 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedStaticFieldSetFail() throws OgnlException
-    {
+    public void testProtectedStaticFieldSetFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
             Ognl.setValue("_protectedStaticProperty", context, this, "changevalue");
@@ -227,8 +203,7 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedStaticFinalFieldSetFail() throws OgnlException
-    {
+    public void testProtectedStaticFinalFieldSetFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
             Ognl.setValue("_protectedStaticFinalProperty", context, this, "changevalue");
@@ -238,8 +213,7 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedAccessorFail() throws OgnlException
-    {
+    public void testProtectedAccessorFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
             assertEquals(Ognl.getValue("protectedProperty", context, this), getProtectedProperty());
@@ -249,8 +223,7 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedFieldFail() throws OgnlException
-    {
+    public void testProtectedFieldFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
             assertEquals(Ognl.getValue("_protectedProperty", context, this), _protectedProperty);
@@ -260,8 +233,7 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedFinalAccessorFail() throws OgnlException
-    {
+    public void testProtectedFinalAccessorFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
             assertEquals(Ognl.getValue("protectedFinalProperty", context, this), getProtectedFinalProperty());
@@ -271,8 +243,7 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedFinalFieldFail() throws OgnlException
-    {
+    public void testProtectedFinalFieldFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
             assertEquals(Ognl.getValue("_protectedFinalProperty", context, this), _protectedFinalProperty);
@@ -282,8 +253,7 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedStaticAccessorFail() throws OgnlException
-    {
+    public void testProtectedStaticAccessorFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
             assertEquals(Ognl.getValue("protectedStaticProperty", context, this), getProtectedStaticProperty());
@@ -293,8 +263,7 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedStaticFieldNormalAccessFail() throws OgnlException
-    {
+    public void testProtectedStaticFieldNormalAccessFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
             assertEquals(Ognl.getValue("_protectedStaticProperty", context, this), _protectedStaticProperty);
@@ -304,19 +273,17 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedStaticFieldStaticAccessFail() throws OgnlException
-    {
+    public void testProtectedStaticFieldStaticAccessFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
-            assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_protectedStaticProperty"), _protectedStaticProperty);
+            assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_protectedStaticProperty"), _protectedStaticProperty);
             fail("Should not be able to access protected static property with protected access turned off");
         } catch (OgnlException oex) {
             // Fails as test attempts to access a protected field with protected access turned off
         }
     }
 
-    public void testProtectedStaticFinalAccessorFail() throws OgnlException
-    {
+    public void testProtectedStaticFinalAccessorFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
             assertEquals(Ognl.getValue("protectedStaticFinalProperty", context, this), getProtectedStaticFinalProperty());
@@ -326,8 +293,7 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedStaticFinalFieldNormalAccessFail() throws OgnlException
-    {
+    public void testProtectedStaticFinalFieldNormalAccessFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
             assertEquals(Ognl.getValue("_protectedStaticFinalProperty", context, this), _protectedStaticFinalProperty);
@@ -337,11 +303,10 @@ public class ProtectedMemberTest extends TestCase
         }
     }
 
-    public void testProtectedStaticFinalFieldStaticAccessFail() throws OgnlException
-    {
+    public void testProtectedStaticFinalFieldStaticAccessFail() throws OgnlException {
         context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent protected access
         try {
-            assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_protectedStaticFinalProperty"), _protectedStaticFinalProperty);
+            assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_protectedStaticFinalProperty"), _protectedStaticFinalProperty);
             fail("Should not be able to access protected static final property with protected access turned off");
         } catch (OgnlException oex) {
             // Fails as test attempts to access a protected field with protected access turned off
@@ -351,8 +316,7 @@ public class ProtectedMemberTest extends TestCase
     /*===================================================================
       Overridden methods
       ===================================================================*/
-    public void setUp()
-    {
-          context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, false), null, null);  // Permit protected access, prevent private and package access
+    public void setUp() {
+        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, false), null, null);  // Permit protected access, prevent private and package access
     }
 }

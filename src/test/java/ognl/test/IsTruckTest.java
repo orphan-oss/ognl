@@ -7,7 +7,7 @@ import ognl.OgnlContext;
 
 public class IsTruckTest extends TestCase {
 
-    public void testIsTruckMethod() throws Exception{
+    public void testIsTruckMethod() throws Exception {
         OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
         boolean actual = (Boolean) Ognl.getValue("isTruck", context, new TruckHolder());
 

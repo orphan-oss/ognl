@@ -7,8 +7,7 @@ import java.util.ArrayList;
  */
 public class SubclassSyntheticObject extends BaseSyntheticObject {
 
-    public ArrayList getList()
-    {
+    public ArrayList getList() {
         return new ArrayList();
     }
 }

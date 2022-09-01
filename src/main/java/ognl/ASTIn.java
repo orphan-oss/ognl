@@ -18,7 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
 import ognl.enhance.UnsupportedCompilationException;
 
 public class ASTIn extends SimpleNode implements NodeType {

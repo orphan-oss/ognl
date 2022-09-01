@@ -7,8 +7,7 @@ public class IndexedMapObject {
 
     String property;
 
-    public IndexedMapObject(String property)
-    {
+    public IndexedMapObject(String property) {
         this.property = property;
     }
 

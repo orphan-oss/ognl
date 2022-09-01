@@ -18,47 +18,40 @@
  */
 package ognl.test.objects;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-public class BaseObjectIndexed extends Object
-{
-    private Map     attributes = new HashMap();
+public class BaseObjectIndexed extends Object {
+    private Map attributes = new HashMap();
 
-    public BaseObjectIndexed()
-    {
+    public BaseObjectIndexed() {
         super();
     }
 
-    public Map getAttributes()
-    {
+    public Map getAttributes() {
         return attributes;
     }
 
-    public Object getAttribute(String name)
-    {
+    public Object getAttribute(String name) {
         return attributes.get(name);
     }
 
-    public void setAttribute(String name, Object value)
-    {
+    public void setAttribute(String name, Object value) {
         attributes.put(name, value);
     }
 
     /* allow testing property name where types do not match */
-    public Object getOtherAttribute(String name)
-    {
+    public Object getOtherAttribute(String name) {
         return null;
     }
 
-    public void setOtherAttribute(Object someObject, Object foo)
-    {
+    public void setOtherAttribute(Object someObject, Object foo) {
         /* do nothing */
     }
 
 
     /* test whether get only is found */
-    public Object getSecondaryAttribute(Object name)
-    {
+    public Object getSecondaryAttribute(Object name) {
         return attributes.get(name);
     }
 }

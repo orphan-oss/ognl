@@ -10,19 +10,19 @@ public class MethodTestMethods {
     //---------------------------------------------------------------------
 
     public Object getBean(String name) {
-        return "NamedBean: "+name;
+        return "NamedBean: " + name;
     }
 
     public <T> T getBean(String name, Class<T> requiredType) {
-        return (T) ("NamedTypedBean: "+name+" "+requiredType.getSimpleName());
+        return (T) ("NamedTypedBean: " + name + " " + requiredType.getSimpleName());
     }
 
     public <T> T getBean(Class<T> requiredType) {
-        return (T) ("TypedBean: "+requiredType.getSimpleName());
+        return (T) ("TypedBean: " + requiredType.getSimpleName());
     }
 
     public Object getBean(String name, Object... args) {
-        return "NamedBeanWithArgs: "+name+" "+Arrays.toString(args);
+        return "NamedBeanWithArgs: " + name + " " + Arrays.toString(args);
     }
 
     //---------------------------------------------------------------------
@@ -41,19 +41,19 @@ public class MethodTestMethods {
     //---------------------------------------------------------------------
 
     public String argsTest1(Object[] data) {
-        return "Array: "+Arrays.toString(data);
+        return "Array: " + Arrays.toString(data);
     }
 
     public String argsTest2(List<Object> data) {
-        return "List: "+data;
+        return "List: " + data;
     }
 
     public String argsTest3(Object[] data) {
-        return "Array: "+Arrays.toString(data);
+        return "Array: " + Arrays.toString(data);
     }
 
     public String argsTest3(List<Object> data) {
-        return "List: "+data;
+        return "List: " + data;
     }
 
     //---------------------------------------------------------------------
@@ -67,7 +67,7 @@ public class MethodTestMethods {
             total += element.doubleValue();
             size++;
         }
-        return total/size;
+        return total / size;
     }
 
     public double avg(final Number[] target) {
@@ -75,7 +75,7 @@ public class MethodTestMethods {
         for (final Number element : target) {
             total += element.doubleValue();
         }
-        return total/target.length;
+        return total / target.length;
     }
 
     public double avg(final byte[] target) {
@@ -83,7 +83,7 @@ public class MethodTestMethods {
         for (final Number element : target) {
             total += element.doubleValue();
         }
-        return total/target.length;
+        return total / target.length;
     }
 
     public double avg(final short[] target) {
@@ -91,7 +91,7 @@ public class MethodTestMethods {
         for (final Number element : target) {
             total += element.doubleValue();
         }
-        return total/target.length;
+        return total / target.length;
     }
 
     public double avg(final int[] target) {
@@ -99,7 +99,7 @@ public class MethodTestMethods {
         for (final Number element : target) {
             total += element.doubleValue();
         }
-        return total/target.length;
+        return total / target.length;
     }
 
     public double avg(final long[] target) {
@@ -107,7 +107,7 @@ public class MethodTestMethods {
         for (final Number element : target) {
             total += element.doubleValue();
         }
-        return total/target.length;
+        return total / target.length;
     }
 
     public double avg(final float[] target) {
@@ -115,7 +115,7 @@ public class MethodTestMethods {
         for (final Number element : target) {
             total += element.doubleValue();
         }
-        return total/target.length;
+        return total / target.length;
     }
 
     public double avg(final double[] target) {
@@ -123,11 +123,11 @@ public class MethodTestMethods {
         for (final Number element : target) {
             total += element.doubleValue();
         }
-        return total/target.length;
+        return total / target.length;
     }
 
     public String[] getStringArray() {
-        return new String[] { "Hello", "World" };
+        return new String[]{"Hello", "World"};
     }
 
     public List<String> getStringList() {
@@ -135,7 +135,7 @@ public class MethodTestMethods {
     }
 
     public List<Object> getObjectList() {
-        return Arrays.asList((Object)"Object");
+        return Arrays.asList((Object) "Object");
     }
 
     public String showList(String[] args) {

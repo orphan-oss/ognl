@@ -18,8 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 

@@ -21,26 +21,24 @@ package ognl.test;
 import junit.framework.TestSuite;
 import ognl.test.objects.Root;
 
-public class ProtectedInnerClassTest extends OgnlTestCase
-{
+public class ProtectedInnerClassTest extends OgnlTestCase {
 
     private static Root ROOT = new Root();
 
     private static Object[][] TESTS = {
-    // member access of inner class (Arrays.asList() returned protected inner class)
-            { ROOT, "list.size()", new Integer(ROOT.getList().size()) },
-            { ROOT, "list[0]", ROOT.getList().get(0) },
+            // member access of inner class (Arrays.asList() returned protected inner class)
+            {ROOT, "list.size()", new Integer(ROOT.getList().size())},
+            {ROOT, "list[0]", ROOT.getList().get(0)},
     };
 
     /*
      * =================================================================== Public static methods
      * ===================================================================
      */
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
-        for(int i = 0; i < TESTS.length; i++) {
+        for (int i = 0; i < TESTS.length; i++) {
             result.addTest(new ProtectedInnerClassTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
                     TESTS[i][2]));
         }
@@ -51,30 +49,25 @@ public class ProtectedInnerClassTest extends OgnlTestCase
      * =================================================================== Constructors
      * ===================================================================
      */
-    public ProtectedInnerClassTest()
-    {
+    public ProtectedInnerClassTest() {
         super();
     }
 
-    public ProtectedInnerClassTest(String name)
-    {
+    public ProtectedInnerClassTest(String name) {
         super(name);
     }
 
     public ProtectedInnerClassTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue, Object expectedAfterSetResult)
-    {
+                                   Object setValue, Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
     public ProtectedInnerClassTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue)
-    {
+                                   Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public ProtectedInnerClassTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public ProtectedInnerClassTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 }

@@ -18,13 +18,6 @@
  */
 package ognl;
 
-import ognl.AccessibleObjectHandler;
-import ognl.AccessibleObjectHandlerJDK9Plus;
-import ognl.AccessibleObjectHandlerPreJDK9;
-import ognl.MemberAccess;
-import ognl.OgnlContext;
-import ognl.OgnlRuntime;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;

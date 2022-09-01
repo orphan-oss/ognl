@@ -52,8 +52,7 @@ public class CollectionDirectPropertyTest extends OgnlTestCase {
      * =================================================================== Public static methods
      * ===================================================================
      */
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
         for (int i = 0; i < TESTS.length; i++) {
@@ -81,30 +80,25 @@ public class CollectionDirectPropertyTest extends OgnlTestCase {
      * =================================================================== Constructors
      * ===================================================================
      */
-    public CollectionDirectPropertyTest()
-    {
+    public CollectionDirectPropertyTest() {
         super();
     }
 
-    public CollectionDirectPropertyTest(String name)
-    {
+    public CollectionDirectPropertyTest(String name) {
         super(name);
     }
 
     public CollectionDirectPropertyTest(String name, Object root, String expressionString, Object expectedResult,
-                                        Object setValue, Object expectedAfterSetResult)
-    {
+                                        Object setValue, Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
     public CollectionDirectPropertyTest(String name, Object root, String expressionString, Object expectedResult,
-                                        Object setValue)
-    {
+                                        Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public CollectionDirectPropertyTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public CollectionDirectPropertyTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 }

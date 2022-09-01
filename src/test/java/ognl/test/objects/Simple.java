@@ -25,14 +25,13 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Simple extends Object
-{
-    private String          stringValue = "test";
-    private float           floatValue;
-    private int             intValue;
-    private boolean         booleanValue;
-    private BigInteger      bigIntValue = BigInteger.valueOf(0);
-    private BigDecimal      bigDecValue = new BigDecimal(0.0);
+public class Simple extends Object {
+    private String stringValue = "test";
+    private float floatValue;
+    private int intValue;
+    private boolean booleanValue;
+    private BigInteger bigIntValue = BigInteger.valueOf(0);
+    private BigDecimal bigDecValue = new BigDecimal(0.0);
 
     private Root root = new Root();
 
@@ -43,161 +42,131 @@ public class Simple extends Object
 
     private Messages _messages;
 
-    public Simple()
-    {
+    public Simple() {
         Map src = new HashMap();
         src.put("test", "This is a test");
 
         _messages = new Messages(src);
     }
 
-    public Simple(Bean3 bean)
-    {
+    public Simple(Bean3 bean) {
         _bean = bean;
     }
 
-    public Simple(Bean2 bean)
-    {
+    public Simple(Bean2 bean) {
         _bean2 = bean;
     }
 
-    public Simple(Object[] values)
-    {
+    public Simple(Object[] values) {
         super();
     }
 
-    public Simple(String stringValue, float floatValue, int intValue)
-    {
+    public Simple(String stringValue, float floatValue, int intValue) {
         super();
         this.stringValue = stringValue;
         this.floatValue = floatValue;
         this.intValue = intValue;
     }
 
-    public void setValues(String stringValue, float floatValue, int intValue)
-    {
+    public void setValues(String stringValue, float floatValue, int intValue) {
         this.stringValue = stringValue;
         this.floatValue = floatValue;
         this.intValue = intValue;
     }
 
-    public String getStringValue()
-    {
+    public String getStringValue() {
         return stringValue;
     }
 
-    public void setStringValue(String value)
-    {
+    public void setStringValue(String value) {
         stringValue = value;
     }
 
-    public float getFloatValue()
-    {
+    public float getFloatValue() {
         return floatValue;
     }
 
-    public void setFloatValue(float value)
-    {
+    public void setFloatValue(float value) {
         floatValue = value;
     }
 
-    public int getIntValue()
-    {
+    public int getIntValue() {
         return intValue;
     }
 
-    public void setIntValue(int value)
-    {
+    public void setIntValue(int value) {
         intValue = value;
     }
 
-    public boolean getValueIsTrue(Object currValue)
-    {
+    public boolean getValueIsTrue(Object currValue) {
         return true;
     }
 
-    public boolean getBooleanValue()
-    {
+    public boolean getBooleanValue() {
         return booleanValue;
     }
 
-    public void setBooleanValue(boolean value)
-    {
+    public void setBooleanValue(boolean value) {
         booleanValue = value;
     }
 
-    public BigInteger getBigIntValue()
-    {
+    public BigInteger getBigIntValue() {
         return bigIntValue;
     }
 
-    public void setArray(Object[] values)
-    {
+    public void setArray(Object[] values) {
         _array = values;
     }
 
-    public Object[] getArray()
-    {
+    public Object[] getArray() {
         return _array;
     }
 
-    public void setBigIntValue(BigInteger value)
-    {
+    public void setBigIntValue(BigInteger value) {
         bigIntValue = value;
     }
 
-    public BigDecimal getBigDecValue()
-    {
+    public BigDecimal getBigDecValue() {
         return bigDecValue;
     }
 
-    public void setBigDecValue(BigDecimal value)
-    {
+    public void setBigDecValue(BigDecimal value) {
         bigDecValue = value;
     }
 
-    public Root getRootValue()
-    {
+    public Root getRootValue() {
         return root;
     }
 
-    public MethodTestMethods getTestMethods()
-    {
+    public MethodTestMethods getTestMethods() {
         return new MethodTestMethods();
     }
 
-    public Messages getMessages()
-    {
+    public Messages getMessages() {
         return _messages;
     }
 
-    public int getOne()
-    {
+    public int getOne() {
         return 1;
     }
 
-    public int getTwo()
-    {
+    public int getTwo() {
         return 2;
     }
 
-    public int getThree()
-    {
+    public int getThree() {
         return 3;
     }
 
-    public int getTestValue(int val)
-    {
+    public int getTestValue(int val) {
         return val + 1;
     }
 
-    public boolean isEditorDisabled()
-    {
+    public boolean isEditorDisabled() {
         return false;
     }
 
-    public boolean isDisabled()
-    {
+    public boolean isDisabled() {
         return true;
     }
 
@@ -205,30 +174,26 @@ public class Simple extends Object
         return true;
     }
 
-    public GetterMethods getMethodsTest()
-    {
+    public GetterMethods getMethodsTest() {
         return new GetterMethods();
     }
 
-    public String getDisplayValue(int val)
-    {
+    public String getDisplayValue(int val) {
         return "test";
     }
 
-    public boolean equals(Object other)
-    {
-        boolean     result = false;
+    public boolean equals(Object other) {
+        boolean result = false;
 
         if (other instanceof Simple) {
-            Simple      os = (Simple)other;
+            Simple os = (Simple) other;
 
             result = OgnlTestCase.isEqual(os.getStringValue(), getStringValue()) && (os.getIntValue() == getIntValue());
         }
         return result;
     }
 
-    public boolean isThisVarArgsWorking(Object...arguments)
-    {
+    public boolean isThisVarArgsWorking(Object... arguments) {
         return true;
     }
 
@@ -236,8 +201,7 @@ public class Simple extends Object
         return "null";
     }
 
-    public String isStringVarArgs(String... arguments)
-    {
+    public String isStringVarArgs(String... arguments) {
         return "args";
     }
 
@@ -247,6 +211,7 @@ public class Simple extends Object
             public String request() {
                 return "null";
             }
+
             @Override
             public String request(Object... args) {
                 return "args";
@@ -257,6 +222,7 @@ public class Simple extends Object
     interface TestInterface {
 
         String request();
+
         String request(Object... args);
 
     }

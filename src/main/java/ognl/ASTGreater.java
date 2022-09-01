@@ -18,8 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
-
 public class ASTGreater extends ComparisonExpression {
 
     private static final long serialVersionUID = 3544928077296457477L;

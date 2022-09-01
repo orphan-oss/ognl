@@ -7,18 +7,15 @@ public class Entry {
 
     private int _size = 1;
 
-    public int size()
-    {
+    public int size() {
         return _size;
     }
 
-    public Copy getCopy()
-    {
+    public Copy getCopy() {
         return new Copy();
     }
 
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
@@ -28,8 +25,7 @@ public class Entry {
         return _size == entry._size;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return _size;
     }
 }

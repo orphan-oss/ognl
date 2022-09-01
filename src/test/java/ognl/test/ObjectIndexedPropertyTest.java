@@ -57,8 +57,7 @@ public class ObjectIndexedPropertyTest extends OgnlTestCase {
      * =================================================================== Public static methods
      * ===================================================================
      */
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
         for (int i = 0; i < TESTS.length; i++) {
@@ -86,30 +85,25 @@ public class ObjectIndexedPropertyTest extends OgnlTestCase {
      * =================================================================== Constructors
      * ===================================================================
      */
-    public ObjectIndexedPropertyTest()
-    {
+    public ObjectIndexedPropertyTest() {
         super();
     }
 
-    public ObjectIndexedPropertyTest(String name)
-    {
+    public ObjectIndexedPropertyTest(String name) {
         super(name);
     }
 
     public ObjectIndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult,
-                                     Object setValue, Object expectedAfterSetResult)
-    {
+                                     Object setValue, Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
     public ObjectIndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult,
-                                     Object setValue)
-    {
+                                     Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public ObjectIndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public ObjectIndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 }

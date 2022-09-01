@@ -18,8 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
-
 public class ASTKeyValue extends SimpleNode {
 
     private static final long serialVersionUID = -2039156077201845415L;

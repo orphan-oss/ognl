@@ -20,7 +20,11 @@ package ognl.internal.entry;
 
 import ognl.internal.CacheException;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 public class GenericMethodParameterTypeFactory implements CacheEntryFactory<GenericMethodParameterTypeCacheEntry, Class<?>[]> {
 

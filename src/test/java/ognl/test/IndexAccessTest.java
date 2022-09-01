@@ -32,11 +32,11 @@ public class IndexAccessTest extends OgnlTestCase {
     private static Object[][] TESTS = {
             {ROOT, "list[index]", ROOT.getList().get(ROOT.getIndex())},
             {ROOT, "list[objectIndex]", ROOT.getList().get(ROOT.getObjectIndex().intValue())},
-            {ROOT, "array[objectIndex]", ROOT.getArray()[ROOT.getObjectIndex().intValue()] },
-            {ROOT, "array[getObjectIndex()]", ROOT.getArray()[ROOT.getObjectIndex().intValue()] },
-            {ROOT, "array[genericIndex]", ROOT.getArray()[((Integer)ROOT.getGenericIndex()).intValue()] },
-            {ROOT, "booleanArray[self.objectIndex]", Boolean.FALSE },
-            {ROOT, "booleanArray[getObjectIndex()]", Boolean.FALSE },
+            {ROOT, "array[objectIndex]", ROOT.getArray()[ROOT.getObjectIndex().intValue()]},
+            {ROOT, "array[getObjectIndex()]", ROOT.getArray()[ROOT.getObjectIndex().intValue()]},
+            {ROOT, "array[genericIndex]", ROOT.getArray()[((Integer) ROOT.getGenericIndex()).intValue()]},
+            {ROOT, "booleanArray[self.objectIndex]", Boolean.FALSE},
+            {ROOT, "booleanArray[getObjectIndex()]", Boolean.FALSE},
             {ROOT, "booleanArray[nullIndex]", NoSuchPropertyException.class},
             {ROOT, "list[size() - 1]", MethodFailedException.class},
             {ROOT, "(index == (array.length - 3)) ? 'toggle toggleSelected' : 'toggle'", "toggle toggleSelected"},
@@ -54,18 +54,14 @@ public class IndexAccessTest extends OgnlTestCase {
      * =================================================================== Public static methods
      * ===================================================================
      */
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
-        for (int i = 0; i < TESTS.length; i++)
-        {
-            if (TESTS[i].length == 5)
-            {
+        for (int i = 0; i < TESTS.length; i++) {
+            if (TESTS[i].length == 5) {
                 result.addTest(new IndexAccessTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2],
-                                                   TESTS[i][3], TESTS[i][4]));
-            } else
-            {
+                        TESTS[i][3], TESTS[i][4]));
+            } else {
                 result.addTest(new IndexAccessTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
             }
         }
@@ -73,37 +69,31 @@ public class IndexAccessTest extends OgnlTestCase {
     }
 
     /*
-    * =================================================================== Constructors
-    * ===================================================================
-    */
-    public IndexAccessTest()
-    {
+     * =================================================================== Constructors
+     * ===================================================================
+     */
+    public IndexAccessTest() {
         super();
     }
 
-    public IndexAccessTest(String name)
-    {
+    public IndexAccessTest(String name) {
         super(name);
     }
 
     public IndexAccessTest(String name, Object root, String expressionString, Object expectedResult,
-                           Object setValue, Object expectedAfterSetResult)
-    {
+                           Object setValue, Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
-    public IndexAccessTest(String name, Object root, String expressionString, Object expectedResult, Object setValue)
-    {
+    public IndexAccessTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public IndexAccessTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public IndexAccessTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 
-    public void setUp()
-    {
+    public void setUp() {
         super.setUp();
     }
 }

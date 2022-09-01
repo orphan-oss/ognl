@@ -22,7 +22,10 @@ import ognl.OgnlRuntime;
 import ognl.internal.CacheException;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class MethodCacheEntryFactory<T extends MethodCacheEntry> implements CacheEntryFactory<T, Map<String, List<Method>>> {
 

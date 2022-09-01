@@ -33,8 +33,7 @@ public class SimpleNavigationChainTreeTest extends OgnlTestCase {
     /*===================================================================
          Public static methods
        ===================================================================*/
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
         for (int i = 0; i < TESTS.length; i++) {
@@ -46,36 +45,30 @@ public class SimpleNavigationChainTreeTest extends OgnlTestCase {
     /*===================================================================
          Constructors
        ===================================================================*/
-    public SimpleNavigationChainTreeTest()
-    {
+    public SimpleNavigationChainTreeTest() {
         super();
     }
 
-    public SimpleNavigationChainTreeTest(String name)
-    {
+    public SimpleNavigationChainTreeTest(String name) {
         super(name);
     }
 
-    public SimpleNavigationChainTreeTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult)
-    {
+    public SimpleNavigationChainTreeTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
-    public SimpleNavigationChainTreeTest(String name, Object root, String expressionString, Object expectedResult, Object setValue)
-    {
+    public SimpleNavigationChainTreeTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public SimpleNavigationChainTreeTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public SimpleNavigationChainTreeTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 
     /*===================================================================
          Overridden methods
        ===================================================================*/
-    protected void runTest() throws Exception
-    {
+    protected void runTest() throws Exception {
         assertTrue(Ognl.isSimpleNavigationChain(getExpression(), _context) == ((Boolean) getExpectedResult()).booleanValue());
     }
 }

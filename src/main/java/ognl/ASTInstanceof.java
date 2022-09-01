@@ -18,8 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
-
 public class ASTInstanceof extends SimpleNode implements NodeType {
 
     private static final long serialVersionUID = 4988707282372901939L;

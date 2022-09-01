@@ -42,33 +42,32 @@ public class ArrayElementsTest extends OgnlTestCase {
             {null, "\"{Hello}\".toCharArray()[6]", new Character('}')},
             {null, "\"Tapestry\".toCharArray()[2]", new Character('p')},
             {null, "{'1','2','3'}", Arrays.asList(new Object[]{new Character('1'), new Character('2'), new Character('3')})},
-            {null, "{ true, !false }", Arrays.asList(new Boolean[] { Boolean.TRUE, Boolean.TRUE }) }
+            {null, "{ true, !false }", Arrays.asList(new Boolean[]{Boolean.TRUE, Boolean.TRUE})}
     };
 
     /*
-    * =================================================================== Private static methods
-    * ===================================================================
-    */
+     * =================================================================== Private static methods
+     * ===================================================================
+     */
     /*
      * =================================================================== Public static methods
      * ===================================================================
      */
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
         for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new ArrayElementsTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                                     TESTS[i][2]));
+                        TESTS[i][2]));
             } else {
                 if (TESTS[i].length == 4) {
                     result.addTest(new ArrayElementsTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                                         TESTS[i][2], TESTS[i][3]));
+                            TESTS[i][2], TESTS[i][3]));
                 } else {
                     if (TESTS[i].length == 5) {
                         result.addTest(new ArrayElementsTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                                             TESTS[i][2], TESTS[i][3], TESTS[i][4]));
+                                TESTS[i][2], TESTS[i][3], TESTS[i][4]));
                     } else {
                         throw new RuntimeException("don't understand TEST format");
                     }
@@ -82,29 +81,24 @@ public class ArrayElementsTest extends OgnlTestCase {
      * =================================================================== Constructors
      * ===================================================================
      */
-    public ArrayElementsTest()
-    {
+    public ArrayElementsTest() {
         super();
     }
 
-    public ArrayElementsTest(String name)
-    {
+    public ArrayElementsTest(String name) {
         super(name);
     }
 
     public ArrayElementsTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-                             Object expectedAfterSetResult)
-    {
+                             Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
-    public ArrayElementsTest(String name, Object root, String expressionString, Object expectedResult, Object setValue)
-    {
+    public ArrayElementsTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public ArrayElementsTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public ArrayElementsTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 
@@ -112,8 +106,7 @@ public class ArrayElementsTest extends OgnlTestCase {
      * =================================================================== Overridden methods
      * ===================================================================
      */
-    protected void setUp()
-    {
+    protected void setUp() {
         TypeConverter arrayConverter;
 
         super.setUp();

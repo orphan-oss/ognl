@@ -7,13 +7,11 @@ public class SetterReturns {
 
     private String _value = "";
 
-    public String getValue()
-    {
+    public String getValue() {
         return _value;
     }
 
-    public SetterReturns setValue(String value)
-    {
+    public SetterReturns setValue(String value) {
         _value += value;
         return this;
     }

@@ -1451,9 +1451,9 @@ public class OgnlRuntime {
                                 } else if (moClass == argClass) {
                                     scoreCurr += 100;    // other wins...
                                 } else if (mcClass.isAssignableFrom(moClass)) {
-                                    scoreOther += 50;	// current wins...
+                                    scoreOther += 50;    // current wins...
                                 } else if (moClass.isAssignableFrom(moClass)) {
-                                    scoreCurr += 50;	// other wins...
+                                    scoreCurr += 50;    // other wins...
                                 } else {
                                     // both items can't be assigned to each other..
                                     // TODO: if this happens we have to put some weight on the inheritance...
@@ -1728,7 +1728,7 @@ public class OgnlRuntime {
      * @param propertyName the name of the property to be set for target.
      * @param value        the value to set for propertyName of target.
      * @return true if the operation succeeded, false otherwise.
-     * @throws OgnlException          for lots of different reasons.
+     * @throws OgnlException for lots of different reasons.
      */
     @Deprecated
     public static boolean setMethodValue(OgnlContext context, Object target, String propertyName, Object value) throws OgnlException {

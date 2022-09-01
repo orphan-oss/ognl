@@ -23,33 +23,31 @@ import ognl.DefaultMemberAccess;
 import ognl.OgnlContext;
 import ognl.test.objects.Root;
 
-public class PrivateAccessorTest extends OgnlTestCase
-{
+public class PrivateAccessorTest extends OgnlTestCase {
 
     private static Root ROOT = new Root();
 
     private static Object[][] TESTS = {
             // Using private get/set methods
-            { ROOT, "getPrivateAccessorIntValue()", new Integer(67) },
-            { ROOT, "privateAccessorIntValue", new Integer(67) },
-            { ROOT, "privateAccessorIntValue", new Integer(67), new Integer(100) },
-            { ROOT, "privateAccessorIntValue2", new Integer(67) },
-            { ROOT, "privateAccessorIntValue2", new Integer(67), new Integer(100) },
-            { ROOT, "privateAccessorIntValue3", new Integer(67) },
-            { ROOT, "privateAccessorIntValue3", new Integer(67), new Integer(100) },
-            { ROOT, "privateAccessorBooleanValue", Boolean.TRUE },
-            { ROOT, "privateAccessorBooleanValue", Boolean.TRUE, Boolean.FALSE },
-            };
+            {ROOT, "getPrivateAccessorIntValue()", new Integer(67)},
+            {ROOT, "privateAccessorIntValue", new Integer(67)},
+            {ROOT, "privateAccessorIntValue", new Integer(67), new Integer(100)},
+            {ROOT, "privateAccessorIntValue2", new Integer(67)},
+            {ROOT, "privateAccessorIntValue2", new Integer(67), new Integer(100)},
+            {ROOT, "privateAccessorIntValue3", new Integer(67)},
+            {ROOT, "privateAccessorIntValue3", new Integer(67), new Integer(100)},
+            {ROOT, "privateAccessorBooleanValue", Boolean.TRUE},
+            {ROOT, "privateAccessorBooleanValue", Boolean.TRUE, Boolean.FALSE},
+    };
 
     /*
      * =================================================================== Public static methods
      * ===================================================================
      */
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
-        for(int i = 0; i < TESTS.length; i++) {
+        for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new PrivateAccessorTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
                         TESTS[i][2]));
@@ -74,29 +72,24 @@ public class PrivateAccessorTest extends OgnlTestCase
      * =================================================================== Constructors
      * ===================================================================
      */
-    public PrivateAccessorTest()
-    {
+    public PrivateAccessorTest() {
         super();
     }
 
-    public PrivateAccessorTest(String name)
-    {
+    public PrivateAccessorTest(String name) {
         super(name);
     }
 
     public PrivateAccessorTest(String name, Object root, String expressionString, Object expectedResult,
-            Object setValue, Object expectedAfterSetResult)
-    {
+                               Object setValue, Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
-    public PrivateAccessorTest(String name, Object root, String expressionString, Object expectedResult, Object setValue)
-    {
+    public PrivateAccessorTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public PrivateAccessorTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public PrivateAccessorTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 
@@ -104,8 +97,7 @@ public class PrivateAccessorTest extends OgnlTestCase
      * =================================================================== Overridden methods
      * ===================================================================
      */
-    public void setUp()
-    {
+    public void setUp() {
         super.setUp();
         _context = new OgnlContext(null, null, new DefaultMemberAccess(true));
         _compileExpressions = false;

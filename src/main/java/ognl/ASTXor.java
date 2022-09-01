@@ -18,8 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
-
 public class ASTXor extends NumericExpression {
 
     private static final long serialVersionUID = 6774627095887209111L;

@@ -1,6 +1,6 @@
 package ognl.test.race;
 
-public class Persion extends Base{
+public class Persion extends Base {
     private String name = "abc";
 
 

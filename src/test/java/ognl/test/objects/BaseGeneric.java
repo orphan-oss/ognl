@@ -11,38 +11,31 @@ public class BaseGeneric<E extends GenericObject, I extends Serializable> {
     GenericService _service;
     protected I[] ids;
 
-    public BaseGeneric()
-    {
+    public BaseGeneric() {
         _service = new GenericServiceImpl();
     }
 
-    public void setIds(I[] ids)
-    {
+    public void setIds(I[] ids) {
         this.ids = ids;
     }
 
-    public I[] getIds()
-    {
+    public I[] getIds() {
         return this.ids;
     }
 
-    public String getMessage()
-    {
+    public String getMessage() {
         return "Message";
     }
 
-    public E getValue()
-    {
+    public E getValue() {
         return _value;
     }
 
-    public GenericService getService()
-    {
+    public GenericService getService() {
         return _service;
     }
 
-    public String format(Object value)
-    {
+    public String format(Object value) {
         return value.toString();
     }
 }

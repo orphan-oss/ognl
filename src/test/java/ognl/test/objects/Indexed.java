@@ -18,19 +18,21 @@
  */
 package ognl.test.objects;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class Indexed extends BaseIndexed
-{
-    private String[] _values = new String[] { "foo", "bar", "baz" };
+public class Indexed extends BaseIndexed {
+    private String[] _values = new String[]{"foo", "bar", "baz"};
 
     private List _list = new ArrayList();
     private ListSource _source = new ListSourceImpl();
 
     private Map _props = new HashMap();
 
-    public Indexed()
-    {
+    public Indexed() {
         _list.add(new Integer(1));
         _list.add(new Integer(2));
         _list.add(new Integer(3));
@@ -38,33 +40,28 @@ public class Indexed extends BaseIndexed
         _source.addValue(new Bean2());
     }
 
-    public Indexed(String[] values)
-    {
+    public Indexed(String[] values) {
         _values = values;
     }
 
     /* Indexed property "_values" */
-    public String[] getValues()
-    {
+    public String[] getValues() {
         return _values;
     }
 
-    public void setValues(String[] value)
-    {
+    public void setValues(String[] value) {
         _values = value;
     }
 
     /**
-        This method returns the string from the array and appends "xxx" to
-        distinguish the "get" method from the direct array access.
+     * This method returns the string from the array and appends "xxx" to
+     * distinguish the "get" method from the direct array access.
      */
-    public String getValues(int index)
-    {
+    public String getValues(int index) {
         return _values[index] + "xxx";
     }
 
-    public void setValues(int index, String value)
-    {
+    public void setValues(int index, String value) {
         if (value.endsWith("xxx")) {
             _values[index] = value.substring(0, value.length() - 3);
         } else {
@@ -72,28 +69,23 @@ public class Indexed extends BaseIndexed
         }
     }
 
-    public Collection getList()
-    {
+    public Collection getList() {
         return _list;
     }
 
-    public String getTitle(int count)
-    {
+    public String getTitle(int count) {
         return "Title count " + count;
     }
 
-    public ListSource getSource()
-    {
+    public ListSource getSource() {
         return _source;
     }
 
-    public void setProperty(String property, Object value)
-    {
+    public void setProperty(String property, Object value) {
         _props.put(property, value);
     }
 
-    public Object getProperty(String property)
-    {
+    public Object getProperty(String property) {
         return _props.get(property);
     }
 }

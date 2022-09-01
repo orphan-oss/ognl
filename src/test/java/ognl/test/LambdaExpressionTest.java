@@ -43,8 +43,7 @@ public class LambdaExpressionTest extends OgnlTestCase {
      * =================================================================== Public static methods
      * ===================================================================
      */
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
         for (int i = 0; i < TESTS.length; i++) {
@@ -58,30 +57,25 @@ public class LambdaExpressionTest extends OgnlTestCase {
      * =================================================================== Constructors
      * ===================================================================
      */
-    public LambdaExpressionTest()
-    {
+    public LambdaExpressionTest() {
         super();
     }
 
-    public LambdaExpressionTest(String name)
-    {
+    public LambdaExpressionTest(String name) {
         super(name);
     }
 
     public LambdaExpressionTest(String name, Object root, String expressionString, Object expectedResult,
-                                Object setValue, Object expectedAfterSetResult)
-    {
+                                Object setValue, Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
     public LambdaExpressionTest(String name, Object root, String expressionString, Object expectedResult,
-                                Object setValue)
-    {
+                                Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public LambdaExpressionTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public LambdaExpressionTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 }

@@ -5,23 +5,19 @@ package ognl.test.objects;
  */
 public class TestModel {
 
-    public Copy getCopy()
-    {
+    public Copy getCopy() {
         return new Copy();
     }
 
-    public Model getUnassignedCopyModel()
-    {
+    public Model getUnassignedCopyModel() {
         return new Model();
     }
 
-    public boolean isCanApproveCopy()
-    {
+    public boolean isCanApproveCopy() {
         return true;
     }
 
-    public Entry getEntry()
-    {
+    public Entry getEntry() {
         return new Entry();
     }
 }

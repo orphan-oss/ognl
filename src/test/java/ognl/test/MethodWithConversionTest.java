@@ -21,31 +21,29 @@ package ognl.test;
 import junit.framework.TestSuite;
 import ognl.test.objects.Simple;
 
-public class MethodWithConversionTest extends OgnlTestCase
-{
+public class MethodWithConversionTest extends OgnlTestCase {
 
     private static Simple SIMPLE = new Simple();
 
     private static Object[][] TESTS = {
             // Method call with conversion
-            { SIMPLE, "setValues(new Integer(10), \"10.56\", new Double(34.225))", null },
-            { SIMPLE, "stringValue", "10" },
-            { SIMPLE, "stringValue", "10", new Character('x'), "x" },
-            { SIMPLE, "setStringValue('x')", null }, // set by calling setStringValue() directly
-            { SIMPLE, "floatValue", new Float(10.56) },
-            { SIMPLE, "getValueIsTrue(rootValue)", Boolean.TRUE},
-            { SIMPLE, "messages.format('Testing', one, two, three)", "blah" }
+            {SIMPLE, "setValues(new Integer(10), \"10.56\", new Double(34.225))", null},
+            {SIMPLE, "stringValue", "10"},
+            {SIMPLE, "stringValue", "10", new Character('x'), "x"},
+            {SIMPLE, "setStringValue('x')", null}, // set by calling setStringValue() directly
+            {SIMPLE, "floatValue", new Float(10.56)},
+            {SIMPLE, "getValueIsTrue(rootValue)", Boolean.TRUE},
+            {SIMPLE, "messages.format('Testing', one, two, three)", "blah"}
     };
 
     /*
      * =================================================================== Public static methods
      * ===================================================================
      */
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
-        for(int i = 0; i < TESTS.length; i++) {
+        for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new MethodWithConversionTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
                         TESTS[i][2]));
@@ -70,30 +68,25 @@ public class MethodWithConversionTest extends OgnlTestCase
      * =================================================================== Constructors
      * ===================================================================
      */
-    public MethodWithConversionTest()
-    {
+    public MethodWithConversionTest() {
         super();
     }
 
-    public MethodWithConversionTest(String name)
-    {
+    public MethodWithConversionTest(String name) {
         super(name);
     }
 
     public MethodWithConversionTest(String name, Object root, String expressionString, Object expectedResult,
-                                    Object setValue, Object expectedAfterSetResult)
-    {
+                                    Object setValue, Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
     public MethodWithConversionTest(String name, Object root, String expressionString, Object expectedResult,
-                                    Object setValue)
-    {
+                                    Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public MethodWithConversionTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public MethodWithConversionTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 }

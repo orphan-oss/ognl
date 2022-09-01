@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RaceTestCase {
 
     @Test
-    public void testOgnlRace(){
+    public void testOgnlRace() {
         int concurrent = 128;
         final int batchCount = 2000;
         final CountDownLatch start = new CountDownLatch(1);
@@ -23,7 +23,7 @@ public class RaceTestCase {
         final AtomicInteger errCount = new AtomicInteger(0);
 
         final Persion persion = new Persion();
-        for (int i = 0; i < concurrent;i++){
+        for (int i = 0; i < concurrent; i++) {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -32,8 +32,8 @@ public class RaceTestCase {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    for(int j = 0; j < batchCount;j++){
-                        if(j % 2 == 0) {
+                    for (int j = 0; j < batchCount; j++) {
+                        if (j % 2 == 0) {
                             runValue(persion, "yn", errCount);
                         } else {
                             runValue(persion, "name", errCount);
@@ -42,7 +42,7 @@ public class RaceTestCase {
                     wait.countDown();
                 }
             });
-            thread.setName("work-"+i);
+            thread.setName("work-" + i);
             thread.start();
         }
         start.countDown();
@@ -56,12 +56,11 @@ public class RaceTestCase {
     }
 
 
-
-    private void runValue(Persion persion,String name,AtomicInteger errCount) {
-        OgnlContext context = new OgnlContext(null,null,new DefaultMemberAccess(false));
+    private void runValue(Persion persion, String name, AtomicInteger errCount) {
+        OgnlContext context = new OgnlContext(null, null, new DefaultMemberAccess(false));
         context.setRoot(persion);
         try {
-            Object value =  Ognl.getValue(name, context, context.getRoot());
+            Object value = Ognl.getValue(name, context, context.getRoot());
 //            System.out.println(value);
 
         } catch (OgnlException e) {

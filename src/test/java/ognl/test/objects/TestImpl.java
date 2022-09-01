@@ -8,8 +8,7 @@ import java.util.Map;
  */
 public class TestImpl extends TestClass {
 
-    public Map<String, String> getTheMap()
-    {
+    public Map<String, String> getTheMap() {
         Map<String, String> map = new HashMap();
         map.put("key", "value");
         return map;

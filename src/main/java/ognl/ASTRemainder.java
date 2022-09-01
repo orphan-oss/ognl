@@ -18,8 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
-
 public class ASTRemainder extends NumericExpression {
 
     private static final long serialVersionUID = -7872347798983239086L;

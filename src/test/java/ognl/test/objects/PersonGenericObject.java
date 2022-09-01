@@ -5,13 +5,11 @@ package ognl.test.objects;
  */
 public class PersonGenericObject implements GenericObject {
 
-    public int getId()
-    {
+    public int getId() {
         return 1;
     }
 
-    public String getDisplayName()
-    {
+    public String getDisplayName() {
         return "Henry Collins";
     }
 }

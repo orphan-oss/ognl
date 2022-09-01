@@ -44,13 +44,13 @@ public abstract class OgnlTestCase extends TestCase {
     /*===================================================================
          Public static methods
        ===================================================================*/
+
     /**
      * Returns true if object1 is equal to object2 in either the
      * sense that they are the same object or, if both are non-null
      * if they are equal in the <CODE>equals()</CODE> sense.
      */
-    public static boolean isEqual(Object object1, Object object2)
-    {
+    public static boolean isEqual(Object object1, Object object2) {
         boolean result = false;
 
         if (object1 == object2) {
@@ -75,32 +75,27 @@ public abstract class OgnlTestCase extends TestCase {
     /*===================================================================
          Constructors
        ===================================================================*/
-    public OgnlTestCase()
-    {
+    public OgnlTestCase() {
         super();
     }
 
-    public OgnlTestCase(String name)
-    {
+    public OgnlTestCase(String name) {
         super(name);
     }
 
-    public OgnlTestCase(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult)
-    {
+    public OgnlTestCase(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult) {
         this(name, root, expressionString, expectedResult, setValue);
         this.hasExpectedAfterSetResult = true;
         this.expectedAfterSetResult = expectedAfterSetResult;
     }
 
-    public OgnlTestCase(String name, Object root, String expressionString, Object expectedResult, Object setValue)
-    {
+    public OgnlTestCase(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
         this(name, root, expressionString, expectedResult);
         this.hasSetValue = true;
         this.setValue = setValue;
     }
 
-    public OgnlTestCase(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public OgnlTestCase(String name, Object root, String expressionString, Object expectedResult) {
         this(name);
         this._root = root;
         this._expressionString = expressionString;
@@ -110,44 +105,37 @@ public abstract class OgnlTestCase extends TestCase {
     /*===================================================================
          Public methods
        ===================================================================*/
-    public String getExpressionDump(SimpleNode node)
-    {
+    public String getExpressionDump(SimpleNode node) {
         StringWriter writer = new StringWriter();
 
         node.dump(new PrintWriter(writer), "   ");
         return writer.toString();
     }
 
-    public String getExpressionString()
-    {
+    public String getExpressionString() {
         return _expressionString;
     }
 
     public SimpleNode getExpression()
-            throws Exception
-    {
-        if (_expression == null)
-        {
+            throws Exception {
+        if (_expression == null) {
             _expression = (SimpleNode) Ognl.parseExpression(_expressionString);
         }
 
-        if (_compileExpressions)
-        {
+        if (_compileExpressions) {
             _expression = (SimpleNode) Ognl.compileExpression(_context, _root, _expressionString);
         }
 
         return _expression;
     }
 
-    public Object getExpectedResult()
-    {
+    public Object getExpectedResult() {
         return _expectedResult;
     }
 
-    public static void assertEquals(Object expected, Object actual)
-    {
+    public static void assertEquals(Object expected, Object actual) {
         if (expected != null && expected.getClass().isArray()
-            && actual != null && actual.getClass().isArray()) {
+                && actual != null && actual.getClass().isArray()) {
 
             TestCase.assertEquals(Array.getLength(expected), Array.getLength(actual));
 
@@ -163,8 +151,8 @@ public abstract class OgnlTestCase extends TestCase {
                     OgnlTestCase.assertEquals(aexpected, aactual);
             }
         } else if (expected != null && actual != null
-                   && Character.class.isInstance(expected)
-                   && Character.class.isInstance(actual)) {
+                && Character.class.isInstance(expected)
+                && Character.class.isInstance(actual)) {
 
             TestCase.assertEquals(((Character) expected).charValue(), ((Character) actual).charValue());
         } else {
@@ -176,8 +164,7 @@ public abstract class OgnlTestCase extends TestCase {
     /*===================================================================
          Overridden methods
        ===================================================================*/
-    protected void runTest() throws Exception
-    {
+    protected void runTest() throws Exception {
         Object testedResult = null;
 
         try {
@@ -188,8 +175,7 @@ public abstract class OgnlTestCase extends TestCase {
 
             assertEquals(_expectedResult, Ognl.getValue(expr, _context, _root));
 
-            if (hasSetValue)
-            {
+            if (hasSetValue) {
                 testedResult = hasExpectedAfterSetResult ? expectedAfterSetResult : setValue;
                 Ognl.setValue(expr, _context, _root, setValue);
 
@@ -202,19 +188,17 @@ public abstract class OgnlTestCase extends TestCase {
                 ex.printStackTrace();
 
             if (RuntimeException.class.isInstance(ex) && ((RuntimeException) ex).getCause() != null
-                && Exception.class.isAssignableFrom(((RuntimeException) ex).getCause().getClass()))
+                    && Exception.class.isAssignableFrom(((RuntimeException) ex).getCause().getClass()))
                 ex = (Exception) ((RuntimeException) ex).getCause();
 
-            if (testedResult instanceof Class)
-            {
+            if (testedResult instanceof Class) {
                 assertTrue(Exception.class.isAssignableFrom((Class) testedResult));
             } else
                 throw ex;
         }
     }
 
-    protected void setUp()
-    {
+    protected void setUp() {
         _context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false), null, null);
     }
 }

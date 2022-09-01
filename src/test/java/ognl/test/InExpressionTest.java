@@ -11,8 +11,7 @@ import ognl.OgnlContext;
 public class InExpressionTest extends TestCase {
 
     public void test_String_In()
-            throws Exception
-    {
+            throws Exception {
         OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
         Object node = Ognl.parseExpression("#name in {\"Greenland\", \"Austin\", \"Africa\", \"Rome\"}");
         Object root = null;

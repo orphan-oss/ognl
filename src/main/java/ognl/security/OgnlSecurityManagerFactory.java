@@ -79,7 +79,7 @@ public class OgnlSecurityManagerFactory extends SecureClassLoader {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         int n;
         byte[] buffer = new byte[4096];
-        while(-1 != (n = input.read(buffer))) {
+        while (-1 != (n = input.read(buffer))) {
             output.write(buffer, 0, n);
         }
 

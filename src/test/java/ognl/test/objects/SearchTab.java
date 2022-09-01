@@ -13,15 +13,17 @@ public class SearchTab {
      * Flags stating which search criteria are selected
      */
     private List<List<Boolean>> searchCriteriaSelections = new ArrayList<List<Boolean>>();
+
     {
-        searchCriteriaSelections.add(Arrays.asList(Boolean.TRUE,  Boolean.FALSE, Boolean.FALSE));
-        searchCriteriaSelections.add(Arrays.asList(Boolean.FALSE,  Boolean.TRUE, Boolean.TRUE));
+        searchCriteriaSelections.add(Arrays.asList(Boolean.TRUE, Boolean.FALSE, Boolean.FALSE));
+        searchCriteriaSelections.add(Arrays.asList(Boolean.FALSE, Boolean.TRUE, Boolean.TRUE));
     }
 
-    public List<List<Boolean>> getSearchCriteriaSelections(){
+    public List<List<Boolean>> getSearchCriteriaSelections() {
         return this.searchCriteriaSelections;
     }
-    public void setSearchCriteriaSelections(List<List<Boolean>> selections){
+
+    public void setSearchCriteriaSelections(List<List<Boolean>> selections) {
         this.searchCriteriaSelections = selections;
     }
 
@@ -29,16 +31,17 @@ public class SearchTab {
      * Filters that can be applied to this tabs searches
      */
     private List<SearchCriteria> searchCriteria = new ArrayList<SearchCriteria>();
+
     {
         searchCriteria.add(new SearchCriteria("Crittery critters"));
         searchCriteria.add(new SearchCriteria("Woodland creatures"));
     }
 
-    public List<SearchCriteria> getSearchCriteria(){
+    public List<SearchCriteria> getSearchCriteria() {
         return this.searchCriteria;
     }
 
-    public void setSearchCriteria(List<SearchCriteria> searchCriteria){
+    public void setSearchCriteria(List<SearchCriteria> searchCriteria) {
         this.searchCriteria = searchCriteria;
     }
 

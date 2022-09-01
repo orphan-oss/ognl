@@ -5,12 +5,11 @@ package ognl.test.objects;
 
 
 /**
+ *
  */
-public class FirstBean extends BaseBean
-{
+public class FirstBean extends BaseBean {
 
-    public String getName()
-    {
+    public String getName() {
         return "FirstBean";
     }
 

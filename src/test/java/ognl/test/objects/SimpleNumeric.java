@@ -5,18 +5,15 @@ package ognl.test.objects;
  */
 public class SimpleNumeric {
 
-    public double getBudget()
-    {
+    public double getBudget() {
         return 140;
     }
 
-    public double getTimeBilled()
-    {
+    public double getTimeBilled() {
         return 24.12;
     }
 
-    public String getTableSize()
-    {
+    public String getTableSize() {
         return "10";
     }
 }

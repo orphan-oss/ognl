@@ -18,8 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
-
 public class ASTShiftLeft extends NumericExpression {
 
     private static final long serialVersionUID = 7590620928636478693L;

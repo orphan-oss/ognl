@@ -29,8 +29,7 @@ public class ASTMethodTest extends TestCase {
     }
 
     public void test_Context_Types()
-            throws Throwable
-    {
+            throws Throwable {
         ASTMethod p = new ASTMethod(0);
         p.setMethodName("get");
 
@@ -52,7 +51,7 @@ public class ASTMethodTest extends TestCase {
         assert Map.class.isAssignableFrom(context.getPreviousType());
         assert context.getPreviousAccessor() == null;
 
-        assertEquals(OgnlRuntime.getCompiler().castExpression(context, p, ".get(\"value\")"),  ".get(\"value\")");
+        assertEquals(OgnlRuntime.getCompiler().castExpression(context, p, ".get(\"value\")"), ".get(\"value\")");
         assert context.get(ExpressionCompiler.PRE_CAST) == null;
 
         // now test one context level further to see casting work properly on base object types
@@ -62,7 +61,7 @@ public class ASTMethodTest extends TestCase {
         propRef.setValue("bean3");
         prop.jjtAddChild(propRef, 0);
 
-        Bean2 val = (Bean2)root.getMap().get("value");
+        Bean2 val = (Bean2) root.getMap().get("value");
 
         assertEquals(prop.toGetSourceString(context, root.getMap().get("value")), ".getBean3()");
 

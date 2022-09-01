@@ -7,13 +7,11 @@ public class ComponentSubclass extends ComponentImpl {
 
     int _count = 0;
 
-    public int getCount()
-    {
+    public int getCount() {
         return _count;
     }
 
-    public void setCount(int count)
-    {
+    public void setCount(int count) {
         _count = count;
     }
 }

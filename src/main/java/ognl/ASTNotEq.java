@@ -18,8 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
-
 public class ASTNotEq extends ComparisonExpression {
 
     private static final long serialVersionUID = -8504319639438982233L;

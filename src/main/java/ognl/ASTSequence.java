@@ -18,7 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
 import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OrderedReturn;
 

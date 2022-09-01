@@ -18,7 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
 import ognl.enhance.ExpressionCompiler;
 
 import java.math.BigDecimal;

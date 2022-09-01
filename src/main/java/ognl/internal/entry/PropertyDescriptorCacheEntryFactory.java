@@ -23,9 +23,14 @@ import ognl.OgnlException;
 import ognl.OgnlRuntime;
 import ognl.internal.CacheException;
 
-import java.beans.*;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PropertyDescriptorCacheEntryFactory implements ClassCacheEntryFactory<Map<String, PropertyDescriptor>> {
 

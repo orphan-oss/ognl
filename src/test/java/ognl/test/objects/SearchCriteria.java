@@ -7,13 +7,11 @@ public class SearchCriteria {
 
     String _displayName;
 
-    public SearchCriteria(String name)
-    {
+    public SearchCriteria(String name) {
         _displayName = name;
     }
 
-    public String getDisplayName()
-    {
+    public String getDisplayName() {
         return _displayName;
     }
 }

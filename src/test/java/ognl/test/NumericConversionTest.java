@@ -166,8 +166,7 @@ public class NumericConversionTest extends OgnlTestCase {
     /*===================================================================
          Public static methods
        ===================================================================*/
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
         for (int i = 0; i < TESTS.length; i++) {
@@ -182,10 +181,9 @@ public class NumericConversionTest extends OgnlTestCase {
     /*===================================================================
          Constructors
        ===================================================================*/
-    public NumericConversionTest(Object value, Class toClass, Object expectedValue, int scale)
-    {
+    public NumericConversionTest(Object value, Class toClass, Object expectedValue, int scale) {
         super(value + " [" + value.getClass().getName() + "] -> " + toClass.getName() + " == " + expectedValue
-              + " [" + expectedValue.getClass().getName() + "]" + ((scale >= 0) ? (" (to within " + scale + " decimal places)") : ""));
+                + " [" + expectedValue.getClass().getName() + "]" + ((scale >= 0) ? (" (to within " + scale + " decimal places)") : ""));
         this.value = value;
         this.toClass = toClass;
         this.expectedValue = expectedValue;
@@ -195,8 +193,7 @@ public class NumericConversionTest extends OgnlTestCase {
     /*===================================================================
          Overridden methods
        ===================================================================*/
-    protected void runTest() throws OgnlException
-    {
+    protected void runTest() throws OgnlException {
         Object result;
 
         result = OgnlOps.convertValue(value, toClass);

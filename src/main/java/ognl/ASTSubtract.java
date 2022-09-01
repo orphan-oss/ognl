@@ -18,8 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
-
 public class ASTSubtract extends NumericExpression {
 
     private static final long serialVersionUID = -6236738073110752982L;

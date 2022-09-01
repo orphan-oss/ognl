@@ -18,8 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
-
 public class ASTMultiply extends NumericExpression {
 
     private static final long serialVersionUID = -6495848669307687043L;

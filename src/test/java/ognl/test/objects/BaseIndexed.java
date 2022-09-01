@@ -5,8 +5,7 @@ package ognl.test.objects;
  */
 public class BaseIndexed {
 
-    public Object getLine(int index)
-    {
+    public Object getLine(int index) {
         return "line:" + index;
     }
 }

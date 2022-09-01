@@ -5,23 +5,19 @@ package ognl.test.objects;
  */
 public class GameGenericObject implements GenericObject {
 
-    public GameGenericObject()
-    {
+    public GameGenericObject() {
         super();
     }
 
-    public int getId()
-    {
+    public int getId() {
         return 20;
     }
 
-    public String getDisplayName()
-    {
+    public String getDisplayName() {
         return "Halo 3";
     }
 
-    public String getHappy()
-    {
+    public String getHappy() {
         return "happy";
     }
 }

@@ -30,8 +30,7 @@ import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-public class Performance extends Object
-{
+public class Performance extends Object {
 
     private static int MAX_ITERATIONS = -1;
     private static boolean ITERATIONS_MODE;
@@ -53,26 +52,23 @@ public class Performance extends Object
     private long t1;
 
     /*
-    * =================================================================== Private static classes
-    * ===================================================================
-    */
-    private static class Results
-    {
+     * =================================================================== Private static classes
+     * ===================================================================
+     */
+    private static class Results {
 
         int iterations;
         long time;
         boolean mvel;
 
-        public Results(int iterations, long time, boolean mvel)
-        {
+        public Results(int iterations, long time, boolean mvel) {
             super();
             this.iterations = iterations;
             this.time = time;
             this.mvel = mvel;
         }
 
-        public String getFactor(Results otherResults)
-        {
+        public String getFactor(Results otherResults) {
             String ret = null;
 
             if (TIME_MODE) {
@@ -80,10 +76,10 @@ public class Performance extends Object
 
                 if (iterations < otherResults.iterations) {
                     factor = Math.max((float) otherResults.iterations, (float) iterations)
-                             / Math.min((float) otherResults.iterations, (float) iterations);
+                            / Math.min((float) otherResults.iterations, (float) iterations);
                 } else {
                     factor = Math.min((float) otherResults.iterations, (float) iterations)
-                             / Math.max((float) otherResults.iterations, (float) iterations);
+                            / Math.max((float) otherResults.iterations, (float) iterations);
                 }
 
                 ret = FACTOR_FORMAT.format(factor);
@@ -94,7 +90,7 @@ public class Performance extends Object
 
             } else {
                 float factor = Math.max((float) otherResults.time, (float) time)
-                               / Math.min((float) otherResults.time, (float) time);
+                        / Math.min((float) otherResults.time, (float) time);
 
                 ret = FACTOR_FORMAT.format(factor);
                 if (time < otherResults.time)
@@ -111,9 +107,8 @@ public class Performance extends Object
      * =================================================================== Public static methods
      * ===================================================================
      */
-    public static void main(String[] args)
-    {
-        for(int i = 0; i < args.length; i++) {
+    public static void main(String[] args) {
+        for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-time")) {
                 TIME_MODE = true;
                 MAX_TIME = Long.parseLong(args[++i]);
@@ -128,7 +123,7 @@ public class Performance extends Object
         }
 
         try {
-            Performance[] tests = new Performance[] {
+            Performance[] tests = new Performance[]{
                     new Performance("Constant", "100 + 20 * 5", "testConstantExpression"),
                     //new Performance("Constant", "100 + 20 * 5", "testConstantExpression", false),
                     new Performance("Single Property", "bean2", "testSinglePropertyExpression"),
@@ -136,13 +131,13 @@ public class Performance extends Object
                     /*new Performance("Property Setting with context key", "bean2.bean3.nullValue", "testPropertyNavigationSetting"),
                     new Performance("Property Setting with context key", "bean2.bean3.nullValue", "testPropertyNavigationSetting", true), */
                     new Performance("Property Navigation and Comparison", "bean2.bean3.value <= 24",
-                                    "testPropertyNavigationAndComparisonExpression"),
+                            "testPropertyNavigationAndComparisonExpression"),
                     /* new Performance("Property Navigation with Indexed Access", "bean2.bean3.indexedValue[25]",
                                     "testIndexedPropertyNavigationExpression"),
                     new Performance("Property Navigation with Indexed Access", "bean2.bean3.indexedValue[25]",
                                     "testIndexedPropertyNavigationExpression", true), */
                     new Performance("Property Navigation with Map Access", "bean2.bean3.map['foo']",
-                                    "testPropertyNavigationWithMapExpression"),
+                            "testPropertyNavigationWithMapExpression"),
                     /* new Performance("Property Navigation with Map value set", "bean2.bean3.map['foo']",
                                     "testPropertyNavigationWithMapSetting"),
                     new Performance("Property Navigation with Map value set", "bean2.bean3.map['foo']",
@@ -181,9 +176,8 @@ public class Performance extends Object
     }
 
     static void runTests(Performance[] tests, boolean output)
-            throws Exception
-    {
-        for(int i = 0; i < tests.length; i++) {
+            throws Exception {
+        for (int i = 0; i < tests.length; i++) {
             Performance perf = tests[i];
 
             try {
@@ -199,12 +193,12 @@ public class Performance extends Object
                 System.out.println("       java: " + javaResults.iterations + " iterations in " + javaResults.time + " ms");
 
                 System.out.println("   compiled: " + compiledResults.iterations + " iterations in "
-                                   + compiledResults.time + " ms ("
-                                   + compiledResults.getFactor(javaResults) + "java)");
+                        + compiledResults.time + " ms ("
+                        + compiledResults.getFactor(javaResults) + "java)");
 
                 System.out.println("interpreted: " + interpretedResults.iterations + " iterations in "
-                                   + interpretedResults.time + " ms ("
-                                   + interpretedResults.getFactor(javaResults) + "java)");
+                        + interpretedResults.time + " ms ("
+                        + interpretedResults.getFactor(javaResults) + "java)");
 
                 System.out.println();
 
@@ -215,36 +209,32 @@ public class Performance extends Object
     }
 
     /*
-    * =================================================================== Constructors
-    * ===================================================================
-    */
+     * =================================================================== Constructors
+     * ===================================================================
+     */
     public Performance(String name, String expressionString, String javaMethodName)
-            throws Exception
-    {
+            throws Exception {
         this(name, expressionString, javaMethodName, false);
     }
 
     public Performance(String name, String expressionString, String javaMethodName, boolean mvel)
-            throws Exception
-    {
+            throws Exception {
         _name = name;
         _isMvel = mvel;
         _expressionString = expressionString;
 
         try {
-            _method = getClass().getMethod(javaMethodName, new Class[] {});
+            _method = getClass().getMethod(javaMethodName, new Class[]{});
         } catch (Exception ex) {
             throw new OgnlException("java method not found", ex);
         }
 
-        if (!_isMvel)
-        {
+        if (!_isMvel) {
             _expression = (SimpleNode) Ognl.parseExpression(expressionString);
             _compiledExpression = (SimpleNode) Ognl.compileExpression(_context, _root, expressionString);
             Ognl.getValue(_expression, _context, _root);
             _context.put("contextValue", "cvalue");
-        } else
-        {
+        } else {
             //_mvelCompiled = MVEL.compileExpression(expressionString);
         }
     }
@@ -253,19 +243,16 @@ public class Performance extends Object
      * =================================================================== Protected methods
      * ===================================================================
      */
-    protected void startTest()
-    {
+    protected void startTest() {
         _iterations = 0;
         t0 = t1 = System.currentTimeMillis();
     }
 
-    protected Results endTest()
-    {
+    protected Results endTest() {
         return new Results(_iterations, t1 - t0, _isMvel);
     }
 
-    protected boolean done()
-    {
+    protected boolean done() {
         _iterations++;
         t1 = System.currentTimeMillis();
 
@@ -284,126 +271,112 @@ public class Performance extends Object
      * =================================================================== Public methods
      * ===================================================================
      */
-    public String getName()
-    {
+    public String getName() {
         return _name;
     }
 
-    public String getExpression()
-    {
+    public String getExpression() {
         return _expressionString;
     }
 
     public Results testExpression(boolean compiled)
-            throws Exception
-    {
+            throws Exception {
         startTest();
         do {
-            if (!_isMvel)
-            {
+            if (!_isMvel) {
                 if (compiled)
                     Ognl.getValue(_compiledExpression.getAccessor(), _context, _root);
                 else
                     Ognl.getValue(_expression, _context, _root);
-            } else
-            {
+            } else {
                 /*
                 if (compiled)
                     MVEL.executeExpression(_mvelCompiled, _root);
                 else
                     MVEL.eval(_expressionString, _root);*/
             }
-        } while(!done());
+        } while (!done());
         return endTest();
     }
 
     public Results testJava()
-            throws OgnlException
-    {
+            throws OgnlException {
         try {
-            return (Results) _method.invoke(this, new Object[] {});
+            return (Results) _method.invoke(this, new Object[]{});
         } catch (Exception ex) {
             throw new OgnlException("invoking java method '" + _method.getName() + "'", ex);
         }
     }
 
     public Results testConstantExpression()
-            throws OgnlException
-    {
+            throws OgnlException {
         startTest();
         do {
             int result = 100 + 20 * 5;
-        } while(!done());
+        } while (!done());
         return endTest();
     }
 
     public Results testSinglePropertyExpression()
-            throws OgnlException
-    {
+            throws OgnlException {
         startTest();
         do {
             _root.getBean2();
-        } while(!done());
+        } while (!done());
         return endTest();
     }
 
     public Results testPropertyNavigationExpression()
-            throws OgnlException
-    {
+            throws OgnlException {
         startTest();
         do {
             _root.getBean2().getBean3().getValue();
-        } while(!done());
+        } while (!done());
         return endTest();
     }
 
     public Results testPropertyNavigationSetting()
-            throws OgnlException
-    {
+            throws OgnlException {
         startTest();
         do {
             _root.getBean2().getBean3().setNullValue("a value");
-        } while(!done());
+        } while (!done());
         return endTest();
     }
 
     public Results testPropertyNavigationAndComparisonExpression()
-            throws OgnlException
-    {
+            throws OgnlException {
         startTest();
         do {
             boolean result = _root.getBean2().getBean3().getValue() < 24;
-        } while(!done());
+        } while (!done());
         return endTest();
     }
 
     public Results testIndexedPropertyNavigationExpression()
-            throws OgnlException
-    {
+            throws OgnlException {
         startTest();
         do {
             _root.getBean2().getBean3().getIndexedValue(25);
-        } while(!done());
+        } while (!done());
         return endTest();
     }
 
     public Results testPropertyNavigationWithMapSetting()
-            throws OgnlException
-    {
+            throws OgnlException {
         startTest();
         do {
             _root.getBean2().getBean3().getMap().put("bam", "bam");
-        } while(!done());
+        } while (!done());
         return endTest();
     }
 
     public Results testPropertyNavigationWithMapExpression()
-            throws OgnlException
-    {
+            throws OgnlException {
         startTest();
         do {
             _root.getBean2().getBean3().getMap().get("foo");
-        } while(!done());
+        } while (!done());
         return endTest();
     }
 }

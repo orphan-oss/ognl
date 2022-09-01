@@ -30,81 +30,68 @@ import ognl.OgnlRuntime;
  * This is a test program for public access in OGNL.
  * Shows the failures and a summary.
  */
-public class PublicMemberTest extends TestCase
-{
-    public String                   _publicProperty = "public value";
-    public final String             _publicFinalProperty = "public final value";
-    public static String            _publicStaticProperty = "public static value";
-    public static final String      _publicStaticFinalProperty  = "public static final value";
-    protected OgnlContext           context;
+public class PublicMemberTest extends TestCase {
+    public String _publicProperty = "public value";
+    public final String _publicFinalProperty = "public final value";
+    public static String _publicStaticProperty = "public static value";
+    public static final String _publicStaticFinalProperty = "public static final value";
+    protected OgnlContext context;
 
 
     /*===================================================================
       Public static methods
       ===================================================================*/
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         return new TestSuite(PublicMemberTest.class);
     }
 
     /*===================================================================
       Constructors
       ===================================================================*/
-    public PublicMemberTest(String name)
-    {
+    public PublicMemberTest(String name) {
         super(name);
     }
 
     /*===================================================================
       Public methods
       ===================================================================*/
-    public String getPublicProperty()
-    {
+    public String getPublicProperty() {
         return _publicProperty;
     }
 
-    public String getPublicFinalProperty()
-    {
+    public String getPublicFinalProperty() {
         return _publicFinalProperty;
     }
 
-    public static String getPublicStaticProperty()
-    {
+    public static String getPublicStaticProperty() {
         return _publicStaticProperty;
     }
 
-    public static String getPublicStaticFinalProperty()
-    {
+    public static String getPublicStaticFinalProperty() {
         return _publicStaticFinalProperty;
     }
 
-    public void testPublicAccessor() throws OgnlException
-    {
+    public void testPublicAccessor() throws OgnlException {
         assertEquals(Ognl.getValue("publicProperty", context, this), getPublicProperty());
     }
 
-    public void testPublicField() throws OgnlException
-    {
+    public void testPublicField() throws OgnlException {
         assertEquals(Ognl.getValue("_publicProperty", context, this), _publicProperty);
     }
 
-    public void testPublicFinalAccessor() throws OgnlException
-    {
+    public void testPublicFinalAccessor() throws OgnlException {
         assertEquals(Ognl.getValue("publicFinalProperty", context, this), getPublicFinalProperty());
     }
 
-    public void testPublicFinalField() throws OgnlException
-    {
+    public void testPublicFinalField() throws OgnlException {
         assertEquals(Ognl.getValue("_publicFinalProperty", context, this), _publicFinalProperty);
     }
 
-    public void testPublicStaticAccessor() throws OgnlException
-    {
+    public void testPublicStaticAccessor() throws OgnlException {
         assertEquals(Ognl.getValue("publicStaticProperty", context, this), getPublicStaticProperty());
     }
 
-    public void testPublicStaticFieldNormalAccessFail() throws OgnlException
-    {
+    public void testPublicStaticFieldNormalAccessFail() throws OgnlException {
         try {
             assertEquals(Ognl.getValue("_publicStaticProperty", context, this), _publicStaticProperty);
             fail("Should not be able to access public static _publicStaticProperty through getValue()");
@@ -113,18 +100,15 @@ public class PublicMemberTest extends TestCase
         }
     }
 
-    public void testPublicStaticFieldStaticAccess() throws OgnlException
-    {
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_publicStaticProperty"), _publicStaticProperty);
+    public void testPublicStaticFieldStaticAccess() throws OgnlException {
+        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_publicStaticProperty"), _publicStaticProperty);
     }
 
-    public void testPublicStaticFinalAccessor() throws OgnlException
-    {
+    public void testPublicStaticFinalAccessor() throws OgnlException {
         assertEquals(Ognl.getValue("publicStaticFinalProperty", context, this), getPublicStaticFinalProperty());
     }
 
-    public void testPublicStaticFinalFieldNormalAccessFail() throws OgnlException
-    {
+    public void testPublicStaticFinalFieldNormalAccessFail() throws OgnlException {
         try {
             assertEquals(Ognl.getValue("_publicStaticFinalProperty", context, this), _publicStaticFinalProperty);
             fail("Should not be able to access public static _publicStaticFinalProperty through getValue()");
@@ -133,13 +117,11 @@ public class PublicMemberTest extends TestCase
         }
     }
 
-    public void testPublicStaticFinalFieldStaticAccess() throws OgnlException
-    {
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_publicStaticFinalProperty"), _publicStaticFinalProperty);
+    public void testPublicStaticFinalFieldStaticAccess() throws OgnlException {
+        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_publicStaticFinalProperty"), _publicStaticFinalProperty);
     }
 
-    public void testPublicFieldSet() throws OgnlException
-    {
+    public void testPublicFieldSet() throws OgnlException {
         final String originalValue = _publicProperty;
         assertEquals(Ognl.getValue("_publicProperty", context, this), originalValue);
         Ognl.setValue("_publicProperty", context, this, "changevalue");
@@ -148,8 +130,7 @@ public class PublicMemberTest extends TestCase
         assertEquals(Ognl.getValue("_publicProperty", context, this), originalValue);
     }
 
-    public void testPublicFinalFieldSet() throws OgnlException
-    {
+    public void testPublicFinalFieldSet() throws OgnlException {
         final String originalValue = _publicFinalProperty;
         assertEquals(Ognl.getValue("_publicFinalProperty", context, this), originalValue);
         try {
@@ -161,37 +142,34 @@ public class PublicMemberTest extends TestCase
         assertEquals(Ognl.getValue("_publicFinalProperty", context, this), originalValue);
     }
 
-    public void testPublicStaticFieldSet() throws OgnlException
-    {
+    public void testPublicStaticFieldSet() throws OgnlException {
         final String originalValue = _publicStaticProperty;
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_publicStaticProperty"), originalValue);
+        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_publicStaticProperty"), originalValue);
         try {
             Ognl.setValue("_publicStaticProperty", context, this, "changevalue");
             fail("Should not be able to modify static property");
         } catch (OgnlException oex) {
             // Fails as test attempts to modify a static property
         }
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_publicStaticProperty"), originalValue);
+        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_publicStaticProperty"), originalValue);
     }
 
-    public void testPublicStaticFinalFieldSet() throws OgnlException
-    {
+    public void testPublicStaticFinalFieldSet() throws OgnlException {
         final String originalValue = _publicStaticFinalProperty;
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_publicStaticFinalProperty"), originalValue);
+        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_publicStaticFinalProperty"), originalValue);
         try {
             Ognl.setValue("_publicStaticFinalProperty", context, this, "changevalue");
             fail("Should not be able to modify static property");
         } catch (OgnlException oex) {
             // Fails as test attempts to modify a static property
         }
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName() , "_publicStaticFinalProperty"), originalValue);
+        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_publicStaticFinalProperty"), originalValue);
     }
 
     /*===================================================================
       Overridden methods
       ===================================================================*/
-    public void setUp()
-    {
-          context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent non-public access
+    public void setUp() {
+        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, false, false), null, null);  // Prevent non-public access
     }
 }

@@ -18,51 +18,42 @@
  */
 package ognl.test.objects;
 
-public class Bean2 extends Object
-{
-    private Bean3       bean3 = new Bean3();
+public class Bean2 extends Object {
+    private Bean3 bean3 = new Bean3();
 
     private boolean _pageBreakAfter = false;
 
     public String code = "code";
 
-    public Long getId()
-    {
+    public Long getId() {
         return 1l;
     }
 
-    public Bean3 getBean3()
-    {
+    public Bean3 getBean3() {
         return bean3;
     }
 
-    public long getMillis()
-    {
+    public long getMillis() {
         return 1000 * 60 * 2;
     }
 
-    public boolean isCarrier()
-    {
+    public boolean isCarrier() {
         return false;
     }
 
-    public boolean isPageBreakAfter()
-    {
+    public boolean isPageBreakAfter() {
         return _pageBreakAfter;
     }
 
-    public void setPageBreakAfter(boolean value)
-    {
+    public void setPageBreakAfter(boolean value) {
         _pageBreakAfter = value;
     }
 
-    public void togglePageBreakAfter()
-    {
+    public void togglePageBreakAfter() {
         _pageBreakAfter ^= true;
     }
 
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -73,8 +64,7 @@ public class Bean2 extends Object
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return (_pageBreakAfter ? 1 : 0);
     }
 }

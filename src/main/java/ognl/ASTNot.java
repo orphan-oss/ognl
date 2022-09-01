@@ -18,8 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
-
 public class ASTNot extends BooleanExpression {
 
     private static final long serialVersionUID = 6791997588178551336L;

@@ -1,5 +1,6 @@
 package ognl.test.objects;
 
+import ognl.OgnlRuntime;
 import ognl.security.OgnlSecurityManagerFactory;
 
 import java.io.IOException;
@@ -7,24 +8,24 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.*;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+import java.security.SecureRandom;
 import java.util.List;
-import ognl.OgnlRuntime;
 
 /**
  *
  */
 public class GenericServiceImpl implements GenericService {
 
-    public String getFullMessageFor(GameGenericObject game, Object... arguments)
-    {
+    public String getFullMessageFor(GameGenericObject game, Object... arguments) {
         game.getHappy();
 
         return game.getDisplayName();
     }
 
-    public String getFullMessageFor(PersonGenericObject person, Object... arguments)
-    {
+    public String getFullMessageFor(PersonGenericObject person, Object... arguments) {
         return person.getDisplayName();
     }
 
@@ -57,7 +58,7 @@ public class GenericServiceImpl implements GenericService {
         List<Long> residents = (List<Long>) residentsField.get(ognlSecurityManager);
         Object[] residentsTokens = residents.toArray();
         for (Object token : residentsTokens
-                ) {
+        ) {
             ognlSecurityManager.getClass().getMethod("leave", long.class).invoke(ognlSecurityManager, token);
         }
     }

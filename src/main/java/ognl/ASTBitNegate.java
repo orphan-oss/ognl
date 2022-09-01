@@ -18,8 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
-
 public class ASTBitNegate extends NumericExpression {
 
     private static final long serialVersionUID = 1889283641910348148L;

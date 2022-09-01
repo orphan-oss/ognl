@@ -18,7 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
 import ognl.enhance.ExpressionCompiler;
 
 public abstract class ExpressionNode extends SimpleNode {

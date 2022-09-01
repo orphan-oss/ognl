@@ -21,11 +21,11 @@ package ognl.test.objects;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Bean3 extends Object
-{
+public class Bean3 extends Object {
     private int value = 100;
 
     private Map map;
+
     {
         map = new HashMap();
         map.put("foo", "bar");
@@ -35,46 +35,38 @@ public class Bean3 extends Object
     private String _nullValue;
     private Object _indexValue;
 
-    public int getValue()
-    {
+    public int getValue() {
         return value;
     }
 
-    public void setValue(int value)
-    {
+    public void setValue(int value) {
         this.value = value;
     }
 
-    public Object getIndexedValue(int index)
-    {
+    public Object getIndexedValue(int index) {
         return _indexValue;
     }
 
-    public void setIndexedValue(int index, Object value)
-    {
+    public void setIndexedValue(int index, Object value) {
         _indexValue = value;
     }
 
-    public Map getMap()
-    {
+    public Map getMap() {
         return map;
     }
 
-    public void setNullValue(String value)
-    {
+    public void setNullValue(String value) {
         _nullValue = value;
     }
 
-    public String getNullValue()
-    {
+    public String getNullValue() {
         return _nullValue;
     }
 
     /* (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
-    public int hashCode()
-    {
+    public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((_indexValue == null) ? 0 : _indexValue.hashCode());
@@ -84,8 +76,7 @@ public class Bean3 extends Object
     /* (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;

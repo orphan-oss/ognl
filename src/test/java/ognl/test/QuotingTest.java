@@ -20,34 +20,32 @@ package ognl.test;
 
 import junit.framework.TestSuite;
 
-public class QuotingTest extends OgnlTestCase
-{
+public class QuotingTest extends OgnlTestCase {
     private static Object[][] TESTS = {
             // Quoting
-            { null, "`c`", new Character('c') },
-            { null, "'s'", new Character('s') },
-            { null, "'string'", "string" },
-            { null, "\"string\"", "string" },
-            { null, "'' + 'bar'", "bar"},
-            { null, "'yyyy年MM月dd日'", "yyyy年MM月dd日"}
+            {null, "`c`", new Character('c')},
+            {null, "'s'", new Character('s')},
+            {null, "'string'", "string"},
+            {null, "\"string\"", "string"},
+            {null, "'' + 'bar'", "bar"},
+            {null, "'yyyy年MM月dd日'", "yyyy年MM月dd日"}
     };
 
     /*===================================================================
          Public static methods
        ===================================================================*/
-    public static TestSuite suite()
-    {
-        TestSuite       result = new TestSuite();
+    public static TestSuite suite() {
+        TestSuite result = new TestSuite();
 
         for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
-                result.addTest(new QuotingTest((String)TESTS[i][1], TESTS[i][0], (String)TESTS[i][1], TESTS[i][2]));
+                result.addTest(new QuotingTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
             } else {
                 if (TESTS[i].length == 4) {
-                    result.addTest(new QuotingTest((String)TESTS[i][1], TESTS[i][0], (String)TESTS[i][1], TESTS[i][2], TESTS[i][3]));
+                    result.addTest(new QuotingTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
                 } else {
                     if (TESTS[i].length == 5) {
-                        result.addTest(new QuotingTest((String)TESTS[i][1], TESTS[i][0], (String)TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
+                        result.addTest(new QuotingTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
                     } else {
                         throw new RuntimeException("don't understand TEST format");
                     }
@@ -60,28 +58,23 @@ public class QuotingTest extends OgnlTestCase
     /*===================================================================
          Constructors
        ===================================================================*/
-    public QuotingTest()
-    {
+    public QuotingTest() {
         super();
     }
 
-    public QuotingTest(String name)
-    {
+    public QuotingTest(String name) {
         super(name);
     }
 
-    public QuotingTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult)
-    {
+    public QuotingTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
-    public QuotingTest(String name, Object root, String expressionString, Object expectedResult, Object setValue)
-    {
+    public QuotingTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public QuotingTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public QuotingTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 }

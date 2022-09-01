@@ -42,8 +42,7 @@ public class OperatorTest extends OgnlTestCase {
     /*===================================================================
         Public static methods
       ===================================================================*/
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
         for (int i = 0; i < TESTS.length; i++) {
@@ -67,28 +66,23 @@ public class OperatorTest extends OgnlTestCase {
     /*===================================================================
         Constructors
       ===================================================================*/
-    public OperatorTest()
-    {
+    public OperatorTest() {
         super();
     }
 
-    public OperatorTest(String name)
-    {
+    public OperatorTest(String name) {
         super(name);
     }
 
-    public OperatorTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult)
-    {
+    public OperatorTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
-    public OperatorTest(String name, Object root, String expressionString, Object expectedResult, Object setValue)
-    {
+    public OperatorTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public OperatorTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public OperatorTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 }

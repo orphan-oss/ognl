@@ -18,13 +18,12 @@
  */
 package ognl.test.objects;
 
-import java.util.*;
+import java.util.Map;
 
 /**
-	This tests the interface inheritence test.  This is a subinterface
-	of Map and therefore should inherit the Map property accessor.
+ * This tests the interface inheritence test.  This is a subinterface
+ * of Map and therefore should inherit the Map property accessor.
  */
-public interface MyMap extends Map
-{
-	public String getDescription();
+public interface MyMap extends Map {
+    public String getDescription();
 }

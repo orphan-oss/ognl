@@ -5,8 +5,7 @@ package ognl.test.objects;
  */
 public class TestInherited2 implements Inherited {
 
-    public String getMyString()
-    {
+    public String getMyString() {
         return "inherited2";
     }
 }

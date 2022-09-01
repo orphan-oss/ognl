@@ -8,8 +8,7 @@ import java.util.List;
  */
 public abstract class BaseSyntheticObject {
 
-    protected List getList()
-    {
+    protected List getList() {
         return new ArrayList();
     }
 }

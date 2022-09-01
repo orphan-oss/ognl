@@ -46,8 +46,7 @@ public class PrimitiveArrayTest extends OgnlTestCase {
     /*===================================================================
          Public static methods
        ===================================================================*/
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
         for (int i = 0; i < TESTS.length; i++) {
@@ -71,28 +70,23 @@ public class PrimitiveArrayTest extends OgnlTestCase {
     /*===================================================================
          Constructors
        ===================================================================*/
-    public PrimitiveArrayTest()
-    {
+    public PrimitiveArrayTest() {
         super();
     }
 
-    public PrimitiveArrayTest(String name)
-    {
+    public PrimitiveArrayTest(String name) {
         super(name);
     }
 
-    public PrimitiveArrayTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult)
-    {
+    public PrimitiveArrayTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
-    public PrimitiveArrayTest(String name, Object root, String expressionString, Object expectedResult, Object setValue)
-    {
+    public PrimitiveArrayTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public PrimitiveArrayTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public PrimitiveArrayTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 }

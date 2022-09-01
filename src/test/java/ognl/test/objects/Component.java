@@ -18,56 +18,45 @@
  */
 package ognl.test.objects;
 
-public class Component extends Object
-{
-    private URLStorage          toDisplay = new URLStorage();
-    private Page                page = new Page();
+public class Component extends Object {
+    private URLStorage toDisplay = new URLStorage();
+    private Page page = new Page();
 
-    public static class URLStorage extends Object
-    {
-        private String          pictureUrl = "http://www.picturespace.com/pictures/100";
+    public static class URLStorage extends Object {
+        private String pictureUrl = "http://www.picturespace.com/pictures/100";
 
-        public String getPictureUrl()
-        {
+        public String getPictureUrl() {
             return pictureUrl;
         }
 
-        public void setPictureUrl(String value)
-        {
+        public void setPictureUrl(String value) {
             pictureUrl = value;
         }
     }
 
-    public static class Page extends Object
-    {
-        public Object createRelativeAsset(String value)
-        {
+    public static class Page extends Object {
+        public Object createRelativeAsset(String value) {
             return "/toplevel/" + value;
         }
     }
 
-    public Component()
-    {
+    public Component() {
         super();
     }
 
-    public Page getPage()
-    {
+    public Page getPage() {
         return page;
     }
 
-    public void setPage(Page value)
-    {
+    public void setPage(Page value) {
         page = value;
     }
 
-    public URLStorage getToDisplay()
-    {
+    public URLStorage getToDisplay() {
         return toDisplay;
     }
 
-    public void setToDisplay(URLStorage value)
-    {
+    public void setToDisplay(URLStorage value) {
         toDisplay = value;
     }
 }

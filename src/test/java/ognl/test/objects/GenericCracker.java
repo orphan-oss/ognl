@@ -7,13 +7,11 @@ public class GenericCracker implements Cracker<Integer> {
 
     Integer _param;
 
-    public Integer getParam()
-    {
+    public Integer getParam() {
         return _param;
     }
 
-    public void setParam(Integer param)
-    {
+    public void setParam(Integer param) {
         _param = param;
     }
 }

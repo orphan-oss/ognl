@@ -66,8 +66,7 @@ public class MapCreationTest extends OgnlTestCase {
      * =================================================================== Public static methods
      * ===================================================================
      */
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
         for (int i = 0; i < TESTS.length; i++) {
@@ -96,29 +95,24 @@ public class MapCreationTest extends OgnlTestCase {
      * =================================================================== Constructors
      * ===================================================================
      */
-    public MapCreationTest()
-    {
+    public MapCreationTest() {
         super();
     }
 
-    public MapCreationTest(String name)
-    {
+    public MapCreationTest(String name) {
         super(name);
     }
 
     public MapCreationTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-                           Object expectedAfterSetResult)
-    {
+                           Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
-    public MapCreationTest(String name, Object root, String expressionString, Object expectedResult, Object setValue)
-    {
+    public MapCreationTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public MapCreationTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public MapCreationTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 }

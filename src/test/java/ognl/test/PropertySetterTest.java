@@ -48,6 +48,7 @@ public class PropertySetterTest extends TestCase {
     public Map getMap() {
         return map;
     }
+
     public String getKey() {
         return "key";
     }
@@ -65,16 +66,16 @@ public class PropertySetterTest extends TestCase {
     }
 
     public void testEnhancedOgnl() throws Exception {
-        OgnlContext context = (OgnlContext)Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
         Node expression = Ognl.compileExpression(context, this, "interfaceObject.property");
         Ognl.setValue(expression, context, this, "hello");
-        assertEquals("hello", getObject().getProperty() );
+        assertEquals("hello", getObject().getProperty());
 
         // Fails if an interface is defined, but succeeds if not
         context.clear();
 
         expression = Ognl.compileExpression(context, this.getObject(), "property");
         Ognl.setValue(expression, context, this.getObject(), "hello");
-        assertEquals("hello", getObject().getProperty() );
+        assertEquals("hello", getObject().getProperty());
     }
 }

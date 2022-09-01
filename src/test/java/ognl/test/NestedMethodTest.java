@@ -21,27 +21,25 @@ package ognl.test;
 import junit.framework.TestSuite;
 import ognl.test.objects.Component;
 
-public class NestedMethodTest extends OgnlTestCase
-{
+public class NestedMethodTest extends OgnlTestCase {
 
     private static Component COMPONENT = new Component();
 
     private static Object[][] TESTS = {
             // Expression in a method call argument
-           { COMPONENT, "toDisplay.pictureUrl", COMPONENT.getToDisplay().getPictureUrl() },
-            { COMPONENT, "page.createRelativeAsset(toDisplay.pictureUrl)",
-                    COMPONENT.getPage().createRelativeAsset(COMPONENT.getToDisplay().getPictureUrl()) },
-                    };
+            {COMPONENT, "toDisplay.pictureUrl", COMPONENT.getToDisplay().getPictureUrl()},
+            {COMPONENT, "page.createRelativeAsset(toDisplay.pictureUrl)",
+                    COMPONENT.getPage().createRelativeAsset(COMPONENT.getToDisplay().getPictureUrl())},
+    };
 
     /*
      * =================================================================== Public static methods
      * ===================================================================
      */
-    public static TestSuite suite()
-    {
+    public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
-        for(int i = 0; i < TESTS.length; i++) {
+        for (int i = 0; i < TESTS.length; i++) {
             if (TESTS[i].length == 3) {
                 result.addTest(new NestedMethodTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
                         TESTS[i][2]));
@@ -66,29 +64,24 @@ public class NestedMethodTest extends OgnlTestCase
      * =================================================================== Constructors
      * ===================================================================
      */
-    public NestedMethodTest()
-    {
+    public NestedMethodTest() {
         super();
     }
 
-    public NestedMethodTest(String name)
-    {
+    public NestedMethodTest(String name) {
         super(name);
     }
 
     public NestedMethodTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-            Object expectedAfterSetResult)
-    {
+                            Object expectedAfterSetResult) {
         super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
     }
 
-    public NestedMethodTest(String name, Object root, String expressionString, Object expectedResult, Object setValue)
-    {
+    public NestedMethodTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
         super(name, root, expressionString, expectedResult, setValue);
     }
 
-    public NestedMethodTest(String name, Object root, String expressionString, Object expectedResult)
-    {
+    public NestedMethodTest(String name, Object root, String expressionString, Object expectedResult) {
         super(name, root, expressionString, expectedResult);
     }
 }

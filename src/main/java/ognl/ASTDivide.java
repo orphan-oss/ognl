@@ -18,8 +18,6 @@
  */
 package ognl;
 
-import ognl.OgnlParser;
-
 public class ASTDivide extends NumericExpression {
 
     private static final long serialVersionUID = 3154412889742069891L;
