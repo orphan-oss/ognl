@@ -101,7 +101,7 @@ public class ObjectIndexedPropertyDescriptor extends PropertyDescriptor {
         return indexedWriteMethod;
     }
 
-    public Class<?> getPropertyType() {
+    public synchronized Class<?> getPropertyType() {
         return propertyType;
     }
 }
