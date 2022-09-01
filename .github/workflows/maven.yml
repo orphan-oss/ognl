@@ -28,7 +28,7 @@ jobs:
       matrix:
         java: [ '8', '11', '17' ]
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3.0.2
       - uses: actions/cache@v3.0.8
         with:
           path: ~/.m2/repository
