@@ -22,9 +22,6 @@ package ognl;
  * Interface for handling null results from Chains.
  * Object has the opportunity to substitute an object for the
  * null and continue.
- *
- * @author Luke Blanshard (blanshlu@netscape.net)
- * @author Drew Davidson (drew@ognl.org)
  */
 public interface NullHandler {
     /**

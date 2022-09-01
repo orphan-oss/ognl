@@ -70,9 +70,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * <li>Core runtime configuration point for setting/using global {@link TypeConverter} / {@link OgnlExpressionCompiler} /
  * {@link NullHandler} instances / etc.. </li>
  * </ul>
- *
- * @author Luke Blanshard (blanshlu@netscape.net)
- * @author Drew Davidson (drew@ognl.org)
  */
 public class OgnlRuntime {
 
