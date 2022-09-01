@@ -4,7 +4,11 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    reviewers:
+      - "lukaszlenart"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
       interval: "weekly"
+    reviewers:
+      - "lukaszlenart"
