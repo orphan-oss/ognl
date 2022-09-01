@@ -1,13 +1,32 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * and/or LICENSE file distributed with this work for additional
+ * information regarding copyright ownership.  The ASF licenses
+ * this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package ognl.security;
 
 import java.io.FilePermission;
-import java.security.*;
+import java.security.Permission;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Wraps current security manager with JDK security manager if is inside OgnlRuntime user's methods body execution.
- *
+ * <p>
  * Add the `-Dognl.security.manager` to JVM options to enable.
  *
  * <p> Note: Due to potential performance and concurrency issues, try this only if you afraid your app can have an
@@ -20,26 +39,26 @@ import java.util.List;
  * also honors previous security manager and policies if any set, as parent, and rolls back to them after method
  * execution finished.</p>
  *
- * @author Yasser Zamani
  * @since 3.1.24
  */
 public class OgnlSecurityManager extends SecurityManager {
+
     private static final String OGNL_SANDBOX_CLASS_NAME = "ognl.security.UserMethod";
     private static final Class<?> CLASS_LOADER_CLASS = ClassLoader.class;
     private static final Class<?> FILE_PERMISSION_CLASS = FilePermission.class;
 
-    private SecurityManager parentSecurityManager;
-    private List<Long> residents = new ArrayList<Long>();
-    private SecureRandom rnd = new SecureRandom();
+    private final SecurityManager parentSecurityManager;
+    private final List<Long> residents = new ArrayList<>();
+    private final SecureRandom rnd = new SecureRandom();
 
     public OgnlSecurityManager(SecurityManager parentSecurityManager) {
         this.parentSecurityManager = parentSecurityManager;
     }
 
     private boolean isAccessDenied(Permission perm) {
-        Class[] classContext = getClassContext();
+        Class<?>[] classContext = getClassContext();
         Boolean isInsideClassLoader = null;
-        for (Class c : classContext) {
+        for (Class<?> c : classContext) {
             if (isInsideClassLoader == null && CLASS_LOADER_CLASS.isAssignableFrom(c)) {
                 if (FILE_PERMISSION_CLASS.equals(perm.getClass()) && "read".equals(perm.getActions())) {
                     // TODO: might be risky but we have to - fix it if any POC discovered

@@ -47,15 +47,14 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 
 public class OgnlExpression {
-    
+
     private Object expression;
 
     public OgnlExpression(String expressionString) throws OgnlException {
         expression = Ognl.parseExpression(expressionString);
     }
 
-    public Object getExpression()
-    {
+    public Object getExpression() {
         return expression;
     }
 

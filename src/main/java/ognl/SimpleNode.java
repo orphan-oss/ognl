@@ -1,33 +1,21 @@
-// --------------------------------------------------------------------------
-// Copyright (c) 1998-2004, Drew Davidson and Luke Blanshard
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-// Redistributions of source code must retain the above copyright notice,
-// this list of conditions and the following disclaimer.
-// Redistributions in binary form must reproduce the above copyright
-// notice, this list of conditions and the following disclaimer in the
-// documentation and/or other materials provided with the distribution.
-// Neither the name of the Drew Davidson nor the names of its contributors
-// may be used to endorse or promote products derived from this software
-// without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-// AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
-// DAMAGE.
-// --------------------------------------------------------------------------
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package ognl;
 
 import ognl.enhance.ExpressionAccessor;
@@ -35,72 +23,61 @@ import ognl.enhance.ExpressionAccessor;
 import java.io.PrintWriter;
 import java.io.Serializable;
 
-/**
- * @author Luke Blanshard (blanshlu@netscape.net)
- * @author Drew Davidson (drew@ognl.org)
- */
 public abstract class SimpleNode implements Node, Serializable {
 
-    protected Node _parent;
-    protected Node[] _children;
-    protected int _id;
-    protected OgnlParser _parser;
+    private static final long serialVersionUID = 996864654828982683L;
 
-    private boolean _constantValueCalculated;
-    private volatile boolean _hasConstantValue;
-    private Object _constantValue;
+    protected Node parent;
+    protected Node[] children;
+    protected int id;
+    protected OgnlParser parser;
 
-    private ExpressionAccessor _accessor;
+    private boolean constantValueCalculated;
+    private volatile boolean hasConstantValue;
+    private Object constantValue;
 
-    public SimpleNode(int i)
-    {
-        _id = i;
+    private ExpressionAccessor expressionAccessor;
+
+    public SimpleNode(int i) {
+        id = i;
     }
 
-    public SimpleNode(OgnlParser p, int i)
-    {
+    public SimpleNode(OgnlParser p, int i) {
         this(i);
-        _parser = p;
+        parser = p;
     }
 
-    public void jjtOpen()
-    {
+    public void jjtOpen() {
     }
 
-    public void jjtClose()
-    {
+    public void jjtClose() {
     }
 
-    public void jjtSetParent(Node n)
-    {
-        _parent = n;
+    public void jjtSetParent(Node n) {
+        parent = n;
     }
 
-    public Node jjtGetParent()
-    {
-        return _parent;
+    public Node jjtGetParent() {
+        return parent;
     }
 
-    public void jjtAddChild(Node n, int i)
-    {
-        if (_children == null) {
-            _children = new Node[i + 1];
-        } else if (i >= _children.length) {
-            Node c[] = new Node[i + 1];
-            System.arraycopy(_children, 0, c, 0, _children.length);
-            _children = c;
+    public void jjtAddChild(Node n, int i) {
+        if (children == null) {
+            children = new Node[i + 1];
+        } else if (i >= children.length) {
+            Node[] c = new Node[i + 1];
+            System.arraycopy(children, 0, c, 0, children.length);
+            children = c;
         }
-        _children[i] = n;
+        children[i] = n;
     }
 
-    public Node jjtGetChild(int i)
-    {
-        return _children[i];
+    public Node jjtGetChild(int i) {
+        return children[i];
     }
 
-    public int jjtGetNumChildren()
-    {
-        return (_children == null) ? 0 : _children.length;
+    public int jjtGetNumChildren() {
+        return (children == null) ? 0 : children.length;
     }
 
     /*
@@ -109,120 +86,100 @@ public abstract class SimpleNode implements Node, Serializable {
      * toString(String), otherwise overriding toString() is probably all you need to do.
      */
 
-    public String toString()
-    {
-        return OgnlParserTreeConstants.jjtNodeName[_id];
+    public String toString() {
+        return OgnlParserTreeConstants.jjtNodeName[id];
     }
 
     // OGNL additions
 
-    public String toString(String prefix)
-    {
-        return prefix + OgnlParserTreeConstants.jjtNodeName[_id] + " " + toString();
+    public String toString(String prefix) {
+        return prefix + OgnlParserTreeConstants.jjtNodeName[id] + " " + this;
     }
 
-    public String toGetSourceString(OgnlContext context, Object target)
-    {
+    public String toGetSourceString(OgnlContext context, Object target) {
         return toString();
     }
 
-    public String toSetSourceString(OgnlContext context, Object target)
-    {
+    public String toSetSourceString(OgnlContext context, Object target) {
         return toString();
     }
 
     /*
-    * Override this method if you want to customize how the node dumps out its children.
-    */
+     * Override this method if you want to customize how the node dumps out its children.
+     */
 
-    public void dump(PrintWriter writer, String prefix)
-    {
+    public void dump(PrintWriter writer, String prefix) {
         writer.println(toString(prefix));
 
-        if (_children != null)
-        {
-            for (int i = 0; i < _children.length; ++i)
-            {
-                SimpleNode n = (SimpleNode) _children[i];
-                if (n != null)
-                {
+        if (children != null) {
+            for (Node child : children) {
+                SimpleNode n = (SimpleNode) child;
+                if (n != null) {
                     n.dump(writer, prefix + "  ");
                 }
             }
         }
     }
 
-    public int getIndexInParent()
-    {
+    public int getIndexInParent() {
         int result = -1;
 
-        if (_parent != null)
-        {
-            int icount = _parent.jjtGetNumChildren();
+        if (parent != null) {
+            int icount = parent.jjtGetNumChildren();
 
-            for (int i = 0; i < icount; i++)
-            {
-                if (_parent.jjtGetChild(i) == this)
-                {
+            for (int i = 0; i < icount; i++) {
+                if (parent.jjtGetChild(i) == this) {
                     result = i;
                     break;
                 }
             }
         }
-        
+
         return result;
     }
 
-    public Node getNextSibling()
-    {
+    public Node getNextSibling() {
         Node result = null;
         int i = getIndexInParent();
 
-        if (i >= 0)
-        {
-            int icount = _parent.jjtGetNumChildren();
+        if (i >= 0) {
+            int icount = parent.jjtGetNumChildren();
 
-            if (i < icount)
-            {
-                result = _parent.jjtGetChild(i + 1);
+            if (i < icount) {
+                result = parent.jjtGetChild(i + 1);
             }
         }
         return result;
     }
 
     protected Object evaluateGetValueBody(OgnlContext context, Object source)
-            throws OgnlException
-    {
+            throws OgnlException {
         context.setCurrentObject(source);
         context.setCurrentNode(this);
 
-        if (!_constantValueCalculated)
-        {
-            _constantValueCalculated = true;
+        if (!constantValueCalculated) {
+            constantValueCalculated = true;
             boolean constant = isConstant(context);
 
-            if (constant)
-            {
-                _constantValue = getValueBody(context, source);
+            if (constant) {
+                constantValue = getValueBody(context, source);
             }
 
-            _hasConstantValue = constant;
+            hasConstantValue = constant;
         }
 
-        return _hasConstantValue ? _constantValue : getValueBody(context, source);
+        return hasConstantValue ? constantValue : getValueBody(context, source);
     }
 
     protected void evaluateSetValueBody(OgnlContext context, Object target, Object value)
-            throws OgnlException
-    {
+            throws OgnlException {
         context.setCurrentObject(target);
         context.setCurrentNode(this);
         setValueBody(context, target, value);
     }
 
     public final Object getValue(OgnlContext context, Object source)
-            throws OgnlException
-    {
+            throws OgnlException {
         Object result = null;
 
         if (context.getTraceEvaluations()) {
@@ -234,12 +191,7 @@ public abstract class SimpleNode implements Node, Serializable {
             context.pushEvaluation(evaluation);
             try {
                 result = evaluateGetValueBody(context, source);
-            }
-            catch (OgnlException ex) {
-                evalException = ex;
-                throw ex;
-            }
-            catch (RuntimeException ex) {
+            } catch (OgnlException | RuntimeException ex) {
                 evalException = ex;
                 throw ex;
             } finally {
@@ -248,10 +200,6 @@ public abstract class SimpleNode implements Node, Serializable {
                 eval.setResult(result);
                 if (evalException != null) {
                     eval.setException(evalException);
-                }
-                if ((evalException == null) && (context.getRootEvaluation() == null)
-                    && !context.getKeepLastEvaluation()) {
-                    pool.recycleAll(eval);
                 }
             }
         } else {
@@ -263,9 +211,9 @@ public abstract class SimpleNode implements Node, Serializable {
 
     /**
      * Subclasses implement this method to do the actual work of extracting the appropriate value from the source object.
-     * 
+     *
      * @param context the OgnlContext within which to perform the operation.
-     * @param source the Object from which to get the value body.
+     * @param source  the Object from which to get the value body.
      * @return the value body from the source (as appropriate within the provided context).
      * @throws OgnlException if the value body get fails.
      */
@@ -273,10 +221,8 @@ public abstract class SimpleNode implements Node, Serializable {
             throws OgnlException;
 
     public final void setValue(OgnlContext context, Object target, Object value)
-            throws OgnlException
-    {
-        if (context.getTraceEvaluations())
-        {
+            throws OgnlException {
+        if (context.getTraceEvaluations()) {
             EvaluationPool pool = OgnlRuntime.getEvaluationPool();
             Throwable evalException = null;
             Evaluation evaluation = pool.create(this, target, true);
@@ -284,13 +230,11 @@ public abstract class SimpleNode implements Node, Serializable {
             context.pushEvaluation(evaluation);
             try {
                 evaluateSetValueBody(context, target, value);
-            }
-            catch (OgnlException ex) {
+            } catch (OgnlException ex) {
                 evalException = ex;
                 ex.setEvaluation(evaluation);
                 throw ex;
-            }
-            catch (RuntimeException ex) {
+            } catch (RuntimeException ex) {
                 evalException = ex;
                 throw ex;
             } finally {
@@ -298,10 +242,6 @@ public abstract class SimpleNode implements Node, Serializable {
 
                 if (evalException != null) {
                     eval.setException(evalException);
-                }
-                if ((evalException == null) && (context.getRootEvaluation() == null)
-                    && !context.getKeepLastEvaluation()) {
-                    pool.recycleAll(eval);
                 }
             }
         } else {
@@ -312,60 +252,54 @@ public abstract class SimpleNode implements Node, Serializable {
     /**
      * Subclasses implement this method to do the actual work of setting the appropriate value in the target object. The default implementation throws an
      * <code>InappropriateExpressionException</code>, meaning that it cannot be a set expression.
-     * 
+     *
      * @param context the OgnlContext within which to perform the operation.
-     * @param target the Object upon which to set the value body.
-     * @param value the Object representing the value body to apply to the target.
+     * @param target  the Object upon which to set the value body.
+     * @param value   the Object representing the value body to apply to the target.
      * @throws OgnlException if the value body set fails.
      */
     protected void setValueBody(OgnlContext context, Object target, Object value)
-            throws OgnlException
-    {
+            throws OgnlException {
         throw new InappropriateExpressionException(this);
     }
 
-    /** 
+    /**
      * Returns true iff this node is constant without respect to the children.
-     * 
+     *
      * @param context the OgnlContext within which to perform the operation.
      * @return true if this node is a constant, false otherwise.
      * @throws OgnlException if the check fails.
      */
     public boolean isNodeConstant(OgnlContext context)
-            throws OgnlException
-    {
+            throws OgnlException {
         return false;
     }
 
     public boolean isConstant(OgnlContext context)
-            throws OgnlException
-    {
+            throws OgnlException {
         return isNodeConstant(context);
     }
 
     public boolean isNodeSimpleProperty(OgnlContext context)
-            throws OgnlException
-    {
+            throws OgnlException {
         return false;
     }
 
     public boolean isSimpleProperty(OgnlContext context)
-            throws OgnlException
-    {
+            throws OgnlException {
         return isNodeSimpleProperty(context);
     }
 
     public boolean isSimpleNavigationChain(OgnlContext context)
-            throws OgnlException
-    {
+            throws OgnlException {
         return isSimpleProperty(context);
     }
 
     public boolean isEvalChain(OgnlContext context) throws OgnlException {
-        if (_children == null) {
+        if (children == null) {
             return false;
         }
-        for (Node child : _children) {
+        for (Node child : children) {
             if (child instanceof SimpleNode) {
                 if (((SimpleNode) child).isEvalChain(context)) {
                     return true;
@@ -376,10 +310,10 @@ public abstract class SimpleNode implements Node, Serializable {
     }
 
     public boolean isSequence(OgnlContext context) throws OgnlException {
-        if (_children == null) {
+        if (children == null) {
             return false;
         }
-        for (Node child : _children) {
+        for (Node child : children) {
             if (child instanceof SimpleNode) {
                 if (((SimpleNode) child).isSequence(context)) {
                     return true;
@@ -390,10 +324,10 @@ public abstract class SimpleNode implements Node, Serializable {
     }
 
     public boolean isOperation(OgnlContext context) throws OgnlException {
-        if (_children == null) {
+        if (children == null) {
             return false;
         }
-        for (Node child : _children) {
+        for (Node child : children) {
             if (child instanceof SimpleNode) {
                 if (((SimpleNode) child).isOperation(context)) {
                     return true;
@@ -404,10 +338,10 @@ public abstract class SimpleNode implements Node, Serializable {
     }
 
     public boolean isChain(OgnlContext context) throws OgnlException {
-        if (_children == null) {
+        if (children == null) {
             return false;
         }
-        for (Node child : _children) {
+        for (Node child : children) {
             if (child instanceof SimpleNode) {
                 if (((SimpleNode) child).isChain(context)) {
                     return true;
@@ -421,59 +355,51 @@ public abstract class SimpleNode implements Node, Serializable {
         return false;
     }
 
-    protected boolean lastChild(OgnlContext context)
-    {
-        return _parent == null || context.get("_lastChild") !=  null;
+    protected boolean lastChild(OgnlContext context) {
+        return parent == null || context.get("_lastChild") != null;
     }
 
     /**
      * This method may be called from subclasses' jjtClose methods. It flattens the tree under this node by eliminating any children that are of the same class as this
      * node and copying their children to this node.
      */
-    protected void flattenTree()
-    {
+    protected void flattenTree() {
         boolean shouldFlatten = false;
         int newSize = 0;
 
-        for (int i = 0; i < _children.length; ++i)
-            if (_children[i].getClass() == getClass())
-            {
+        for (Node child : children)
+            if (child.getClass() == getClass()) {
                 shouldFlatten = true;
-                newSize += _children[i].jjtGetNumChildren();
+                newSize += child.jjtGetNumChildren();
             } else
                 ++newSize;
 
-        if (shouldFlatten)
-        {
+        if (shouldFlatten) {
             Node[] newChildren = new Node[newSize];
             int j = 0;
 
-            for (int i = 0; i < _children.length; ++i)
-            {
-                Node c = _children[i];
-                if (c.getClass() == getClass())
-                {
-                    for (int k = 0; k < c.jjtGetNumChildren(); ++k)
+            for (Node c : children) {
+                if (c.getClass() == getClass()) {
+                    for (int k = 0; k < c.jjtGetNumChildren(); ++k) {
                         newChildren[j++] = c.jjtGetChild(k);
-
-                } else
+                    }
+                } else {
                     newChildren[j++] = c;
+                }
             }
 
             if (j != newSize)
                 throw new Error("Assertion error: " + j + " != " + newSize);
 
-            _children = newChildren;
+            children = newChildren;
         }
     }
 
-    public ExpressionAccessor getAccessor()
-    {
-        return _accessor;
+    public ExpressionAccessor getAccessor() {
+        return expressionAccessor;
     }
 
-    public void setAccessor(ExpressionAccessor accessor)
-    {
-        _accessor = accessor;
+    public void setAccessor(ExpressionAccessor accessor) {
+        expressionAccessor = accessor;
     }
 }

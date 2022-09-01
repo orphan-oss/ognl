@@ -1,43 +1,29 @@
-//--------------------------------------------------------------------------
-//	Copyright (c) 1998-2004, Drew Davidson and Luke Blanshard
-//  All rights reserved.
-//
-//	Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are
-//  met:
-//
-//	Redistributions of source code must retain the above copyright notice,
-//  this list of conditions and the following disclaimer.
-//	Redistributions in binary form must reproduce the above copyright
-//  notice, this list of conditions and the following disclaimer in the
-//  documentation and/or other materials provided with the distribution.
-//	Neither the name of the Drew Davidson nor the names of its contributors
-//  may be used to endorse or promote products derived from this software
-//  without specific prior written permission.
-//
-//	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-//  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-//  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-//  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-//  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-//  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-//  OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-//  AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-//  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-//  THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
-//  DAMAGE.
-//--------------------------------------------------------------------------
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package ognl;
 
 import ognl.enhance.ExpressionCompiler;
 
-/**
- * @author Luke Blanshard (blanshlu@netscape.net)
- * @author Drew Davidson (drew@ognl.org)
- */
-public abstract class ExpressionNode extends SimpleNode
-{
+public abstract class ExpressionNode extends SimpleNode {
+
+    private static final long serialVersionUID = 4880029588563407661L;
+
     public ExpressionNode(int i) {
         super(i);
     }
@@ -45,23 +31,22 @@ public abstract class ExpressionNode extends SimpleNode
     public ExpressionNode(OgnlParser p, int i) {
         super(p, i);
     }
+
     /**
-        Returns true iff this node is constant without respect to the children.
+     * Returns true iff this node is constant without respect to the children.
      */
-    public boolean isNodeConstant( OgnlContext context ) throws OgnlException
-    {
+    public boolean isNodeConstant(OgnlContext context) throws OgnlException {
         return false;
     }
 
-    public boolean isConstant( OgnlContext context ) throws OgnlException
-    {
-        boolean     result = isNodeConstant(context);
+    public boolean isConstant(OgnlContext context) throws OgnlException {
+        boolean result = isNodeConstant(context);
 
-        if ((_children != null) && (_children.length > 0)) {
+        if ((children != null) && (children.length > 0)) {
             result = true;
-            for ( int i=0; result && (i < _children.length); ++i ) {
-                if (_children[i] instanceof SimpleNode) {
-                    result = ((SimpleNode)_children[i]).isConstant( context );
+            for (int i = 0; result && (i < children.length); ++i) {
+                if (children[i] instanceof SimpleNode) {
+                    result = ((SimpleNode) children[i]).isConstant(context);
                 } else {
                     result = false;
                 }
@@ -70,90 +55,85 @@ public abstract class ExpressionNode extends SimpleNode
         return result;
     }
 
-    public String getExpressionOperator(int index)
-    {
-        throw new RuntimeException("unknown operator for " + OgnlParserTreeConstants.jjtNodeName[_id]);
+    public String getExpressionOperator(int index) {
+        throw new RuntimeException("unknown operator for " + OgnlParserTreeConstants.jjtNodeName[id]);
     }
 
-    public String toString()
-    {
-        String result = (_parent == null) ? "" : "(";
-        
-        if ((_children != null) && (_children.length > 0)) {
-            for ( int i = 0; i < _children.length; ++i ) {
+    public String toString() {
+        StringBuilder result = new StringBuilder((parent == null) ? "" : "(");
+
+        if ((children != null) && (children.length > 0)) {
+            for (int i = 0; i < children.length; ++i) {
                 if (i > 0) {
-                    result += " " + getExpressionOperator(i) + " ";
+                    result.append(" ").append(getExpressionOperator(i)).append(" ");
                 }
-                result += _children[i].toString();
+                result.append(children[i].toString());
             }
         }
-        if (_parent != null) {
-            result = result + ")";
+        if (parent != null) {
+            result.append(")");
         }
-        return result;
+        return result.toString();
     }
-    
-    public String toGetSourceString(OgnlContext context, Object target)
-    {
-        String result = (_parent == null || NumericExpression.class.isAssignableFrom(_parent.getClass())) ? "" : "(";
 
-        if ((_children != null) && (_children.length > 0)) {
-            for ( int i = 0; i < _children.length; ++i ) {
+    public String toGetSourceString(OgnlContext context, Object target) {
+        StringBuilder result = new StringBuilder((parent == null || NumericExpression.class.isAssignableFrom(parent.getClass())) ? "" : "(");
+
+        if ((children != null) && (children.length > 0)) {
+            for (int i = 0; i < children.length; ++i) {
                 if (i > 0) {
-                    result += " " + getExpressionOperator(i) + " ";
+                    result.append(" ").append(getExpressionOperator(i)).append(" ");
                 }
-                
-                String value = _children[i].toGetSourceString(context, target);
 
-                if ((ASTProperty.class.isInstance(_children[i]) || ASTMethod.class.isInstance(_children[i])
-                     || ASTSequence.class.isInstance(_children[i]) || ASTChain.class.isInstance(_children[i]))
-                    && value != null && value.trim().length() > 0) {
+                String value = children[i].toGetSourceString(context, target);
+
+                if ((children[i] instanceof ASTProperty || children[i] instanceof ASTMethod
+                        || children[i] instanceof ASTSequence || children[i] instanceof ASTChain)
+                        && value != null && value.trim().length() > 0) {
 
                     String pre = null;
-                    if (ASTMethod.class.isInstance(_children[i]))
-                    {
-                        pre = (String)context.get("_currentChain");
+                    if (children[i] instanceof ASTMethod) {
+                        pre = (String) context.get("_currentChain");
                     }
 
                     if (pre == null)
                         pre = "";
 
-                    String cast = (String)context.remove(ExpressionCompiler.PRE_CAST);
+                    String cast = (String) context.remove(ExpressionCompiler.PRE_CAST);
                     if (cast == null)
                         cast = "";
 
-                    value = cast + ExpressionCompiler.getRootExpression(_children[i], context.getRoot(), context) + pre + value;
-                } 
-
-                result += value;
-            }
-        }
-
-        if (_parent != null && !NumericExpression.class.isAssignableFrom(_parent.getClass())) {
-            result = result + ")";
-        }
-        
-        return result;
-    }
-    
-    public String toSetSourceString(OgnlContext context, Object target)
-    {
-        String result = (_parent == null) ? "" : "(";
-        
-        if ((_children != null) && (_children.length > 0)) {
-            for ( int i = 0; i < _children.length; ++i ) {
-                if (i > 0) {
-                    result += " " + getExpressionOperator(i) + " ";
+                    value = cast + ExpressionCompiler.getRootExpression(children[i], context.getRoot(), context) + pre + value;
                 }
-                
-                result += _children[i].toSetSourceString(context, target);
+
+                result.append(value);
             }
         }
-        if (_parent != null) {
-            result = result + ")";
+
+        if (parent != null && !NumericExpression.class.isAssignableFrom(parent.getClass())) {
+            result.append(")");
         }
-        
-        return result;
+
+        return result.toString();
+    }
+
+    public String toSetSourceString(OgnlContext context, Object target) {
+        StringBuilder result = new StringBuilder((parent == null) ? "" : "(");
+
+        if ((children != null) && (children.length > 0)) {
+            for (int i = 0; i < children.length; ++i) {
+                if (i > 0) {
+                    result.append(" ").append(getExpressionOperator(i)).append(" ");
+                }
+
+                result.append(children[i].toSetSourceString(context, target));
+            }
+        }
+        if (parent != null) {
+            result.append(")");
+        }
+
+        return result.toString();
     }
 
     @Override

@@ -1,33 +1,21 @@
-// --------------------------------------------------------------------------
-// Copyright (c) 1998-2004, Drew Davidson and Luke Blanshard
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-// Redistributions of source code must retain the above copyright notice,
-// this list of conditions and the following disclaimer.
-// Redistributions in binary form must reproduce the above copyright
-// notice, this list of conditions and the following disclaimer in the
-// documentation and/or other materials provided with the distribution.
-// Neither the name of the Drew Davidson nor the names of its contributors
-// may be used to endorse or promote products derived from this software
-// without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-// AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
-// DAMAGE.
-// --------------------------------------------------------------------------
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package ognl;
 
 import ognl.enhance.ExpressionCompiler;
@@ -36,61 +24,49 @@ import ognl.enhance.UnsupportedCompilationException;
 
 import java.lang.reflect.Array;
 
-/**
- * @author Luke Blanshard (blanshlu@netscape.net)
- * @author Drew Davidson (drew@ognl.org)
- */
-public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
-{
+public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
 
-    private Class _getterClass;
-    private Class _setterClass;
+    private static final long serialVersionUID = 6689037266594707682L;
 
-    private String _lastExpression;
+    private Class<?> getterClass;
+    private Class<?> setterClass;
+    private String lastExpression;
+    private String coreExpression;
 
-    private String _coreExpression;
-
-    public ASTChain(int id)
-    {
+    public ASTChain(int id) {
         super(id);
     }
 
-    public ASTChain(OgnlParser p, int id)
-    {
+    public ASTChain(OgnlParser p, int id) {
         super(p, id);
     }
 
-    public String getLastExpression()
-    {
-        return _lastExpression;
+    public String getLastExpression() {
+        return lastExpression;
     }
 
-    public String getCoreExpression()
-    {
-        return _coreExpression;
+    public String getCoreExpression() {
+        return coreExpression;
     }
 
-    public void jjtClose()
-    {
+    public void jjtClose() {
         flattenTree();
     }
 
     protected Object getValueBody(OgnlContext context, Object source)
-            throws OgnlException
-    {
+            throws OgnlException {
         Object result = source;
 
-        for(int i = 0, ilast = _children.length - 1; i <= ilast; ++i)
-        {
+        for (int i = 0, ilast = children.length - 1; i <= ilast; ++i) {
             boolean handled = false;
 
             if (i < ilast) {
-                if (_children[i] instanceof ASTProperty) {
-                    ASTProperty propertyNode = (ASTProperty) _children[i];
+                if (children[i] instanceof ASTProperty) {
+                    ASTProperty propertyNode = (ASTProperty) children[i];
                     int indexType = propertyNode.getIndexedPropertyType(context, result);
 
-                    if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (_children[i + 1] instanceof ASTProperty)) {
-                        ASTProperty indexNode = (ASTProperty) _children[i + 1];
+                    if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (children[i + 1] instanceof ASTProperty)) {
+                        ASTProperty indexNode = (ASTProperty) children[i + 1];
 
                         if (indexNode.isIndexedAccess()) {
                             Object index = indexNode.getProperty(context, result);
@@ -100,7 +76,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                                     Object array = propertyNode.getValue(context, result);
                                     int len = Array.getLength(array);
 
-                                    switch(((DynamicSubscript) index).getFlag()) {
+                                    switch (((DynamicSubscript) index).getFlag()) {
                                         case DynamicSubscript.ALL:
                                             result = Array.newInstance(array.getClass().getComponentType(), len);
                                             System.arraycopy(array, 0, result, 0, len);
@@ -108,27 +84,28 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                                             i++;
                                             break;
                                         case DynamicSubscript.FIRST:
-                                            index = new Integer((len > 0) ? 0 : -1);
+                                            index = (len > 0) ? 0 : -1;
                                             break;
                                         case DynamicSubscript.MID:
-                                            index = new Integer((len > 0) ? (len / 2) : -1);
+                                            index = (len > 0) ? (len / 2) : -1;
                                             break;
                                         case DynamicSubscript.LAST:
-                                            index = new Integer((len > 0) ? (len - 1) : -1);
+                                            index = (len > 0) ? (len - 1) : -1;
                                             break;
                                     }
                                 } else {
-                                    if (indexType == OgnlRuntime.INDEXED_PROPERTY_OBJECT) { throw new OgnlException(
-                                            "DynamicSubscript '" + indexNode
-                                            + "' not allowed for object indexed property '" + propertyNode
-                                            + "'"); }
+                                    if (indexType == OgnlRuntime.INDEXED_PROPERTY_OBJECT) {
+                                        throw new OgnlException(
+                                                "DynamicSubscript '" + indexNode
+                                                        + "' not allowed for object indexed property '" + propertyNode
+                                                        + "'");
+                                    }
                                 }
                             }
-                            if (!handled) 
-                            {
+                            if (!handled) {
                                 result = OgnlRuntime.getIndexedProperty(context, result,
-                                                                        propertyNode.getProperty(context, result).toString(),
-                                                                        index);
+                                        propertyNode.getProperty(context, result).toString(),
+                                        index);
                                 handled = true;
                                 i++;
                             }
@@ -136,108 +113,91 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                     }
                 }
             }
-            if (!handled)
-            {
-                result = _children[i].getValue(context, result);
+            if (!handled) {
+                result = children[i].getValue(context, result);
             }
         }
         return result;
     }
 
     protected void setValueBody(OgnlContext context, Object target, Object value)
-            throws OgnlException
-    {
+            throws OgnlException {
         boolean handled = false;
 
-        for(int i = 0, ilast = _children.length - 2; i <= ilast; ++i)
-        {
-            if (i <= ilast) {
-                if (_children[i] instanceof ASTProperty)
-                {
-                    ASTProperty propertyNode = (ASTProperty) _children[i];
-                    int indexType = propertyNode.getIndexedPropertyType(context, target);
+        for (int i = 0, ilast = children.length - 2; i <= ilast; ++i) {
+            if (children[i] instanceof ASTProperty) {
+                ASTProperty propertyNode = (ASTProperty) children[i];
+                int indexType = propertyNode.getIndexedPropertyType(context, target);
 
-                    if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (_children[i + 1] instanceof ASTProperty))
-                    {
-                        ASTProperty indexNode = (ASTProperty) _children[i + 1];
+                if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (children[i + 1] instanceof ASTProperty)) {
+                    ASTProperty indexNode = (ASTProperty) children[i + 1];
 
-                        if (indexNode.isIndexedAccess())
-                        {
-                            Object index = indexNode.getProperty(context, target);
+                    if (indexNode.isIndexedAccess()) {
+                        Object index = indexNode.getProperty(context, target);
 
-                            if (index instanceof DynamicSubscript)
-                            {
-                                if (indexType == OgnlRuntime.INDEXED_PROPERTY_INT)
-                                {
-                                    Object array = propertyNode.getValue(context, target);
-                                    int len = Array.getLength(array);
+                        if (index instanceof DynamicSubscript) {
+                            if (indexType == OgnlRuntime.INDEXED_PROPERTY_INT) {
+                                Object array = propertyNode.getValue(context, target);
+                                int len = Array.getLength(array);
 
-                                    switch(((DynamicSubscript) index).getFlag())
-                                    {
-                                        case DynamicSubscript.ALL:
-                                            System.arraycopy(target, 0, value, 0, len);
-                                            handled = true;
-                                            i++;
-                                            break;
-                                        case DynamicSubscript.FIRST:
-                                            index = new Integer((len > 0) ? 0 : -1);
-                                            break;
-                                        case DynamicSubscript.MID:
-                                            index = new Integer((len > 0) ? (len / 2) : -1);
-                                            break;
-                                        case DynamicSubscript.LAST:
-                                            index = new Integer((len > 0) ? (len - 1) : -1);
-                                            break;
-                                    }
-                                } else
-                                {
-                                    if (indexType == OgnlRuntime.INDEXED_PROPERTY_OBJECT)
-                                    {
-                                        throw new OgnlException("DynamicSubscript '" + indexNode
-                                                                + "' not allowed for object indexed property '" + propertyNode
-                                                                + "'");
-                                    }
+                                switch (((DynamicSubscript) index).getFlag()) {
+                                    case DynamicSubscript.ALL:
+                                        System.arraycopy(target, 0, value, 0, len);
+                                        handled = true;
+                                        i++;
+                                        break;
+                                    case DynamicSubscript.FIRST:
+                                        index = (len > 0) ? 0 : -1;
+                                        break;
+                                    case DynamicSubscript.MID:
+                                        index = (len > 0) ? (len / 2) : -1;
+                                        break;
+                                    case DynamicSubscript.LAST:
+                                        index = (len > 0) ? (len - 1) : -1;
+                                        break;
+                                }
+                            } else {
+                                if (indexType == OgnlRuntime.INDEXED_PROPERTY_OBJECT) {
+                                    throw new OgnlException("DynamicSubscript '" + indexNode
+                                            + "' not allowed for object indexed property '" + propertyNode
+                                            + "'");
                                 }
                             }
-                            if (!handled && i == ilast)
-                            {
-                                OgnlRuntime.setIndexedProperty(context, target,
-                                                               propertyNode.getProperty(context, target).toString(),
-                                                               index, value);
-                                handled = true;
-                                i++;
-                            } else if (!handled) {
-                                target = OgnlRuntime.getIndexedProperty(context, target,
-                                                                        propertyNode.getProperty(context, target).toString(),
-                                                                        index);
-                                i++;
-                                continue;
-                            }
+                        }
+                        if (!handled && i == ilast) {
+                            OgnlRuntime.setIndexedProperty(context, target,
+                                    propertyNode.getProperty(context, target).toString(),
+                                    index, value);
+                            handled = true;
+                            i++;
+                        } else if (!handled) {
+                            target = OgnlRuntime.getIndexedProperty(context, target,
+                                    propertyNode.getProperty(context, target).toString(),
+                                    index);
+                            i++;
+                            continue;
                         }
                     }
                 }
             }
-            if (!handled)
-            {
-                target = _children[i].getValue(context, target);
+            if (!handled) {
+                target = children[i].getValue(context, target);
             }
         }
-        if (!handled)
-        {
-            _children[_children.length - 1].setValue(context, target, value);
+        if (!handled) {
+            children[children.length - 1].setValue(context, target, value);
         }
     }
 
     public boolean isSimpleNavigationChain(OgnlContext context)
-            throws OgnlException
-    {
+            throws OgnlException {
         boolean result = false;
 
-        if ((_children != null) && (_children.length > 0)) {
+        if ((children != null) && (children.length > 0)) {
             result = true;
-            for(int i = 0; result && (i < _children.length); i++) {
-                if (_children[i] instanceof SimpleNode) {
-                    result = ((SimpleNode) _children[i]).isSimpleProperty(context);
+            for (int i = 0; result && (i < children.length); i++) {
+                if (children[i] instanceof SimpleNode) {
+                    result = ((SimpleNode) children[i]).isSimpleProperty(context);
                 } else {
                     result = false;
                 }
@@ -246,39 +206,34 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
         return result;
     }
 
-    public Class getGetterClass()
-    {
-        return _getterClass;
+    public Class<?> getGetterClass() {
+        return getterClass;
     }
 
-    public Class getSetterClass()
-    {
-        return _setterClass;
+    public Class<?> getSetterClass() {
+        return setterClass;
     }
 
-    public String toString()
-    {
-        String result = "";
+    public String toString() {
+        StringBuilder result = new StringBuilder();
 
-        if ((_children != null) && (_children.length > 0)) {
-            for(int i = 0; i < _children.length; i++) {
+        if ((children != null) && (children.length > 0)) {
+            for (int i = 0; i < children.length; i++) {
                 if (i > 0) {
-                    if (!(_children[i] instanceof ASTProperty) || !((ASTProperty) _children[i]).isIndexedAccess()) {
-                        result = result + ".";
+                    if (!(children[i] instanceof ASTProperty) || !((ASTProperty) children[i]).isIndexedAccess()) {
+                        result.append(".");
                     }
                 }
-                result += _children[i].toString();
+                result.append(children[i].toString());
             }
         }
-        return result;
+        return result.toString();
     }
 
-    public String toGetSourceString(OgnlContext context, Object target)
-    {
-        String prevChain = (String)context.get("_currentChain");
+    public String toGetSourceString(OgnlContext context, Object target) {
+        String prevChain = (String) context.get("_currentChain");
 
-        if (target != null)
-        {
+        if (target != null) {
             context.setCurrentObject(target);
             context.setCurrentType(target.getClass());
         }
@@ -288,84 +243,62 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
         boolean ordered = false;
         boolean constructor = false;
         try {
-            if ((_children != null) && (_children.length > 0))
-            {
-                for(int i = 0; i < _children.length; i++)
-                {
-              /*      System.out.println("astchain child: " + _children[i].getClass().getName()
-              + " with current object target " + context.getCurrentObject()
-              + " current type: " + context.getCurrentType());*/
+            if ((children != null) && (children.length > 0)) {
+                for (Node child : children) {
+                    String value = child.toGetSourceString(context, context.getCurrentObject());
 
-                    String value = _children[i].toGetSourceString(context, context.getCurrentObject());
-
-//                    System.out.println("astchain child returned >>  " + value + "  <<");
-
-                    if (ASTCtor.class.isInstance(_children[i]))
+                    if (child instanceof ASTCtor)
                         constructor = true;
 
-                    if (NodeType.class.isInstance(_children[i])
-                        && ((NodeType)_children[i]).getGetterClass() != null)
-                    {
-                        _lastType = (NodeType)_children[i];
+                    if (child instanceof NodeType
+                            && ((NodeType) child).getGetterClass() != null) {
+                        _lastType = (NodeType) child;
                     }
 
-//                    System.out.println("Astchain i: " + i + " currentobj : " + context.getCurrentObject() + " and root: " + context.getRoot());
-                    if (!ASTVarRef.class.isInstance(_children[i]) && !constructor
-                        && !(OrderedReturn.class.isInstance(_children[i]) && ((OrderedReturn)_children[i]).getLastExpression() != null)
-                        && (_parent == null || !ASTSequence.class.isInstance(_parent)))
-                    {
-                        value = OgnlRuntime.getCompiler().castExpression(context, _children[i], value);
+                    if (!(child instanceof ASTVarRef) && !constructor
+                            && !(child instanceof OrderedReturn && ((OrderedReturn) child).getLastExpression() != null)
+                            && (!(parent instanceof ASTSequence))) {
+                        value = OgnlRuntime.getCompiler().castExpression(context, child, value);
                     }
 
-                    /*System.out.println("astchain value now : " + value + " with index " + i
-                                       + " current type " + context.getCurrentType() + " current accessor " + context.getCurrentAccessor()
-                                       + " prev type " + context.getPreviousType() + " prev accessor " + context.getPreviousAccessor());*/
-
-                    if (OrderedReturn.class.isInstance(_children[i]) && ((OrderedReturn)_children[i]).getLastExpression() != null)
-                    {
+                    if (child instanceof OrderedReturn && ((OrderedReturn) child).getLastExpression() != null) {
                         ordered = true;
-                        OrderedReturn or = (OrderedReturn)_children[i];
+                        OrderedReturn or = (OrderedReturn) child;
 
                         if (or.getCoreExpression() == null || or.getCoreExpression().trim().length() <= 0)
                             result = "";
                         else
                             result += or.getCoreExpression();
 
-                        _lastExpression = or.getLastExpression();
+                        lastExpression = or.getLastExpression();
 
-                        if (context.get(ExpressionCompiler.PRE_CAST) != null)
-                        {
-                            _lastExpression = context.remove(ExpressionCompiler.PRE_CAST) + _lastExpression;
+                        if (context.get(ExpressionCompiler.PRE_CAST) != null) {
+                            lastExpression = context.remove(ExpressionCompiler.PRE_CAST) + lastExpression;
                         }
-                    } else if (ASTOr.class.isInstance(_children[i])
-                               || ASTAnd.class.isInstance(_children[i])
-                               || ASTCtor.class.isInstance(_children[i])
-                               || (ASTStaticField.class.isInstance(_children[i]) && _parent == null))
-                    {
+                    } else if (child instanceof ASTOr
+                            || child instanceof ASTAnd
+                            || child instanceof ASTCtor
+                            || (child instanceof ASTStaticField && parent == null)) {
                         context.put("_noRoot", "true");
                         result = value;
-                    } else
-                    {
+                    } else {
                         result += value;
                     }
 
                     context.put("_currentChain", result);
                 }
             }
-        } catch (Throwable t)
-        {
+        } catch (Throwable t) {
             throw OgnlOps.castToRuntime(t);
         }
 
-        if (_lastType != null)
-        {
-            _getterClass = _lastType.getGetterClass();
-            _setterClass = _lastType.getSetterClass();
+        if (_lastType != null) {
+            getterClass = _lastType.getGetterClass();
+            setterClass = _lastType.getSetterClass();
         }
 
-        if (ordered)
-        {
-            _coreExpression = result;
+        if (ordered) {
+            coreExpression = result;
         }
 
         context.put("_currentChain", prevChain);
@@ -373,16 +306,14 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
         return result;
     }
 
-    public String toSetSourceString(OgnlContext context, Object target)
-    {
-        String prevChain = (String)context.get("_currentChain");
-        String prevChild = (String)context.get("_lastChild");
+    public String toSetSourceString(OgnlContext context, Object target) {
+        String prevChain = (String) context.get("_currentChain");
+        String prevChild = (String) context.get("_lastChild");
 
         if (prevChain != null)
             throw new UnsupportedCompilationException("Can't compile nested chain expressions.");
 
-        if (target != null)
-        {
+        if (target != null) {
             context.setCurrentObject(target);
             context.setCurrentType(target.getClass());
         }
@@ -391,56 +322,36 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
         NodeType _lastType = null;
         boolean constructor = false;
         try {
-            if ((_children != null) && (_children.length > 0))
-            {
-                if (ASTConst.class.isInstance(_children[0]))
-                {
+            if ((children != null) && (children.length > 0)) {
+                if (children[0] instanceof ASTConst) {
                     throw new UnsupportedCompilationException("Can't modify constant values.");
                 }
 
-                for(int i = 0; i < _children.length; i++)
-                {
-//                    System.out.println("astchain setsource child[" + i + "] : " + _children[i].getClass().getName());
-
-                    if (i == (_children.length -1))
-                    {
+                for (int i = 0; i < children.length; i++) {
+                    if (i == (children.length - 1)) {
                         context.put("_lastChild", "true");
                     }
 
-                    String value = _children[i].toSetSourceString(context, context.getCurrentObject());
-                    //if (value == null || value.trim().length() <= 0)
-                      //  return "";
+                    String value = children[i].toSetSourceString(context, context.getCurrentObject());
 
-//                    System.out.println("astchain setter child returned >>  " + value + "  <<");
-
-                    if (ASTCtor.class.isInstance(_children[i]))
+                    if (children[i] instanceof ASTCtor)
                         constructor = true;
 
-                    if (NodeType.class.isInstance(_children[i])
-                        && ((NodeType)_children[i]).getGetterClass() != null)
-                    {
-                        _lastType = (NodeType)_children[i];
+                    if (children[i] instanceof NodeType
+                            && ((NodeType) children[i]).getGetterClass() != null) {
+                        _lastType = (NodeType) children[i];
                     }
 
-                    if (!ASTVarRef.class.isInstance(_children[i]) && !constructor
-                        && !(OrderedReturn.class.isInstance(_children[i]) && ((OrderedReturn)_children[i]).getLastExpression() != null)
-                        && (_parent == null || !ASTSequence.class.isInstance(_parent)))
-                    {
-                        value = OgnlRuntime.getCompiler().castExpression(context, _children[i], value);
+                    if (!(children[i] instanceof ASTVarRef) && !constructor
+                            && !(children[i] instanceof OrderedReturn && ((OrderedReturn) children[i]).getLastExpression() != null)
+                            && (!(parent instanceof ASTSequence))) {
+                        value = OgnlRuntime.getCompiler().castExpression(context, children[i], value);
                     }
 
-//                    System.out.println("astchain setter after cast value is: " + value);
-
-                    /*if (!constructor && !OrderedReturn.class.isInstance(_children[i])
-                        && (_parent == null || !ASTSequence.class.isInstance(_parent)))
-                    {
-                        value = OgnlRuntime.getCompiler().castExpression(context, _children[i], value);
-                    }*/
-
-                    if (ASTOr.class.isInstance(_children[i])
-                        || ASTAnd.class.isInstance(_children[i])
-                        || ASTCtor.class.isInstance(_children[i])
-                        || ASTStaticField.class.isInstance(_children[i])) {
+                    if (children[i] instanceof ASTOr
+                            || children[i] instanceof ASTAnd
+                            || children[i] instanceof ASTCtor
+                            || children[i] instanceof ASTStaticField) {
                         context.put("_noRoot", "true");
                         result = value;
                     } else
@@ -449,8 +360,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
                     context.put("_currentChain", result);
                 }
             }
-        } catch (Throwable t)
-        {
+        } catch (Throwable t) {
             throw OgnlOps.castToRuntime(t);
         }
 
@@ -458,7 +368,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn
         context.put("_currentChain", prevChain);
 
         if (_lastType != null)
-            _setterClass = _lastType.getSetterClass();
+            setterClass = _lastType.getSetterClass();
 
         return result;
     }

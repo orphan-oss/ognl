@@ -19,18 +19,17 @@
 package ognl;
 
 import java.lang.reflect.Member;
-import java.util.Map;
 
 /**
  * Used as a based class
  */
 abstract public class AbstractMemberAccess implements MemberAccess {
 
-    public Object setup(Map context, Object target, Member member, String propertyName) {
+    public Object setup(OgnlContext context, Object target, Member member, String propertyName) {
         return null;
     }
 
-    public void restore(Map context, Object target, Member member, String propertyName, Object state) {
+    public void restore(OgnlContext context, Object target, Member member, String propertyName, Object state) {
     }
 
 }

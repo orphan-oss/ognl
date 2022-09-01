@@ -22,25 +22,24 @@ import java.lang.reflect.AccessibleObject;
 
 /**
  * Utilizes a standard pre-JDK 9 reflection mechanism for changing the accessibility level of
- *   a given AccessibleObject.
+ * a given AccessibleObject.
  *
  * @since 3.1.24
  */
-class AccessibleObjectHandlerPreJDK9 implements AccessibleObjectHandler
-{
+class AccessibleObjectHandlerPreJDK9 implements AccessibleObjectHandler {
 
     /**
      * Private constructor
      */
-    private AccessibleObjectHandlerPreJDK9() {}
+    private AccessibleObjectHandlerPreJDK9() {
+    }
 
     /**
      * Package-level generator of an AccessibleObjectHandlerJDK9Plus instance.
-     *
+     * <p>
      * Not intended for use outside of the package.
      *
      * @return an AccessibleObjectHandler instance
-     *
      * @since 3.1.24
      */
     static AccessibleObjectHandler createHandler() {
@@ -49,10 +48,10 @@ class AccessibleObjectHandlerPreJDK9 implements AccessibleObjectHandler
 
     /**
      * Utilize accessibility modification mechanism for JDK 8 (Java Major Version 8) and earlier.
-     *   It is also the default modification mechanism for JDK 9+.
+     * It is also the default modification mechanism for JDK 9+.
      *
      * @param accessibleObject the AccessibleObject upon which to apply the flag.
-     * @param flag the new accessible flag value.
+     * @param flag             the new accessible flag value.
      */
     public void setAccessible(AccessibleObject accessibleObject, boolean flag) {
         accessibleObject.setAccessible(flag);

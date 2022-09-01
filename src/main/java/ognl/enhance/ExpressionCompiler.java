@@ -1,12 +1,58 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * and/or LICENSE file distributed with this work for additional
+ * information regarding copyright ownership.  The ASF licenses
+ * this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package ognl.enhance;
 
-import javassist.*;
-import ognl.*;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.CtNewConstructor;
+import javassist.CtNewMethod;
+import javassist.LoaderClassPath;
+import javassist.NotFoundException;
+import ognl.ASTAnd;
+import ognl.ASTChain;
+import ognl.ASTConst;
+import ognl.ASTCtor;
+import ognl.ASTList;
+import ognl.ASTMethod;
+import ognl.ASTOr;
+import ognl.ASTProperty;
+import ognl.ASTRootVarRef;
+import ognl.ASTStaticField;
+import ognl.ASTStaticMethod;
+import ognl.ASTVarRef;
+import ognl.ClassResolver;
+import ognl.ExpressionNode;
+import ognl.Node;
+import ognl.OgnlContext;
+import ognl.OgnlRuntime;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
-
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Responsible for managing/providing functionality related to compiling generated java source
@@ -23,35 +69,31 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     /**
      * {@link ClassLoader} instances.
      */
-    protected Map _loaders = new HashMap();
+    protected Map<ClassResolver, EnhancedClassLoader> loaders = new HashMap<>();
 
     /**
-     * Javassist class definition poool.
+     * Javassist class definition pool.
      */
-    protected ClassPool _pool;
+    protected ClassPool classPool;
 
-    protected int _classCounter = 0;
+    protected int classCounter = 0;
 
     /**
      * Default constructor, does nothing.
      */
-    public ExpressionCompiler()
-    {
+    public ExpressionCompiler() {
     }
 
     /**
-     * Used by {@link #castExpression(ognl.OgnlContext, ognl.Node, String)} to store the cast java
+     * Used by {@link #castExpression(OgnlContext, Node, String)} to store the cast java
      * source string in to the current {@link OgnlContext}. This will either add to the existing
      * string present if it already exists or create a new instance and store it using the static key
      * of {@link #PRE_CAST}.
      *
-     * @param context
-     *          The current execution context.
-     * @param cast
-     *          The java source string to store in to the context.
+     * @param context The current execution context.
+     * @param cast    The java source string to store in to the context.
      */
-    public static void addCastString(OgnlContext context, String cast)
-    {
+    public static void addCastString(OgnlContext context, String cast) {
         String value = (String) context.get(PRE_CAST);
 
         if (value != null)
@@ -74,11 +116,10 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      * @param type The class to cast a string expression for.
      * @return The converted raw string version of the class name.
      */
-    public static String getCastString(Class type)
-    {
+    public static String getCastString(Class<?> type) {
         if (type == null)
             return null;
-        
+
         return type.isArray() ? type.getComponentType().getName() + "[]" : type.getName();
     }
 
@@ -87,48 +128,40 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      * resolving string for the given node.  The callers are mostly ignorant and rely on this method to properly
      * determine if the expression should be cast at all and take the appropriate actions if it should.
      *
-     * @param expression
-     *          The node to check and generate a root expression to if necessary.
-     * @param root
-     *          The root object for this execution.
-     * @param context
-     *          The current execution context.
+     * @param expression The node to check and generate a root expression to if necessary.
+     * @param root       The root object for this execution.
+     * @param context    The current execution context.
      * @return Either an empty string or a root path java source string compatible with javassist compilations
-     *          from the root object up to the specified {@link Node}.
+     * from the root object up to the specified {@link Node}.
      */
-    public static String getRootExpression(Node expression, Object root, OgnlContext context)
-    {
+    public static String getRootExpression(Node expression, Object root, OgnlContext context) {
         String rootExpr = "";
 
         if (!shouldCast(expression))
             return rootExpr;
 
-        if ((!ASTList.class.isInstance(expression)
-             && !ASTVarRef.class.isInstance(expression)
-             && !ASTStaticMethod.class.isInstance(expression)
-             && !ASTStaticField.class.isInstance(expression)
-             && !ASTConst.class.isInstance(expression)
-             && !ExpressionNode.class.isInstance(expression)
-             && !ASTCtor.class.isInstance(expression)
-             && !ASTStaticMethod.class.isInstance(expression)
-             && root != null) || (root != null && ASTRootVarRef.class.isInstance(expression))) {
+        if ((!(expression instanceof ASTList)
+                && !(expression instanceof ASTVarRef)
+                && !(expression instanceof ASTStaticMethod)
+                && !(expression instanceof ASTStaticField)
+                && !(expression instanceof ASTConst)
+                && !(expression instanceof ExpressionNode)
+                && !(expression instanceof ASTCtor)
+                && root != null)
+                ||
+                (root != null && expression instanceof ASTRootVarRef)) {
 
-            Class castClass = OgnlRuntime.getCompiler().getRootExpressionClass(expression, context);
-            
-            if (castClass.isArray() || ASTRootVarRef.class.isInstance(expression)
-                || ASTThisVarRef.class.isInstance(expression))
-            {
+            Class<?> castClass = OgnlRuntime.getCompiler().getRootExpressionClass(expression, context);
+
+            if (castClass.isArray() || expression instanceof ASTRootVarRef) {
                 rootExpr = "((" + getCastString(castClass) + ")$2)";
 
-                if (ASTProperty.class.isInstance(expression) && !((ASTProperty) expression).isIndexedAccess())
+                if (expression instanceof ASTProperty && !((ASTProperty) expression).isIndexedAccess()) {
                     rootExpr += ".";
-            } else if ((ASTProperty.class.isInstance(expression)
-                        && ((ASTProperty) expression).isIndexedAccess())
-                       || ASTChain.class.isInstance(expression))
-            {
+                }
+            } else if ((expression instanceof ASTProperty && ((ASTProperty) expression).isIndexedAccess()) || expression instanceof ASTChain) {
                 rootExpr = "((" + getCastString(castClass) + ")$2)";
-            } else
-            {
+            } else {
                 rootExpr = "((" + getCastString(castClass) + ")$2).";
             }
         }
@@ -137,123 +170,108 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     }
 
     /**
-     * Used by {@link #getRootExpression(ognl.Node, Object, ognl.OgnlContext)} to determine if the expression
+     * Used by {@link #getRootExpression(Node, Object, OgnlContext)} to determine if the expression
      * needs to be cast at all.
      *
-     * @param expression
-     *          The node to check against.
+     * @param expression The node to check against.
      * @return Yes if the node type should be cast - false otherwise.
      */
-    public static boolean shouldCast(Node expression)
-    {
-        if (ASTChain.class.isInstance(expression))
-        {
+    public static boolean shouldCast(Node expression) {
+        if (expression instanceof ASTChain) {
             Node child = expression.jjtGetChild(0);
-            if (ASTConst.class.isInstance(child)
-                || ASTStaticMethod.class.isInstance(child)
-                || ASTStaticField.class.isInstance(child)
-                || (ASTVarRef.class.isInstance(child) && !ASTRootVarRef.class.isInstance(child)))
+            if (child instanceof ASTConst
+                    || child instanceof ASTStaticMethod
+                    || child instanceof ASTStaticField
+                    || (child instanceof ASTVarRef && !(child instanceof ASTRootVarRef)))
                 return false;
         }
 
-        return !ASTConst.class.isInstance(expression);
+        return !(expression instanceof ASTConst);
     }
 
-    public String castExpression(OgnlContext context, Node expression, String body)
-    {
+    public String castExpression(OgnlContext context, Node expression, String body) {
         // ok - so this looks really f-ed up ...and it is ..eh if you can do it better I'm all for it :)
 
         if (context.getCurrentAccessor() == null
-            || context.getPreviousType() == null
-            || context.getCurrentAccessor().isAssignableFrom(context.getPreviousType())
-            || (context.getCurrentType() != null
+                || context.getPreviousType() == null
+                || context.getCurrentAccessor().isAssignableFrom(context.getPreviousType())
+                || (context.getCurrentType() != null
                 && context.getCurrentObject() != null
                 && context.getCurrentType().isAssignableFrom(context.getCurrentObject().getClass())
                 && context.getCurrentAccessor().isAssignableFrom(context.getPreviousType()))
-            || body == null || body.trim().length() < 1
-            || (context.getCurrentType() != null && context.getCurrentType().isArray()
+                || body == null || body.trim().length() < 1
+                || (context.getCurrentType() != null && context.getCurrentType().isArray()
                 && (context.getPreviousType() == null || context.getPreviousType() != Object.class))
-            || ASTOr.class.isInstance(expression)
-            || ASTAnd.class.isInstance(expression)
-            || ASTRootVarRef.class.isInstance(expression)
-            || context.getCurrentAccessor() == Class.class
-            || (context.get(ExpressionCompiler.PRE_CAST) != null && ((String) context.get(ExpressionCompiler.PRE_CAST)).startsWith("new"))
-            || ASTStaticField.class.isInstance(expression)
-            || ASTStaticMethod.class.isInstance(expression)
-            || (OrderedReturn.class.isInstance(expression) && ((OrderedReturn) expression).getLastExpression() != null))
+                || expression instanceof ASTOr
+                || expression instanceof ASTAnd
+                || expression instanceof ASTRootVarRef
+                || context.getCurrentAccessor() == Class.class
+                || (context.get(ExpressionCompiler.PRE_CAST) != null && ((String) context.get(ExpressionCompiler.PRE_CAST)).startsWith("new"))
+                || expression instanceof ASTStaticField
+                || expression instanceof ASTStaticMethod
+                || (expression instanceof OrderedReturn && ((OrderedReturn) expression).getLastExpression() != null))
             return body;
-
-/*         System.out.println("castExpression() with expression " + expression + " expr class: " + expression.getClass() + " currentType is: " + context.getCurrentType()
-                      + " previousType: " + context.getPreviousType()
-                      + "\n current Accessor: " + context.getCurrentAccessor()
-                      + " previous Accessor: " + context.getPreviousAccessor()
-                      + " current object " + context.getCurrentObject());*/
 
         ExpressionCompiler.addCastString(context, "((" + ExpressionCompiler.getCastString(context.getCurrentAccessor()) + ")");
 
         return ")" + body;
     }
 
-    public String getClassName(Class clazz)
-    {
+    public String getClassName(Class<?> clazz) {
         if (clazz.getName().equals("java.util.AbstractList$Itr"))
             return Iterator.class.getName();
 
         if (Modifier.isPublic(clazz.getModifiers()) && clazz.isInterface())
             return clazz.getName();
 
-        return _getClassName(clazz, clazz.getInterfaces());
+        return getClassName(clazz, clazz.getInterfaces());
     }
 
-    private String _getClassName(Class clazz, Class[] intf)
-    {
-        for (int i = 0; i < intf.length; i++)
-        {
-            if (intf[i].getName().indexOf("util.List") > 0)
-                return intf[i].getName();
-            else if (intf[i].getName().indexOf("Iterator") > 0)
-                return intf[i].getName();
+    private String getClassName(Class<?> clazz, Class<?>[] interfaces) {
+        for (Class<?> anInterface : interfaces) {
+            if (anInterface.getName().indexOf("util.List") > 0) {
+                return anInterface.getName();
+            } else if (anInterface.getName().indexOf("Iterator") > 0) {
+                return anInterface.getName();
+            }
         }
 
-        final Class superclazz = clazz.getSuperclass();
-        if (superclazz != null)
-        {
-            final Class[] superclazzIntf = superclazz.getInterfaces();
-            if (superclazzIntf.length > 0)
-                return _getClassName(superclazz, superclazzIntf);
+        final Class<?> superClazz = clazz.getSuperclass();
+        if (superClazz != null) {
+            final Class<?>[] superClazzInterfaces = superClazz.getInterfaces();
+            if (superClazzInterfaces.length > 0)
+                return getClassName(superClazz, superClazzInterfaces);
         }
 
         return clazz.getName();
     }
 
-    public Class getSuperOrInterfaceClass(Method m, Class clazz)
-    {
-        Class[] intfs = clazz.getInterfaces();
-        if (intfs != null && intfs.length > 0)
-        {
-            Class intClass;
+    public Class<?> getSuperOrInterfaceClass(Method method, Class<?> clazz) {
+        Class<?>[] interfaces = clazz.getInterfaces();
+        if (interfaces.length > 0) {
+            Class<?> intClass;
 
-            for (int i = 0; i < intfs.length; i++)
-            {
-                intClass = getSuperOrInterfaceClass(m, intfs[i]);
+            for (Class<?> anInterface : interfaces) {
+                intClass = getSuperOrInterfaceClass(method, anInterface);
 
-                if (intClass != null)
+                if (intClass != null) {
                     return intClass;
+                }
 
-                if (Modifier.isPublic(intfs[i].getModifiers()) && containsMethod(m, intfs[i]))
-                    return intfs[i];
+                if (Modifier.isPublic(anInterface.getModifiers()) && containsMethod(method, anInterface)) {
+                    return anInterface;
+                }
             }
         }
 
-        if (clazz.getSuperclass() != null)
-        {
-            Class superClass = getSuperOrInterfaceClass(m, clazz.getSuperclass());
+        if (clazz.getSuperclass() != null) {
+            Class<?> superClass = getSuperOrInterfaceClass(method, clazz.getSuperclass());
 
             if (superClass != null)
                 return superClass;
         }
 
-        if (Modifier.isPublic(clazz.getModifiers()) && containsMethod(m, clazz))
+        if (Modifier.isPublic(clazz.getModifiers()) && containsMethod(method, clazz))
             return clazz;
 
         return null;
@@ -263,37 +281,24 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      * Helper utility method used by compiler to help resolve class-&gt;method mappings
      * during method calls to {@link OgnlExpressionCompiler#getSuperOrInterfaceClass(java.lang.reflect.Method, Class)}.
      *
-     * @param m
-     *          The method to check for existance of.
-     * @param clazz
-     *          The class to check for the existance of a matching method definition to the method passed in.
+     * @param method The method to check for existance of.
+     * @param clazz  The class to check for the existance of a matching method definition to the method passed in.
      * @return True if the class contains the specified method, false otherwise.
      */
-    public boolean containsMethod(Method m, Class clazz)
-    {
+    public boolean containsMethod(Method method, Class<?> clazz) {
         Method[] methods = clazz.getMethods();
 
-        if (methods == null)
-            return false;
+        for (Method value : methods) {
+            if (value.getName().equals(method.getName()) && value.getReturnType() == method.getReturnType()) {
+                Class<?>[] parms = method.getParameterTypes();
 
-        for (int i = 0; i < methods.length; i++)
-        {
-            if (methods[i].getName().equals(m.getName())
-                && methods[i].getReturnType() == m.getReturnType())
-            {
-                Class[] parms = m.getParameterTypes();
-                if (parms == null)
-                    continue;
-
-                Class[] mparms = methods[i].getParameterTypes();
-                if (mparms == null || mparms.length != parms.length)
+                Class<?>[] methodParams = value.getParameterTypes();
+                if (methodParams.length != parms.length)
                     continue;
 
                 boolean parmsMatch = true;
-                for (int p = 0; p < parms.length; p++)
-                {
-                    if (parms[p] != mparms[p])
-                    {
+                for (int p = 0; p < parms.length; p++) {
+                    if (parms[p] != methodParams[p]) {
                         parmsMatch = false;
                         break;
                     }
@@ -302,19 +307,16 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                 if (!parmsMatch)
                     continue;
 
-                Class[] exceptions = m.getExceptionTypes();
-                if (exceptions == null)
-                    continue;
+                Class<?>[] exceptions = method.getExceptionTypes();
 
-                Class[] mexceptions = methods[i].getExceptionTypes();
-                if (mexceptions == null || mexceptions.length != exceptions.length)
+                Class<?>[] methodExceptions = value.getExceptionTypes();
+                if (methodExceptions.length != exceptions.length) {
                     continue;
+                }
 
                 boolean exceptionsMatch = true;
-                for (int e = 0; e < exceptions.length; e++)
-                {
-                    if (exceptions[e] != mexceptions[e])
-                    {
+                for (int e = 0; e < exceptions.length; e++) {
+                    if (exceptions[e] != methodExceptions[e]) {
                         exceptionsMatch = false;
                         break;
                     }
@@ -330,77 +332,66 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         return false;
     }
 
-    public Class getInterfaceClass(Class clazz)
-    {
+    public Class<?> getInterfaceClass(Class<?> clazz) {
         if (clazz.getName().equals("java.util.AbstractList$Itr"))
             return Iterator.class;
 
-        if (Modifier.isPublic(clazz.getModifiers())
-            && clazz.isInterface() || clazz.isPrimitive())
+        if (Modifier.isPublic(clazz.getModifiers()) && clazz.isInterface() || clazz.isPrimitive()) {
             return clazz;
+        }
 
-        return _getInterfaceClass(clazz, clazz.getInterfaces());
+        return getInterfaceClass(clazz, clazz.getInterfaces());
     }
 
-    private Class _getInterfaceClass(Class clazz, Class[] intf)
-    {
-        for (int i = 0; i < intf.length; i++)
-        {
-            if (List.class.isAssignableFrom(intf[i]))
+    private Class<?> getInterfaceClass(Class<?> clazz, Class<?>[] interfaces) {
+        for (Class<?> anInterface : interfaces) {
+            if (List.class.isAssignableFrom(anInterface))
                 return List.class;
-            else if (Iterator.class.isAssignableFrom(intf[i]))
+            else if (Iterator.class.isAssignableFrom(anInterface))
                 return Iterator.class;
-            else if (Map.class.isAssignableFrom(intf[i]))
+            else if (Map.class.isAssignableFrom(anInterface))
                 return Map.class;
-            else if (Set.class.isAssignableFrom(intf[i]))
+            else if (Set.class.isAssignableFrom(anInterface))
                 return Set.class;
-            else if (Collection.class.isAssignableFrom(intf[i]))
+            else if (Collection.class.isAssignableFrom(anInterface))
                 return Collection.class;
         }
 
-        final Class superclazz = clazz.getSuperclass();
-        if (superclazz != null)
-        {
-            final Class[] superclazzIntf = superclazz.getInterfaces();
-            if (superclazzIntf.length > 0)
-                return _getInterfaceClass(superclazz, superclazzIntf);
+        final Class<?> superClazz = clazz.getSuperclass();
+        if (superClazz != null) {
+            final Class<?>[] superClazzInterfaces = superClazz.getInterfaces();
+            if (superClazzInterfaces.length > 0)
+                return getInterfaceClass(superClazz, superClazzInterfaces);
         }
 
         return clazz;
     }
 
-    public Class getRootExpressionClass(Node rootNode, OgnlContext context)
-    {
-        if (context.getRoot() == null)
+    public Class<?> getRootExpressionClass(Node rootNode, OgnlContext context) {
+        if (context.getRoot() == null) {
             return null;
+        }
 
-        Class ret = context.getRoot().getClass();
+        Class<?> ret = context.getRoot().getClass();
 
-        if (context.getFirstAccessor() != null && context.getFirstAccessor().isInstance(context.getRoot()))
-        {
+        if (context.getFirstAccessor() != null && context.getFirstAccessor().isInstance(context.getRoot())) {
             ret = context.getFirstAccessor();
         }
 
         return ret;
     }
 
-    /* (non-Javadoc)
-     * @see ognl.enhance.OgnlExpressionCompiler#compileExpression(ognl.OgnlContext, ognl.Node, java.lang.Object)
-     */
-    public void compileExpression(OgnlContext context, Node expression, Object root)
-            throws Exception
-    {
-//        System.out.println("Compiling expr class " + expression.getClass().getName() + " and root " + root);
-
-        if (expression.getAccessor() != null)
+    public void compileExpression(OgnlContext context, Node expression, Object root) throws Exception {
+        if (expression.getAccessor() != null) {
             return;
+        }
 
         String getBody, setBody;
 
         EnhancedClassLoader loader = getClassLoader(context);
         ClassPool pool = getClassPool(context, loader);
 
-        CtClass newClass = pool.makeClass(expression.getClass().getName() + expression.hashCode() + _classCounter++ + "Accessor");
+        CtClass newClass = pool.makeClass(expression.getClass().getName() + expression.hashCode() + classCounter++ + "Accessor");
         newClass.addInterface(getCtClass(ExpressionAccessor.class));
 
         CtClass ognlClass = getCtClass(OgnlContext.class);
@@ -415,44 +406,28 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         CtMethod setExpression = null;
 
         try {
-
-            getBody = generateGetter(context, newClass, objClass, pool, valueGetter, expression, root);
-
-        } catch (UnsupportedCompilationException uc)
-        {
-            //uc.printStackTrace();
-
+            getBody = generateGetter(context, newClass, pool, valueGetter, expression, root);
+        } catch (UnsupportedCompilationException uc) {
             nodeMember = new CtField(nodeClass, "_node", newClass);
             newClass.addField(nodeMember);
 
             getBody = generateOgnlGetter(newClass, valueGetter, nodeMember);
 
-            if (setExpression == null)
-            {
-                setExpression = CtNewMethod.setter("setExpression", nodeMember);
-                newClass.addMethod(setExpression);
-            }
+            setExpression = CtNewMethod.setter("setExpression", nodeMember);
+            newClass.addMethod(setExpression);
         }
-        
+
         try {
-
-            setBody = generateSetter(context, newClass, objClass, pool,  valueSetter, expression, root);
-
-        } catch (UnsupportedCompilationException uc)
-        {
-
-            //uc.printStackTrace();
-
-            if (nodeMember == null)
-            {
+            setBody = generateSetter(context, newClass, pool, valueSetter, expression, root);
+        } catch (UnsupportedCompilationException uc) {
+            if (nodeMember == null) {
                 nodeMember = new CtField(nodeClass, "_node", newClass);
                 newClass.addField(nodeMember);
             }
 
             setBody = generateOgnlSetter(newClass, valueSetter, nodeMember);
 
-            if (setExpression == null)
-            {
+            if (setExpression == null) {
                 setExpression = CtNewMethod.setter("setExpression", nodeMember);
                 newClass.addMethod(setExpression);
             }
@@ -461,32 +436,25 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         try {
             newClass.addConstructor(CtNewConstructor.defaultConstructor(newClass));
 
-            Class clazz = pool.toClass(newClass);
+            Class<?> clazz = pool.toClass(newClass);
             newClass.detach();
 
             expression.setAccessor((ExpressionAccessor) clazz.newInstance());
 
             // need to set expression on node if the field was just defined.
-
-            if (nodeMember != null)
-            {
+            if (nodeMember != null) {
                 expression.getAccessor().setExpression(expression);
             }
 
         } catch (Throwable t) {
-            //t.printStackTrace();
-
             throw new RuntimeException("Error compiling expression on object " + root
-                                       + " with expression node " + expression + " getter body: " + getBody
-                                       + " setter body: " + setBody, t);
+                    + " with expression node " + expression + " getter body: " + getBody
+                    + " setter body: " + setBody, t);
         }
 
     }
 
-    protected String generateGetter(OgnlContext context, CtClass newClass, CtClass objClass, ClassPool pool,
-                                    CtMethod valueGetter, Node expression, Object root)
-            throws Exception
-    {
+    protected String generateGetter(OgnlContext context, CtClass newClass, ClassPool pool, CtMethod valueGetter, Node expression, Object root) throws Exception {
         String pre = "";
         String post = "";
         String body;
@@ -503,16 +471,15 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         String getterCode = expression.toGetSourceString(context, root);
 
         if (getterCode == null || getterCode.trim().length() <= 0
-                                  && !ASTVarRef.class.isAssignableFrom(expression.getClass()))
+                && !ASTVarRef.class.isAssignableFrom(expression.getClass()))
             getterCode = "null";
 
         String castExpression = (String) context.get(PRE_CAST);
 
         if (context.getCurrentType() == null
-            || context.getCurrentType().isPrimitive()
-            || Character.class.isAssignableFrom(context.getCurrentType())
-            || Object.class == context.getCurrentType())
-        {
+                || context.getCurrentType().isPrimitive()
+                || Character.class.isAssignableFrom(context.getCurrentType())
+                || Object.class == context.getCurrentType()) {
             pre = pre + " ($w) (";
             post = post + ")";
         }
@@ -520,46 +487,45 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         String rootExpr = !getterCode.equals("null") ? getRootExpression(expression, root, context) : "";
 
         String noRoot = (String) context.remove("_noRoot");
-        if (noRoot != null)
+        if (noRoot != null) {
             rootExpr = "";
+        }
 
-        createLocalReferences(context, pool, newClass, objClass, valueGetter.getParameterTypes());
+        createLocalReferences(context, pool, newClass, valueGetter.getParameterTypes());
 
-        if (OrderedReturn.class.isInstance(expression) && ((OrderedReturn) expression).getLastExpression() != null)
-        {
+        if (expression instanceof OrderedReturn && ((OrderedReturn) expression).getLastExpression() != null) {
             body = "{ "
-                   + (ASTMethod.class.isInstance(expression) || ASTChain.class.isInstance(expression) ? rootExpr : "")
-                   + (castExpression != null ? castExpression : "")
-                   + ((OrderedReturn) expression).getCoreExpression()
-                   + " return " + pre + ((OrderedReturn) expression).getLastExpression()
-                   + post
-                   + ";}";
+                    + (expression instanceof ASTMethod || expression instanceof ASTChain ? rootExpr : "")
+                    + (castExpression != null ? castExpression : "")
+                    + ((OrderedReturn) expression).getCoreExpression()
+                    + " return " + pre + ((OrderedReturn) expression).getLastExpression()
+                    + post
+                    + ";}";
 
         } else {
 
             body = "{  return "
-                   + pre
-                   + (castExpression != null ? castExpression : "")
-                   + rootExpr
-                   + getterCode
-                   + post
-                   + ";}";
+                    + pre
+                    + (castExpression != null ? castExpression : "")
+                    + rootExpr
+                    + getterCode
+                    + post
+                    + ";}";
         }
 
-        if (body.indexOf("..") >= 0)
+        if (body.contains("..")) {
             body = body.replaceAll("\\.\\.", ".");
+        }
 
-//        System.out.println("Getter Body: ===================================\n" + body);
         valueGetter.setBody(body);
         newClass.addMethod(valueGetter);
 
         return body;
     }
 
-    public String createLocalReference(OgnlContext context, String expression, Class type)
-    {
+    public String createLocalReference(OgnlContext context, String expression, Class<?> type) {
         String referenceName = "ref" + context.incrementLocalReferenceCounter();
-        context.addLocalReference(referenceName, new LocalReferenceImpl(referenceName, expression, type));
+        context.addLocalReference(referenceName, new OgnlLocalReference(referenceName, expression, type));
 
         String castString = "";
         if (!type.isPrimitive())
@@ -568,18 +534,16 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         return castString + referenceName + "($$)";
     }
 
-    void createLocalReferences(OgnlContext context, ClassPool pool, CtClass clazz, CtClass objClass, CtClass[] params)
-            throws CannotCompileException, NotFoundException
-    {
-        Map referenceMap = context.getLocalReferences();
-        if (referenceMap == null || referenceMap.size() < 1)
+    private void createLocalReferences(OgnlContext context, ClassPool pool, CtClass clazz, CtClass[] params) throws CannotCompileException, NotFoundException {
+        Map<String, LocalReference> referenceMap = context.getLocalReferences();
+        if (referenceMap == null || referenceMap.size() < 1) {
             return;
+        }
 
-        Iterator it = referenceMap.values().iterator();
+        Iterator<LocalReference> it = referenceMap.values().iterator();
 
-        while (it.hasNext())
-        {
-            LocalReference ref = (LocalReference) it.next();
+        while (it.hasNext()) {
+            LocalReference ref = it.next();
 
             String widener = ref.getType().isPrimitive() ? " " : " ($w) ";
 
@@ -587,10 +551,9 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             body += " return  " + widener + ref.getExpression() + ";";
             body += "}";
 
-            if (body.indexOf("..") >= 0)
+            if (body.contains("..")) {
                 body = body.replaceAll("\\.\\.", ".");
-
-//            System.out.println("adding method " + ref.getName() + " with body:\n" + body + " and return type: " + ref.getType());
+            }
 
             CtMethod method = new CtMethod(pool.get(getCastString(ref.getType())), ref.getName(), params, clazz);
             method.setBody(body);
@@ -601,13 +564,10 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         }
     }
 
-    protected String generateSetter(OgnlContext context, CtClass newClass, CtClass objClass, ClassPool pool,
-                                    CtMethod valueSetter, Node expression, Object root)
-            throws Exception
-    {
-        if (ExpressionNode.class.isInstance(expression)
-            || ASTConst.class.isInstance(expression))
+    protected String generateSetter(OgnlContext context, CtClass newClass, ClassPool pool, CtMethod valueSetter, Node expression, Object root) throws Exception {
+        if (expression instanceof ExpressionNode || expression instanceof ASTConst) {
             throw new UnsupportedCompilationException("Can't compile expression/constant setters.");
+        }
 
         context.setRoot(root);
         context.remove(PRE_CAST);
@@ -629,17 +589,16 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         if (noRoot != null)
             pre = "";
 
-        createLocalReferences(context, pool, newClass, objClass, valueSetter.getParameterTypes());
+        createLocalReferences(context, pool, newClass, valueSetter.getParameterTypes());
 
         body = "{"
-               + (castExpression != null ? castExpression : "")
-               + pre
-               + setterCode + ";}";
+                + (castExpression != null ? castExpression : "")
+                + pre
+                + setterCode + ";}";
 
-        if (body.indexOf("..") >= 0)
+        if (body.contains("..")) {
             body = body.replaceAll("\\.\\.", ".");
-
-//        System.out.println("Setter Body: ===================================\n" + body);
+        }
 
         valueSetter.setBody(body);
         newClass.addMethod(valueSetter);
@@ -650,21 +609,15 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     /**
      * Fail safe getter creation when normal compilation fails.
      *
-     * @param clazz
-     *          The javassist class the new method should be attached to.
-     * @param valueGetter
-     *          The method definition the generated code will be contained within.
-     * @param node
-     *          The root expression node.
+     * @param clazz       The javassist class the new method should be attached to.
+     * @param valueGetter The method definition the generated code will be contained within.
+     * @param node        The root expression node.
      * @return The generated source string for this method, the method will still be
-     *          added via the javassist API either way so this is really a convenience
-     *          for exception reporting / debugging.
-     * @throws Exception
-     *          If a javassist error occurs.
+     * added via the javassist API either way so this is really a convenience
+     * for exception reporting / debugging.
+     * @throws Exception If a javassist error occurs.
      */
-    protected String generateOgnlGetter(CtClass clazz, CtMethod valueGetter, CtField node)
-            throws Exception
-    {
+    protected String generateOgnlGetter(CtClass clazz, CtMethod valueGetter, CtField node) throws Exception {
         String body = "return " + node.getName() + ".getValue($1, $2);";
 
         valueGetter.setBody(body);
@@ -676,21 +629,16 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     /**
      * Fail safe setter creation when normal compilation fails.
      *
-     * @param clazz
-     *          The javassist class the new method should be attached to.
-     * @param valueSetter
-     *          The method definition the generated code will be contained within.
-     * @param node
-     *          The root expression node.
+     * @param clazz       The javassist class the new method should be attached to.
+     * @param valueSetter The method definition the generated code will be contained within.
+     * @param node        The root expression node.
      * @return The generated source string for this method, the method will still be
-     *          added via the javassist API either way so this is really a convenience
-     *          for exception reporting / debugging.
-     * @throws Exception
-     *          If a javassist error occurs.
+     * added via the javassist API either way so this is really a convenience
+     * for exception reporting / debugging.
+     * @throws Exception If a javassist error occurs.
      */
     protected String generateOgnlSetter(CtClass clazz, CtMethod valueSetter, CtField node)
-            throws Exception
-    {
+            throws Exception {
         String body = node.getName() + ".setValue($1, $2, $3);";
 
         valueSetter.setBody(body);
@@ -703,22 +651,20 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      * Creates a {@link ClassLoader} instance compatible with the javassist classloader and normal
      * OGNL class resolving semantics.
      *
-     * @param context
-     *          The current execution context.
-     *
+     * @param context The current execution context.
      * @return The created {@link ClassLoader} instance.
      */
-    protected EnhancedClassLoader getClassLoader(OgnlContext context)
-    {
-        EnhancedClassLoader ret = (EnhancedClassLoader) _loaders.get(context.getClassResolver());
+    protected EnhancedClassLoader getClassLoader(OgnlContext context) {
+        EnhancedClassLoader ret = loaders.get(context.getClassResolver());
 
-        if (ret != null)
+        if (ret != null) {
             return ret;
+        }
 
         ClassLoader classLoader = new ContextClassLoader(OgnlContext.class.getClassLoader(), context);
 
         ret = new EnhancedClassLoader(classLoader);
-        _loaders.put(context.getClassResolver(), ret);
+        loaders.put(context.getClassResolver(), ret);
 
         return ret;
     }
@@ -726,16 +672,12 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     /**
      * Loads a new class definition via javassist for the specified class.
      *
-     * @param searchClass
-     *          The class to load.
+     * @param searchClass The class to load.
      * @return The javassist class equivalent.
-     *
      * @throws NotFoundException When the class definition can't be found.
      */
-    protected CtClass getCtClass(Class searchClass)
-            throws NotFoundException
-    {
-        return _pool.get(searchClass.getName());
+    protected CtClass getCtClass(Class<?> searchClass) throws NotFoundException {
+        return classPool.get(searchClass.getName());
     }
 
     /**
@@ -743,20 +685,18 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      * classes.  A new class path object is inserted in to the returned {@link ClassPool} using
      * the passed in <code>loader</code> instance if a new pool needs to be created.
      *
-     * @param context
-     *          The current execution context.
-     * @param loader
-     *          The {@link ClassLoader} instance to use - as returned by {@link #getClassLoader(ognl.OgnlContext)}.
+     * @param context The current execution context.
+     * @param loader  The {@link ClassLoader} instance to use - as returned by {@link #getClassLoader(OgnlContext)}.
      * @return The existing or new {@link ClassPool} instance.
      */
-    protected ClassPool getClassPool(OgnlContext context, EnhancedClassLoader loader)
-    {
-        if (_pool != null)
-            return _pool;
+    protected ClassPool getClassPool(OgnlContext context, EnhancedClassLoader loader) {
+        if (classPool != null) {
+            return classPool;
+        }
 
-        _pool = ClassPool.getDefault();
-        _pool.insertClassPath(new LoaderClassPath(loader.getParent()));
+        classPool = ClassPool.getDefault();
+        classPool.insertClassPath(new LoaderClassPath(loader.getParent()));
 
-        return _pool;
+        return classPool;
     }
 }

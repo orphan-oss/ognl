@@ -32,6 +32,7 @@ class ExampleStringSubclass extends ExampleStringClass {
 class ExampleTwoMethodClass {
     public void foo(final Integer parameter1, final Date parameter2) {
     }
+
     public void bar(final String parameter2) {
     }
 }
@@ -39,6 +40,7 @@ class ExampleTwoMethodClass {
 class ExampleTwoMethodClass2 {
     public void foo(final Integer parameter1, final Date parameter2) {
     }
+
     public void bar(final String parameter2) {
     }
 }
@@ -46,6 +48,7 @@ class ExampleTwoMethodClass2 {
 class ExampleTwoMethodClass3 {
     public void foo(final Integer parameter1, final Date parameter2) {
     }
+
     public void bar(final String parameter2) {
     }
 }
@@ -53,6 +56,7 @@ class ExampleTwoMethodClass3 {
 class ExampleTwoMethodClass4 {
     public void foo(final Integer parameter1, final Date parameter2) {
     }
+
     public void bar(final String parameter2) {
     }
 }
@@ -60,6 +64,7 @@ class ExampleTwoMethodClass4 {
 class ExampleTwoMethodClass5 {
     public void foo(final Integer parameter1, final Date parameter2) {
     }
+
     public void bar(final String parameter2) {
     }
 }
@@ -67,6 +72,7 @@ class ExampleTwoMethodClass5 {
 class ExampleTwoMethodClass6 {
     public void foo(final Integer parameter1, final Date parameter2) {
     }
+
     public void bar(final String parameter2) {
     }
 }
@@ -74,6 +80,7 @@ class ExampleTwoMethodClass6 {
 class ExampleTwoMethodClass7 {
     public void foo(final Integer parameter1, final Date parameter2) {
     }
+
     public void bar(final String parameter2) {
     }
 }
@@ -81,6 +88,7 @@ class ExampleTwoMethodClass7 {
 class ExampleTwoMethodClass8 {
     public void foo(final Integer parameter1, final Date parameter2) {
     }
+
     public void bar(final String parameter2) {
     }
 }
@@ -88,6 +96,7 @@ class ExampleTwoMethodClass8 {
 class ExampleTwoMethodClass9 {
     public void foo(final Integer parameter1, final Date parameter2) {
     }
+
     public void bar(final String parameter2) {
     }
 }
@@ -95,6 +104,7 @@ class ExampleTwoMethodClass9 {
 class ExampleTwoMethodClass10 {
     public void foo(final Integer parameter1, final Date parameter2) {
     }
+
     public void bar(final String parameter2) {
     }
 }
@@ -127,7 +137,7 @@ public class OgnlRuntimeTest {
     }
 
     private void runTest(final Class<?> clazz, final Method method, final int invocationCount, final int threadCount,
-            final Class<?>[] expected) throws Exception {
+                         final Class<?>[] expected) throws Exception {
         final ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         final List<Future<Class<?>[]>> futures = new ArrayList<Future<Class<?>[]>>(threadCount);
         totalNumberOfRunTestRuns++;
@@ -152,37 +162,37 @@ public class OgnlRuntimeTest {
     @Test
     public void testPerformanceRealGenericSingleThread() throws Exception {
         final Method barMethod = ExampleStringClass.class.getMethod("bar", Object.class);
-        runTest(ExampleStringClass.class, barMethod, 10000000, 1, new Class[] { String.class });
+        runTest(ExampleStringClass.class, barMethod, 10000000, 1, new Class[]{String.class});
     }
 
     @Test
     public void testPerformanceFakeGenericSingleThread() throws Exception {
         final Method fooMethod = ExampleStringClass.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleStringClass.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+        runTest(ExampleStringClass.class, fooMethod, 10000000, 1, new Class[]{Integer.class, Date.class});
     }
 
     @Test
     public void testPerformanceNonGenericSingleThread() throws Exception {
         final Method fooMethod = ExampleStringSubclass.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleStringSubclass.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+        runTest(ExampleStringSubclass.class, fooMethod, 10000000, 1, new Class[]{Integer.class, Date.class});
     }
 
     @Test
     public void testPerformanceRealGenericMultipleThreads() throws Exception {
         final Method barMethod = ExampleStringClass.class.getMethod("bar", Object.class);
-        runTest(ExampleStringClass.class, barMethod, 100000, 100, new Class[] { String.class });
+        runTest(ExampleStringClass.class, barMethod, 100000, 100, new Class[]{String.class});
     }
 
     @Test
     public void testPerformanceFakeGenericMultipleThreads() throws Exception {
         final Method fooMethod = ExampleStringClass.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleStringClass.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+        runTest(ExampleStringClass.class, fooMethod, 100000, 100, new Class[]{Integer.class, Date.class});
     }
 
     @Test
     public void testPerformanceNotGenericMultipleThreads() throws Exception {
         final Method fooMethod = ExampleStringSubclass.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleStringSubclass.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+        runTest(ExampleStringSubclass.class, fooMethod, 100000, 100, new Class[]{Integer.class, Date.class});
     }
 
     @Test
@@ -191,53 +201,53 @@ public class OgnlRuntimeTest {
 
         Method barMethod = ExampleTwoMethodClass.class.getMethod("bar", String.class);
         Method fooMethod = ExampleTwoMethodClass.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass.class, barMethod, 10000000, 1, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass.class, barMethod, 10000000, 1, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass.class, fooMethod, 10000000, 1, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass2.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass2.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass2.class, barMethod, 10000000, 1, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass2.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass2.class, barMethod, 10000000, 1, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass2.class, fooMethod, 10000000, 1, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass3.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass3.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass3.class, barMethod, 10000000, 1, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass3.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass3.class, barMethod, 10000000, 1, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass3.class, fooMethod, 10000000, 1, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass4.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass4.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass4.class, barMethod, 10000000, 1, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass4.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass4.class, barMethod, 10000000, 1, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass4.class, fooMethod, 10000000, 1, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass5.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass5.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass5.class, barMethod, 10000000, 1, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass5.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass5.class, barMethod, 10000000, 1, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass5.class, fooMethod, 10000000, 1, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass6.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass6.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass6.class, barMethod, 10000000, 1, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass6.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass6.class, barMethod, 10000000, 1, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass6.class, fooMethod, 10000000, 1, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass7.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass7.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass7.class, barMethod, 10000000, 1, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass7.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass7.class, barMethod, 10000000, 1, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass7.class, fooMethod, 10000000, 1, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass8.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass8.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass8.class, barMethod, 10000000, 1, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass8.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass8.class, barMethod, 10000000, 1, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass8.class, fooMethod, 10000000, 1, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass9.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass9.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass9.class, barMethod, 10000000, 1, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass9.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass9.class, barMethod, 10000000, 1, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass9.class, fooMethod, 10000000, 1, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass10.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass10.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass10.class, barMethod, 10000000, 1, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass10.class, fooMethod, 10000000, 1, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass10.class, barMethod, 10000000, 1, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass10.class, fooMethod, 10000000, 1, new Class[]{Integer.class, Date.class});
 
         final long testEndNanoTime = System.nanoTime();
         final long elapsedTestNanoTime = testEndNanoTime - testStartNanoTime;
@@ -259,53 +269,53 @@ public class OgnlRuntimeTest {
 
         Method barMethod = ExampleTwoMethodClass.class.getMethod("bar", String.class);
         Method fooMethod = ExampleTwoMethodClass.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass.class, barMethod, 100000, 100, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass.class, barMethod, 100000, 100, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass.class, fooMethod, 100000, 100, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass2.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass2.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass2.class, barMethod, 100000, 100, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass2.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass2.class, barMethod, 100000, 100, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass2.class, fooMethod, 100000, 100, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass3.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass3.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass3.class, barMethod, 100000, 100, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass3.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass3.class, barMethod, 100000, 100, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass3.class, fooMethod, 100000, 100, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass4.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass4.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass4.class, barMethod, 100000, 100, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass4.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass4.class, barMethod, 100000, 100, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass4.class, fooMethod, 100000, 100, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass5.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass5.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass5.class, barMethod, 100000, 100, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass5.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass5.class, barMethod, 100000, 100, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass5.class, fooMethod, 100000, 100, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass6.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass6.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass6.class, barMethod, 100000, 100, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass6.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass6.class, barMethod, 100000, 100, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass6.class, fooMethod, 100000, 100, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass7.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass7.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass7.class, barMethod, 100000, 100, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass7.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass7.class, barMethod, 100000, 100, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass7.class, fooMethod, 100000, 100, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass8.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass8.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass8.class, barMethod, 100000, 100, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass8.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass8.class, barMethod, 100000, 100, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass8.class, fooMethod, 100000, 100, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass9.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass9.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass9.class, barMethod, 100000, 100, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass9.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass9.class, barMethod, 100000, 100, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass9.class, fooMethod, 100000, 100, new Class[]{Integer.class, Date.class});
 
         barMethod = ExampleTwoMethodClass10.class.getMethod("bar", String.class);
         fooMethod = ExampleTwoMethodClass10.class.getMethod("foo", Integer.class, Date.class);
-        runTest(ExampleTwoMethodClass10.class, barMethod, 100000, 100, new Class[] { String.class });
-        runTest(ExampleTwoMethodClass10.class, fooMethod, 100000, 100, new Class[] { Integer.class, Date.class });
+        runTest(ExampleTwoMethodClass10.class, barMethod, 100000, 100, new Class[]{String.class});
+        runTest(ExampleTwoMethodClass10.class, fooMethod, 100000, 100, new Class[]{Integer.class, Date.class});
 
         final long testEndNanoTime = System.nanoTime();
         final long elapsedTestNanoTime = testEndNanoTime - testStartNanoTime;
@@ -375,7 +385,7 @@ public class OgnlRuntimeTest {
 
     /**
      * Test OgnlRuntime value for _useJDK9PlusAccessHandler based on the System property
-     *   represented by {@link OgnlRuntime#USE_JDK9PLUS_ACESS_HANDLER}.
+     * represented by {@link OgnlRuntime#USE_JDK9PLUS_ACCESS_HANDLER}.
      */
     @Test
     public void testAccessHanderStateFlag() {
@@ -384,7 +394,7 @@ public class OgnlRuntimeTest {
         boolean optionDefinedInEnvironment = false;  // Track if option defined in environment
         boolean flagValueFromEnvironment = false;    // Value result from environment retrieval
         try {
-            final String propertyString = System.getProperty(OgnlRuntime.USE_JDK9PLUS_ACESS_HANDLER);
+            final String propertyString = System.getProperty(OgnlRuntime.USE_JDK9PLUS_ACCESS_HANDLER);
             if (propertyString != null && propertyString.length() > 0) {
                 optionDefinedInEnvironment = true;
                 flagValueFromEnvironment = Boolean.parseBoolean(propertyString);
@@ -393,9 +403,9 @@ public class OgnlRuntimeTest {
             // Unavailable (SecurityException, etc.)
         }
         if (optionDefinedInEnvironment) {
-            System.out.println("System property " + OgnlRuntime.USE_JDK9PLUS_ACESS_HANDLER + " value: " + flagValueFromEnvironment);
+            System.out.println("System property " + OgnlRuntime.USE_JDK9PLUS_ACCESS_HANDLER + " value: " + flagValueFromEnvironment);
         } else {
-            System.out.println("System property " + OgnlRuntime.USE_JDK9PLUS_ACESS_HANDLER + " not present.  Default value should be: " + defaultValue);
+            System.out.println("System property " + OgnlRuntime.USE_JDK9PLUS_ACCESS_HANDLER + " not present.  Default value should be: " + defaultValue);
         }
         System.out.println("Current OGNL value for use JDK9+ Access Handler: " + OgnlRuntime.getUseJDK9PlusAccessHandlerValue());
         Assert.assertEquals("Mismatch between system property (or default) and OgnlRuntime _usJDK9PlusAccessHandler flag state ?",
@@ -404,7 +414,7 @@ public class OgnlRuntimeTest {
 
     /**
      * Test OgnlRuntime value for _useStricterInvocation based on the System properties
-     *   represented by {@link OgnlRuntime#USE_STRICTER_INVOCATION}.
+     * represented by {@link OgnlRuntime#USE_STRICTER_INVOCATION}.
      */
     @Test
     public void testUseStricterInvocationStateFlag() {
@@ -439,13 +449,13 @@ public class OgnlRuntimeTest {
         // Ensure no exceptions, basic ouput for test report and sanity check on flag state.
         // Note: If stricter invocation mode is disabled (due to a system property being set for
         //   the JVM running the test) this test will not fail, but just skip the test.
-        if ( OgnlRuntime.getUseStricterInvocationValue()) {
+        if (OgnlRuntime.getUseStricterInvocationValue()) {
             try {
                 final Class<?>[] singleClassArgument = new Class<?>[1];
                 singleClassArgument[0] = int.class;
                 final Method exitMethod = System.class.getMethod("exit", singleClassArgument);
                 try {
-                    OgnlRuntime.invokeMethod(System.class, exitMethod, new Object[] { -1 });
+                    OgnlRuntime.invokeMethod(System.class, exitMethod, new Object[]{-1});
                     Assert.fail("Somehow got past invocation of a restricted exit call (nonsensical result) ?");
                 } catch (IllegalAccessException iae) {
                     // Expected failure (failed during invocation)
@@ -458,7 +468,7 @@ public class OgnlRuntimeTest {
                 singleClassArgument[0] = String.class;
                 final Method execMethod = Runtime.class.getMethod("exec", singleClassArgument);
                 try {
-                    OgnlRuntime.invokeMethod(Runtime.getRuntime(), execMethod, new Object[] { "fakeCommand" });
+                    OgnlRuntime.invokeMethod(Runtime.getRuntime(), execMethod, new Object[]{"fakeCommand"});
                     Assert.fail("Somehow got past invocation of a restricted exec call ?");
                 } catch (IllegalAccessException iae) {
                     // Expected failure (failed during invocation)
@@ -477,7 +487,7 @@ public class OgnlRuntimeTest {
 
     /**
      * Test OgnlRuntime value for _useFirstMatchGetSetLookup based on the System property
-     *   represented by {@link OgnlRuntime#USE_FIRSTMATCH_GETSET_LOOKUP}.
+     * represented by {@link OgnlRuntime#USE_FIRSTMATCH_GETSET_LOOKUP}.
      */
     @Test
     public void testUseFirstMatchGetSetStateFlag() {
@@ -504,7 +514,7 @@ public class OgnlRuntimeTest {
                 optionDefinedInEnvironment ? flagValueFromEnvironment : defaultValue, OgnlRuntime.getUseFirstMatchGetSetLookupValue());
     }
 
-    private Map defaultContext = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+    private final OgnlContext defaultContext = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
 
     @Test // Success
     public void testForArray() throws Exception {
@@ -532,19 +542,24 @@ public class OgnlRuntimeTest {
         public void setChars(Character[] chars) {
             this.chars = chars;
         }
+
         public Character[] getChars() {
             return chars;
         }
+
         public void setStrings(String... strings) {
             this.strings = strings;
         }
+
         public String[] getStrings() {
             return strings;
         }
+
         public void setMix(Integer index, String... strings) {
             this.index = index;
             this.strings = strings;
         }
+
         public Integer getIndex() {
             return index;
         }
@@ -612,12 +627,11 @@ public class OgnlRuntimeTest {
     }
 
     @Test
-    public void shouldSameMethodOfDifferentParentsBeCallable()
-            throws Exception {
+    public void shouldSameMethodOfDifferentParentsBeCallable() throws Exception {
         Map<String, Object> root = new HashMap<>();
         root.put("d1", java.sql.Date.valueOf("2022-01-01"));
         root.put("d2", java.sql.Date.valueOf("2022-01-02"));
-        Assert.assertEquals(-1,
-                Ognl.getValue("d1.compareTo(d2)", defaultContext, root));
+        Assert.assertEquals(-1, Ognl.getValue("d1.compareTo(d2)", defaultContext, root));
     }
+
 }

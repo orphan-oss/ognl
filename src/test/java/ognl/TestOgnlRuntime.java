@@ -1,7 +1,23 @@
 package ognl;
 
 import junit.framework.TestCase;
-import org.ognl.test.objects.*;
+import ognl.test.objects.BaseGeneric;
+import ognl.test.objects.Bean2;
+import ognl.test.objects.FormImpl;
+import ognl.test.objects.GameGeneric;
+import ognl.test.objects.GameGenericObject;
+import ognl.test.objects.GenericCracker;
+import ognl.test.objects.GenericService;
+import ognl.test.objects.GenericServiceImpl;
+import ognl.test.objects.GetterMethods;
+import ognl.test.objects.IComponent;
+import ognl.test.objects.IForm;
+import ognl.test.objects.ListSource;
+import ognl.test.objects.ListSourceImpl;
+import ognl.test.objects.OtherEnum;
+import ognl.test.objects.Root;
+import ognl.test.objects.SetterReturns;
+import ognl.test.objects.SubclassSyntheticObject;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
@@ -10,7 +26,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,20 +33,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Tests various methods / functionality of {@link ognl.OgnlRuntime}.
+ * Tests various methods / functionality of {@link OgnlRuntime}.
  */
 public class TestOgnlRuntime extends TestCase {
 
-
-    private Map context;
+    private OgnlContext context;
 
     public void setUp() throws Exception {
         super.setUp();
         context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
     }
 
-    public void test_Get_Super_Or_Interface_Class() throws Exception
-    {
+    public void test_Get_Super_Or_Interface_Class() {
         ListSource list = new ListSourceImpl();
 
         Method m = OgnlRuntime.getReadMethod(list.getClass(), "total");
@@ -40,9 +53,8 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(ListSource.class, OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, list.getClass()));
     }
 
-    public void test_Get_Private_Class() throws Exception
-    {
-        List list = Arrays.asList(new String[]{"hello", "world"});
+    public void test_Get_Private_Class() {
+        List<String> list = Arrays.asList("hello", "world");
 
         Method m = OgnlRuntime.getReadMethod(list.getClass(), "iterator");
         assertNotNull(m);
@@ -50,8 +62,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(Iterable.class, OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, list.getClass()));
     }
 
-    public void test_Complicated_Inheritance() throws Exception
-    {
+    public void test_Complicated_Inheritance() {
         IForm form = new FormImpl();
 
         Method m = OgnlRuntime.getWriteMethod(form.getClass(), "clientId");
@@ -60,18 +71,14 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(IComponent.class, OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, form.getClass()));
     }
 
-    public void test_Get_Read_Method()
-            throws Exception
-    {
+    public void test_Get_Read_Method() {
         Method m = OgnlRuntime.getReadMethod(Bean2.class, "pageBreakAfter");
         assertNotNull(m);
 
         assertEquals("isPageBreakAfter", m.getName());
     }
 
-    public void test_Get_Read_Field()
-            throws Exception
-    {
+    public void test_Get_Read_Field() {
         Method m = OgnlRuntime.getReadMethod(Bean2.class, "code");
         assertNull(m);
 
@@ -80,14 +87,12 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals("code", field.getName());
     }
 
-    class TestGetters {
-        public boolean isEditorDisabled()
-        {
+    static class TestGetters {
+        public boolean isEditorDisabled() {
             return false;
         }
 
-        public boolean isDisabled()
-        {
+        public boolean isDisabled() {
             return true;
         }
 
@@ -100,18 +105,14 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
-    public void test_Get_Read_Method_Multiple()
-            throws Exception
-    {
+    public void test_Get_Read_Method_Multiple() {
         Method m = OgnlRuntime.getReadMethod(TestGetters.class, "disabled");
         assertNotNull(m);
 
         assertEquals("isDisabled", m.getName());
     }
 
-    public void test_Get_Read_Method_Multiple_Boolean_Getters()
-            throws Exception
-    {
+    public void test_Get_Read_Method_Multiple_Boolean_Getters() {
         Method m = OgnlRuntime.getReadMethod(TestGetters.class, "available");
         assertNotNull(m);
 
@@ -123,9 +124,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals("isNotAvailable", m.getName());
     }
 
-    public void test_Find_Method_Mixed_Boolean_Getters()
-    throws Exception
-    {
+    public void test_Find_Method_Mixed_Boolean_Getters() {
         Method m = OgnlRuntime.getReadMethod(GetterMethods.class, "allowDisplay");
         assertNotNull(m);
 
@@ -133,70 +132,65 @@ public class TestOgnlRuntime extends TestCase {
     }
 
     public void test_Get_Appropriate_Method()
-            throws Exception
-    {
+            throws Exception {
         ListSource list = new ListSourceImpl();
-        OgnlContext context = (OgnlContext) this.context;
+        OgnlContext context = this.context;
 
-        Object ret = OgnlRuntime.callMethod(context, list, "addValue", new String[] {null});
-        
+        Object ret = OgnlRuntime.callMethod(context, list, "addValue", new String[]{null});
+
         assert ret != null;
     }
 
-    public void test_Call_Static_Method_Invalid_Class()
-    {
+    public void test_Call_Static_Method_Invalid_Class() {
 
         try {
 
-            OgnlContext context = (OgnlContext) this.context;
+            OgnlContext context = this.context;
             OgnlRuntime.callStaticMethod(context, "made.up.Name", "foo", null);
 
             fail("ClassNotFoundException should have been thrown by previous reference to <made.up.Name> class.");
         } catch (Exception et) {
 
-            assertTrue(MethodFailedException.class.isInstance(et));
-            assertTrue(et.getMessage().indexOf("made.up.Name") > -1);
+            assertTrue(et instanceof MethodFailedException);
+            assertTrue(et.getMessage().contains("made.up.Name"));
         }
     }
 
     public void test_Setter_Returns()
-            throws Exception
-    {
-        OgnlContext context = (OgnlContext) this.context;
+            throws Exception {
+        OgnlContext context = this.context;
         SetterReturns root = new SetterReturns();
 
         Method m = OgnlRuntime.getWriteMethod(root.getClass(), "value");
-        assertTrue(m != null);
+        assertNotNull(m);
 
         Ognl.setValue("value", context, root, "12__");
         assertEquals(Ognl.getValue("value", context, root), "12__");
     }
 
     public void test_Call_Method_VarArgs()
-            throws Exception
-    {
-        OgnlContext context = (OgnlContext) this.context;
+            throws Exception {
+        OgnlContext context = this.context;
         GenericService service = new GenericServiceImpl();
 
         GameGenericObject argument = new GameGenericObject();
 
-        Object[] args = OgnlRuntime.getObjectArrayPool().create(2);
+        Object[] args = new Object[2];
         args[0] = argument;
 
         assertEquals("Halo 3", OgnlRuntime.callMethod(context, service, "getFullMessageFor", args));
     }
 
-    public void test_Call_Method_In_JDK_Sandbox()
-            throws Exception {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+    public void test_Call_Method_In_JDK_Sandbox() {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
             System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox() -invocation test.");
             return;  // JVM option was set to disable sandbox, do not attempt invocation.
         }
 
-        OgnlContext context = (OgnlContext) this.context;
+        OgnlContext context = this.context;
         GenericService service = new GenericServiceImpl();
 
-        Object[] args = OgnlRuntime.getObjectArrayPool().create(1);
+        Object[] args = new Object[1];
         args[0] = 0;
 
         boolean temporaryEnabled = false;
@@ -212,7 +206,7 @@ public class TestOgnlRuntime extends TestCase {
             fail("JDK sandbox should block execution");
         } catch (Exception ex) {
             assertTrue(ex.getCause() instanceof InvocationTargetException);
-            assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("execute"));
+            assertTrue(((InvocationTargetException) ex.getCause()).getTargetException().getMessage().contains("execute"));
         } finally {
             if (temporaryEnabled) {
                 System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
@@ -222,12 +216,12 @@ public class TestOgnlRuntime extends TestCase {
 
     public void test_Call_Method_In_JDK_Sandbox_Thread_Safety()
             throws Exception {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
             System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox_Thread_Safety() invocation test.");
             return;  // JVM option was set to disable sandbox, do not attempt invocation.
         }
 
-        final OgnlContext context = (OgnlContext) this.context;
+        final OgnlContext context = this.context;
         final GenericService service = new GenericServiceImpl();
 
         boolean temporaryEnabled = false;
@@ -245,32 +239,30 @@ public class TestOgnlRuntime extends TestCase {
             final CountDownLatch allThreadsWaitOnThis = new CountDownLatch(1);
             final AtomicInteger numThreadsFailedTest = new AtomicInteger(0);
             for (int i = 0; i < NUM_THREADS; ++i) {
-                exec.submit(new Runnable() {
-                    public void run() {
-                        try {
-                            allThreadsWaitOnThis.await();
-                        } catch (InterruptedException ignored) {
-                        }
+                exec.submit(() -> {
+                    try {
+                        allThreadsWaitOnThis.await();
+                    } catch (InterruptedException ignored) {
+                    }
 
-                        try {
-                            Thread.sleep((long) (Math.random() * MAX_WAIT_MS));
-                        } catch (InterruptedException ignored) {
-                        }
+                    try {
+                        Thread.sleep((long) (Math.random() * MAX_WAIT_MS));
+                    } catch (InterruptedException ignored) {
+                    }
 
-                        Object[] args = OgnlRuntime.getObjectArrayPool().create(1);
-                        args[0] = Math.random() * MAX_WAIT_MS;
+                    Object[] args = new Object[1];
+                    args[0] = Math.random() * MAX_WAIT_MS;
 
-                        try {
-                            OgnlRuntime.callMethod(context, service, "exec", args);
+                    try {
+                        OgnlRuntime.callMethod(context, service, "exec", args);
+                        numThreadsFailedTest.incrementAndGet();
+                    } catch (Exception ex) {
+                        if (!((ex.getCause() instanceof InvocationTargetException &&
+                                ((InvocationTargetException) ex.getCause()).getTargetException().getMessage().contains("execute"))
+                                ||
+                                (ex.getCause() instanceof SecurityException &&
+                                        ex.getCause().getMessage().contains("createClassLoader")))) {
                             numThreadsFailedTest.incrementAndGet();
-                        } catch (Exception ex) {
-                            if (!((ex.getCause() instanceof InvocationTargetException &&
-                                    ((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("execute"))
-                                    ||
-                                    (ex.getCause() instanceof SecurityException &&
-                                            ex.getCause().getMessage().contains("createClassLoader")))) {
-                                numThreadsFailedTest.incrementAndGet();
-                            }
                         }
                     }
                 });
@@ -292,17 +284,16 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
-    public void test_Disable_JDK_Sandbox()
-            throws Exception {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+    public void test_Disable_JDK_Sandbox() {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
             System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Disable_JDK_Sandbox() invocation test.");
             return;  // JVM option was set to disable sandbox, do not attempt invocation.
         }
 
-        OgnlContext context = (OgnlContext) this.context;
+        OgnlContext context = this.context;
         GenericService service = new GenericServiceImpl();
 
-        Object[] args = OgnlRuntime.getObjectArrayPool().create(0);
+        Object[] args = new Object[]{};
 
         boolean temporaryEnabled = false;
         try {
@@ -317,8 +308,8 @@ public class TestOgnlRuntime extends TestCase {
             fail("JDK sandbox should block execution");
         } catch (Exception ex) {
             assertTrue(ex.getCause() instanceof InvocationTargetException);
-            assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains(OgnlRuntime.OGNL_SECURITY_MANAGER));
-            assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("write"));
+            assertTrue(((InvocationTargetException) ex.getCause()).getTargetException().getMessage().contains(OgnlRuntime.OGNL_SECURITY_MANAGER));
+            assertTrue(((InvocationTargetException) ex.getCause()).getTargetException().getMessage().contains("write"));
         } finally {
             if (temporaryEnabled) {
                 System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
@@ -357,8 +348,8 @@ public class TestOgnlRuntime extends TestCase {
             fail("JDK sandbox should block execution");
         } catch (Exception ex) {
             assertTrue(ex.getCause() instanceof InvocationTargetException);
-            assertTrue(((InvocationTargetException)ex.getCause()).getTargetException() instanceof SecurityException);
-            assertNull(((InvocationTargetException)ex.getCause()).getTargetException().getMessage());
+            assertTrue(((InvocationTargetException) ex.getCause()).getTargetException() instanceof SecurityException);
+            assertNull(((InvocationTargetException) ex.getCause()).getTargetException().getMessage());
         } finally {
             if (temporaryEnabled) {
                 System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
@@ -366,17 +357,16 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
-    public void test_Exit_JDK_Sandbox()
-            throws Exception {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+    public void test_Exit_JDK_Sandbox() {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
             System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Exit_JDK_Sandbox() invocation test.");
             return;  // JVM option was set to disable sandbox, do not attempt invocation.
         }
 
-        OgnlContext context = (OgnlContext) this.context;
+        OgnlContext context = this.context;
         GenericService service = new GenericServiceImpl();
 
-        Object[] args = OgnlRuntime.getObjectArrayPool().create(0);
+        Object[] args = new Object[]{};
 
         boolean temporaryEnabled = false;
         try {
@@ -391,7 +381,7 @@ public class TestOgnlRuntime extends TestCase {
             fail("JDK sandbox should block execution");
         } catch (Exception ex) {
             assertTrue(ex.getCause() instanceof InvocationTargetException);
-            assertTrue(((InvocationTargetException)ex.getCause()).getTargetException().getMessage().contains("exit"));
+            assertTrue(((InvocationTargetException) ex.getCause()).getTargetException().getMessage().contains("exit"));
         } finally {
             if (temporaryEnabled) {
                 System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
@@ -399,17 +389,16 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
-    public void test_Call_Method_In_JDK_Sandbox_Privileged()
-            throws Exception {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+    public void test_Call_Method_In_JDK_Sandbox_Privileged() throws Exception {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
             System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox_Privileged() invocation test.");
             return;  // JVM option was set to disable sandbox, do not attempt invocation.
         }
 
-        OgnlContext context = (OgnlContext) this.context;
+        OgnlContext context = this.context;
         GenericService service = new GenericServiceImpl();
 
-        Object[] args = OgnlRuntime.getObjectArrayPool().create(0);
+        Object[] args = new Object[]{};
 
         boolean temporaryEnabled = false;
         try {
@@ -452,17 +441,16 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
-    public void test_Class_Loader_Direct_Access()
-            throws Exception {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue() == true) {
+    public void test_Class_Loader_Direct_Access() {
+        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
             System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Class_Loader_Direct_Access() invocation test.");
             return;  // JVM option was set to disable sandbox, do not attempt invocation.
         }
 
-        OgnlContext context = (OgnlContext) this.context;
+        OgnlContext context = this.context;
         ClassLoader classLoader = getClass().getClassLoader();
 
-        Object[] args = OgnlRuntime.getObjectArrayPool().create(1);
+        Object[] args = new Object[1];
         args[0] = "test.properties";
 
         boolean temporaryEnabled = false;
@@ -478,7 +466,7 @@ public class TestOgnlRuntime extends TestCase {
             fail("JDK sandbox should block execution");
         } catch (Exception ex) {
             assertTrue(ex.getCause() instanceof IllegalAccessException);
-            if (OgnlRuntime.getUseStricterInvocationValue() == true) {
+            if (OgnlRuntime.getUseStricterInvocationValue()) {
                 // Blocked by stricter invocation check first, if active.
                 assertTrue("Didn't find expected stricter invocation mode exception message ?",
                         ex.getCause().getMessage().endsWith("] cannot be called from within OGNL invokeMethod() under stricter invocation mode."));
@@ -494,152 +482,129 @@ public class TestOgnlRuntime extends TestCase {
     }
 
     public void test_Class_Cache_Inspector()
-            throws Exception
-    {
+            throws Exception {
         OgnlRuntime.clearCache();
         OgnlRuntime.clearAdditionalCache();  // Testing no exception only.
-        assertEquals(0, OgnlRuntime._propertyDescriptorCache.getSize());
-        assertEquals(0, OgnlRuntime._genericMethodParameterTypesCache.size());
+        assertEquals(0, OgnlRuntime.cache.propertyDescriptorCache.getSize());
+        assertEquals(0, OgnlRuntime.cache.genericMethodParameterTypesCache.getSize());
 
         Root root = new Root();
-        OgnlContext context = (OgnlContext) this.context;
+        OgnlContext context = this.context;
         Node expr = Ognl.compileExpression(context, root, "property.bean3.value != null");
 
-        assertTrue((Boolean)expr.getAccessor().get(context, root));
+        assertTrue((Boolean) expr.getAccessor().get(context, root));
 
-        int size = OgnlRuntime._propertyDescriptorCache.getSize();
+        int size = OgnlRuntime.cache.propertyDescriptorCache.getSize();
         assertTrue(size > 0);
 
         OgnlRuntime.clearCache();
         OgnlRuntime.clearAdditionalCache();  // Testing no exception only.
-        assertEquals(0, OgnlRuntime._propertyDescriptorCache.getSize());
-        assertEquals(0, OgnlRuntime._genericMethodParameterTypesCache.size());
+        assertEquals(0, OgnlRuntime.cache.propertyDescriptorCache.getSize());
+        assertEquals(0, OgnlRuntime.cache.genericMethodParameterTypesCache.getSize());
 
         // now register class cache prevention
 
         OgnlRuntime.setClassCacheInspector(new TestCacheInspector());
 
         expr = Ognl.compileExpression(context, root, "property.bean3.value != null");
-        assertTrue((Boolean)expr.getAccessor().get(context, root));
+        assertTrue((Boolean) expr.getAccessor().get(context, root));
 
-        assertEquals((size - 1), OgnlRuntime._propertyDescriptorCache.getSize());
+        assertEquals((size - 1), OgnlRuntime.cache.propertyDescriptorCache.getSize());
     }
 
-    class TestCacheInspector implements ClassCacheInspector {
+    static class TestCacheInspector implements ClassCacheInspector {
 
-        public boolean shouldCache(Class type)
-        {
-            if (type == null || type == Root.class)
-                return false;
-
-            return true;
+        public boolean shouldCache(Class<?> type) {
+            return type != null && type != Root.class;
         }
     }
 
-    public void test_Set_Generic_Parameter_Types()
-        throws Exception
-    {
-        OgnlContext context = (OgnlContext) this.context;
+    public void test_Set_Generic_Parameter_Types() {
+        OgnlContext context = this.context;
 
         Method m = OgnlRuntime.getSetMethod(context, GenericCracker.class, "param");
         assertNotNull(m);
 
-        Class[] types = m.getParameterTypes();
+        Class<?>[] types = m.getParameterTypes();
         assertEquals(1, types.length);
         assertEquals(Integer.class, types[0]);
     }
 
-    public void test_Get_Generic_Parameter_Types()
-        throws Exception
-    {
-        OgnlContext context = (OgnlContext) this.context;
+    public void test_Get_Generic_Parameter_Types() {
 
-        Method m = OgnlRuntime.getGetMethod(context, GenericCracker.class, "param");
+        Method m = OgnlRuntime.getGetMethod(GenericCracker.class, "param");
         assertNotNull(m);
 
         assertEquals(Integer.class, m.getReturnType());
     }
 
-    public void test_Find_Parameter_Types()
-            throws Exception
-    {
-        OgnlContext context = (OgnlContext) this.context;
+    public void test_Find_Parameter_Types() {
+        OgnlContext context = this.context;
 
         Method m = OgnlRuntime.getSetMethod(context, GameGeneric.class, "ids");
         assertNotNull(m);
 
-        Class[] types = OgnlRuntime.findParameterTypes(GameGeneric.class, m);
+        Class<?>[] types = OgnlRuntime.findParameterTypes(GameGeneric.class, m);
         assertEquals(1, types.length);
-        assertEquals(new Long[0].getClass(), types[0]);
+        assertEquals(Long[].class, types[0]);
     }
 
-    public void test_Find_Parameter_Types_Superclass()
-            throws Exception
-    {
-        OgnlContext context = (OgnlContext) this.context;
+    public void test_Find_Parameter_Types_Superclass() {
+        OgnlContext context = this.context;
 
         Method m = OgnlRuntime.getSetMethod(context, BaseGeneric.class, "ids");
         assertNotNull(m);
 
-        Class[] types = OgnlRuntime.findParameterTypes(BaseGeneric.class, m);
+        Class<?>[] types = OgnlRuntime.findParameterTypes(BaseGeneric.class, m);
         assertEquals(1, types.length);
-        assertEquals(new Serializable[0].getClass(), types[0]);
+        assertEquals(Serializable[].class, types[0]);
     }
 
-    public void test_Get_Declared_Methods_With_Synthetic_Methods()
-        throws Exception
-    {
-        List result = OgnlRuntime.getDeclaredMethods(SubclassSyntheticObject.class, "list", false);
+    public void test_Get_Declared_Methods_With_Synthetic_Methods() {
+        List<Method> result = OgnlRuntime.getDeclaredMethods(SubclassSyntheticObject.class, "list", false);
 
-        // synthetic method would be "public volatile java.util.List org.ognl.test.objects.SubclassSyntheticObject.getList()",
+        // synthetic method would be "public volatile java.util.List ognl.test.objects.SubclassSyntheticObject.getList()",
         // causing method return size to be 3
-        
+
         assertEquals(2, result.size());
     }
 
     public void test_Get_Property_Descriptors_With_Synthetic_Methods()
-        throws Exception
-    {
+            throws Exception {
         PropertyDescriptor pd = OgnlRuntime.getPropertyDescriptor(SubclassSyntheticObject.class, "list");
 
         assert pd != null;
         assert OgnlRuntime.isMethodCallable(pd.getReadMethod());
     }
 
-    private static class GenericParent<T>
-     {
-         public void save(T entity)
-         {
+    private static class GenericParent<T> {
+        public void save(T entity) {
+        }
+    }
 
-         }
-     }
+    private static class StringChild extends GenericParent<String> {
 
-     private static class StringChild extends GenericParent<String>
-     {
+    }
 
-     }
+    private static class LongChild extends GenericParent<Long> {
 
-     private static class LongChild extends GenericParent<Long>
-     {
+    }
 
-     }
+    /**
+     * Tests OGNL parameter discovery.
+     */
+    public void testOGNLParameterDiscovery() throws NoSuchMethodException {
+        Method saveMethod = GenericParent.class.getMethod("save", Object.class);
+        System.out.println(saveMethod);
 
-     /**
-      * Tests OGNL parameter discovery.
-      */
-     public void testOGNLParameterDiscovery() throws NoSuchMethodException
-     {
-         Method saveMethod = GenericParent.class.getMethod("save", Object.class);
-         System.out.println(saveMethod);
+        Class<?>[] longClass = OgnlRuntime.findParameterTypes(LongChild.class, saveMethod);
+        assertNotSame(longClass[0], String.class);
+        assertSame(longClass[0], Long.class);
 
-         Class[] longClass = OgnlRuntime.findParameterTypes(LongChild.class, saveMethod);
-         assertNotSame(longClass[0], String.class);
-         assertSame(longClass[0], Long.class);
-
-         Class[] stringClass = OgnlRuntime.findParameterTypes(StringChild.class, saveMethod);
-         assertNotSame("The cached parameter types from previous calls are used", stringClass[0], Long.class);
-         assertSame(stringClass[0], String.class);
-     }
+        Class<?>[] stringClass = OgnlRuntime.findParameterTypes(StringChild.class, saveMethod);
+        assertNotSame("The cached parameter types from previous calls are used", stringClass[0], Long.class);
+        assertSame(stringClass[0], String.class);
+    }
 
     public void testBangOperator() throws Exception {
         Object value = Ognl.getValue("!'false'", context, new Object());
@@ -647,33 +612,31 @@ public class TestOgnlRuntime extends TestCase {
     }
 
     public void testGetStaticField() throws Exception {
-        OgnlContext context = (OgnlContext) this.context;
-        Object obj = OgnlRuntime.getStaticField(context, "org.ognl.test.objects.Root", "SIZE_STRING");
+        OgnlContext context = this.context;
+        Object obj = OgnlRuntime.getStaticField(context, "ognl.test.objects.Root", "SIZE_STRING");
         assertEquals(Root.SIZE_STRING, obj);
     }
 
     public void testGetStaticFieldEnum() throws Exception {
-        OgnlContext context = (OgnlContext) this.context;
-        Object obj = OgnlRuntime.getStaticField(context, "org.ognl.test.objects.OtherEnum", "ONE");
+        OgnlContext context = this.context;
+        Object obj = OgnlRuntime.getStaticField(context, "ognl.test.objects.OtherEnum", "ONE");
         assertEquals(OtherEnum.ONE, obj);
     }
 
     public void testGetStaticFieldEnumStatic() throws Exception {
-        OgnlContext context = (OgnlContext) this.context;
-        Object obj = OgnlRuntime.getStaticField(context, "org.ognl.test.objects.OtherEnum", "STATIC_STRING");
+        OgnlContext context = this.context;
+        Object obj = OgnlRuntime.getStaticField(context, "ognl.test.objects.OtherEnum", "STATIC_STRING");
         assertEquals(OtherEnum.STATIC_STRING, obj);
     }
 
     /**
      * This test indirectly confirms an error output (syserr) is no longer produced when OgnlRuntime
-     * encounters the condition reported in issue #17.  {@link OgnlRuntime#findBestMethod} can find
-     * two appropriate methods with the same score where one is abstract and one is concrete.  Either
+     * encounters the condition reported in issue #17. {@link OgnlRuntime#findBestMethod(List, Class, String, Class[])}
+     * can find two appropriate methods with the same score where one is abstract and one is concrete.  Either
      * choice in that scenario actually worked when invoked, but produced the unwanted syserr output.
-     *
-     * @throws Exception
      */
     public void testAbstractConcreteMethodScoringNoSysErr() throws Exception {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+        OgnlContext context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
         ObjectMethodAccessor methodAccessor = new ObjectMethodAccessor();
         ConcreteTestClass concreteTestClass = new ConcreteTestClass();
         Object result = methodAccessor.callMethod(context, concreteTestClass, "testMethod", new Object[]{"Test", 1});
@@ -686,15 +649,15 @@ public class TestOgnlRuntime extends TestCase {
      *
      * @param <T>
      */
-    abstract class AbstractTestClass <T> {
-        public abstract String testMethod (T element, int i);
+    abstract static class AbstractTestClass<T> {
+        public abstract String testMethod(T element, int i);
     }
 
     /**
      * Concrete test class for issue #42 - equal score syserr output for abstract class/method hierarchy.
      */
-    class ConcreteTestClass extends AbstractTestClass < String > {
-        public String testMethod (String element, int i) {
+    static class ConcreteTestClass extends AbstractTestClass<String> {
+        public String testMethod(String element, int i) {
             return element + i;
         }
     }
@@ -705,6 +668,7 @@ public class TestOgnlRuntime extends TestCase {
     protected static class ProtectedParent {
         public void setName(String name) {
         }
+
         public String getName() {
             return "name";
         }
@@ -718,24 +682,20 @@ public class TestOgnlRuntime extends TestCase {
 
     /**
      * Test that synthetic bridge read methods can be found successfully.
-     * 
+     * <p>
      * Note: Only bridge methods should qualify, non-bridge synthetic methods should not.
-     * 
-     * @throws Exception 
      */
-    public void testSyntheticBridgeReadMethod() throws Exception {
+    public void testSyntheticBridgeReadMethod() {
         assertNotNull(OgnlRuntime.getReadMethod(PublicChild.class, "name"));
     }
 
     /**
      * Test that synthetic bridge write methods can be found successfully.
-     * 
+     * <p>
      * Note: Only bridge methods should qualify, non-bridge synthetic methods should not.
-     * 
-     * @throws Exception 
      */
-    public void testSyntheticBridgeWriteMethod() throws Exception {
-        assertNotNull(OgnlRuntime.getWriteMethod(PublicChild.class, "name"));
+    public void testSyntheticBridgeWriteMethod() {
+        assertNotNull(OgnlRuntime.getWriteMethod(PublicChild.class, "name", new Class[]{String.class}));
     }
 
     /**
@@ -753,7 +713,8 @@ public class TestOgnlRuntime extends TestCase {
      * Public class with non-public nested class for "is callable" method tests.
      */
     public static class SimpleNestingClass {
-        class NestedClass {
+        static class NestedClass {
+            // do not use "final"
             private String name = "nested name contents";
         }
 
@@ -773,7 +734,7 @@ public class TestOgnlRuntime extends TestCase {
             fail("SimplePublicClass.getName() method retrieval by reflection failed (NoSuchMethodException) ?");
         }
         assertNotNull("getName() method retrieval failed ?", method);
-        assertTrue("SimplePublicClass.getName() is a synthetic or bridge method ?", !(method.isBridge() || method.isSynthetic()));
+        assertFalse("SimplePublicClass.getName() is a synthetic or bridge method ?", method.isBridge() || method.isSynthetic());
         assertTrue("SimplePublicClass.getName() is not considered callable by isMethodCallable() ?", OgnlRuntime.isMethodCallable(method));
         assertTrue("SimplePublicClass.getName() is not considered callable by isMethodCallable_BridgeOrNonSynthetic() ?", OgnlRuntime.isMethodCallable_BridgeOrNonSynthetic(method));
     }

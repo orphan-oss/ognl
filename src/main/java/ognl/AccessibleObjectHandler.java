@@ -22,18 +22,17 @@ import java.lang.reflect.AccessibleObject;
 
 /**
  * This interface provides a mechanism for indirect reflection access processing
- *   of AccessibleObject instances by OGNL.  It can be used to provide different
- *   behaviour as JDK reflection mechanisms evolve.
+ * of AccessibleObject instances by OGNL.  It can be used to provide different
+ * behaviour as JDK reflection mechanisms evolve.
  *
  * @since 3.1.24
  */
-public abstract interface AccessibleObjectHandler
-{
+public interface AccessibleObjectHandler {
     /**
      * Provides an appropriate implementation to change the accessibility of accessibleObject.
      *
      * @param accessibleObject the AccessibleObject upon which to apply the flag.
-     * @param flag the new accessible flag value.
+     * @param flag             the new accessible flag value.
      */
     void setAccessible(AccessibleObject accessibleObject, boolean flag);
 }

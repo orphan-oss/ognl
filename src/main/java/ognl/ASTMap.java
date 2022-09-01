@@ -1,97 +1,62 @@
-// --------------------------------------------------------------------------
-// Copyright (c) 1998-2004, Drew Davidson and Luke Blanshard
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-// Redistributions of source code must retain the above copyright notice,
-// this list of conditions and the following disclaimer.
-// Redistributions in binary form must reproduce the above copyright
-// notice, this list of conditions and the following disclaimer in the
-// documentation and/or other materials provided with the distribution.
-// Neither the name of the Drew Davidson nor the names of its contributors
-// may be used to endorse or promote products derived from this software
-// without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-// AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
-// DAMAGE.
-// --------------------------------------------------------------------------
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * @author Luke Blanshard (blanshlu@netscape.net)
- * @author Drew Davidson (drew@ognl.org)
- */
-public class ASTMap extends SimpleNode
-{
+public class ASTMap extends SimpleNode {
 
-    private static Class DEFAULT_MAP_CLASS;
+    private static final long serialVersionUID = -849999202189860682L;
+
     private String className;
 
-    static {
-        /* Try to get LinkedHashMap; if older JDK than 1.4 use HashMap */
-        try {
-            DEFAULT_MAP_CLASS = Class.forName("java.util.LinkedHashMap");
-        } catch (ClassNotFoundException ex) {
-            DEFAULT_MAP_CLASS = HashMap.class;
-        }
-    }
-
-    public ASTMap(int id)
-    {
+    public ASTMap(int id) {
         super(id);
     }
 
-    public ASTMap(OgnlParser p, int id)
-    {
+    public ASTMap(OgnlParser p, int id) {
         super(p, id);
     }
 
-    protected void setClassName(String value)
-    {
+    protected void setClassName(String value) {
         className = value;
     }
 
     protected Object getValueBody(OgnlContext context, Object source)
-        throws OgnlException
-    {
-        Map answer;
+            throws OgnlException {
+        Map<Object, Object> answer;
 
         if (className == null) {
-            try {
-                answer = (Map) DEFAULT_MAP_CLASS.newInstance();
-            } catch (Exception ex) {
-                /* This should never happen */
-                throw new OgnlException("Default Map class '" + DEFAULT_MAP_CLASS.getName() + "' instantiation error",
-                        ex);
-            }
+            answer = new LinkedHashMap<>();
         } else {
             try {
-                answer = (Map) OgnlRuntime.classForName(context, className).newInstance();
+                answer = (Map<Object, Object>) OgnlRuntime.classForName(context, className).newInstance();
             } catch (Exception ex) {
                 throw new OgnlException("Map implementor '" + className + "' not found", ex);
             }
         }
 
-        for(int i = 0; i < jjtGetNumChildren(); ++i) {
-            ASTKeyValue kv = (ASTKeyValue) _children[i];
+        for (int i = 0; i < jjtGetNumChildren(); ++i) {
+            ASTKeyValue kv = (ASTKeyValue) children[i];
             Node k = kv.getKey(), v = kv.getValue();
 
             answer.put(k.getValue(context, source), (v == null) ? null : v.getValue(context, source));
@@ -100,33 +65,30 @@ public class ASTMap extends SimpleNode
         return answer;
     }
 
-    public String toString()
-    {
-        String result = "#";
+    public String toString() {
+        StringBuilder result = new StringBuilder("#");
 
         if (className != null) {
-            result = result + "@" + className + "@";
+            result.append("@").append(className).append("@");
         }
 
-        result = result + "{ ";
-        for(int i = 0; i < jjtGetNumChildren(); ++i) {
-            ASTKeyValue kv = (ASTKeyValue) _children[i];
+        result.append("{ ");
+        for (int i = 0; i < jjtGetNumChildren(); ++i) {
+            ASTKeyValue kv = (ASTKeyValue) children[i];
 
             if (i > 0) {
-                result = result + ", ";
+                result.append(", ");
             }
-            result = result + kv.getKey() + " : " + kv.getValue();
+            result.append(kv.getKey()).append(" : ").append(kv.getValue());
         }
         return result + " }";
     }
 
-    public String toGetSourceString(OgnlContext context, Object target)
-    {
+    public String toGetSourceString(OgnlContext context, Object target) {
         throw new UnsupportedCompilationException("Map expressions not supported as native java yet.");
     }
 
-    public String toSetSourceString(OgnlContext context, Object target)
-    {
+    public String toSetSourceString(OgnlContext context, Object target) {
         throw new UnsupportedCompilationException("Map expressions not supported as native java yet.");
     }
 }
