@@ -21,6 +21,8 @@ package ognl.test;
 import junit.framework.TestSuite;
 import ognl.ExpressionSyntaxException;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 
 public class ConstantTest extends OgnlTestCase {
@@ -63,9 +65,18 @@ public class ConstantTest extends OgnlTestCase {
     public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
-        for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new ConstantTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", null,
-                    (String) TESTS[i][0], TESTS[i][1]));
+        for (Object[] test : TESTS) {
+            String name = test[0] + " (" + test[1] + ")";
+            try {
+                name = URLEncoder.encode(name, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+            result.addTest(new ConstantTest(
+                    name,
+                    null,
+                    (String) test[0],
+                    test[1]));
         }
         return result;
     }
