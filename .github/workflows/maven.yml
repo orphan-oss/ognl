@@ -45,4 +45,6 @@ jobs:
         run: mvn -V test -Ddoclint=all --file pom.xml --no-transfer-progress
       - name: Code coverage
         if: matrix.java == '11'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -V test -Ddoclint=all -Pcoverage --file pom.xml --no-transfer-progress
