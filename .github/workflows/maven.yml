@@ -47,4 +47,4 @@ jobs:
         if: matrix.java == '11'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -V test -Ddoclint=all -Pcoverage --file pom.xml --no-transfer-progress
+        run: mvn -V verify sonar:sonar -Ddoclint=all -Pcoverage --file pom.xml --no-transfer-progress

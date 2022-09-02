@@ -1,6 +1,7 @@
 # Object-Graph Navigation Language - OGNL
 
-[![Java CI](https://github.com/jkuhnert/ognl/actions/workflows/maven.yml/badge.svg)](https://github.com/jkuhnert/ognl/actions/workflows/maven.yml)
+[![Java CI](https://github.com/orphan-oss/ognl/actions/workflows/maven.yml/badge.svg)](https://github.com/orphan-oss/ognl/actions/workflows/maven.yml)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=orphan-oss_ognl&metric=coverage)](https://sonarcloud.io/summary/new_code?id=orphan-oss_ognl)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ognl/ognl/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ognl/ognl/)
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
