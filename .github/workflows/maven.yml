@@ -46,5 +46,6 @@ jobs:
       - name: Code coverage
         if: matrix.java == '11'
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -V test -Ddoclint=all -Pcoverage --file pom.xml --no-transfer-progress
+        run: mvn -B -Pcoverage verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=orphan-oss_ognl

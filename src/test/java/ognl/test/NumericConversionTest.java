@@ -22,8 +22,11 @@ import junit.framework.TestSuite;
 import ognl.OgnlException;
 import ognl.OgnlOps;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URLEncoder;
+import java.util.Objects;
 
 public class NumericConversionTest extends OgnlTestCase {
     private static Object[][] TESTS = {
@@ -169,11 +172,19 @@ public class NumericConversionTest extends OgnlTestCase {
     public static TestSuite suite() {
         TestSuite result = new TestSuite();
 
-        for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new NumericConversionTest(TESTS[i][0],
-                    (Class) TESTS[i][1],
-                    TESTS[i][2],
-                    (TESTS[i].length > 3) ? ((Integer) TESTS[i][3]).intValue() : -1));
+        for (Object[] test : TESTS) {
+            String expectedStr = Objects.toString(test[2]);
+            try {
+                expectedStr = URLEncoder.encode(expectedStr, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+            result.addTest(new NumericConversionTest(
+                    test[0],
+                    (Class) test[1],
+                    test[2],
+                    expectedStr,
+                    (test.length > 3) ? ((Integer) test[3]).intValue() : -1));
         }
         return result;
     }
@@ -181,8 +192,8 @@ public class NumericConversionTest extends OgnlTestCase {
     /*===================================================================
          Constructors
        ===================================================================*/
-    public NumericConversionTest(Object value, Class toClass, Object expectedValue, int scale) {
-        super(value + " [" + value.getClass().getName() + "] -> " + toClass.getName() + " == " + expectedValue
+    public NumericConversionTest(Object value, Class toClass, Object expectedValue, String expectedStr, int scale) {
+        super(value + " [" + value.getClass().getName() + "] -> " + toClass.getName() + " == " + expectedStr
                 + " [" + expectedValue.getClass().getName() + "]" + ((scale >= 0) ? (" (to within " + scale + " decimal places)") : ""));
         this.value = value;
         this.toClass = toClass;
@@ -203,7 +214,7 @@ public class NumericConversionTest extends OgnlTestCase {
                         v1 = ((Number) value).doubleValue() * scalingFactor,
                         v2 = ((Number) expectedValue).doubleValue() * scalingFactor;
 
-                assertTrue((int) v1 == (int) v2);
+                assertEquals((int) v1, (int) v2);
             } else {
                 fail();
             }
