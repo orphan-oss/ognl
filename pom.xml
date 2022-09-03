@@ -147,12 +147,12 @@
                         <index>true</index>
                     </archive>
                     <source>1.8</source>
-                    <sourceFileExcludes>
-                        <fileExclude>**/target/generated-sources/**/*.java</fileExclude>
-                    </sourceFileExcludes>
+                    <sourcepath>src/main/java</sourcepath>
                     <links>
                         <link>https://docs.oracle.com/javase/8/docs/api/</link>
                     </links>
+                    <doclint>none</doclint>
+                    <quiet>true</quiet>
                 </configuration>
                 <executions>
                     <execution>
