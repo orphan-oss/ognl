@@ -147,7 +147,6 @@
                         <index>true</index>
                     </archive>
                     <source>1.8</source>
-                    <sourcepath>src/main/java</sourcepath>
                     <links>
                         <link>https://docs.oracle.com/javase/8/docs/api/</link>
                     </links>
