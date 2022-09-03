@@ -32,6 +32,11 @@ Sometimes ago this project has been migrated to [Apache Commons](http://commons.
 with a plan to maintain it there. Right now that project is considered dead and not actively maintained. There is
 no plans to release a new version under Apache Software Foundation umbrella and all the future development will happen here. 
 
+## Commercial Support
+
+The project maintaners are working with Tidelift to provide commercial support and invest paid working time in the improvement of the projects. 
+For more information, visit the [Tidelift resources](https://tidelift.com/subscription/pkg/maven-ognl.ognl?utm_source=maven-ognl.ognl&utm_medium=referral&utm_campaign=enterprise) regarding OGNL.
+
 ## FAQ
  - How to define an AccessMember?
    - the best way is to implement your own `AccessMember` which will suite your project best, you can base on existing
