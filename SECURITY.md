@@ -13,4 +13,4 @@ Use only the supported versions
 
 ## Reporting a Vulnerability
 
-Do not report security vulnerabilities using Github Issues, please contact [security@orphan.software](mailto:security@orphan.software) directly before taking any action.
+Do not report security vulnerabilities using Github Issues, please contact [security@orphan.software](mailto:security@orphan.software) or contact [Tidelift Security](https://tidelift.com/security) directly before taking any action .
