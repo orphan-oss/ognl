@@ -170,7 +170,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>javacc-maven-plugin</artifactId>
-                <version>2.6</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>ognl-jjtree</id>
@@ -178,6 +178,10 @@
                         <configuration>
                             <outputDirectory>${project.build.directory}/generated-sources/java</outputDirectory>
                             <packageName>ognl</packageName>
+                            <lookAhead>1</lookAhead>
+                            <isStatic>false</isStatic>
+                            <javaUnicodeEscape>true</javaUnicodeEscape>
+                            <unicodeInput>true</unicodeInput>
                             <!-- Uncomment if AST files needs to be generated
                             <nodePackage>*.jtree</nodePackage>
                              -->
