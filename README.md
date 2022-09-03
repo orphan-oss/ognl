@@ -5,13 +5,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ognl/ognl/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ognl/ognl/)
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
-It's a simple Expression Language (EL) for Java, the code base sometime ago was migrated to the [Apache commons ognl](http://commons.apache.org/ognl/)
-and this source code is used just to maintenance 3.x branch. The new version from Apache will start from 4.x
-
-## New! Apache commons ognl project
-
-Out of incubator and now officially found here [http://commons.apache.org/ognl/](http://commons.apache.org/ognl/)
-
 ## Description
 
 OGNL stands for Object-Graph Navigation Language; it is an expression language for getting and setting 
@@ -32,6 +25,12 @@ We pronounce OGNL as a word, like the last syllables of a drunken pronunciation 
  - [Language Guide](docs/LanguageGuide.md)
  - [Developer Guide](docs/DeveloperGuide.md)
  - [Version Notes](docs/VersionNotes.md)
+
+## Apache Commons OGNL project
+
+Sometimes ago this project has been migrated to [Apache Commons](http://commons.apache.org/ognl/) 
+with a plan to maintain it there. Right now that project is considered dead and not actively maintained. There is
+no plans to release a new version under Apache Software Foundation umbrella and all the future development will happen here. 
 
 ## FAQ
  - How to define an AccessMember?
