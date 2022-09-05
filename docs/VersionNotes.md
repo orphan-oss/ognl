@@ -1,7 +1,11 @@
 # Version Notes
 
+## Release notes - version 3.3.4 (2022-09-05)
+* Fixes IllegalArgumentException: Passes instance of MemberAccess to OgnlContext, see [#162](../../../issues/162) -
+  thanks to oosato-im
+
 ## Release notes - version 3.3.3 (2022-07-10)
-* Fixes IllegalArgumentException : Can't decide wich method to use, see [#159](../../../pull/159) -
+* Fixes IllegalArgumentException: Can't decide which method to use, see [#159](../../../pull/159) -
   thanks to harawata
 
 ## Release notes - version 3.3.2 (2022-01-09)
