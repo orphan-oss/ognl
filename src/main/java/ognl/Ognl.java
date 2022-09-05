@@ -197,7 +197,7 @@ public abstract class Ognl {
                 return Modifier.isPublic(modifiers);
             }
         };
-        return addDefaultContext(root, memberAccess, classResolver, null, new OgnlContext(classResolver, null, null));
+        return addDefaultContext(root, memberAccess, classResolver, null, new OgnlContext(classResolver, null, memberAccess));
     }
 
     /**
@@ -217,7 +217,7 @@ public abstract class Ognl {
                 return Modifier.isPublic(modifiers);
             }
         };
-        return addDefaultContext(root, memberAccess, classResolver, converter, new OgnlContext(classResolver, converter, null));
+        return addDefaultContext(root, memberAccess, classResolver, converter, new OgnlContext(classResolver, converter, memberAccess));
     }
 
     /**
