@@ -252,7 +252,7 @@ public abstract class Ognl
                 return Modifier.isPublic(modifiers);
             }
         };
-        return addDefaultContext(root, memberAccess, classResolver, null, new OgnlContext(classResolver, null, null));
+        return addDefaultContext(root, memberAccess, classResolver, null, new OgnlContext(classResolver, null, memberAccess));
     }
 
     /**
@@ -277,7 +277,7 @@ public abstract class Ognl
                 return Modifier.isPublic(modifiers);
             }
         };
-        return addDefaultContext(root, memberAccess, classResolver, converter, new OgnlContext(classResolver, converter, null));
+        return addDefaultContext(root, memberAccess, classResolver, converter, new OgnlContext(classResolver, converter, memberAccess));
     }
 
     /**
@@ -830,11 +830,11 @@ public abstract class Ognl
     }
 
     /**
-     * Sets the value given using the pre-compiled expression on the specified root 
+     * Sets the value given using the pre-compiled expression on the specified root
      * object.
      *
      * @param expression
-     *          The pre-compiled expression, as found in {@link Node#getAccessor()}. 
+     *          The pre-compiled expression, as found in {@link Node#getAccessor()}.
      * @param context
      *          The ognl context.
      * @param root
