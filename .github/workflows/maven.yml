@@ -57,7 +57,6 @@ jobs:
       - name: Deploy SNAPSHOT
         if: matrix.java == '8' && github.ref == 'refs/heads/master'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
-        run: mvn -B deploy --no-transfer-progress
+        run: mvn -B -V -DskipTests=true deploy --no-transfer-progress
