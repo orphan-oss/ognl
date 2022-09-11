@@ -28,8 +28,10 @@ jobs:
       matrix:
         java: [ '8', '11', '17' ]
     steps:
-      - uses: actions/checkout@v3.0.2
-      - uses: actions/cache@v3.0.8
+      - name: Checkout code
+        uses: actions/checkout@v3.0.2
+      - name: Set up cache
+        uses: actions/cache@v3.0.8
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -40,6 +42,9 @@ jobs:
         with:
           distribution: adopt
           java-version: ${{ matrix.java }}
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
       - name: Build with Maven on Java ${{ matrix.java }}
         if: matrix.java != '11'
         run: mvn -B -V test --no-transfer-progress
@@ -49,3 +54,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B -V -Pcoverage verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=orphan-oss_ognl --no-transfer-progress
+      - name: Deploy SNAPSHOT
+        if: matrix.java == '8' && github.ref == 'refs/heads/master'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+        run: mvn -B deploy --no-transfer-progress

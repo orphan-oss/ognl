@@ -15,9 +15,9 @@
     <name>OGNL - Object Graph Navigation Library</name>
     <description>OGNL - Object Graph Navigation Library</description>
 
-    <inceptionYear>1997</inceptionYear>
+    <inceptionYear>2022</inceptionYear>
 
-    <url>https://github.com/jkuhnert/ognl/</url>
+    <url>https://github.com/orphan-oss/ognl/orphan/ognl/</url>
 
     <licenses>
         <license>
@@ -28,25 +28,36 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:jkuhnert/ognl.git</connection>
-        <url>git@github.com:jkuhnert/ognl.git</url>
-        <developerConnection>scm:git:git@github.com:jkuhnert/ognl.git</developerConnection>
+        <connection>scm:git:git@github.com:orphan-oss/ognl.git</connection>
+        <url>git@github.com:orphan-oss/ognl.git</url>
+        <developerConnection>scm:git:git@github.com:orphan-oss/ognl.git</developerConnection>
     </scm>
 
     <issueManagement>
         <system>Github Issues</system>
-        <url>https://github.com/jkuhnert/ognl/issues</url>
+        <url>https://github.com/orphan-oss/ognl/issues</url>
     </issueManagement>
 
     <developers>
         <developer>
             <id>lukaszlenart</id>
-            <email>lukaszlenart@apache.org</email>
+            <email>lukasz.lenart@gmail.com</email>
             <roles>
-                <role>ASF Committer</role>
+                <role>Lead maintainer</role>
             </roles>
         </developer>
     </developers>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
     <dependencies>
         <dependency>
@@ -132,7 +143,7 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>jar-no-fork</goal>
                         </goals>
                     </execution>
                 </executions>
