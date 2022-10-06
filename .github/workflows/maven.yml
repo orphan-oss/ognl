@@ -62,3 +62,14 @@ jobs:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
         run: mvn -B -V -DskipTests=true deploy --no-transfer-progress
+      - name: Apply automerge label
+        if: ${{ github.actor == 'dependabot[bot]' }}
+        run: gh pr edit "$PR_URL" --add-label "automerge"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+      - name: Automerge
+        if: ${{ github.actor == 'dependabot[bot]' }}
+        uses: pascalgn/automerge-action@v0.15.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
