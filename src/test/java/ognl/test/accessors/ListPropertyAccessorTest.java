@@ -11,14 +11,13 @@ import ognl.test.objects.ListSourceImpl;
 import ognl.test.objects.Root;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * Tests functionality of various built in object accessors.
+ * Tests functionality of various built-in object accessors.
  */
 public class ListPropertyAccessorTest extends TestCase {
 
-    private Map context;
+    private OgnlContext context;
 
     public void setUp() throws Exception {
         super.setUp();
@@ -30,7 +29,6 @@ public class ListPropertyAccessorTest extends TestCase {
 
         Root root = new Root();
 
-        OgnlContext context = (OgnlContext) this.context;
         context.setRoot(root);
         context.setCurrentObject(root);
         context.setCurrentType(Integer.TYPE);
@@ -40,7 +38,7 @@ public class ListPropertyAccessorTest extends TestCase {
         assertEquals(List.class, context.getCurrentAccessor());
         assertEquals(Object.class, context.getCurrentType());
         assertEquals(Integer.TYPE, context.getPreviousType());
-        assertEquals(null, context.getPreviousAccessor());
+        assertNull(context.getPreviousAccessor());
     }
 
     public void test_Get_Source_Object_Number_Index() {
@@ -48,7 +46,6 @@ public class ListPropertyAccessorTest extends TestCase {
 
         Root root = new Root();
 
-        OgnlContext context = (OgnlContext) this.context;
         context.setRoot(root);
         context.setCurrentObject(root);
         context.setCurrentType(Integer.class);
@@ -58,15 +55,14 @@ public class ListPropertyAccessorTest extends TestCase {
         assertEquals(List.class, context.getCurrentAccessor());
         assertEquals(Object.class, context.getCurrentType());
         assertEquals(Integer.class, context.getPreviousType());
-        assertEquals(null, context.getPreviousAccessor());
+        assertNull(context.getPreviousAccessor());
     }
 
-    public void test_List_To_Object_Property_Accessor_Read() throws Exception {
+    public void test_List_To_Object_Property_Accessor_Read() {
         ListPropertyAccessor pa = new ListPropertyAccessor();
 
         ListSource list = new ListSourceImpl();
 
-        OgnlContext context = (OgnlContext) this.context;
         context.setRoot(list);
         context.setCurrentObject(list);
 

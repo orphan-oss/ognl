@@ -18,74 +18,50 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
 import ognl.DefaultMemberAccess;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.test.objects.Simple;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 
-public class MemberAccessTest extends OgnlTestCase {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-    private static final Simple ROOT = new Simple();
+class MemberAccessTest {
 
-    private static final Object[][] TESTS = {
-            {"@Runtime@getRuntime()", OgnlException.class},
-            {"@System@getProperty('java.specification.version')", System.getProperty("java.specification.version")},
-            {"bigIntValue", OgnlException.class},
-            {"bigIntValue", OgnlException.class, 25, OgnlException.class},
-            {"getBigIntValue()", OgnlException.class}, {"stringValue", ROOT.getStringValue()},
-    };
+    private Simple root;
+    private OgnlContext context;
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (Object[] test : TESTS) {
-            result.addTest(new MemberAccessTest(test[0] + " (" + test[1] + ")", ROOT, (String) test[0], test[1]));
-        }
-
-        return result;
+    @ParameterizedTest()
+    @ValueSource(
+            strings = {"@Runtime@getRuntime()", "bigIntValue", "getBigIntValue()"}
+    )
+    void shouldBlockAccessReadToSpecificProperties(String expression) {
+        assertThrows(OgnlException.class, () -> Ognl.getValue(expression, context, root), "");
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public MemberAccessTest() {
-        super();
+    @Test
+    void shouldBlockAccessOnWriteToSpecificProperties() {
+        assertThrows(OgnlException.class, () -> Ognl.setValue("bigIntValue", context, root, 25), "");
     }
 
-    public MemberAccessTest(String name) {
-        super(name);
+    @Test
+    void shouldAllowAccessToOtherProperties() throws Exception {
+        assertThat(Ognl.getValue("@System@getProperty('java.specification.version')", context, root))
+                .isEqualTo(System.getProperty("java.specification.version"));
+        assertThat(Ognl.getValue("stringValue", context, root))
+                .isEqualTo(root.getStringValue());
     }
 
-    public MemberAccessTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-                            Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
-    }
-
-    public MemberAccessTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public MemberAccessTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
-    }
-
-    /*
-     * =================================================================== Overridden methods
-     * ===================================================================
-     */
+    @BeforeEach
     public void setUp() {
-        super.setUp();
-
         /* Should allow access at all to the Simple class except for the bigIntValue property */
         DefaultMemberAccess ma = new DefaultMemberAccess(false) {
 
@@ -101,7 +77,7 @@ public class MemberAccessTest extends OgnlTestCase {
                         if (member instanceof Method) {
                             return !member.getName().equals("getBigIntValue")
                                     && !member.getName().equals("setBigIntValue")
-                                    && super.isAccessible(context, target, member, propertyName);
+                                    && super.isAccessible(context, target, member, null);
                         }
                     }
                 }
@@ -109,6 +85,7 @@ public class MemberAccessTest extends OgnlTestCase {
             }
         };
 
-        _context = Ognl.createDefaultContext(null, ma, null, null);
+        root = new Simple();
+        context = Ognl.createDefaultContext(root, ma);
     }
 }

@@ -24,8 +24,6 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.SimpleNode;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.Array;
 
 public abstract class OgnlTestCase extends TestCase {
@@ -66,7 +64,7 @@ public abstract class OgnlTestCase extends TestCase {
                     }
                 }
             } else {
-                result = (object1 != null) && (object2 != null) && object1.equals(object2);
+                result = (object1 != null) && object1.equals(object2);
             }
         }
         return result;
@@ -100,16 +98,6 @@ public abstract class OgnlTestCase extends TestCase {
         this._root = root;
         this._expressionString = expressionString;
         this._expectedResult = expectedResult;
-    }
-
-    /*===================================================================
-         Public methods
-       ===================================================================*/
-    public String getExpressionDump(SimpleNode node) {
-        StringWriter writer = new StringWriter();
-
-        node.dump(new PrintWriter(writer), "   ");
-        return writer.toString();
     }
 
     public String getExpressionString() {
@@ -150,13 +138,9 @@ public abstract class OgnlTestCase extends TestCase {
                 } else
                     OgnlTestCase.assertEquals(aexpected, aactual);
             }
-        } else if (expected != null && actual != null
-                && Character.class.isInstance(expected)
-                && Character.class.isInstance(actual)) {
-
+        } else if (expected instanceof Character && actual instanceof Character) {
             TestCase.assertEquals(((Character) expected).charValue(), ((Character) actual).charValue());
         } else {
-
             TestCase.assertEquals(expected, actual);
         }
     }
@@ -184,21 +168,23 @@ public abstract class OgnlTestCase extends TestCase {
 
         } catch (Exception ex) {
             System.out.println("Caught exception " + ex);
-            if (NullPointerException.class.isInstance(ex))
+            if (ex instanceof NullPointerException) {
                 ex.printStackTrace();
+            }
 
-            if (RuntimeException.class.isInstance(ex) && ((RuntimeException) ex).getCause() != null
-                    && Exception.class.isAssignableFrom(((RuntimeException) ex).getCause().getClass()))
-                ex = (Exception) ((RuntimeException) ex).getCause();
+            if (ex instanceof RuntimeException && ex.getCause() != null
+                    && Exception.class.isAssignableFrom(ex.getCause().getClass())) {
+                ex = (Exception) ex.getCause();
+            }
 
             if (testedResult instanceof Class) {
-                assertTrue(Exception.class.isAssignableFrom((Class) testedResult));
+                assertTrue(Exception.class.isAssignableFrom((Class<?>) testedResult));
             } else
                 throw ex;
         }
     }
 
     protected void setUp() {
-        _context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false), null, null);
+        _context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
     }
 }
