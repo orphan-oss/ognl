@@ -38,6 +38,15 @@ no plans to release a new version under Apache Software Foundation umbrella and 
 The project maintaners are working with Tidelift to provide commercial support and invest paid working time in the improvement of the projects. 
 For more information, visit the [Tidelift resources](https://tidelift.com/subscription/pkg/maven-ognl.ognl?utm_source=maven-ognl.ognl&utm_medium=referral&utm_campaign=enterprise) regarding OGNL.
 
+## Contributing
+
+If you would like to start contributing to this project please follow the following guidelines:
+- [Finding ways to contribute to open source on GitHub](https://docs.github.com/en/get-started/exploring-projects-on-github/finding-ways-to-contribute-to-open-source-on-github)
+- [First-contributions project](https://github.com/firstcontributions/first-contributions)
+
+Even the smallest contribution makes sense, like improving code formatting, fixing a typo documentation. Do not hesitate
+to ask or report an issue.
+
 ## FAQ
  - How to define an AccessMember?
    - the best way is to implement your own `AccessMember` which will suite your project best, you can base on existing
