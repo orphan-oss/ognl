@@ -152,27 +152,12 @@ public class OgnlContext {
         return internalContext;
     }
 
-    @Deprecated
-    public void setClassResolver(ClassResolver ignore) {
-        // no-op
-    }
-
     public ClassResolver getClassResolver() {
         return classResolver;
     }
 
-    @Deprecated
-    public void setTypeConverter(TypeConverter ignore) {
-        // no-op
-    }
-
     public TypeConverter getTypeConverter() {
         return typeConverter;
-    }
-
-    @Deprecated
-    public void setMemberAccess(MemberAccess ignore) {
-        // no-op
     }
 
     public MemberAccess getMemberAccess() {
@@ -194,7 +179,15 @@ public class OgnlContext {
         return root;
     }
 
+    /**
+     * @deprecated since OGNL 3.4.0, use {@link #isTraceEvaluations()}
+     */
+    @Deprecated
     public boolean getTraceEvaluations() {
+        return traceEvaluations;
+    }
+
+    public boolean isTraceEvaluations() {
         return traceEvaluations;
     }
 
@@ -211,16 +204,11 @@ public class OgnlContext {
     }
 
     /**
-     * This method can be called when the last evaluation has been used and can be returned for
-     * reuse in the free pool maintained by the runtime. This is not a necessary step, but is useful
-     * for keeping memory usage down. This will recycle the last evaluation and then set the last
-     * evaluation to null.
-     *
-     * @deprecated since 3.2
+     * @deprecated since OGNL 3.4.0, use {@link #isKeepLastEvaluation()}
      */
     @Deprecated
-    public void recycleLastEvaluation() {
-        lastEvaluation = null;
+    public boolean getKeepLastEvaluation() {
+        return keepLastEvaluation;
     }
 
     /**
@@ -229,7 +217,7 @@ public class OgnlContext {
      *
      * @return true if the last evaluation for this context is retained and available through <code>getLastEvaluation()</code>, false otherwise.
      */
-    public boolean getKeepLastEvaluation() {
+    public boolean isKeepLastEvaluation() {
         return keepLastEvaluation;
     }
 
@@ -408,7 +396,7 @@ public class OgnlContext {
         result = currentEvaluation;
         setCurrentEvaluation(result.getParent());
         if (currentEvaluation == null) {
-            setLastEvaluation(getKeepLastEvaluation() ? result : null);
+            setLastEvaluation(isKeepLastEvaluation() ? result : null);
             setRootEvaluation(null);
             setCurrentNode(null);
         }
@@ -460,13 +448,13 @@ public class OgnlContext {
                     result = getRoot();
                     break;
                 case OgnlContext.TRACE_EVALUATIONS_CONTEXT_KEY:
-                    result = getTraceEvaluations() ? Boolean.TRUE : Boolean.FALSE;
+                    result = isTraceEvaluations() ? Boolean.TRUE : Boolean.FALSE;
                     break;
                 case OgnlContext.LAST_EVALUATION_CONTEXT_KEY:
                     result = getLastEvaluation();
                     break;
                 case OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY:
-                    result = getKeepLastEvaluation() ? Boolean.TRUE : Boolean.FALSE;
+                    result = isKeepLastEvaluation() ? Boolean.TRUE : Boolean.FALSE;
                     break;
                 default:
                     throw new IllegalArgumentException("unknown reserved key '" + key + "'");
@@ -491,7 +479,7 @@ public class OgnlContext {
                     setRoot(value);
                     break;
                 case OgnlContext.TRACE_EVALUATIONS_CONTEXT_KEY:
-                    result = getTraceEvaluations() ? Boolean.TRUE : Boolean.FALSE;
+                    result = isTraceEvaluations() ? Boolean.TRUE : Boolean.FALSE;
                     setTraceEvaluations(OgnlOps.booleanValue(value));
                     break;
                 case OgnlContext.LAST_EVALUATION_CONTEXT_KEY:
@@ -499,7 +487,7 @@ public class OgnlContext {
                     lastEvaluation = (Evaluation) value;
                     break;
                 case OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY:
-                    result = getKeepLastEvaluation() ? Boolean.TRUE : Boolean.FALSE;
+                    result = isKeepLastEvaluation() ? Boolean.TRUE : Boolean.FALSE;
                     setKeepLastEvaluation(OgnlOps.booleanValue(value));
                     break;
                 default:
