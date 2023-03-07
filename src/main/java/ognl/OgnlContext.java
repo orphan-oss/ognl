@@ -184,7 +184,7 @@ public class OgnlContext {
      */
     @Deprecated
     public boolean getTraceEvaluations() {
-        return traceEvaluations;
+        return isTraceEvaluations();
     }
 
     public boolean isTraceEvaluations() {
@@ -208,7 +208,7 @@ public class OgnlContext {
      */
     @Deprecated
     public boolean getKeepLastEvaluation() {
-        return keepLastEvaluation;
+        return isKeepLastEvaluation();
     }
 
     /**
