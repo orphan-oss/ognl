@@ -182,7 +182,7 @@ public abstract class SimpleNode implements Node, Serializable {
             throws OgnlException {
         Object result = null;
 
-        if (context.getTraceEvaluations()) {
+        if (context.isTraceEvaluations()) {
 
             EvaluationPool pool = OgnlRuntime.getEvaluationPool();
             Throwable evalException = null;
@@ -222,7 +222,7 @@ public abstract class SimpleNode implements Node, Serializable {
 
     public final void setValue(OgnlContext context, Object target, Object value)
             throws OgnlException {
-        if (context.getTraceEvaluations()) {
+        if (context.isTraceEvaluations()) {
             EvaluationPool pool = OgnlRuntime.getEvaluationPool();
             Throwable evalException = null;
             Evaluation evaluation = pool.create(this, target, true);
