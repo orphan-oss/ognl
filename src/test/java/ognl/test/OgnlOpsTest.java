@@ -1,78 +1,86 @@
 package ognl.test;
 
-import junit.framework.TestCase;
 import ognl.OgnlOps;
+import org.junit.Test;
 
-public class OgnlOpsTest extends TestCase {
-    public void testEqualStringsEqual() throws Exception {
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class OgnlOpsTest {
+
+    @Test
+    public void testEqualStringsEqual() {
         final String v1 = "a";
         final String v2 = "a";
-        final boolean res = OgnlOps.equal(v1, v2);
-        assertEquals(v1.equals(v2), res);
-    }
-
-    public void testEqualStringsNotEqual() throws Exception {
-        final String v1 = "a";
-        final String v2 = "b";
-        final boolean res = OgnlOps.equal(v1, v2);
-        assertEquals(v1.equals(v2), res);
-    }
-
-    public void testEqualFloatsEqual() throws Exception {
-        final Float v1 = 0.1f;
-        final Float v2 = 0.1f;
-        final boolean res = OgnlOps.equal(v1, v2);
-        assertEquals(v1.equals(v2), res);
-    }
-
-    public void testEqualFloatsNotEqual() throws Exception {
-        final Float v1 = 0.1f;
-        final Float v2 = 0.2f;
-        final boolean res = OgnlOps.equal(v1, v2);
-        assertEquals(v1.equals(v2), res);
-    }
-
-    public void testEqualLongsEqual() throws Exception {
-        final Long v1 = 1l;
-        final Long v2 = 1l;
-        final boolean res = OgnlOps.equal(v1, v2);
-        assertEquals(v1.equals(v2), res);
-    }
-
-    public void testEqualLongsNotEqual() throws Exception {
-        final Long v1 = 1l;
-        final Long v2 = 2l;
-        final boolean res = OgnlOps.equal(v1, v2);
-        assertEquals(v1.equals(v2), res);
-    }
-
-    public void testEqualBigLongsEqual() throws Exception {
-        final Long v1 = 1000000000000000001l;
-        final Long v2 = 1000000000000000001l;
-        final boolean res = OgnlOps.equal(v1, v2);
-        assertEquals(v1.equals(v2), res);
-    }
-
-    public void testEqualBigLongsNotEqual() throws Exception {
-        final Long v1 = 1000000000000000001l;
-        final Long v2 = 1000000000000000002l;
-        final boolean res = OgnlOps.equal(v1, v2);
-        assertEquals(v1.equals(v2), res);
-    }
-
-    public void testEqualNullsEqual() throws Exception {
-        final Object v1 = null;
-        final Object v2 = null;
         final boolean res = OgnlOps.equal(v1, v2);
         assertTrue(res);
     }
 
-    public void testEqualNullsNotEqual() throws Exception {
-        final Object v1 = null;
-        final Object v2 = "b";
+    @Test
+    public void testEqualStringsNotEqual() {
+        final String v1 = "a";
+        final String v2 = "b";
         final boolean res = OgnlOps.equal(v1, v2);
         assertFalse(res);
-        final boolean res2 = OgnlOps.equal(v2, v1);
-        assertFalse(res2);
+    }
+
+    @Test
+    public void testEqualFloatsEqual() {
+        final Float v1 = 0.1f;
+        final Float v2 = 0.1f;
+        final boolean res = OgnlOps.equal(v1, v2);
+        assertTrue(res);
+    }
+
+    @Test
+    public void testEqualFloatsNotEqual() {
+        final Float v1 = 0.1f;
+        final Float v2 = 0.2f;
+        final boolean res = OgnlOps.equal(v1, v2);
+        assertFalse(res);
+    }
+
+    @Test
+    public void testEqualLongsEqual() {
+        final Long v1 = 1L;
+        final Long v2 = 1L;
+        final boolean res = OgnlOps.equal(v1, v2);
+        assertTrue(res);
+    }
+
+    @Test
+    public void testEqualLongsNotEqual() {
+        final Long v1 = 1L;
+        final Long v2 = 2L;
+        final boolean res = OgnlOps.equal(v1, v2);
+        assertFalse(res);
+    }
+
+    @Test
+    public void testEqualBigLongsEqual() {
+        final Long v1 = 1000000000000000001L;
+        final Long v2 = 1000000000000000001L;
+        final boolean res = OgnlOps.equal(v1, v2);
+        assertTrue(res);
+    }
+
+    @Test
+    public void testEqualBigLongsNotEqual() {
+        final Long v1 = 1000000000000000001L;
+        final Long v2 = 1000000000000000002L;
+        final boolean res = OgnlOps.equal(v1, v2);
+        assertFalse(res);
+    }
+
+    @Test
+    public void testEqualNullsEqual() {
+        assertTrue(OgnlOps.equal(null, null));
+    }
+
+    @Test
+    public void testEqualNullsNotEqual() {
+        final Object v2 = "b";
+        assertFalse(OgnlOps.equal(null, v2));
+        assertFalse(OgnlOps.equal(v2, null));
     }
 }

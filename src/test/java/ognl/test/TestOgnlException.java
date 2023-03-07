@@ -1,23 +1,25 @@
 package ognl.test;
 
-import junit.framework.TestCase;
 import ognl.OgnlException;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests {@link OgnlException}.
  */
-public class TestOgnlException extends TestCase {
+public class TestOgnlException {
 
+    @Test
     public void test_Throwable_Reason() {
         try {
             throwException();
         } catch (OgnlException e) {
-            assertTrue(NumberFormatException.class.isInstance(e.getReason()));
+            assertTrue(e.getReason() instanceof NumberFormatException);
         }
     }
 
-    void throwException()
-            throws OgnlException {
+    void throwException() throws OgnlException {
         try {
             Integer.parseInt("45ac");
         } catch (NumberFormatException et) {

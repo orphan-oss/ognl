@@ -1,6 +1,5 @@
 package ognl;
 
-import junit.framework.TestCase;
 import ognl.test.objects.BaseGeneric;
 import ognl.test.objects.Bean2;
 import ognl.test.objects.FormImpl;
@@ -18,6 +17,8 @@ import ognl.test.objects.OtherEnum;
 import ognl.test.objects.Root;
 import ognl.test.objects.SetterReturns;
 import ognl.test.objects.SubclassSyntheticObject;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
@@ -32,18 +33,28 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static ognl.test.OgnlTestCase.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 /**
  * Tests various methods / functionality of {@link OgnlRuntime}.
  */
-public class TestOgnlRuntime extends TestCase {
+public class TestOgnlRuntime {
 
     private OgnlContext context;
 
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
         context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
     }
 
+    @Test
     public void test_Get_Super_Or_Interface_Class() {
         ListSource list = new ListSourceImpl();
 
@@ -53,6 +64,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(ListSource.class, OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, list.getClass()));
     }
 
+    @Test
     public void test_Get_Private_Class() {
         List<String> list = Arrays.asList("hello", "world");
 
@@ -62,6 +74,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(Iterable.class, OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, list.getClass()));
     }
 
+    @Test
     public void test_Complicated_Inheritance() {
         IForm form = new FormImpl();
 
@@ -71,6 +84,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(IComponent.class, OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, form.getClass()));
     }
 
+    @Test
     public void test_Get_Read_Method() {
         Method m = OgnlRuntime.getReadMethod(Bean2.class, "pageBreakAfter");
         assertNotNull(m);
@@ -78,6 +92,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals("isPageBreakAfter", m.getName());
     }
 
+    @Test
     public void test_Get_Read_Field() {
         Method m = OgnlRuntime.getReadMethod(Bean2.class, "code");
         assertNull(m);
@@ -87,6 +102,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals("code", field.getName());
     }
 
+    @SuppressWarnings("unused")
     static class TestGetters {
         public boolean isEditorDisabled() {
             return false;
@@ -105,6 +121,7 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
+    @Test
     public void test_Get_Read_Method_Multiple() {
         Method m = OgnlRuntime.getReadMethod(TestGetters.class, "disabled");
         assertNotNull(m);
@@ -112,6 +129,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals("isDisabled", m.getName());
     }
 
+    @Test
     public void test_Get_Read_Method_Multiple_Boolean_Getters() {
         Method m = OgnlRuntime.getReadMethod(TestGetters.class, "available");
         assertNotNull(m);
@@ -124,6 +142,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals("isNotAvailable", m.getName());
     }
 
+    @Test
     public void test_Find_Method_Mixed_Boolean_Getters() {
         Method m = OgnlRuntime.getReadMethod(GetterMethods.class, "allowDisplay");
         assertNotNull(m);
@@ -131,6 +150,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals("getAllowDisplay", m.getName());
     }
 
+    @Test
     public void test_Get_Appropriate_Method()
             throws Exception {
         ListSource list = new ListSourceImpl();
@@ -141,6 +161,7 @@ public class TestOgnlRuntime extends TestCase {
         assert ret != null;
     }
 
+    @Test
     public void test_Call_Static_Method_Invalid_Class() {
 
         try {
@@ -156,6 +177,7 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
+    @Test
     public void test_Setter_Returns()
             throws Exception {
         OgnlContext context = this.context;
@@ -168,6 +190,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(Ognl.getValue("value", context, root), "12__");
     }
 
+    @Test
     public void test_Call_Method_VarArgs()
             throws Exception {
         OgnlContext context = this.context;
@@ -181,6 +204,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals("Halo 3", OgnlRuntime.callMethod(context, service, "getFullMessageFor", args));
     }
 
+    @Test
     public void test_Call_Method_In_JDK_Sandbox() {
         if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
             System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox() -invocation test.");
@@ -214,6 +238,7 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
+    @Test
     public void test_Call_Method_In_JDK_Sandbox_Thread_Safety()
             throws Exception {
         if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
@@ -284,6 +309,7 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
+    @Test
     public void test_Disable_JDK_Sandbox() {
         if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
             System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Disable_JDK_Sandbox() invocation test.");
@@ -357,6 +383,7 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
+    @Test
     public void test_Exit_JDK_Sandbox() {
         if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
             System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Exit_JDK_Sandbox() invocation test.");
@@ -389,6 +416,7 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
+    @Test
     public void test_Call_Method_In_JDK_Sandbox_Privileged() throws Exception {
         if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
             System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox_Privileged() invocation test.");
@@ -441,6 +469,7 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
+    @Test
     public void test_Class_Loader_Direct_Access() {
         if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
             System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Class_Loader_Direct_Access() invocation test.");
@@ -481,6 +510,7 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
+    @Test
     public void test_Class_Cache_Inspector()
             throws Exception {
         OgnlRuntime.clearCache();
@@ -519,6 +549,7 @@ public class TestOgnlRuntime extends TestCase {
         }
     }
 
+    @Test
     public void test_Set_Generic_Parameter_Types() {
         OgnlContext context = this.context;
 
@@ -530,6 +561,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(Integer.class, types[0]);
     }
 
+    @Test
     public void test_Get_Generic_Parameter_Types() {
 
         Method m = OgnlRuntime.getGetMethod(GenericCracker.class, "param");
@@ -538,6 +570,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(Integer.class, m.getReturnType());
     }
 
+    @Test
     public void test_Find_Parameter_Types() {
         OgnlContext context = this.context;
 
@@ -549,6 +582,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(Long[].class, types[0]);
     }
 
+    @Test
     public void test_Find_Parameter_Types_Superclass() {
         OgnlContext context = this.context;
 
@@ -560,6 +594,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(Serializable[].class, types[0]);
     }
 
+    @Test
     public void test_Get_Declared_Methods_With_Synthetic_Methods() {
         List<Method> result = OgnlRuntime.getDeclaredMethods(SubclassSyntheticObject.class, "list", false);
 
@@ -569,6 +604,7 @@ public class TestOgnlRuntime extends TestCase {
         assertEquals(2, result.size());
     }
 
+    @Test
     public void test_Get_Property_Descriptors_With_Synthetic_Methods()
             throws Exception {
         PropertyDescriptor pd = OgnlRuntime.getPropertyDescriptor(SubclassSyntheticObject.class, "list");
@@ -578,6 +614,7 @@ public class TestOgnlRuntime extends TestCase {
     }
 
     private static class GenericParent<T> {
+        @SuppressWarnings("unused")
         public void save(T entity) {
         }
     }
@@ -593,6 +630,7 @@ public class TestOgnlRuntime extends TestCase {
     /**
      * Tests OGNL parameter discovery.
      */
+    @Test
     public void testOGNLParameterDiscovery() throws NoSuchMethodException {
         Method saveMethod = GenericParent.class.getMethod("save", Object.class);
         System.out.println(saveMethod);
@@ -606,23 +644,27 @@ public class TestOgnlRuntime extends TestCase {
         assertSame(stringClass[0], String.class);
     }
 
+    @Test
     public void testBangOperator() throws Exception {
         Object value = Ognl.getValue("!'false'", context, new Object());
         assertEquals(Boolean.TRUE, value);
     }
 
+    @Test
     public void testGetStaticField() throws Exception {
         OgnlContext context = this.context;
         Object obj = OgnlRuntime.getStaticField(context, "ognl.test.objects.Root", "SIZE_STRING");
         assertEquals(Root.SIZE_STRING, obj);
     }
 
+    @Test
     public void testGetStaticFieldEnum() throws Exception {
         OgnlContext context = this.context;
         Object obj = OgnlRuntime.getStaticField(context, "ognl.test.objects.OtherEnum", "ONE");
         assertEquals(OtherEnum.ONE, obj);
     }
 
+    @Test
     public void testGetStaticFieldEnumStatic() throws Exception {
         OgnlContext context = this.context;
         Object obj = OgnlRuntime.getStaticField(context, "ognl.test.objects.OtherEnum", "STATIC_STRING");
@@ -635,6 +677,7 @@ public class TestOgnlRuntime extends TestCase {
      * can find two appropriate methods with the same score where one is abstract and one is concrete.  Either
      * choice in that scenario actually worked when invoked, but produced the unwanted syserr output.
      */
+    @Test
     public void testAbstractConcreteMethodScoringNoSysErr() throws Exception {
         OgnlContext context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
         ObjectMethodAccessor methodAccessor = new ObjectMethodAccessor();
@@ -650,6 +693,7 @@ public class TestOgnlRuntime extends TestCase {
      * @param <T>
      */
     abstract static class AbstractTestClass<T> {
+        @SuppressWarnings("unused")
         public abstract String testMethod(T element, int i);
     }
 
@@ -666,6 +710,7 @@ public class TestOgnlRuntime extends TestCase {
      * Protected class for synthetic/bridge method tests.
      */
     protected static class ProtectedParent {
+        @SuppressWarnings("unused")
         public void setName(String name) {
         }
 
@@ -685,6 +730,7 @@ public class TestOgnlRuntime extends TestCase {
      * <p>
      * Note: Only bridge methods should qualify, non-bridge synthetic methods should not.
      */
+    @Test
     public void testSyntheticBridgeReadMethod() {
         assertNotNull(OgnlRuntime.getReadMethod(PublicChild.class, "name"));
     }
@@ -694,6 +740,7 @@ public class TestOgnlRuntime extends TestCase {
      * <p>
      * Note: Only bridge methods should qualify, non-bridge synthetic methods should not.
      */
+    @Test
     public void testSyntheticBridgeWriteMethod() {
         assertNotNull(OgnlRuntime.getWriteMethod(PublicChild.class, "name", new Class[]{String.class}));
     }
@@ -715,6 +762,7 @@ public class TestOgnlRuntime extends TestCase {
     public static class SimpleNestingClass {
         static class NestedClass {
             // do not use "final"
+            @SuppressWarnings("final")
             private String name = "nested name contents";
         }
 
@@ -726,6 +774,7 @@ public class TestOgnlRuntime extends TestCase {
     /**
      * Test that normal non-synthetic methods are considered callable by both isMethodCallable() and isMethodCallable_BridgeOrNonSynthetic().
      */
+    @Test
     public void testConfirmStandardMethodCallability() {
         Method method = null;
         try {
@@ -742,6 +791,7 @@ public class TestOgnlRuntime extends TestCase {
     /**
      * Test that bridge methods ARE considered callable by isMethodCallable_BridgeOrNonSynthetic() ONLY, and NOT by isMethodCallable().
      */
+    @Test
     public void testConfirmBridgeMethodCallability() {
         Method method = null;
         try {
@@ -769,6 +819,7 @@ public class TestOgnlRuntime extends TestCase {
     /**
      * Test that non-bridge synthetic methods are NOT considered callable by either isMethodCallable() or isMethodCallable_BridgeOrNonSynthetic().
      */
+    @Test
     public void testConfirmSyntheticMethodNonCallablility() {
         Method method;
         Method[] methods = SimpleNestingClass.NestedClass.class.getDeclaredMethods();
