@@ -21,15 +21,14 @@ import java.util.Map;
  */
 public class ASTMethodTest extends TestCase {
 
-    private Map context;
+    private OgnlContext context;
 
     public void setUp() throws Exception {
         super.setUp();
         context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
     }
 
-    public void test_Context_Types()
-            throws Throwable {
+    public void test_Context_Types() {
         ASTMethod p = new ASTMethod(0);
         p.setMethodName("get");
 
@@ -39,7 +38,6 @@ public class ASTMethodTest extends TestCase {
 
         Root root = new Root();
 
-        OgnlContext context = (OgnlContext) this.context;
         context.setRoot(root.getMap());
         context.setCurrentObject(root.getMap());
         context.setCurrentType(root.getMap().getClass());
@@ -76,8 +74,6 @@ public class ASTMethodTest extends TestCase {
     }
 
     public void test_isSimpleMethod() throws Exception {
-        OgnlContext context = (OgnlContext) this.context;
-
         SimpleNode node = (SimpleNode) Ognl.parseExpression("#name");
         assertFalse(node.isSimpleMethod(context));
 

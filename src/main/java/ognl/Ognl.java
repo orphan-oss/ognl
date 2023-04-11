@@ -178,7 +178,7 @@ public abstract class Ognl {
                 return Modifier.isPublic(modifiers);
             }
         };
-        return addDefaultContext(root, memberAccess, null, null, new OgnlContext(null, null, memberAccess));
+        return addDefaultContext(root, memberAccess, null, null, null);
     }
 
     /**
@@ -197,7 +197,7 @@ public abstract class Ognl {
                 return Modifier.isPublic(modifiers);
             }
         };
-        return addDefaultContext(root, memberAccess, classResolver, null, new OgnlContext(classResolver, null, memberAccess));
+        return addDefaultContext(root, memberAccess, classResolver, null, null);
     }
 
     /**
@@ -217,7 +217,7 @@ public abstract class Ognl {
                 return Modifier.isPublic(modifiers);
             }
         };
-        return addDefaultContext(root, memberAccess, classResolver, converter, new OgnlContext(classResolver, converter, memberAccess));
+        return addDefaultContext(root, memberAccess, classResolver, converter, null);
     }
 
     /**
@@ -232,7 +232,7 @@ public abstract class Ognl {
      * appropriately
      */
     public static OgnlContext createDefaultContext(Object root, MemberAccess memberAccess, ClassResolver classResolver, TypeConverter converter) {
-        return addDefaultContext(root, memberAccess, classResolver, converter, new OgnlContext(classResolver, converter, memberAccess));
+        return addDefaultContext(root, memberAccess, classResolver, converter, null);
     }
 
     /**
@@ -245,7 +245,7 @@ public abstract class Ognl {
      * appropriately
      */
     public static OgnlContext createDefaultContext(Object root, MemberAccess memberAccess) {
-        return addDefaultContext(root, memberAccess, null, null, new OgnlContext(null, null, memberAccess));
+        return addDefaultContext(root, memberAccess, null, null, null);
     }
 
     /**
@@ -257,15 +257,8 @@ public abstract class Ognl {
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static OgnlContext addDefaultContext(Object root, Map<Object, Object> context) {
-        MemberAccess memberAccess = new AbstractMemberAccess() {
-            @Override
-            public boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName) {
-                int modifiers = member.getModifiers();
-                return Modifier.isPublic(modifiers);
-            }
-        };
-        return addDefaultContext(root, memberAccess, null, null, context);
+    public static OgnlContext addDefaultContext(Object root, OgnlContext context) {
+        return addDefaultContext(root, context.getMemberAccess(), null, null, context);
     }
 
     /**
@@ -279,14 +272,7 @@ public abstract class Ognl {
      * appropriately
      */
     public static OgnlContext addDefaultContext(Object root, ClassResolver classResolver, OgnlContext context) {
-        MemberAccess memberAccess = new AbstractMemberAccess() {
-            @Override
-            public boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName) {
-                int modifiers = member.getModifiers();
-                return Modifier.isPublic(modifiers);
-            }
-        };
-        return addDefaultContext(root, memberAccess, classResolver, null, context);
+        return addDefaultContext(root, context.getMemberAccess(), classResolver, null, context);
     }
 
     /**
@@ -301,7 +287,7 @@ public abstract class Ognl {
      * appropriately
      */
     public static OgnlContext addDefaultContext(Object root, ClassResolver classResolver, TypeConverter converter, OgnlContext context) {
-        return addDefaultContext(root, null, classResolver, converter, context);
+        return addDefaultContext(root, context.getMemberAccess(), classResolver, converter, context);
     }
 
     /**
@@ -312,21 +298,17 @@ public abstract class Ognl {
      * @param memberAccess  Definition for handling private/protected access.
      * @param classResolver The class loading resolver that should be used to resolve class references.
      * @param converter     The type converter to be used by default.
-     * @param context       Default context to use, if not an {@link OgnlContext} will be dumped into
+     * @param initialContext       Default context to use, if not an {@link OgnlContext} will be dumped into
      *                      a new {@link OgnlContext} object.
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static OgnlContext addDefaultContext(Object root, MemberAccess memberAccess, ClassResolver classResolver, TypeConverter converter, Map<Object, Object> context) {
-        OgnlContext result;
-
-        if (context instanceof OgnlContext) {
-            result = (OgnlContext) context;
-        } else {
-            result = new OgnlContext(memberAccess, classResolver, converter, context);
-        }
-
+    public static OgnlContext addDefaultContext(Object root, MemberAccess memberAccess, ClassResolver classResolver, TypeConverter converter, OgnlContext initialContext) {
+        OgnlContext result = new OgnlContext(memberAccess, classResolver, converter, initialContext);
         result.setRoot(root);
+        if (initialContext != null) {
+            result.addAll(initialContext);
+        }
         return result;
     }
 
@@ -351,7 +333,7 @@ public abstract class Ognl {
      * @param root    The root object.
      */
     public static void setRoot(OgnlContext context, Object root) {
-        context.put(OgnlContext.ROOT_CONTEXT_KEY, root);
+        context.setRoot(root);
     }
 
     /**
@@ -361,7 +343,7 @@ public abstract class Ognl {
      * @return The root object - or null if none found.
      */
     public static Object getRoot(OgnlContext context) {
-        return context.get(OgnlContext.ROOT_CONTEXT_KEY);
+        return context.getRoot();
     }
 
     /**
@@ -371,7 +353,7 @@ public abstract class Ognl {
      * @return The {@link Evaluation} - or null if none was found.
      */
     public static Evaluation getLastEvaluation(OgnlContext context) {
-        return (Evaluation) context.get(OgnlContext.LAST_EVALUATION_CONTEXT_KEY);
+        return context.getLastEvaluation();
     }
 
     /**
@@ -407,14 +389,14 @@ public abstract class Ognl {
      */
     public static Object getValue(Object tree, OgnlContext context, Object root, Class<?> resultType) throws OgnlException {
         Object result;
-        OgnlContext ognlContext = addDefaultContext(root, context);
 
         Node node = (Node) tree;
 
-        if (node.getAccessor() != null)
-            result = node.getAccessor().get(ognlContext, root);
-        else
-            result = node.getValue(ognlContext, root);
+        if (node.getAccessor() != null) {
+            result = node.getAccessor().get(context, root);
+        } else {
+            result = node.getValue(context, root);
+        }
 
         if (resultType != null) {
             result = getTypeConverter(context).convertValue(context, root, null, null, result, resultType);
@@ -572,16 +554,15 @@ public abstract class Ognl {
      * @throws InappropriateExpressionException if the expression can't be used in this context
      * @throws OgnlException                    if there is a pathological environmental problem
      */
-    public static void setValue(Object tree, Map<Object, Object> context, Object root, Object value) throws OgnlException {
-        OgnlContext ognlContext = addDefaultContext(root, context);
+    public static void setValue(Object tree, OgnlContext context, Object root, Object value) throws OgnlException {
         Node n = (Node) tree;
 
         if (n.getAccessor() != null) {
-            n.getAccessor().set(ognlContext, root, value);
+            n.getAccessor().set(context, root, value);
             return;
         }
 
-        n.setValue(ognlContext, root, value);
+        n.setValue(context, root, value);
     }
 
     /**
@@ -611,7 +592,7 @@ public abstract class Ognl {
      * @throws InappropriateExpressionException if the expression can't be used in this context
      * @throws OgnlException                    if there is a pathological environmental problem
      */
-    public static void setValue(String expression, Map<Object, Object> context, Object root, Object value) throws OgnlException {
+    public static void setValue(String expression, OgnlContext context, Object root, Object value) throws OgnlException {
         setValue(parseExpression(expression), context, root, value);
     }
 
@@ -661,7 +642,7 @@ public abstract class Ognl {
      * @return True if the node is a constant - false otherwise.
      * @throws OgnlException If an error occurs checking the expression.
      */
-    public static boolean isConstant(Object tree, Map<Object, Object> context) throws OgnlException {
+    public static boolean isConstant(Object tree, OgnlContext context) throws OgnlException {
         return ((SimpleNode) tree).isConstant(addDefaultContext(null, context));
     }
 
@@ -673,12 +654,12 @@ public abstract class Ognl {
      * @return True if the node is a constant - false otherwise.
      * @throws OgnlException If an error occurs checking the expression.
      */
-    public static boolean isConstant(String expression, Map<Object, Object> context) throws OgnlException {
+    public static boolean isConstant(String expression, OgnlContext context) throws OgnlException {
         return isConstant(parseExpression(expression), context);
     }
 
     /**
-     * Same as {@link #isConstant(Object, java.util.Map)} - only the {@link Map} context
+     * Same as {@link #isConstant(String, OgnlContext)} - only the {@link Map} context
      * is created for you.
      *
      * @param tree The {@link Node} to check.
@@ -690,7 +671,7 @@ public abstract class Ognl {
     }
 
     /**
-     * Same as {@link #isConstant(String, java.util.Map)} - only the {@link Map}
+     * Same as {@link #isConstant(String, OgnlContext)} - only the {@link Map}
      * instance is created for you.
      *
      * @param expression The expression to check.
@@ -701,11 +682,11 @@ public abstract class Ognl {
         return isConstant(parseExpression(expression), createDefaultContext(null));
     }
 
-    public static boolean isSimpleProperty(Object tree, Map<Object, Object> context) throws OgnlException {
+    public static boolean isSimpleProperty(Object tree, OgnlContext context) throws OgnlException {
         return ((SimpleNode) tree).isSimpleProperty(addDefaultContext(null, context));
     }
 
-    public static boolean isSimpleProperty(String expression, Map<Object, Object> context) throws OgnlException {
+    public static boolean isSimpleProperty(String expression, OgnlContext context) throws OgnlException {
         return isSimpleProperty(parseExpression(expression), context);
     }
 
@@ -717,11 +698,11 @@ public abstract class Ognl {
         return isSimpleProperty(parseExpression(expression), createDefaultContext(null));
     }
 
-    public static boolean isSimpleNavigationChain(Object tree, Map<Object, Object> context) throws OgnlException {
-        return ((SimpleNode) tree).isSimpleNavigationChain(addDefaultContext(null, context));
+    public static boolean isSimpleNavigationChain(Object tree, OgnlContext context) throws OgnlException {
+        return ((SimpleNode) tree).isSimpleNavigationChain(context);
     }
 
-    public static boolean isSimpleNavigationChain(String expression, Map<Object, Object> context) throws OgnlException {
+    public static boolean isSimpleNavigationChain(String expression, OgnlContext context) throws OgnlException {
         return isSimpleNavigationChain(parseExpression(expression), context);
     }
 
