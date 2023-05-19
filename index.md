@@ -24,6 +24,6 @@ We pronounce OGNL as a word, like the last syllables of a drunken pronunciation 
 [Language Guide](language-guide)
 [Developer Guide](developer-guide)
 
-<a href="https://github.com/you">
+<a class="ribbon" href="https://github.com/you">
 <img decoding="async" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1">
 </a>
