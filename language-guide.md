@@ -7,6 +7,7 @@ title: OGNL Language Guide
 {:toc}
 
 # Introduction
+{:.no_toc}
 
 OGNL stands for **O**bject **G**raph **N**avigation **L**anguage. It is
 an expression and binding language for getting and setting properties of

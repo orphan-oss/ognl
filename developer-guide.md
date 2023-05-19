@@ -7,6 +7,7 @@ title: OGNL Developer Guide
 {:toc}
 
 # Introduction
+{:.no_toc}
 
 OGNL as a language allows for the navigation of Java objects through a
 concise syntax that allows for specifying, where possible, symmetrically
