@@ -1,0 +1,13 @@
+# Setup
+title: "Object-Graph Navigation Language"
+description: "OGNL stands for Object-Graph Navigation Language; it is an expression language for getting and setting properties of Java objects"
+
+# About/contact
+author:
+  name: "Łukasz Lenart"
+  url: "https://lenart.org.pl"
+
+#Others
+markdown: kramdown
+
+theme: jekyll-theme-hacker
