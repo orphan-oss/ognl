@@ -3,11 +3,10 @@ layout: default
 title: OGNL Developer Guide
 ---
 
-# Introduction
-{:.no_toc}
-
 * Will be replaced with the ToC, excluding a header
 {:toc}
+
+# Introduction
 
 OGNL as a language allows for the navigation of Java objects through a
 concise syntax that allows for specifying, where possible, symmetrically

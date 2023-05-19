@@ -3,11 +3,10 @@ layout: default
 title: OGNL Language Guide
 ---
 
-# Introduction
-{:.no_toc}
-
 * Will be replaced with the ToC, excluding a header
 {:toc}
+
+# Introduction
 
 OGNL stands for **O**bject **G**raph **N**avigation **L**anguage. It is
 an expression and binding language for getting and setting properties of
