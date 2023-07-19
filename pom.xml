@@ -2,12 +2,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>9</version>
-    </parent>
-
     <groupId>ognl</groupId>
     <artifactId>ognl</artifactId>
     <packaging>jar</packaging>
@@ -199,7 +193,6 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <outputDirectory>${project.build.directory}/generated-sources/java</outputDirectory>
-                            <packageName>ognl</packageName>
                             <lookAhead>1</lookAhead>
                             <isStatic>false</isStatic>
                             <javaUnicodeEscape>true</javaUnicodeEscape>
