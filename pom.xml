@@ -2,12 +2,29 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.sonatype.buildsupport</groupId>
+        <artifactId>buildsupport</artifactId>
+        <version>37</version>
+    </parent>
+
     <groupId>ognl</groupId>
     <artifactId>ognl</artifactId>
     <packaging>jar</packaging>
     <version>3.4.0-SNAPSHOT</version>
     <name>OGNL - Object Graph Navigation Library</name>
     <description>OGNL - Object Graph Navigation Library</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <public-release.serverId>ossrh</public-release.serverId>
+        <public-release.url>https://oss.sonatype.org/service/local/staging/deploy/maven2</public-release.url>
+        <public-snapshot.serverId>ossrh</public-snapshot.serverId>
+        <public-snapshot.url>https://oss.sonatype.org/content/repositories/snapshots</public-snapshot.url>
+    </properties>
 
     <inceptionYear>2022</inceptionYear>
 
@@ -41,17 +58,6 @@
             </roles>
         </developer>
     </developers>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
 
     <dependencies>
         <dependency>
@@ -97,11 +103,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
                 <executions>
                     <execution>
                         <id>compile-tests</id>
@@ -110,8 +111,8 @@
                             <goal>testCompile</goal>
                         </goals>
                         <configuration>
-                            <source>1.8</source>
-                            <target>1.8</target>
+                            <source>${maven.compiler.source}</source>
+                            <target>${maven.compiler.target}</target>
                         </configuration>
                     </execution>
                 </executions>
@@ -132,7 +133,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
                 <configuration>
                     <archive>
                         <compress>true</compress>
@@ -146,7 +146,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.3.0</version>
                 <configuration>
                     <archive>
                         <compress>true</compress>
@@ -177,11 +176,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>3.3.1</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
