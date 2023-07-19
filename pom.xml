@@ -20,6 +20,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
+        <public.serverId>ossrh</public.serverId>
         <public-release.serverId>ossrh</public-release.serverId>
         <public-release.url>https://oss.sonatype.org/service/local/staging/deploy/maven2</public-release.url>
         <public-snapshot.serverId>ossrh</public-snapshot.serverId>
