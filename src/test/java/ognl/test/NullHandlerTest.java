@@ -28,7 +28,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class NullHandlerTest {
+class NullHandlerTest {
 
     private OgnlContext context;
     private CorrectedObject root;
