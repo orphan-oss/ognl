@@ -207,7 +207,6 @@ public class TestExpressionCompiler extends TestCase {
      * @throws Exception
      */
     public void test_ApplyExpressionMaxLength() throws Exception {
-        final OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
         final String shortFakeExpression = new String(new char[10]).replace('\0', 'S');
         final String mediumFakeExpression = new String(new char[100]).replace('\0', 'S');
         final String longFakeExpression = new String(new char[1000]).replace('\0', 'S');
@@ -554,8 +553,6 @@ public class TestExpressionCompiler extends TestCase {
      * @throws Exception
      */
     public void test_FreezeThawExpressionMaxLength() throws Exception {
-        final OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null);
-
         try {
             // ---------------------------------------------------------------------
             // Test initial default state.  Can change maximum length to valid values without any issues

@@ -144,6 +144,16 @@ public class OgnlContext {
     }
 
     /**
+     * Similar to {@link #setValues(Map)} but returns the current instance of {@link OgnlContext}
+     * @param values a Map of values
+     * @return the current instance of {@link OgnlContext}
+     */
+    public OgnlContext withValues(Map<Object, Object> values) {
+        this.setValues(values);
+        return this;
+    }
+
+    /**
      * Get the values Map for this OgnlContext.
      *
      * @return Map of values for this OgnlContext.

@@ -154,8 +154,7 @@ public abstract class Ognl {
      * still possible at some as yet indertermined point in the future.
      * @throws Exception If a compilation error occurs.
      */
-    public static Node compileExpression(OgnlContext context, Object root, String expression)
-            throws Exception {
+    public static Node compileExpression(OgnlContext context, Object root, String expression) throws Exception {
         Node expr = (Node) Ognl.parseExpression(expression);
 
         OgnlRuntime.compileExpression(context, expr, root);
@@ -167,7 +166,7 @@ public abstract class Ognl {
      * Creates and returns a new standard naming context for evaluating an OGNL expression.
      *
      * @param root the root of the object graph
-     * @return a new Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
+     * @return a new {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
     public static OgnlContext createDefaultContext(Object root) {
@@ -179,6 +178,17 @@ public abstract class Ognl {
             }
         };
         return addDefaultContext(root, memberAccess, null, null, null);
+    }
+
+    /**
+     * Creates and returns a new standard naming context for evaluating an OGNL expression.
+     *
+     * @param root the root of the object graph
+     * @return a new {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
+     * appropriately
+     */
+    public static OgnlContext createDefaultContext(Object root, Map<Object, Object> values) {
+        return createDefaultContext(root).withValues(values);
     }
 
     /**
@@ -206,7 +216,7 @@ public abstract class Ognl {
      * @param root          The root of the object graph.
      * @param classResolver The resolver used to instantiate {@link Class} instances referenced in the expression.
      * @param converter     Converter used to convert return types of an expression in to their desired types.
-     * @return a new Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
+     * @return a new {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
     public static OgnlContext createDefaultContext(Object root, ClassResolver classResolver, TypeConverter converter) {
@@ -228,7 +238,7 @@ public abstract class Ognl {
      *                      methods / fields.
      * @param classResolver The resolver used to instantiate {@link Class} instances referenced in the expression.
      * @param converter     Converter used to convert return types of an expression in to their desired types.
-     * @return a new Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
+     * @return a new {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
     public static OgnlContext createDefaultContext(Object root, MemberAccess memberAccess, ClassResolver classResolver, TypeConverter converter) {
@@ -241,7 +251,7 @@ public abstract class Ognl {
      * @param root         The root of the object graph.
      * @param memberAccess Java security handling object to determine semantics for accessing normally private/protected
      *                     methods / fields.
-     * @return a new Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
+     * @return a new {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
     public static OgnlContext createDefaultContext(Object root, MemberAccess memberAccess) {
@@ -254,7 +264,7 @@ public abstract class Ognl {
      *
      * @param root    the root of the object graph
      * @param context the context to which OGNL context will be added.
-     * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
+     * @return {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
     public static OgnlContext addDefaultContext(Object root, OgnlContext context) {
