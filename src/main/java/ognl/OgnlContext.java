@@ -416,7 +416,7 @@ public class OgnlContext {
     }
 
     public Map<String, LocalReference> getLocalReferences() {
-        return Collections.unmodifiableMap(localReferenceMap);
+        return localReferenceMap;
     }
 
     /* ================= Map interface ================= */

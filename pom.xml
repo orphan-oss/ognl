@@ -25,6 +25,7 @@
         <public-release.url>https://oss.sonatype.org/service/local/staging/deploy/maven2</public-release.url>
         <public-snapshot.serverId>ossrh</public-snapshot.serverId>
         <public-snapshot.url>https://oss.sonatype.org/content/repositories/snapshots</public-snapshot.url>
+        <junit.version>5.10.0</junit.version>
     </properties>
 
     <inceptionYear>2022</inceptionYear>
@@ -70,16 +71,23 @@
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.10.0</version>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.10.0</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
@@ -90,12 +98,6 @@
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
             <version>5.1.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
