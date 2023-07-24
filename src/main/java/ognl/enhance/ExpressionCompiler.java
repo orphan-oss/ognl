@@ -436,7 +436,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         try {
             newClass.addConstructor(CtNewConstructor.defaultConstructor(newClass));
 
-            Class<?> clazz = pool.toClass(newClass);
+            Class<?> clazz = instantiateClass(pool, newClass);
             newClass.detach();
 
             expression.setAccessor((ExpressionAccessor) clazz.newInstance());
@@ -453,6 +453,21 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         }
 
     }
+
+
+    /**
+     * Called when <code>newClass</code> has been fully populated and is ready to be instantiated.
+     *
+     * @param pool     the javassist ClassPool context
+     * @param newClass the definition of the new class
+     * @return The compiled class
+     * @throws CannotCompileException if thrown by javassist
+     */
+    protected Class<?> instantiateClass(final ClassPool pool, final CtClass newClass) throws CannotCompileException
+    {
+        return pool.toClass(newClass, OgnlContext.class);
+    }
+
 
     protected String generateGetter(OgnlContext context, CtClass newClass, ClassPool pool, CtMethod valueGetter, Node expression, Object root) throws Exception {
         String pre = "";
