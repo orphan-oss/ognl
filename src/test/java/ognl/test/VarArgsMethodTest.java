@@ -25,45 +25,43 @@ public class VarArgsMethodTest extends TestCase {
 
     private static final Simple ROOT = new Simple();
 
-    private final OgnlContext context = Ognl.createDefaultContext(ROOT);
-
     public void testNullVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("isNullVarArgs()", context, ROOT);
+        Object value = Ognl.getValue("isNullVarArgs()", ROOT);
 
         assertTrue(value instanceof String);
         assertEquals("null", value);
     }
 
     public void testVarArgsWithSingleArg() throws Exception {
-        Object value = Ognl.getValue("isStringVarArgs(new String())", context, ROOT);
+        Object value = Ognl.getValue("isStringVarArgs(new String())", ROOT);
 
         assertTrue(value instanceof String);
         assertEquals("args", value);
     }
 
     public void testVarArgsWithMultipleArgs() throws Exception {
-        Object value = Ognl.getValue("isStringVarArgs(new String(), new String())", context, ROOT);
+        Object value = Ognl.getValue("isStringVarArgs(new String(), new String())", ROOT);
 
         assertTrue(value instanceof String);
         assertEquals("args", value);
     }
 
     public void testNestedNullVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("get().request()", context, ROOT);
+        Object value = Ognl.getValue("get().request()", ROOT);
 
         assertTrue(value instanceof String);
         assertEquals("null", value);
     }
 
     public void testNestedSingleVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("get().request(new String())", context, ROOT);
+        Object value = Ognl.getValue("get().request(new String())", ROOT);
 
         assertTrue(value instanceof String);
         assertEquals("args", value);
     }
 
     public void testNestedMultipleVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("get().request(new String(), new String())", context, ROOT);
+        Object value = Ognl.getValue("get().request(new String(), new String())", ROOT);
 
         assertTrue(value instanceof String);
         assertEquals("args", value);

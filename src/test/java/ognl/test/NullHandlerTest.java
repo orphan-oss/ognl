@@ -19,7 +19,6 @@
 package ognl.test;
 
 import ognl.Ognl;
-import ognl.OgnlContext;
 import ognl.OgnlRuntime;
 import ognl.test.objects.CorrectedObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NullHandlerTest {
 
-    private OgnlContext context;
     private CorrectedObject root;
 
     @ParameterizedTest()
@@ -41,7 +39,7 @@ class NullHandlerTest {
             "#root.getStringValue(),corrected"
     })
     void shouldBlockAccessReadToSpecificProperties(String expression, String expected) throws Exception {
-        assertEquals(expected, Ognl.getValue(expression, this.context, root));
+        assertEquals(expected, Ognl.getValue(expression, root));
     }
 
     @BeforeEach
@@ -49,6 +47,5 @@ class NullHandlerTest {
         OgnlRuntime.setNullHandler(CorrectedObject.class, new CorrectedObjectNullHandler("corrected"));
 
         this.root = new CorrectedObject();
-        this.context = Ognl.createDefaultContext(this.root);
     }
 }
