@@ -465,7 +465,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      */
     protected Class<?> instantiateClass(final ClassPool pool, final CtClass newClass) throws CannotCompileException
     {
-        return pool.toClass(newClass, OgnlContext.class);
+        return pool.toClass(newClass);
     }
 
 
