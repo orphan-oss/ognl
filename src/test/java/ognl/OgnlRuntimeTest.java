@@ -631,6 +631,7 @@ public class OgnlRuntimeTest {
         Map<String, Object> root = new HashMap<>();
         root.put("d1", java.sql.Date.valueOf("2022-01-01"));
         root.put("d2", java.sql.Date.valueOf("2022-01-02"));
+        defaultContext.setRoot(root);
         Assert.assertEquals(-1, Ognl.getValue("d1.compareTo(d2)", defaultContext, root));
     }
 

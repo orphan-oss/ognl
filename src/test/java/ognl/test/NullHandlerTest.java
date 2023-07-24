@@ -18,82 +18,37 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.OgnlRuntime;
 import ognl.test.objects.CorrectedObject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-public class NullHandlerTest extends OgnlTestCase {
-    private static CorrectedObject CORRECTED = new CorrectedObject();
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static Object[][] TESTS = {
-            // NullHandler
-            {CORRECTED, "stringValue", "corrected"},
-            {CORRECTED, "getStringValue()", "corrected"},
-            {CORRECTED, "#root.stringValue", "corrected"},
-            {CORRECTED, "#root.getStringValue()", "corrected"},
-    };
+public class NullHandlerTest {
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
+    private OgnlContext context;
+    private CorrectedObject root;
 
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result
-                        .addTest(new NullHandlerTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new NullHandlerTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                            TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new NullHandlerTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    @ParameterizedTest()
+    @CsvSource({
+            "stringValue,corrected",
+            "getStringValue(),corrected",
+            "#root.stringValue,corrected",
+            "#root.getStringValue(),corrected"
+    })
+    void shouldBlockAccessReadToSpecificProperties(String expression, String expected) throws Exception {
+        assertEquals(expected, Ognl.getValue(expression, this.context, root));
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public NullHandlerTest() {
-        super();
-    }
-
-    public NullHandlerTest(String name) {
-        super(name);
-    }
-
-    public NullHandlerTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-                           Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
-    }
-
-    public NullHandlerTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public NullHandlerTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
-    }
-
-    /*
-     * =================================================================== Overridden methods
-     * ===================================================================
-     */
+    @BeforeEach
     public void setUp() {
-        super.setUp();
-        _compileExpressions = false;
         OgnlRuntime.setNullHandler(CorrectedObject.class, new CorrectedObjectNullHandler("corrected"));
+
+        this.root = new CorrectedObject();
+        this.context = Ognl.createDefaultContext(this.root);
     }
 }
