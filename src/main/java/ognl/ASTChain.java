@@ -53,10 +53,9 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
         flattenTree();
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
-            throws OgnlException {
+    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
         // short-circuit the chain only in case if the root is null
-        if (source == null) {
+        if (source == null && !(parent instanceof ASTIn)) {
             return null;
         }
 
