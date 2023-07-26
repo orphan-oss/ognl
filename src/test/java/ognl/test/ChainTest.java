@@ -20,10 +20,12 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.SimpleNode;
+import ognl.test.objects.Root;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -56,19 +58,20 @@ public class ChainTest {
     }
 
     @Test
-    public void shouldShortCircuitAccessingNullChild() {
-        // given
-        OgnlContext context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+    public void shouldShortCircuitAccessingNullChild() throws OgnlException {
+        OgnlContext context = Ognl.createDefaultContext(null);
         Parent parent = new Parent(new Parent(null));
         context.put("parent", parent);
 
-        // when
-        try {
-            Ognl.getValue("#parent.child.child.name", context, parent);
-            fail();
-        } catch (OgnlException ox) {
-            assertEquals("source is null for getProperty(null, \"name\")", ox.getMessage());
-        }
+        assertNull(Ognl.getValue("#parent.child.child.name", context, parent));
+    }
+
+    @Test
+    public void shouldEvaluateThisProperty() throws OgnlException {
+        Root root = new Root();
+        OgnlContext context = Ognl.createDefaultContext(root);
+
+        assertEquals("empty", Ognl.getValue("map[$].(#this == null ? 'empty' : #this)", context, root));
     }
 
     public static class Child {
