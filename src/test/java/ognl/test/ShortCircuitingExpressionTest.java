@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ShortCircuitingExpressionTest {
+class ShortCircuitingExpressionTest {
 
     private OgnlContext context;
 
