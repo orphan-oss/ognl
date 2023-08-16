@@ -1,6 +1,7 @@
 package ognl.test;
 
 import junit.framework.TestCase;
+import ognl.Ognl;
 import ognl.OgnlException;
 import ognl.OgnlRuntime;
 
@@ -31,6 +32,13 @@ public class Java8Test extends TestCase {
         assertNotNull(defaultMethod);
         defaultMethod = OgnlRuntime.getDeclaredMethods(ClassWithDefaults.class, "name", false);
         assertNotNull(defaultMethod);
+    }
+
+    public void testAccessingDefaultMethod() throws OgnlException {
+        ClassWithDefaults root = new ClassWithDefaults();
+        Object value = Ognl.getValue("name", Ognl.createDefaultContext(root), root);
+
+        assertEquals("name", value);
     }
 
 }
