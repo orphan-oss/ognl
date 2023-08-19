@@ -48,6 +48,7 @@ public class StaticsAndConstructorsTest extends OgnlTestCase {
             {"new ognl.test.StaticsAndConstructorsTest$A(#root)", new A(ROOT)},
             {"@ognl.test.StaticsAndConstructorsTest$Animals@values().length != 2", Boolean.TRUE},
             {"isOk(@ognl.test.objects.SimpleEnum@ONE, null)", Boolean.TRUE},
+            {"@ognl.test.objects.StaticInterface@staticMethod()", "static"}
     };
 
     public static final String KEY = "size";
