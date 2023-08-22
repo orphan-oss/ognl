@@ -132,9 +132,6 @@
                         <include>**/TestOgnlException.java</include>
                         <include>**/TestExpressionCompiler.java</include>
                     </includes>
-                    <systemPropertyVariables>
-                        <ognl.chain.short-circuit>true</ognl.chain.short-circuit>
-                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>

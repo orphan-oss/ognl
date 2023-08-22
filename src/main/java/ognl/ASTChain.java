@@ -28,7 +28,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
 
     private static final long serialVersionUID = 6689037266594707682L;
 
-    private final boolean shortCircuit = Boolean.parseBoolean(System.getProperty("ognl.chain.short-circuit", "false"));
+    private final boolean shortCircuit = Boolean.parseBoolean(System.getProperty("ognl.chain.short-circuit", "true"));
 
     private Class<?> getterClass;
     private Class<?> setterClass;
