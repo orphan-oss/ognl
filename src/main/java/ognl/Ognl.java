@@ -317,7 +317,7 @@ public abstract class Ognl {
         OgnlContext result = new OgnlContext(memberAccess, classResolver, converter, initialContext);
         result.setRoot(root);
         if (initialContext != null) {
-            result.addAll(initialContext);
+            result.putAll(initialContext);
         }
         return result;
     }
