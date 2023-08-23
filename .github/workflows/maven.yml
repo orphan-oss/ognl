@@ -48,10 +48,10 @@ jobs:
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
       - name: Build with Maven on Java ${{ matrix.java }}
-        if: matrix.java != '11'
+        if: matrix.java != '17'
         run: mvn -B -V test --no-transfer-progress
       - name: Code coverage
-        if: matrix.java == '11'
+        if: matrix.java == '17'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -63,13 +63,13 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
         run: mvn -B -V -DskipTests=true deploy --no-transfer-progress
       - name: Apply automerge label
-        if: matrix.java == '11' && github.actor == 'dependabot[bot]'
+        if: matrix.java == '17' && github.actor == 'dependabot[bot]'
         run: gh pr edit "$PR_URL" --add-label "automerge"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
       - name: Automerge
-        if: matrix.java == '11' && github.actor == 'dependabot[bot]'
+        if: matrix.java == '17' && github.actor == 'dependabot[bot]'
         run: gh pr merge -m "$PR_URL"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
