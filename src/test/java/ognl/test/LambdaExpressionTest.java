@@ -18,64 +18,117 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.DefaultMemberAccess;
+import ognl.Ognl;
+import ognl.OgnlContext;
+import ognl.SimpleNode;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class LambdaExpressionTest extends OgnlTestCase {
+import static org.junit.Assert.assertEquals;
 
-    private static Object[][] TESTS = {
-            // Lambda expressions
-            {null, "#a=:[33](20).longValue().{0}.toArray().length", new Integer(33)},
-            {null, "#fact=:[#this<=1? 1 : #fact(#this-1) * #this], #fact(30)", new Integer(1409286144)},
-            {null, "#fact=:[#this<=1? 1 : #fact(#this-1) * #this], #fact(30L)", new Long(-8764578968847253504L)},
-            {null, "#fact=:[#this<=1? 1 : #fact(#this-1) * #this], #fact(30h)",
-                    new BigInteger("265252859812191058636308480000000")},
-            {null, "#bump = :[ #this.{ #this + 1 } ], (#bump)({ 1, 2, 3 })",
-                    new ArrayList(Arrays.asList(new Integer[]{new Integer(2), new Integer(3), new Integer(4)}))},
-            {null, "#call = :[ \"calling \" + [0] + \" on \" + [1] ], (#call)({ \"x\", \"y\" })", "calling x on y"},
+public class LambdaExpressionTest {
 
-    };
+    private OgnlContext context;
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new LambdaExpressionTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                    TESTS[i][2]));
-        }
-        return result;
+    @Before
+    public void setUp() throws Exception {
+        this.context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public LambdaExpressionTest() {
-        super();
+    private SimpleNode getExpression(Object root, String expressionStr) throws Exception {
+        // validate expression
+        Ognl.parseExpression(expressionStr);
+        // compile expression
+        return (SimpleNode) Ognl.compileExpression(context, root, expressionStr);
     }
 
-    public LambdaExpressionTest(String name) {
-        super(name);
+    @Test
+    public void shouldReadArrayLength() throws Exception {
+        // given
+        Object root = new Object[]{};
+        String expressionStr = "#a=:[33](20).longValue().{0}.toArray().length";
+        int expectedResult = 33;
+
+        // when
+        SimpleNode expression = getExpression(root, expressionStr);
+
+        // then
+        assertEquals(expectedResult, Ognl.getValue(expression, context, root));
     }
 
-    public LambdaExpressionTest(String name, Object root, String expressionString, Object expectedResult,
-                                Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    public void shouldEvaluateLambda1() throws Exception {
+        // given
+        Object root = null;
+        String expressionStr = "#fact=:[#this <=1 ? 1 : #fact(#this-1) * #this], #fact(30)";
+        int expectedResult = 1409286144;
+
+        // when
+        SimpleNode expression = getExpression(root, expressionStr);
+
+        // then
+        assertEquals(expectedResult, Ognl.getValue(expression, context, root));
     }
 
-    public LambdaExpressionTest(String name, Object root, String expressionString, Object expectedResult,
-                                Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    public void shouldEvaluateLambda2() throws Exception {
+        // given
+        Object root = null;
+        String expressionStr = "#fact=:[#this <= 1 ? 1 : #fact(#this-1) * #this], #fact(30L)";
+        long expectedResult = -8764578968847253504L;
+
+        // when
+        SimpleNode expression = getExpression(root, expressionStr);
+
+        // then
+        assertEquals(expectedResult, Ognl.getValue(expression, context, root));
     }
 
-    public LambdaExpressionTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    public void shouldEvaluateLambda3() throws Exception {
+        // given
+        Object root = null;
+        String expressionStr = "#fact=:[#this <= 1 ? 1 : #fact(#this-1) * #this], #fact(30h)";
+        BigInteger expectedResult = new BigInteger("265252859812191058636308480000000");
+
+        // when
+        SimpleNode expression = getExpression(root, expressionStr);
+
+        // then
+        assertEquals(expectedResult, Ognl.getValue(expression, context, root));
     }
+
+    @Test
+    public void shouldEvaluateLambda4() throws Exception {
+        // given
+        Object root = null;
+        String expressionStr = "#bump = :[ #this.{ #this + 1 } ], (#bump)({ 1, 2, 3 })";
+        List<Integer> expectedResult = Arrays.asList(2, 3, 4);
+
+        // when
+        SimpleNode expression = getExpression(root, expressionStr);
+
+        // then
+        assertEquals(expectedResult, Ognl.getValue(expression, context, root));
+    }
+
+    @Test
+    public void shouldEvaluateLambda5() throws Exception {
+        // given
+        Object root = null;
+        String expressionStr = "#call = :[ \"calling \" + [0] + \" on \" + [1] ], (#call)({ \"x\", \"y\" })";
+        String expectedResult = "calling x on y";
+
+        // when
+        SimpleNode expression = getExpression(root, expressionStr);
+
+        // then
+        assertEquals(expectedResult, Ognl.getValue(expression, context, root));
+    }
+
 }

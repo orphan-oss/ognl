@@ -35,7 +35,7 @@ public class ProjectionSelectionTest extends OgnlTestCase {
             {ROOT, "map.array.{^ #this > 2 }", Arrays.asList(new Integer[]{new Integer(3)})},
             {ROOT, "map.array.{$ #this > 2 }", Arrays.asList(new Integer[]{new Integer(4)})},
             {ROOT, "map.array[*].{?true} instanceof java.util.Collection", Boolean.TRUE},
-            {null, "#fact=1, 30H.{? #fact = #fact * (#this+1), false }, #fact",
+            {ROOT, "#fact=1, 30H.{? #fact = #fact * (#this+1), false }, #fact",
                     new BigInteger("265252859812191058636308480000000")},
     };
 

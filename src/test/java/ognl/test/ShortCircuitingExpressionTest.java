@@ -18,54 +18,61 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
-import ognl.NoSuchPropertyException;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.OgnlException;
+import ognl.SimpleNode;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class ShortCircuitingExpressionTest extends OgnlTestCase {
-    private static Object[][] TESTS = {
-            {"#root ? someProperty : 99", new Integer(99)},
-            {"#root ? 99 : someProperty", OgnlException.class},
-            {"(#x=99)? #x.someProperty : #x", NoSuchPropertyException.class},
-            {"#xyzzy.doubleValue()", NullPointerException.class},
-            {"#xyzzy && #xyzzy.doubleValue()", null},
-            {"(#x=99) && #x.doubleValue()", new Double(99)},
-            {"#xyzzy || 101", new Integer(101)},
-            {"99 || 101", new Integer(99)},
-    };
+import java.util.stream.Stream;
 
-    /*===================================================================
-        Public static methods
-      ===================================================================*/
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
-        for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new ShortCircuitingExpressionTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", null, (String) TESTS[i][0], TESTS[i][1]));
+class ShortCircuitingExpressionTest {
+
+    private OgnlContext context;
+
+    @ParameterizedTest
+    @MethodSource("testValues")
+    void shouldShortCircuitExpressionEvaluations(String expression, Object expected) throws OgnlException {
+        assertEquals(expected, Ognl.getValue(expression, null));
+    }
+
+    @Test
+    void shouldEvaluateNumber() throws Exception {
+        SimpleNode expression = (SimpleNode) Ognl.compileExpression(context, null, "(#x=99) && #x.doubleValue()");
+        assertEquals(99.0, Ognl.getValue(expression, context, (Object) null));
+    }
+
+    @Test
+    void shouldThrowException() {
+        try {
+            Ognl.getValue("#root ? 99 : someProperty", null);
+            fail();
+        } catch (Throwable e) {
+            assertInstanceOf(OgnlException.class, e);
         }
-        return result;
     }
 
-    /*===================================================================
-        Constructors
-      ===================================================================*/
-    public ShortCircuitingExpressionTest() {
-        super();
+    private static Stream<Arguments> testValues() {
+        return Stream.of(
+                Arguments.of("#root ? someProperty : 99", 99),
+                Arguments.of("(#x=99)? #x.someProperty : #x", null),
+                Arguments.of("#xyzzy.doubleValue()", null),
+                Arguments.of("#xyzzy && #xyzzy.doubleValue()", null),
+                Arguments.of("#xyzzy || 101", 101),
+                Arguments.of("99 || 101", 99)
+        );
     }
 
-    public ShortCircuitingExpressionTest(String name) {
-        super(name);
-    }
-
-    public ShortCircuitingExpressionTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
-    }
-
-    public ShortCircuitingExpressionTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public ShortCircuitingExpressionTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @BeforeEach
+    void setUp() {
+        context = Ognl.createDefaultContext(null);
     }
 }
