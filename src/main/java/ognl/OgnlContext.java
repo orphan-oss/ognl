@@ -27,11 +27,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class defines the execution context for an OGNL expression
  */
-public class OgnlContext {
+public class OgnlContext implements Map<String, Object> {
 
     private static final String ROOT_CONTEXT_KEY = "root";
     private static final String THIS_CONTEXT_KEY = "this";
@@ -430,27 +431,36 @@ public class OgnlContext {
     }
 
     /* ================= Map interface ================= */
+    @Override
     public int size() {
         return internalContext.size();
     }
 
+    @Override
     public boolean isEmpty() {
         return internalContext.isEmpty();
     }
 
-    public boolean containsKey(String key) {
+    @Override
+    public boolean containsKey(Object key) {
         return internalContext.containsKey(key);
     }
 
-    public boolean containsValue(String value) {
+    @Override
+    public boolean containsValue(Object value) {
         return internalContext.containsValue(value);
     }
 
-    public Object get(String key) {
+    @Override
+    public Object get(Object key) {
+        if (key == null) {
+            return null;
+        }
         Object result;
+        String strKey = key.toString();
 
-        if (RESERVED_KEYS.containsKey(key)) {
-            switch (key) {
+        if (RESERVED_KEYS.containsKey(strKey)) {
+            switch (strKey) {
                 case OgnlContext.THIS_CONTEXT_KEY:
                     result = getCurrentObject();
                     break;
@@ -475,6 +485,7 @@ public class OgnlContext {
         return result;
     }
 
+    @Override
     public Object put(String key, Object value) {
         Object result;
 
@@ -510,11 +521,16 @@ public class OgnlContext {
         return result;
     }
 
-    public Object remove(String key) {
+    @Override
+    public Object remove(Object key) {
         Object result;
+        if (key == null) {
+            return internalContext.remove(key);
+        }
 
-        if (RESERVED_KEYS.containsKey(key)) {
-            switch (key) {
+        String strKey = key.toString();
+        if (RESERVED_KEYS.containsKey(strKey)) {
+            switch (strKey) {
                 case OgnlContext.THIS_CONTEXT_KEY:
                     result = getCurrentObject();
                     setCurrentObject(null);
@@ -542,12 +558,14 @@ public class OgnlContext {
         return result;
     }
 
-    public void putAll(Map<String, ?> t) {
-        for (Map.Entry<String, ?> entry : t.entrySet()) {
+    @Override
+    public void putAll(Map<? extends String, ?> t) {
+        for (Map.Entry<? extends String, ?> entry : t.entrySet()) {
             put(entry.getKey(), entry.getValue());
         }
     }
 
+    @Override
     public void clear() {
         internalContext.clear();
         typeStack.clear();
@@ -566,8 +584,18 @@ public class OgnlContext {
         setCurrentNode(null);
     }
 
+    @Override
+    public Set<String> keySet() {
+        return Collections.unmodifiableSet(internalContext.keySet());
+    }
+
     public Collection<Object> values() {
         return Collections.unmodifiableCollection(internalContext.values());
+    }
+
+    @Override
+    public Set<Entry<String, Object>> entrySet() {
+        return Collections.unmodifiableSet(internalContext.entrySet());
     }
 
     @Override
@@ -584,7 +612,4 @@ public class OgnlContext {
         return internalContext.hashCode();
     }
 
-    public void addAll(OgnlContext context) {
-        this.internalContext.putAll(context.internalContext);
-    }
 }
