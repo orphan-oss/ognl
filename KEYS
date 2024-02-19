@@ -1,0 +1,97 @@
+This file contains the PGP keys of various Apache developers.
+Please don't use them for email unless you have to. Their main
+purpose is code signing.
+
+Apache users: pgp < KEYS
+Apache developers:
+        (pgpk -ll <your name> && pgpk -xa <your name>) >> this file.
+      or
+        (gpg --fingerprint --list-sigs <your name>
+             && gpg --armor --export <your name>) >> this file.
+
+Apache developers: please ensure that your key is also available via the
+PGP keyservers (such as pgpkeys.mit.edu).
+
+
+pub   1024D/DD8B8819 2009-12-16
+uid                  Lukasz Lenart <lukaszlenart@apache.org>
+sig 3        DD8B8819 2009-12-16  Lukasz Lenart <lukaszlenart@apache.org>
+sub   4096g/66EFAD45 2009-12-16
+sig          DD8B8819 2009-12-16  Lukasz Lenart <lukaszlenart@apache.org>
+ 
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.9 (Cygwin)
+ 
+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
+=+tUp
+-----END PGP PUBLIC KEY BLOCK-----
+ 
+pub   4096R/63AFBB1F 2010-05-23
+      Key fingerprint = 0E00 8698 344E 62B9 0633  B7C6 2841 6106 63AF BB1F
+uid                  Lukasz Lenart (Signing Apache Distributions) <lukaszlenart@apache.org>
+sig 3        63AFBB1F 2010-05-23  Lukasz Lenart (Signing Apache Distributions) <lukaszlenart@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.9 (Cygwin)
+
+mQINBEv43AABEAC6VkF/h0OnvcppCPkqzfNwNy/+D+aFhc+DESwxEznSSKSbeg3V
+r1wwTy90+7S/mEItm88RmkNBYe1Mz3syDcj9s4S34atEV6XzGAa+3gp2rkWskyZ9
+jJhXuD5ctd3LWRsA+0b14oo4/Je4pfu5aVzEDscrorskueHOY1Z73OmwRGZlIBT9
+bQU+wAkIwhkw7HepgSyLcwblcy+cM4P68Ir/HAEt19FDKtnUUTnqnKT8bQDaXUuH
+2iqNYTo3xZ6D2Eh6aBcUXgzAXHtuSnm4IEwipvi1OGo87N3ZEy++bs9GLNoI8ooC
+pwhYtYDetOTvujXkyi3SGRzVhKagcJQhZGcRq3587f49K0EJCumyNYw5q4E1FgKN
+T0k3Zed/LyaUSQZBGIWcmbtXaY+2s8wtUjBXFTYbbLlbijaD95RvL8xY9mWDPwJB
+Pe9DidEQ9qOSNC7jWnbwKhoeTN2AAQCcaZ5lNEx3SYw0pLz7H22l+/i2jBMzYqAu
+0ViRyiXkNstxrdmbTaR4hJdf3IH0fsJPjdJVV0dyHKcDKaUj1RmcUizBLYTXY6oY
+nEk5kp0A2pllRwE4ZLxeiT9KkqbPytqkQVGDzu4PQnMxIv0Uu7NrIbpP6fMJlt94
+3N57N3lj8FCfGU1TediS2aXZx2rLVEPWFmZWeOATwqihA1fe0leMBWPnfwARAQAB
+tEZMdWthc3ogTGVuYXJ0IChTaWduaW5nIEFwYWNoZSBEaXN0cmlidXRpb25zKSA8
+bHVrYXN6bGVuYXJ0QGFwYWNoZS5vcmc+iQI4BBMBAgAiBQJL+NwAAhsDBgsJCAcD
+AgYVCAIJCgsEFgIDAQIeAQIXgAAKCRAoQWEGY6+7H8sMD/92MJ2srnFeR7h5ULWr
+FKU8ynBgL4ghfmEF6/2InxUtZG/6fESKYnw1nuaFCiob8Q6KpszkRwPPjHRLr6q5
+DiXdptFEBGgni2Cq4HF9722hpSukYESb9wu0CiNd+aksCEIh3VlAZJ8Yve3SYndp
+fvmUx49mztApqq3EUzPI+O2huMDTaFNpMOrPpWZnosIdUDAFMTq3pB5GFJSxsvlA
+NsWCcyWnSCuTMlbpvIgJ9ojPJfm+0IXKD2dzQdR9PtDQ1tfv60OC486FncYGuwHD
+qbdnY4S5hPyE9YYCc7AY3Q5J/nvBIifW8fFWBLMx1ykKQlZOc4iTBOe7o3MSTeCp
+X09WE/GqKwEHx2IQmWqgboMW1qJlqWBwEMPcH3bj1WnQ4zkHuOLcS9xdL+opq9xG
+LffLm3fynicg7Fse5qXFSh7GbLSJmc5BTqA10HCE1Ur6mcL0+W/+h2kPd+U7/OU2
+wr59iQuroEouV71h9SVpSElLhTOw5rRK+AU+cBIkzvfv9dBcVNlzmsAnrJ1+Gqex
+4gmPmAr7MrZpOTzs5d2dYpu1LO8w6a/2CZn69sE5AGtda0ErFMXacLpzWoIMLPYN
+7Vn5LS4JLE7GSM4WDfyG93OA2spR9ofBlsSqHSlOrSTM8JaEFCPaGD/AMIWKj6ya
+NrjTmQt9KnGO87EwAlPDwf0hjw==
+=x2yb
+-----END PGP PUBLIC KEY BLOCK-----
