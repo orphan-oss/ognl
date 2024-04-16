@@ -1648,7 +1648,7 @@ public class OgnlRuntime {
                     throw new NoSuchMethodException();
                 }
             }
-            if (!context.getMemberAccess().isAccessible(context, target, ctor, null)) {
+            if (!isAccessible(context, target, ctor, null)) {
                 throw new IllegalAccessException(
                         "access denied to " + target.getName() + "()");
             }
@@ -1702,7 +1702,7 @@ public class OgnlRuntime {
             m = getReadMethod((target == null) ? null : target.getClass(), propertyName, null);
 
         if (checkAccessAndExistence) {
-            if ((m == null) || !context.getMemberAccess().isAccessible(context, target, m, propertyName)) {
+            if ((m == null) || !isAccessible(context, target, m, propertyName)) {
                 result = NotFound;
             }
         }
@@ -1740,7 +1740,7 @@ public class OgnlRuntime {
         Method m = getSetMethod(context, (target == null) ? null : target.getClass(), propertyName);
 
         if (checkAccessAndExistence) {
-            if ((m == null) || !context.getMemberAccess().isAccessible(context, target, m, propertyName)) {
+            if ((m == null) || !isAccessible(context, target, m, propertyName)) {
                 result = false;
             }
         }
@@ -1863,7 +1863,7 @@ public class OgnlRuntime {
         final Field f = getField((target == null) ? null : target.getClass(), propertyName);
 
         if (checkAccessAndExistence) {
-            if ((f == null) || !context.getMemberAccess().isAccessible(context, target, f, propertyName)) {
+            if ((f == null) || !isAccessible(context, target, f, propertyName)) {
                 result = NotFound;
             }
         }
@@ -1892,8 +1892,19 @@ public class OgnlRuntime {
         return result;
     }
 
-    public static boolean setFieldValue(OgnlContext context, Object target, String propertyName, Object value)
-            throws OgnlException {
+
+    /**
+     * Don't use this method as it doesn't check member access rights via {@link MemberAccess} interface
+     */
+    @Deprecated
+    public static boolean setFieldValue(OgnlContext context, Object target, String propertyName, Object value) throws OgnlException {
+        return setFieldValue(context, target, propertyName, value, false);
+    }
+
+    public static boolean setFieldValue(OgnlContext context, Object target, String propertyName, Object value,
+                                        boolean checkAccessAndExistence)
+            throws OgnlException
+    {
         boolean result = false;
 
         try {
@@ -1901,7 +1912,7 @@ public class OgnlRuntime {
 
             if (f != null) {
                 final int fModifiers = f.getModifiers();
-                if (!Modifier.isStatic(fModifiers) && !Modifier.isFinal(fModifiers)) {
+                if (!Modifier.isStatic(fModifiers) && !Modifier.isFinal(fModifiers) && (!checkAccessAndExistence || isAccessible(context, target, f, propertyName))) {
                     final Object state = context.getMemberAccess().setup(context, target, f, propertyName);
                     try {
                         if (isTypeCompatible(value, f.getType())
@@ -1925,7 +1936,7 @@ public class OgnlRuntime {
     }
 
     public static boolean isFieldAccessible(OgnlContext context, Object target, Field field, String propertyName) {
-        return context.getMemberAccess().isAccessible(context, target, field, propertyName);
+        return isAccessible(context, target, field, propertyName);
     }
 
     public static boolean hasField(OgnlContext context, Object target, Class<?> inClass, String propertyName) {
@@ -1977,7 +1988,7 @@ public class OgnlRuntime {
             }
 
             Object result;
-            if (context.getMemberAccess().isAccessible(context, null, f, null)) {
+            if (isAccessible(context, null, f, null)) {
                 final Object state = context.getMemberAccess().setup(context, null, f, null);
                 try {
                     result = f.get(null);
@@ -2134,7 +2145,7 @@ public class OgnlRuntime {
     }
 
     public static boolean isMethodAccessible(OgnlContext context, Object target, Method method, String propertyName) {
-        return (method != null) && context.getMemberAccess().isAccessible(context, target, method, propertyName);
+        return (method != null) && isAccessible(context, target, method, propertyName);
     }
 
     public static boolean hasGetMethod(OgnlContext context, Object target, Class<?> targetClass, String propertyName) {
@@ -3032,4 +3043,17 @@ public class OgnlRuntime {
         return _useFirstMatchGetSetLookup;
     }
 
+    /**
+     * Returns true if the given member is accessible or can be made accessible
+     * by this object.
+     *
+     * @param context the current execution context.
+     * @param target the Object to test accessibility for.
+     * @param member the Member to test accessibility for.
+     * @param propertyName the property to test accessibility for.
+     * @return true if the target/member/propertyName is accessible in the context, false otherwise.
+     */
+    private static boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName) {
+        return context.getMemberAccess().isAccessible(context, target, member, propertyName);
+    }
 }

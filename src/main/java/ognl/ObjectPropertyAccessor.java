@@ -71,12 +71,12 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         Object result = null;
         try {
             if (!OgnlRuntime.setMethodValue(context, target, name, value, true)) {
-                result = OgnlRuntime.setFieldValue(context, target, name, value) ? null : OgnlRuntime.NotFound;
+                result = OgnlRuntime.setFieldValue(context, target, name, value, true) ? null : OgnlRuntime.NotFound;
             }
 
             if (result == OgnlRuntime.NotFound) {
                 Method m = OgnlRuntime.getWriteMethod(target.getClass(), name);
-                if (m != null) {
+                if (m != null && context.getMemberAccess().isAccessible(context, target, m, name)) {
                     result = m.invoke(target, value);
                 }
             }

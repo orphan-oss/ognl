@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -156,7 +157,7 @@ public class TestOgnlRuntime {
         ListSource list = new ListSourceImpl();
         OgnlContext context = this.context;
 
-        Object ret = OgnlRuntime.callMethod(context, list, "addValue", new String[]{null});
+        Object ret = OgnlRuntime.callMethod(context, list, "addValue", new String[] {null});
 
         assert ret != null;
     }
@@ -831,5 +832,77 @@ public class TestOgnlRuntime {
         assertFalse("SimpleAbstractClass.getName() is a bridge method ?", method.isBridge());
         assertFalse("SimpleAbstractClass.getName() is considered callable by isMethodCallable() ?", OgnlRuntime.isMethodCallable(method));
         assertFalse("SimpleAbstractClass.getName() is considered callable by isMethodCallable_BridgeOrNonSynthetic() ?", OgnlRuntime.isMethodCallable_BridgeOrNonSynthetic(method));
+    }
+
+    /**
+     * Public class for "setFieldValue" method tests.
+     */
+    public static class SimpleFieldClass {
+        public static String NAME = "name";
+        public final List<String> numbers = Arrays.asList("one", "two", "three");
+        public String gender = "male";
+        public String email = "test@test.com";
+        private String address = "1 Glen st";
+    }
+
+    public void testSetFieldValueWhenCheckAccess() throws OgnlException, NoSuchFieldException {
+        OgnlContext context = (OgnlContext) this.context;
+        SimpleFieldClass simpleField = new SimpleFieldClass();
+
+        // verify that the static & final field is NOT accessible and bypass set field value
+        assertFalse(OgnlRuntime.setFieldValue(context, simpleField, "NAME", "new name", true));
+        assertEquals("name", SimpleFieldClass.NAME);
+
+        assertFalse(OgnlRuntime.setFieldValue(context, simpleField, "numbers", Collections.singletonList("four"), true));
+        assertEquals(3, simpleField.numbers.size());
+
+        // verify that the field is accessible and set field value successfully
+        Field genderField = SimpleFieldClass.class.getDeclaredField("gender");
+        assertTrue(context.getMemberAccess().isAccessible(context, simpleField, genderField, null));
+        assertTrue(OgnlRuntime.setFieldValue(context, simpleField, "gender", "female", true));
+        assertEquals("female", simpleField.gender);
+
+        // verify that the field is NOT accessible, and bypass set field value
+        Field addressField = SimpleFieldClass.class.getDeclaredField("address");
+        assertFalse(context.getMemberAccess().isAccessible(context, simpleField, addressField, null));
+        assertFalse(OgnlRuntime.setFieldValue(context, simpleField, "address", "2 Glen st", true));
+        assertEquals("1 Glen st", simpleField.address);
+    }
+
+    public void testSetFieldValueWhenNotCheckAccess() throws OgnlException, NoSuchFieldException {
+        ExcludedObjectMemberAccess memberAccess = new ExcludedObjectMemberAccess(false);
+        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null, memberAccess);
+        SimpleFieldClass simpleField = new SimpleFieldClass();
+
+        // verify that the static & final field is NOT accessible and bypass set field value
+        assertFalse(OgnlRuntime.setFieldValue(context, simpleField, "NAME", "new name"));
+        assertEquals("name", SimpleFieldClass.NAME);
+
+        assertFalse(OgnlRuntime.setFieldValue(context, simpleField, "numbers", Collections.singletonList("four")));
+        assertEquals(3, simpleField.numbers.size());
+
+        // verify that the field is accessible and set field value successfully
+        Field genderField = SimpleFieldClass.class.getDeclaredField("gender");
+        assertTrue(context.getMemberAccess().isAccessible(context, simpleField, genderField, null));
+        assertTrue(OgnlRuntime.setFieldValue(context, simpleField, "gender", "female"));
+        assertEquals("female", simpleField.gender);
+
+        // verify that even the field is NOT accessible, and it processes to set field value successfully
+        Field emailField = SimpleFieldClass.class.getDeclaredField("email");
+        memberAccess.exclude(emailField);
+        assertFalse(memberAccess.isAccessible(context, simpleField, emailField, null));
+        OgnlRuntime.setFieldValue(context, simpleField, "email", "admin@admin.com");
+        assertEquals("admin@admin.com", simpleField.email);
+
+        // verify that even the field is NOT accessible, and it processes to set field value but throws NoSuchPropertyException (as for private field)
+        Field addressField = SimpleFieldClass.class.getDeclaredField("address");
+        memberAccess.exclude(addressField);
+        assertFalse(memberAccess.isAccessible(context, simpleField, addressField, null));
+        try {
+            OgnlRuntime.setFieldValue(context, simpleField, "address", "2 Glen st");
+        } catch (NoSuchPropertyException e) {
+            assertEquals("ognl.TestOgnlRuntime$SimpleFieldClass.address", e.getMessage());
+            assertEquals("1 Glen st", simpleField.address);
+        }
     }
 }
