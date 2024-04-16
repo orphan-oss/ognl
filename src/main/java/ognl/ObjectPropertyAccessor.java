@@ -49,7 +49,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
     /**
      * Returns OgnlRuntime.NotFound if the property does not exist.
-     * 
+     *
      * @param context the current execution context.
      * @param target the object to get the property from.
      * @param name the name of the property to get.
@@ -80,7 +80,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
 
     /**
      * Returns OgnlRuntime.NotFound if the property does not exist.
-     * 
+     *
      * @param context the current execution context.
      * @param target the object to set the property in.
      * @param name the name of the property to set.
@@ -97,13 +97,13 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         try {
             if (!OgnlRuntime.setMethodValue(ognlContext, target, name, value, true))
             {
-                result = OgnlRuntime.setFieldValue(ognlContext, target, name, value) ? null : OgnlRuntime.NotFound;
+                result = OgnlRuntime.setFieldValue(ognlContext, target, name, value, true) ? null : OgnlRuntime.NotFound;
             }
 
             if (result == OgnlRuntime.NotFound)
             {
                 Method m = OgnlRuntime.getWriteMethod(target.getClass(), name);
-                if (m != null)
+                if (m != null && ognlContext.getMemberAccess().isAccessible(context, target, m, name))
                 {
                     result = m.invoke(target, new Object[] { value});
                 }
