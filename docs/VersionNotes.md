@@ -1,5 +1,9 @@
 # Version Notes
 
+## Release notes - version 3.4.3, 3.3.5 (2024-04-19)
+* Fixes potential security vulnerability in accessing public fields via ObjectPropertyAccessor, see [#265](../../../issues/265), [#264](../../../issues/264) -
+  thanks to jefferyxhy
+
 ## Release notes - version 3.3.4 (2022-09-05)
 * Fixes IllegalArgumentException: Passes instance of MemberAccess to OgnlContext, see [#162](../../../issues/162) -
   thanks to oosato-im
