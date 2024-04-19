@@ -19,7 +19,7 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - main
       - ognl-3-3-x
 
 permissions: write-all
@@ -58,7 +58,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./mvnw -B -V -Pcoverage verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar --no-transfer-progress
       - name: Deploy SNAPSHOT
-        if: matrix.java == '8' && github.ref == 'refs/heads/master'
+        if: matrix.java == '8' && github.ref == 'refs/heads/main'
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}

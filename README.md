@@ -6,6 +6,11 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6490/badge)](https://bestpractices.coreinfrastructure.org/projects/6490)
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
+## Note
+
+I recently renamed the `master` branch into the `main` branch. If you previously cloned this repository please
+perform locally update of your clone using the procedure described in [Updating a local clone after a branch name changes](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-branches-in-your-repository/renaming-a-branch#updating-a-local-clone-after-a-branch-name-changes).
+
 ## Description
 
 OGNL stands for Object-Graph Navigation Language; it is an expression language for getting and setting 
