@@ -19,7 +19,11 @@ import junit.framework.TestCase;
 
 import java.beans.IntrospectionException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * Tests various methods / functionality of {@link ObjectPropertyAccessor}.
@@ -66,6 +70,22 @@ public class TestObjectPropertyAccessor extends TestCase {
         public void setage(String age) {
             this.age = age;
         }
+    }
+
+    public static class KafkaFetcher {
+        private final List<Future<?>> completedFutures = new ArrayList<>();
+
+        public boolean hasCompletedFutures() {
+            return !completedFutures.isEmpty();
+        }
+    }
+
+    public void testGetPossibleProperty() throws OgnlException {
+        OgnlContext context = (OgnlContext) this.context;
+        KafkaFetcher fetcher = new KafkaFetcher();
+        assertEquals(Boolean.FALSE, propertyAccessor.getPossibleProperty(context, fetcher, "completedFutures"));
+        assertEquals(Collections.emptyList(), new ObjectPropertyAccessor(true).getPossibleProperty(Ognl.createDefaultContext(null, new ExcludedObjectMemberAccess(true)),
+                fetcher, "completedFutures"));
     }
 
     public void testSetPossibleProperty() throws OgnlException, IntrospectionException {
