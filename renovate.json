@@ -3,6 +3,7 @@
   "extends": [
     "config:base"
   ],
+  "baseBranches": ["main", "ognl-3-3-x"],
   "packageRules": [
     {
       "matchUpdateTypes": ["major","minor", "patch"],
