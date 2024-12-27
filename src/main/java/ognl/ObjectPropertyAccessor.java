@@ -32,20 +32,6 @@ import java.lang.reflect.Method;
 public class ObjectPropertyAccessor implements PropertyAccessor {
 
     /**
-     * Ignore detecting and invoking read method when get property value.
-     */
-    private final boolean ignoreReadMethod;
-
-
-    public ObjectPropertyAccessor() {
-        this(false);
-    }
-
-    public ObjectPropertyAccessor(boolean ignoreReadMethod) {
-        this.ignoreReadMethod = ignoreReadMethod;
-    }
-
-    /**
      * Returns OgnlRuntime.NotFound if the property does not exist.
      *
      * @param context the current execution context.
@@ -58,7 +44,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         Object result;
 
         try {
-            if ((result = OgnlRuntime.getMethodValue(context, target, name, true, ignoreReadMethod)) == OgnlRuntime.NotFound) {
+            if ((result = OgnlRuntime.getMethodValue(context, target, name, true)) == OgnlRuntime.NotFound) {
                 result = OgnlRuntime.getFieldValue(context, target, name, true);
             }
         } catch (OgnlException ex) {

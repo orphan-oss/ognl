@@ -39,7 +39,9 @@ public class OgnlContext implements Map<String, Object> {
     private static final String TRACE_EVALUATIONS_CONTEXT_KEY = "_traceEvaluations";
     private static final String LAST_EVALUATION_CONTEXT_KEY = "_lastEvaluation";
     private static final String KEEP_LAST_EVALUATION_CONTEXT_KEY = "_keepLastEvaluation";
+    private static final String IGNORE_READ_METHODS_CONTEXT_KEY = "_ignoreReadMethods";
     private static final String PROPERTY_KEY_PREFIX = "ognl";
+    private static final boolean DEFAULT_IGNORE_READ_METHODS = false;
     private static boolean DEFAULT_TRACE_EVALUATIONS = false;
     private static boolean DEFAULT_KEEP_LAST_EVALUATION = false;
 
@@ -53,6 +55,7 @@ public class OgnlContext implements Map<String, Object> {
     private Evaluation currentEvaluation;
     private Evaluation lastEvaluation;
     private boolean keepLastEvaluation = DEFAULT_KEEP_LAST_EVALUATION;
+    private boolean ignoreReadMethods = DEFAULT_IGNORE_READ_METHODS;
 
     private final Map<String, Object> internalContext;
 
@@ -67,6 +70,7 @@ public class OgnlContext implements Map<String, Object> {
         RESERVED_KEYS.put(TRACE_EVALUATIONS_CONTEXT_KEY, null);
         RESERVED_KEYS.put(LAST_EVALUATION_CONTEXT_KEY, null);
         RESERVED_KEYS.put(KEEP_LAST_EVALUATION_CONTEXT_KEY, null);
+        RESERVED_KEYS.put(IGNORE_READ_METHODS_CONTEXT_KEY, null);
 
         try {
             String property;
@@ -240,6 +244,26 @@ public class OgnlContext implements Map<String, Object> {
      */
     public void setKeepLastEvaluation(boolean value) {
         keepLastEvaluation = value;
+    }
+
+
+    /**
+     * Returns true if read methods of properties are ignored when accessing properties. The default is false.
+     *
+     * @return true if read methods of properties are ignored when accessing properties, false otherwise.
+     */
+    public boolean isIgnoreReadMethods() {
+        return ignoreReadMethods;
+    }
+
+
+    /**
+     * Sets read methods of properties are ignored when accessing properties. The default is false.
+     *
+     * @param value true if read methods of properties are ignored when accessing properties, false otherwise.
+     */
+    public void setIgnoreReadMethods(boolean value) {
+        this.ignoreReadMethods = value;
     }
 
     public void setCurrentObject(Object value) {
@@ -476,6 +500,9 @@ public class OgnlContext implements Map<String, Object> {
                 case OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY:
                     result = isKeepLastEvaluation() ? Boolean.TRUE : Boolean.FALSE;
                     break;
+                case OgnlContext.IGNORE_READ_METHODS_CONTEXT_KEY:
+                    result = isIgnoreReadMethods() ? Boolean.TRUE : Boolean.FALSE;
+                    break;
                 default:
                     throw new IllegalArgumentException("unknown reserved key '" + key + "'");
             }
@@ -510,6 +537,10 @@ public class OgnlContext implements Map<String, Object> {
                 case OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY:
                     result = isKeepLastEvaluation() ? Boolean.TRUE : Boolean.FALSE;
                     setKeepLastEvaluation(OgnlOps.booleanValue(value));
+                    break;
+                case OgnlContext.IGNORE_READ_METHODS_CONTEXT_KEY:
+                    result = isIgnoreReadMethods() ? Boolean.TRUE : Boolean.FALSE;
+                    setIgnoreReadMethods(OgnlOps.booleanValue(value));
                     break;
                 default:
                     throw new IllegalArgumentException("unknown reserved key '" + key + "'");
@@ -549,6 +580,9 @@ public class OgnlContext implements Map<String, Object> {
                 case OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY:
                     throw new IllegalArgumentException("Can't remove "
                             + OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY + " from context");
+                case OgnlContext.IGNORE_READ_METHODS_CONTEXT_KEY:
+                    throw new IllegalArgumentException("Can't remove "
+                            + OgnlContext.IGNORE_READ_METHODS_CONTEXT_KEY + " from context");
                 default:
                     throw new IllegalArgumentException("Unknown reserved key '" + key + "'");
             }

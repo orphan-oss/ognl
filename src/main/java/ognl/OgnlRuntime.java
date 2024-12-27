@@ -1677,7 +1677,7 @@ public class OgnlRuntime {
     @Deprecated
     public static Object getMethodValue(OgnlContext context, Object target, String propertyName)
             throws OgnlException, IllegalAccessException, NoSuchMethodException, IntrospectionException {
-        return getMethodValue(context, target, propertyName, false, false);
+        return getMethodValue(context, target, propertyName, false);
     }
 
     /**
@@ -1696,29 +1696,9 @@ public class OgnlRuntime {
      */
     public static Object getMethodValue(OgnlContext context, Object target, String propertyName, boolean checkAccessAndExistence)
             throws OgnlException, IllegalAccessException, NoSuchMethodException {
-        return getMethodValue(context, target, propertyName, checkAccessAndExistence, false);
-    }
-
-    /**
-     * If the checkAccessAndExistence flag is true this method will check to see if the method
-     * exists and if it is accessible according to the context's MemberAccess. If neither test
-     * passes this will return NotFound.
-     *
-     * @param context                 the current execution context.
-     * @param target                  the object to invoke the property name get on.
-     * @param propertyName            the name of the property to be retrieved from target.
-     * @param checkAccessAndExistence true if this method should check access levels and existence for propertyName of target, false otherwise.
-     * @param ignoreReadMethod        true if this method should try to detect and invoke read method of the target property, false otherwise.
-     * @return the result invoking property retrieval of propertyName for target.
-     * @throws OgnlException          for lots of different reasons.
-     * @throws IllegalAccessException if access not permitted.
-     * @throws NoSuchMethodException  if no property accessor exists.
-     */
-    public static Object getMethodValue(OgnlContext context, Object target, String propertyName, boolean checkAccessAndExistence, boolean ignoreReadMethod)
-            throws OgnlException, IllegalAccessException, NoSuchMethodException {
         Object result = null;
         Method m = getGetMethod((target == null) ? null : target.getClass(), propertyName);
-        if (m == null && !ignoreReadMethod)
+        if (m == null && !context.isIgnoreReadMethods())
             m = getReadMethod((target == null) ? null : target.getClass(), propertyName, null);
 
         if (checkAccessAndExistence) {

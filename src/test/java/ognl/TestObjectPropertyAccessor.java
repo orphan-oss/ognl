@@ -84,7 +84,9 @@ public class TestObjectPropertyAccessor extends TestCase {
         OgnlContext context = (OgnlContext) this.context;
         KafkaFetcher fetcher = new KafkaFetcher();
         assertEquals(Boolean.FALSE, propertyAccessor.getPossibleProperty(context, fetcher, "completedFutures"));
-        assertEquals(Collections.emptyList(), new ObjectPropertyAccessor(true).getPossibleProperty(Ognl.createDefaultContext(null, new ExcludedObjectMemberAccess(true)),
+        OgnlContext defaultContext = Ognl.createDefaultContext(null, new ExcludedObjectMemberAccess(true));
+        defaultContext.setIgnoreReadMethods(true);
+        assertEquals(Collections.emptyList(), new ObjectPropertyAccessor().getPossibleProperty(defaultContext,
                 fetcher, "completedFutures"));
     }
 
