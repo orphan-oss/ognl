@@ -1698,7 +1698,7 @@ public class OgnlRuntime {
             throws OgnlException, IllegalAccessException, NoSuchMethodException {
         Object result = null;
         Method m = getGetMethod((target == null) ? null : target.getClass(), propertyName);
-        if (m == null)
+        if (m == null && !context.isIgnoreReadMethods())
             m = getReadMethod((target == null) ? null : target.getClass(), propertyName, null);
 
         if (checkAccessAndExistence) {

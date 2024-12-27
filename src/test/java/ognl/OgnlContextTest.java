@@ -24,10 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class OgnlContextTest {
 
@@ -124,5 +121,19 @@ class OgnlContextTest {
 
     private static OgnlContext createOgnlContext() {
         return new OgnlContext(null, null, new DefaultMemberAccess(false));
+    }
+
+    @Test
+    void ignoreReadMethod() {
+        OgnlContext context = createOgnlContext();
+        assertFalse(context.isIgnoreReadMethods());
+        assertEquals(Boolean.FALSE, context.get("_ignoreReadMethods"));
+        context.setIgnoreReadMethods(true);
+        assertTrue(context.isIgnoreReadMethods());
+        assertEquals(Boolean.TRUE, context.get("_ignoreReadMethods"));
+        assertEquals(Boolean.TRUE, context.put("_ignoreReadMethods", false));
+        assertFalse(context.isIgnoreReadMethods());
+        assertEquals(Boolean.FALSE, context.get("_ignoreReadMethods"));
+        assertThrows(IllegalArgumentException.class, () -> context.remove("_ignoreReadMethods"));
     }
 }
