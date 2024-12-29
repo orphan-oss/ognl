@@ -43,9 +43,17 @@ jobs:
           cache: 'maven'
       - name: Build with Maven
         run: ./mvnw -B -V package -DskipTests=true
-      - name: SonarCloud Scan on ${GITHUB_REF##*/}
+      - name: Get branch name
+        id: get-branch-name
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_OUTPUT
+          else
+            echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+      - name: SonarCloud Scan on ${{ steps.get-branch-name.outputs.BRANCH_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        if: ${{ github.ref == 'refs/heads/main' }}
-        run: ./mvnw -B -V -Pcoverage verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.branch.name=${GITHUB_REF##*/}
+        run: ./mvnw -B -V -Pcoverage verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.branch.name=${{ steps.get-branch-name.outputs.BRANCH_NAME }}
