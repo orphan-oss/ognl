@@ -43,10 +43,10 @@ jobs:
           cache: 'maven'
       - name: Build with Maven
         run: ./mvnw -B -V package -DskipTests=true
-      - name: SonarCloud Scan
+      - name: SonarCloud Scan on ${{ github.ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           CURRENT_BRANCH: ${{ github.ref || github.base_ref }}
-        if: ${{ github.base_ref == 'main' }}
+        if: ${{ github.ref == 'main' || github.base_ref == 'main' }}
         run: ./mvnw -B -V -Pcoverage verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.branch.name=${{ env.CURRENT_BRANCH }}
