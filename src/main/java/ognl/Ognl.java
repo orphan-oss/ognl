@@ -398,6 +398,10 @@ public abstract class Ognl {
      * @throws OgnlException                    if there is a pathological environmental problem
      */
     public static Object getValue(Object tree, OgnlContext context, Object root, Class<?> resultType) throws OgnlException {
+        if (context.getRoot() == null) {
+            context.setRoot(root);
+        }
+
         Object result;
 
         Node node = (Node) tree;
