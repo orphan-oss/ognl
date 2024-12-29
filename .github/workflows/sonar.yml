@@ -43,7 +43,7 @@ jobs:
           cache: 'maven'
       - name: Build with Maven
         run: ./mvnw -B -V package -DskipTests=true
-      - name: SonarCloud Scan on ${{ github.ref }}
+      - name: SonarCloud Scan on ${{ github.base_ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
