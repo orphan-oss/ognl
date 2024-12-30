@@ -25,7 +25,9 @@ import java.security.PrivilegedExceptionAction;
  * A signature for {@link OgnlSecurityManager#isAccessDenied(java.security.Permission)}. Also executes user methods with not any permission.
  *
  * @since 3.1.24
+ * @deprecated will be removed in 3.5.x
  */
+@Deprecated
 public class UserMethod implements PrivilegedExceptionAction<Object> {
 
     private final Object target;
