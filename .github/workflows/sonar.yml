@@ -57,8 +57,8 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
         run: ./mvnw -B package -DskipTests=true
-      - name: Test
-        run: ./mvnw -B verify
+      - name: Test with coverage
+        run: ./mvnw -B verify -Pcoverage
       - name: SonarCloud Scan on ${{ github.ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
