@@ -53,12 +53,12 @@ jobs:
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
       - name: Build with Maven on Java ${{ matrix.java }}
-        run: ./mvnw -B -V package -DskipTests=true
+        run: ./mvnw -B package -DskipTests=true
       - name: Test with Maven on Java ${{ matrix.java }}
-        run: ./mvnw -B -V test
+        run: ./mvnw -B verify
       - name: Deploy SNAPSHOT
         if: matrix.java == '8' && github.ref == 'refs/heads/main'
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
-        run: ./mvnw -B -V -DskipTests=true deploy
+        run: ./mvnw -B -DskipTests=true deploy
