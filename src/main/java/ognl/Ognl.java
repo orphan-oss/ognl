@@ -399,17 +399,18 @@ public abstract class Ognl {
      */
     public static Object getValue(Object tree, OgnlContext context, Object root, Class<?> resultType) throws OgnlException {
         Object result;
+        OgnlContext ognlContext = addDefaultContext(root, context);
 
         Node node = (Node) tree;
 
         if (node.getAccessor() != null) {
-            result = node.getAccessor().get(context, root);
+            result = node.getAccessor().get(ognlContext, root);
         } else {
-            result = node.getValue(context, root);
+            result = node.getValue(ognlContext, root);
         }
 
         if (resultType != null) {
-            result = getTypeConverter(context).convertValue(context, root, null, null, result, resultType);
+            result = getTypeConverter(ognlContext).convertValue(ognlContext, root, null, null, result, resultType);
         }
         return result;
     }

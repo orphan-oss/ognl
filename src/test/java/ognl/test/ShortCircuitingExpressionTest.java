@@ -60,6 +60,43 @@ class ShortCircuitingExpressionTest {
         }
     }
 
+    public static class B {
+        private String b;
+
+        public B(String b) {
+            this.b = b;
+        }
+
+        public String getB() {
+            return b;
+        }
+    }
+
+    public static class Params {
+        public B[] params;
+
+        public Params(B[] params) {
+            this.params = params;
+        }
+
+        public B[] getParams() {
+            return params;
+        }
+    }
+
+    @Test
+    void shouldCompare() throws OgnlException {
+        Object root = new Params(new B[]{new B("a")});
+
+        OgnlContext ctx = Ognl.createDefaultContext(null);
+
+        Object val1 = Ognl.getValue("\"a\".equals(params[0].b)", ctx, root);
+        Object val2 = Ognl.getValue("\"a\".equals(params[0].b)", root);
+
+        assertEquals(Boolean.TRUE, val1);
+        assertEquals(Boolean.TRUE, val2);
+    }
+
     private static Stream<Arguments> testValues() {
         return Stream.of(
                 Arguments.of("#root ? someProperty : 99", 99),
