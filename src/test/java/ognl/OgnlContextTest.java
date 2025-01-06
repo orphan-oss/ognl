@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -194,4 +195,22 @@ class OgnlContextTest {
         assertThat(context.getValues().get("_keepLastEvaluation")).isNull();
     }
 
+    @Test
+    void memberAccessIsRequired() {
+        assertThatThrownBy(() -> new OgnlContext(null, null, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("MemberAccess implementation must be provided - null not permitted!");
+    }
+
+    @Test
+    void defaultClassResolverAndTypeConverter() {
+        // given & when
+        OgnlContext context = new OgnlContext(null, null, new DefaultMemberAccess(false));
+
+        // then
+        assertThat(context.getValues()).isEmpty();
+        assertThat(context).isEmpty();
+        assertThat(context.getClassResolver()).isInstanceOf(DefaultClassResolver.class);
+        assertThat(context.getTypeConverter()).isInstanceOf(DefaultTypeConverter.class);
+    }
 }
