@@ -37,8 +37,8 @@ public class OgnlContextCreateTest extends TestCase {
         assertEquals("test100", Ognl.getValue("#test", context, root));
     }
 
-    private Map<Object, Object> prepareValues() {
-        Map<Object, Object> values = new HashMap<>();
+    private Map<String, Object> prepareValues() {
+        Map<String, Object> values = new HashMap<>();
         values.put("test", "test100");
         return values;
     }

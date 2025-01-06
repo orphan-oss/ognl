@@ -187,7 +187,7 @@ public abstract class Ognl {
      * @return a new {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static OgnlContext createDefaultContext(Object root, Map<Object, Object> values) {
+    public static OgnlContext createDefaultContext(Object root, Map<String, Object> values) {
         return createDefaultContext(root).withValues(values);
     }
 

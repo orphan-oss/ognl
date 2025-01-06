@@ -133,7 +133,7 @@ public class OgnlContext implements Map<String, Object> {
         this.internalContext = new HashMap<>(23);  // No 'values' map has been specified, so we create one of the default size: 23 entries
 
         if (initialContext != null) {
-            this.internalContext.putAll(initialContext.internalContext);
+            this.setValues(initialContext.internalContext);
         }
     }
 
@@ -142,9 +142,9 @@ public class OgnlContext implements Map<String, Object> {
      *
      * @param values a Map of additional values to put into this OgnlContext.
      */
-    public void setValues(Map<Object, Object> values) {
-        for (Object k : values.keySet()) {
-            internalContext.put(k.toString(), values.get(k));
+    public void setValues(Map<String, Object> values) {
+        for (String k : values.keySet()) {
+            put(k, values.get(k));
         }
     }
 
@@ -153,7 +153,7 @@ public class OgnlContext implements Map<String, Object> {
      * @param values a Map of values
      * @return the current instance of {@link OgnlContext}
      */
-    public OgnlContext withValues(Map<Object, Object> values) {
+    public OgnlContext withValues(Map<String, Object> values) {
         this.setValues(values);
         return this;
     }
@@ -163,7 +163,7 @@ public class OgnlContext implements Map<String, Object> {
      *
      * @return Map of values for this OgnlContext.
      */
-    public Map<?, Object> getValues() {
+    public Map<String, Object> getValues() {
         return internalContext;
     }
 

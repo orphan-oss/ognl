@@ -48,7 +48,7 @@ class OgnlContextTest {
     @Test
     void allValues_shouldBeStored() {
         OgnlContext context = createOgnlContext();
-        Map<Object, Object> values = new HashMap<>();
+        Map<String, Object> values = new HashMap<>();
         values.put("key1", "value1");
         values.put("key2", "value2");
 
