@@ -32,7 +32,9 @@ import java.util.Objects;
  * Builds and provides a JVM wide singleton shared thread-safe with all permissions granted security manager for ognl
  *
  * @since 3.1.24
+ * @deprecated will be removed in 3.5.x
  */
+@Deprecated
 public class OgnlSecurityManagerFactory extends SecureClassLoader {
 
     private static volatile Object ognlSecurityManager;

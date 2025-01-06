@@ -297,7 +297,9 @@ public class OgnlRuntime {
      * Users that have their own Security Manager implementations and no intention to use the OGNL SecurityManager
      * sandbox may choose to use the 'forceDisableOnInit' flag option for performance reasons (avoiding overhead
      * involving the system property security checks - when that feature will not be used).
+     * @deprecated will removed in 3.5.x
      */
+    @Deprecated
     static final String OGNL_SECURITY_MANAGER = "ognl.security.manager";
     static final String OGNL_SM_FORCE_DISABLE_ON_INIT = "forceDisableOnInit";
 
@@ -305,7 +307,9 @@ public class OgnlRuntime {
      * Hold environment flag state associated with OGNL_SECURITY_MANAGER.  See
      * {@link OgnlRuntime#OGNL_SECURITY_MANAGER} for more details.
      * Default: false (if not set).
+     * @deprecated will be removed in 3.5.x
      */
+    @Deprecated
     private static final boolean _disableOgnlSecurityManagerOnInit;
 
     static {
@@ -357,6 +361,10 @@ public class OgnlRuntime {
     private static final PrimitiveTypes primitiveTypes = new PrimitiveTypes();
     private static final PrimitiveDefaults primitiveDefaults = new PrimitiveDefaults();
 
+    /**
+     * @deprecated will be removed in 3.5.x
+     */
+    @Deprecated
     static SecurityManager securityManager = System.getSecurityManager();
     static final EvaluationPool _evaluationPool = new EvaluationPool();
 
@@ -741,7 +749,9 @@ public class OgnlRuntime {
      * Gets the SecurityManager that OGNL uses to determine permissions for invoking methods.
      *
      * @return SecurityManager for OGNL
+     * @deprecated will be removed in 3.5.x
      */
+    @Deprecated
     public static SecurityManager getSecurityManager() {
         return securityManager;
     }
@@ -750,7 +760,9 @@ public class OgnlRuntime {
      * Sets the SecurityManager that OGNL uses to determine permissions for invoking methods.
      *
      * @param value SecurityManager to set
+     * @deprecated will be removed in 3.5.x
      */
+    @Deprecated
     public static void setSecurityManager(SecurityManager value) {
         securityManager = value;
     }
@@ -3012,7 +3024,9 @@ public class OgnlRuntime {
      *
      * @return true if OGNL SecurityManager was disabled on initialization, false otherwise.
      * @since 3.1.25
+     * @deprecated will be removed in 3.5.x
      */
+    @Deprecated
     public static boolean getDisableOgnlSecurityManagerOnInitValue() {
         return _disableOgnlSecurityManagerOnInit;
     }

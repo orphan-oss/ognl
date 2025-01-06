@@ -40,7 +40,9 @@ import java.util.List;
  * execution finished.</p>
  *
  * @since 3.1.24
+ * @deprecated will be removed in 3.5.x
  */
+@Deprecated
 public class OgnlSecurityManager extends SecurityManager {
 
     private static final String OGNL_SANDBOX_CLASS_NAME = "ognl.security.UserMethod";
