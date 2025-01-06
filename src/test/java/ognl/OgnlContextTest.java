@@ -24,9 +24,19 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OgnlContextTest {
+
+    private static OgnlContext createOgnlContext() {
+        return new OgnlContext(null, null, new DefaultMemberAccess(false));
+    }
 
     @Test
     void traceEvaluation_shouldBeEnabled() {
@@ -119,10 +129,6 @@ class OgnlContextTest {
         assertNull(context.getLastEvaluation());
     }
 
-    private static OgnlContext createOgnlContext() {
-        return new OgnlContext(null, null, new DefaultMemberAccess(false));
-    }
-
     @Test
     void ignoreReadMethod() {
         OgnlContext context = createOgnlContext();
@@ -136,4 +142,56 @@ class OgnlContextTest {
         assertEquals(Boolean.FALSE, context.get("_ignoreReadMethods"));
         assertThrows(IllegalArgumentException.class, () -> context.remove("_ignoreReadMethods"));
     }
+
+    @Test
+    void reservedKeywords() {
+        // given
+        OgnlContext context = createOgnlContext();
+        Object root = new Object();
+
+        // when
+        context.put("root", root);
+
+        // then
+        assertThat(context.get("root")).isSameAs(root);
+        assertThat(context.getValues().get("root")).isNull();
+
+        // when
+        context.put("this", root);
+
+        // then
+        assertThat(context.get("this")).isSameAs(root);
+        assertThat(context.getValues().get("this")).isNull();
+
+        // when
+        assertThat(context.isTraceEvaluations()).isFalse();
+        context.put("_traceEvaluations", Boolean.TRUE);
+
+        // then
+        assertThat(context.get("_traceEvaluations")).isSameAs(Boolean.TRUE);
+        assertThat(context.isTraceEvaluations()).isTrue();
+        assertThat(context.getValues().get("_traceEvaluations")).isNull();
+
+        // given
+        Evaluation evaluation = new Evaluation(new ASTConst(0), root);
+
+        // when
+        assertThat(context.getLastEvaluation()).isNull();
+        context.put("_lastEvaluation", evaluation);
+
+        // then
+        assertThat(context.get("_lastEvaluation")).isSameAs(evaluation);
+        assertThat(context.getLastEvaluation()).isSameAs(evaluation);
+        assertThat(context.getValues().get("_lastEvaluation")).isNull();
+
+        // when
+        assertThat(context.isKeepLastEvaluation()).isFalse();
+        context.put("_keepLastEvaluation", Boolean.TRUE);
+
+        // then
+        assertThat(context.get("_keepLastEvaluation")).isSameAs(Boolean.TRUE);
+        assertThat(context.isKeepLastEvaluation()).isTrue();
+        assertThat(context.getValues().get("_keepLastEvaluation")).isNull();
+    }
+
 }
