@@ -18,6 +18,7 @@
  */
 package ognl.test;
 
+import ognl.DefaultClassResolver;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
@@ -97,6 +98,37 @@ class ShortCircuitingExpressionTest {
         assertEquals(Boolean.TRUE, val2);
     }
 
+    @Test
+    void shouldUseTheSameClassResolver() throws OgnlException {
+        Object root = new Object();
+
+        OgnlContext ctx = Ognl.createDefaultContext(root, new MyClassResolver());
+
+        Object val1 = Ognl.getValue("@ognl.test.TestClass@getName()", ctx, root);
+        Object val2 = Ognl.getValue("@ognl.test.TestClass@getName()", ctx, (Object) null);
+
+        assertEquals("name", val1);
+        assertEquals("name", val2);
+    }
+
+    @Test
+    void shouldThrowExceptionWithWrongClassResolver() throws OgnlException {
+        Object root = new Object();
+
+        OgnlContext oldCtx = Ognl.createDefaultContext(root);
+        OgnlContext ctx = Ognl.addDefaultContext(root, new MyClassResolver(), oldCtx);
+
+        try {
+            Ognl.getValue("@ognl.test.TestClass@getName()", oldCtx, root);
+            fail();
+        } catch (OgnlException e) {
+            assertEquals("Method \"getName\" failed for object ognl.test.TestClass", e.getMessage());
+        }
+
+        Object val2 = Ognl.getValue("@ognl.test.TestClass@getName()", ctx, root);
+        assertEquals("name", val2);
+    }
+
     private static Stream<Arguments> testValues() {
         return Stream.of(
                 Arguments.of("#root ? someProperty : 99", 99),
@@ -111,5 +143,22 @@ class ShortCircuitingExpressionTest {
     @BeforeEach
     void setUp() {
         context = Ognl.createDefaultContext(null);
+    }
+
+    private static class TestClass {
+        public static String getName() {
+            return "name";
+        }
+    }
+
+    private static class MyClassResolver extends DefaultClassResolver {
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> Class<T> classForName(String className, OgnlContext context) throws ClassNotFoundException {
+            if (className.equals("ognl.test.TestClass")) {
+                return (Class<T>) TestClass.class;
+            }
+            return super.classForName(className, context);
+        }
     }
 }

@@ -15,26 +15,158 @@
  */
 package ognl.test;
 
-import junit.framework.TestCase;
+import ognl.DefaultClassResolver;
+import ognl.DefaultTypeConverter;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.test.objects.Simple;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class OgnlContextCreateTest extends TestCase {
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-    public void testCreateContext() throws OgnlException {
+public class OgnlContextCreateTest {
+
+    @Test
+    public void createContext() throws OgnlException {
         OgnlContext context = Ognl.createDefaultContext(null).withValues(prepareValues());
+
         assertEquals("test100", Ognl.getValue("#test", context, new Simple()));
     }
 
-    public void testCreateContextWithRoot() throws OgnlException {
+    @Test
+    public void createContextWithRoot() throws OgnlException {
         Simple root = new Simple();
+
         OgnlContext context = Ognl.createDefaultContext(root, prepareValues());
+
         assertEquals("test100", Ognl.getValue("#test", context, root));
+    }
+
+    @Test
+    public void createContextWithNullRoot() throws OgnlException {
+        Simple root = new Simple();
+
+        OgnlContext context = Ognl.createDefaultContext(null, prepareValues());
+
+        assertEquals("test100", Ognl.getValue("#test", context, root));
+    }
+
+    @Test
+    public void createContextWithClassResolver() throws OgnlException {
+        Simple root = new Simple();
+
+        OgnlContext context = Ognl.createDefaultContext(root, new MyClassResolver());
+
+        assertEquals("static", Ognl.getValue("@ognl.test.MyClass@getValue()", context, root));
+    }
+
+    @Test
+    public void addContextWithClassResolver() throws OgnlException {
+        Simple root = new Simple();
+        OgnlContext oldContext = Ognl.createDefaultContext(root, new MyClassResolver());
+
+        OgnlContext context = Ognl.addDefaultContext(root, oldContext);
+
+        assertEquals("static", Ognl.getValue("@ognl.test.MyClass@getValue()", context, root));
+    }
+
+    @Test
+    public void createContextWithNullRootAndClassResolver() throws OgnlException {
+        Simple root = new Simple();
+
+        OgnlContext context = Ognl.createDefaultContext(null, new MyClassResolver());
+
+        assertEquals("static", Ognl.getValue("@ognl.test.MyClass@getValue()", context, root));
+    }
+
+    @Test
+    public void addContextWithNullRootAndClassResolver() throws OgnlException {
+        Simple root = new Simple();
+        OgnlContext oldContext = Ognl.createDefaultContext(null, new MyClassResolver());
+
+        OgnlContext context = Ognl.addDefaultContext(null, oldContext);
+
+        assertEquals("static", Ognl.getValue("@ognl.test.MyClass@getValue()", context, root));
+    }
+
+    @Test
+    public void createContextWithClassResolverAndTypeConverter() throws OgnlException {
+        Simple root = new Simple();
+        OgnlContext context = Ognl.createDefaultContext(root, new MyClassResolver(), new MyTypeConverter());
+
+        Simple actual = (Simple) Ognl.getValue("@ognl.test.MyClass@getValue()", context, root, Simple.class);
+
+        assertNotNull(actual);
+        assertArrayEquals(new Object[]{"static"}, actual.getValues());
+    }
+
+    @Test
+    public void addContextWithClassResolverAndTypeConverter() throws OgnlException {
+        Simple root = new Simple();
+        OgnlContext oldContext = Ognl.createDefaultContext(root, new MyClassResolver(), new MyTypeConverter());
+
+        OgnlContext context = Ognl.addDefaultContext(null, oldContext);
+
+        Simple actual = (Simple) Ognl.getValue("@ognl.test.MyClass@getValue()", context, root, Simple.class);
+
+        assertNotNull(actual);
+        assertArrayEquals(new Object[]{"static"}, actual.getValues());
+    }
+
+    @Test
+    public void addContextWithClassResolverAndNoTypeConverter() throws OgnlException {
+        Simple root = new Simple();
+        OgnlContext oldContext = Ognl.createDefaultContext(root, null, new MyTypeConverter());
+
+        OgnlContext context = Ognl.addDefaultContext(null, new MyClassResolver(), oldContext);
+
+        Simple actual = (Simple) Ognl.getValue("@ognl.test.MyClass@getValue()", context, root, Simple.class);
+
+        assertNotNull(actual);
+        assertArrayEquals(new Object[]{"static"}, actual.getValues());
+    }
+
+    @Test
+    public void addContextWithNoClassResolverAndNoTypeConverter() throws OgnlException {
+        Simple root = new Simple();
+        OgnlContext oldContext = Ognl.createDefaultContext(root);
+
+        OgnlContext context = Ognl.addDefaultContext(null, new MyClassResolver(), new MyTypeConverter(), oldContext);
+
+        Simple actual = (Simple) Ognl.getValue("@ognl.test.MyClass@getValue()", context, root, Simple.class);
+
+        assertNotNull(actual);
+        assertArrayEquals(new Object[]{"static"}, actual.getValues());
+    }
+
+    @Test
+    public void createContextWithNullRootAndClassResolverAndTypeConverter() throws OgnlException {
+        Simple root = new Simple();
+        OgnlContext context = Ognl.createDefaultContext(null, new MyClassResolver(), new MyTypeConverter());
+
+        Simple actual = (Simple) Ognl.getValue("@ognl.test.MyClass@getValue()", context, root, Simple.class);
+
+        assertNotNull(actual);
+        assertArrayEquals(new Object[]{"static"}, actual.getValues());
+    }
+
+    @Test
+    public void addContextWithNullRootAndClassResolverAndTypeConverter() throws OgnlException {
+        Simple root = new Simple();
+        OgnlContext oldContext = Ognl.createDefaultContext(null, new MyClassResolver(), new MyTypeConverter());
+
+        OgnlContext context = Ognl.addDefaultContext(null, oldContext);
+
+        Simple actual = (Simple) Ognl.getValue("@ognl.test.MyClass@getValue()", context, root, Simple.class);
+
+        assertNotNull(actual);
+        assertArrayEquals(new Object[]{"static"}, actual.getValues());
     }
 
     private Map<String, Object> prepareValues() {
@@ -43,4 +175,30 @@ public class OgnlContextCreateTest extends TestCase {
         return values;
     }
 
+    private static class MyClassResolver extends DefaultClassResolver {
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> Class<T> classForName(String className, OgnlContext context) throws ClassNotFoundException {
+            if (className.equals("ognl.test.MyClass")) {
+                return (Class<T>) MyClass.class;
+            }
+            return super.classForName(className, context);
+        }
+    }
+
+    private static class MyClass {
+        public static String getValue() {
+            return "static";
+        }
+    }
+
+    private class MyTypeConverter extends DefaultTypeConverter {
+        @Override
+        public Object convertValue(OgnlContext context, Object value, Class<?> toType) {
+            if (toType == Simple.class) {
+                return new Simple(new Object[]{value});
+            }
+            return super.convertValue(context, value, toType);
+        }
+    }
 }
