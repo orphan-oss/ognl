@@ -268,7 +268,7 @@ public abstract class Ognl {
      * appropriately
      */
     public static OgnlContext addDefaultContext(Object root, OgnlContext context) {
-        return addDefaultContext(root, context.getMemberAccess(), null, null, context);
+        return addDefaultContext(root, context.getMemberAccess(), context.getClassResolver(), context.getTypeConverter(), context);
     }
 
     /**
@@ -282,7 +282,7 @@ public abstract class Ognl {
      * appropriately
      */
     public static OgnlContext addDefaultContext(Object root, ClassResolver classResolver, OgnlContext context) {
-        return addDefaultContext(root, context.getMemberAccess(), classResolver, null, context);
+        return addDefaultContext(root, context.getMemberAccess(), classResolver, context.getTypeConverter(), context);
     }
 
     /**

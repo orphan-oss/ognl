@@ -25,7 +25,8 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Simple extends Object {
+public class Simple {
+
     private String stringValue = "test";
     private float floatValue;
     private int intValue;
@@ -41,6 +42,7 @@ public class Simple extends Object {
     private Object[] _array;
 
     private Messages _messages;
+    private Object[] values;
 
     public Simple() {
         Map src = new HashMap();
@@ -58,7 +60,7 @@ public class Simple extends Object {
     }
 
     public Simple(Object[] values) {
-        super();
+        this.values = values;
     }
 
     public Simple(String stringValue, float floatValue, int intValue) {
@@ -180,6 +182,10 @@ public class Simple extends Object {
 
     public String getDisplayValue(int val) {
         return "test";
+    }
+
+    public Object[] getValues() {
+        return values;
     }
 
     public boolean equals(Object other) {
