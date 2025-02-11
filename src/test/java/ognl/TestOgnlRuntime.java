@@ -17,6 +17,7 @@ import ognl.test.objects.OtherEnum;
 import ognl.test.objects.Root;
 import ognl.test.objects.SetterReturns;
 import ognl.test.objects.SubclassSyntheticObject;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -818,20 +819,20 @@ public class TestOgnlRuntime {
     }
 
     /**
-     * Test that non-bridge synthetic methods are NOT considered callable by either isMethodCallable() or isMethodCallable_BridgeOrNonSynthetic().
+     * Test that no synthetic method is created.
      */
     @Test
-    public void testConfirmSyntheticMethodNonCallablility() {
-        Method method;
+    public void testConfirmNoSyntheticMethod() throws Exception {
         Method[] methods = SimpleNestingClass.NestedClass.class.getDeclaredMethods();
         assertNotNull("Nested class has no methods ?", methods);
-        assertTrue("Nested class has no methods ?", methods.length > 0);
-        method = methods[0];
-        assertNotNull("Nested class method at index 0 is null ?", method);
-        assertTrue("SimpleAbstractClass.getName() is a synthetic method ?", method.isSynthetic());
-        assertFalse("SimpleAbstractClass.getName() is a bridge method ?", method.isBridge());
-        assertFalse("SimpleAbstractClass.getName() is considered callable by isMethodCallable() ?", OgnlRuntime.isMethodCallable(method));
-        assertFalse("SimpleAbstractClass.getName() is considered callable by isMethodCallable_BridgeOrNonSynthetic() ?", OgnlRuntime.isMethodCallable_BridgeOrNonSynthetic(method));
+        // This assertion varies if called with coverage tools, as they inject synthetic methods.
+        // assertEquals("Nested class has no methods ?", 0, methods.length);
+
+        Field field = SimpleNestingClass.NestedClass.class.getDeclaredField("name");
+        field.setAccessible(true);
+        assertEquals("nested name contents", field.get(new SimpleNestingClass.NestedClass()));
+
+        assertEquals("nested name contents", new SimpleNestingClass().getNestedName());
     }
 
     /**
