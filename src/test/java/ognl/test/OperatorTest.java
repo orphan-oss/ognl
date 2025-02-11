@@ -18,71 +18,45 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
+import ognl.SimpleNode;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class OperatorTest extends OgnlTestCase {
-    private static Object[][] TESTS = {
-            {null, "\"one\" > \"two\"", Boolean.FALSE},
-            {null, "\"one\" >= \"two\"", Boolean.FALSE},
-            {null, "\"one\" < \"two\"", Boolean.TRUE},
-            {null, "\"one\" <= \"two\"", Boolean.TRUE},
-            {null, "\"one\" == \"two\"", Boolean.FALSE},
-            {null, "\"o\" > \"o\"", Boolean.FALSE},
-            {null, "\"o\" gt \"o\"", Boolean.FALSE},
-            {null, "\"o\" >= \"o\"", Boolean.TRUE},
-            {null, "\"o\" gte \"o\"", Boolean.TRUE},
-            {null, "\"o\" < \"o\"", Boolean.FALSE},
-            {null, "\"o\" lt \"o\"", Boolean.FALSE},
-            {null, "\"o\" <= \"o\"", Boolean.TRUE},
-            {null, "\"o\" lte \"o\"", Boolean.TRUE},
-            {null, "\"o\" == \"o\"", Boolean.TRUE},
-            {null, "\"o\" eq \"o\"", Boolean.TRUE},
-    };
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    /*===================================================================
-        Public static methods
-      ===================================================================*/
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
+class OperatorTest {
 
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new OperatorTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new OperatorTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new OperatorTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    private OgnlContext context;
+
+    @BeforeEach
+    void setUp() {
+        context = Ognl.createDefaultContext(null);
     }
 
-    /*===================================================================
-        Constructors
-      ===================================================================*/
-    public OperatorTest() {
-        super();
+    @Test
+    void testStringComparisons() throws Exception {
+        assertExpression("\"one\" > \"two\"", Boolean.FALSE);
+        assertExpression("\"one\" >= \"two\"", Boolean.FALSE);
+        assertExpression("\"one\" < \"two\"", Boolean.TRUE);
+        assertExpression("\"one\" <= \"two\"", Boolean.TRUE);
+        assertExpression("\"one\" == \"two\"", Boolean.FALSE);
+        assertExpression("\"o\" > \"o\"", Boolean.FALSE);
+        assertExpression("\"o\" gt \"o\"", Boolean.FALSE);
+        assertExpression("\"o\" >= \"o\"", Boolean.TRUE);
+        assertExpression("\"o\" gte \"o\"", Boolean.TRUE);
+        assertExpression("\"o\" < \"o\"", Boolean.FALSE);
+        assertExpression("\"o\" lt \"o\"", Boolean.FALSE);
+        assertExpression("\"o\" <= \"o\"", Boolean.TRUE);
+        assertExpression("\"o\" lte \"o\"", Boolean.TRUE);
+        assertExpression("\"o\" == \"o\"", Boolean.TRUE);
+        assertExpression("\"o\" eq \"o\"", Boolean.TRUE);
     }
 
-    public OperatorTest(String name) {
-        super(name);
-    }
-
-    public OperatorTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
-    }
-
-    public OperatorTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public OperatorTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    private void assertExpression(String expressionString, Object expectedResult) throws Exception {
+        SimpleNode expression = (SimpleNode) Ognl.parseExpression(expressionString);
+        Object result = Ognl.getValue(expression, context, (Object) null);
+        assertEquals(expectedResult, result);
     }
 }

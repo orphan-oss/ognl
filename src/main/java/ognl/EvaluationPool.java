@@ -53,6 +53,7 @@ public final class EvaluationPool {
      * @return the size of the Evaluation pool (always 0).
      * @deprecated object-pooling now relies on the jvm garbage collection
      */
+    @Deprecated(since = "3.4", forRemoval = true)
     public int getSize() {
         return 0;
     }
@@ -64,6 +65,7 @@ public final class EvaluationPool {
      * @return the creation count for the Evaluation pool (always 0).
      * @deprecated object-pooling now relies on the jvm garbage collection
      */
+    @Deprecated(since = "3.4", forRemoval = true)
     public int getCreatedCount() {
         return 0;
     }
@@ -75,6 +77,7 @@ public final class EvaluationPool {
      * @return the recovered count for the Evaluation pool (always 0).
      * @deprecated object-pooling now relies on the jvm garbage collection
      */
+    @Deprecated(since = "3.4", forRemoval = true)
     public int getRecoveredCount() {
         return 0;
     }
@@ -86,6 +89,7 @@ public final class EvaluationPool {
      * @return the recycled count for the Evaluation pool (always 0).
      * @deprecated object-pooling now relies on the jvm garbage collection
      */
+    @Deprecated(since = "3.4", forRemoval = true)
     public int getRecycledCount() {
         return 0;
     }

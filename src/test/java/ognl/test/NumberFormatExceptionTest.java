@@ -18,83 +18,118 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.test.objects.Simple;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class NumberFormatExceptionTest extends OgnlTestCase {
-    private static Simple SIMPLE = new Simple();
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-    private static Object[][] TESTS = {
-            // NumberFormatException handling (default is to throw NumberFormatException on bad string conversions)
-            {SIMPLE, "floatValue", new Float(0f), new Float(10f), new Float(10f)},
-            {SIMPLE, "floatValue", new Float(10f), "x10x", OgnlException.class},
+class NumberFormatExceptionTest {
 
-            {SIMPLE, "intValue", new Integer(0), new Integer(34), new Integer(34)},
-            {SIMPLE, "intValue", new Integer(34), "foobar", OgnlException.class},
-            {SIMPLE, "intValue", new Integer(34), "", OgnlException.class},
-            {SIMPLE, "intValue", new Integer(34), "       \t", OgnlException.class},
-            {SIMPLE, "intValue", new Integer(34), "       \t1234\t\t", new Integer(1234)},
+    private Simple simple;
+    private OgnlContext context;
 
-            {SIMPLE, "bigIntValue", BigInteger.valueOf(0), BigInteger.valueOf(34), BigInteger.valueOf(34)},
-            {SIMPLE, "bigIntValue", BigInteger.valueOf(34), null, null},
-            {SIMPLE, "bigIntValue", null, "", OgnlException.class},
-            {SIMPLE, "bigIntValue", null, "foobar", OgnlException.class},
-
-            {SIMPLE, "bigDecValue", new BigDecimal(0.0), new BigDecimal(34.55), new BigDecimal(34.55)},
-            {SIMPLE, "bigDecValue", new BigDecimal(34.55), null, null},
-            {SIMPLE, "bigDecValue", null, "", OgnlException.class},
-            {SIMPLE, "bigDecValue", null, "foobar", OgnlException.class}
-
-    };
-
-    /*===================================================================
-        Public static methods
-      ===================================================================*/
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new NumberFormatExceptionTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new NumberFormatExceptionTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new NumberFormatExceptionTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        simple = new Simple();
+        context = Ognl.createDefaultContext(simple);
     }
 
-    /*===================================================================
-        Constructors
-      ===================================================================*/
-    public NumberFormatExceptionTest() {
-        super();
+    @Test
+    void testFloatValueValid() throws Exception {
+        Ognl.setValue("floatValue", context, simple, 10f);
+        assertEquals(10f, Ognl.getValue("floatValue", context, simple));
     }
 
-    public NumberFormatExceptionTest(String name) {
-        super(name);
+    @Test
+    void testFloatValueInvalid() {
+        assertThrows(OgnlException.class,
+                () -> Ognl.setValue("floatValue", context, simple, "x10x")
+                , "x10x");
     }
 
-    public NumberFormatExceptionTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testIntValueValid() throws Exception {
+        Ognl.setValue("intValue", context, simple, 34);
+        Object actual = Ognl.getValue("intValue", context, simple);
+        assertEquals(34, actual);
     }
 
-    public NumberFormatExceptionTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void testIntValueInvalidString() {
+        assertThrows(OgnlException.class, () -> Ognl.setValue("intValue", context, simple, "foobar"));
     }
 
-    public NumberFormatExceptionTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testIntValueEmptyString() {
+        assertThrows(OgnlException.class, () -> Ognl.setValue("intValue", context, simple, ""));
+    }
+
+    @Test
+    void testIntValueWhitespaceString() {
+        assertThrows(OgnlException.class, () -> Ognl.setValue("intValue", context, simple, "       \t"));
+    }
+
+    @Test
+    void testIntValueValidWhitespaceString() throws Exception {
+        Ognl.setValue("intValue", context, simple, "       \t1234\t\t");
+        Object actual = Ognl.getValue("intValue", context, simple);
+        assertEquals(1234, actual);
+    }
+
+    @Test
+    void testBigIntValueValid() throws Exception {
+        Ognl.setValue("bigIntValue", context, simple, BigInteger.valueOf(34));
+        Object actual = Ognl.getValue("bigIntValue", context, simple);
+        assertEquals(BigInteger.valueOf(34), actual);
+    }
+
+    @Test
+    void testBigIntValueNull() throws Exception {
+        Ognl.setValue("bigIntValue", context, simple, null);
+        Object actual = Ognl.getValue("bigIntValue", context, simple);
+        assertNull(actual);
+    }
+
+    @Test
+    void testBigIntValueEmptyString() {
+        assertThrows(OgnlException.class, () -> Ognl.setValue("bigIntValue", context, simple, ""));
+    }
+
+    @Test
+    void testBigIntValueInvalidString() {
+        assertThrows(OgnlException.class, () -> Ognl.setValue("bigIntValue", context, simple, "foobar"));
+    }
+
+    @Test
+    void testBigDecValueValid() throws Exception {
+        Ognl.setValue("bigDecValue", context, simple, BigDecimal.valueOf(34.55));
+        Object actual = Ognl.getValue("bigDecValue", context, simple);
+        assertEquals(BigDecimal.valueOf(34.55), actual);
+    }
+
+    @Test
+    void testBigDecValueNull() throws Exception {
+        Ognl.setValue("bigDecValue", context, simple, null);
+        Object actual = Ognl.getValue("bigDecValue", context, simple);
+        assertNull(actual);
+    }
+
+    @Test
+    void testBigDecValueEmptyString() {
+        assertThrows(OgnlException.class, () -> Ognl.setValue("bigDecValue", context, simple, ""));
+    }
+
+    @Test
+    void testBigDecValueInvalidString() {
+        assertThrows(OgnlException.class, () -> Ognl.setValue("bigDecValue", context, simple, "foobar"));
     }
 }

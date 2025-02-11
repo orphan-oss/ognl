@@ -18,7 +18,6 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
@@ -28,62 +27,197 @@ import ognl.test.objects.GameGenericObject;
 import ognl.test.objects.ListSource;
 import ognl.test.objects.ListSourceImpl;
 import ognl.test.objects.Simple;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class MethodTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    private static Simple ROOT = new Simple();
-    private static ListSource LIST = new ListSourceImpl();
-    private static BaseGeneric<GameGenericObject, Long> GENERIC = new GameGeneric();
+class MethodTest {
 
-    private static Object[][] TESTS = {
-            {"hashCode()", new Integer(ROOT.hashCode())},
-            {"getBooleanValue() ? \"here\" : \"\"", ""},
-            {"getValueIsTrue(!false) ? \"\" : \"here\" ", ""},
-            {"messages.format('ShowAllCount', one)", ROOT.getMessages().format("ShowAllCount", ROOT.getOne())},
-            {"messages.format('ShowAllCount', {one})", ROOT.getMessages().format("ShowAllCount", new Object[]{ROOT.getOne()})},
-            {"messages.format('ShowAllCount', {one, two})", ROOT.getMessages().format("ShowAllCount", new Object[]{ROOT.getOne(), ROOT.getTwo()})},
-            {"messages.format('ShowAllCount', one, two)", ROOT.getMessages().format("ShowAllCount", ROOT.getOne(), ROOT.getTwo())},
-            {"getTestValue(@ognl.test.objects.SimpleEnum@ONE.value)", new Integer(2)},
-            {"@ognl.test.MethodTest@getA().isProperty()", Boolean.FALSE},
-            {"isDisabled()", Boolean.TRUE},
-            {"isTruck", Boolean.TRUE},
-            {"isEditorDisabled()", Boolean.FALSE},
-            {LIST, "addValue(name)", Boolean.TRUE},
-            {"getDisplayValue(methodsTest.allowDisplay)", "test"},
-            {"isThisVarArgsWorking(three, rootValue)", Boolean.TRUE},
-            {"isThisVarArgsWorking()", Boolean.TRUE},
-            {GENERIC, "service.getFullMessageFor(value, null)", "Halo 3"},
-            // TestCase for https://github.com/jkuhnert/ognl/issues/17 -  ArrayIndexOutOfBoundsException when trying to access BeanFactory
-            {"testMethods.getBean('TestBean')", ROOT.getTestMethods().getBean("TestBean")},
-            // https://issues.apache.org/jira/browse/OGNL-250 -  OnglRuntime getMethodValue fails to find method matching propertyName
-            {"testMethods.testProperty", ROOT.getTestMethods().testProperty()},
-            {"testMethods.argsTest1({one})", ROOT.getTestMethods().argsTest1(Arrays.asList(ROOT.getOne()).toArray())},    // toArray() is automatically done by OGNL type conversion
-            // we need to cast out generics (insert "Object")
-            {"testMethods.argsTest2({one})", ROOT.getTestMethods().argsTest2(Arrays.asList((Object) ROOT.getOne()))},
-            //   Java 'ROOT.getTestMethods().argsTest1(Arrays.asList( ROOT.getOne() )' doesn't compile:
-            //		--> The method argsTest(Object[]) in the type MethodTestMethods is not applicable for the arguments (List<Integer>)
-            {"testMethods.argsTest3({one})", "List: [1]"},
-            {"testMethods.showList(testMethods.getObjectList())", ROOT.getTestMethods().showList(ROOT.getTestMethods().getObjectList().toArray())},
-            {"testMethods.showList(testMethods.getStringList())", ROOT.getTestMethods().showList(ROOT.getTestMethods().getStringList().toArray())},
-            {"testMethods.showList(testMethods.getStringArray())", ROOT.getTestMethods().showList(ROOT.getTestMethods().getStringArray())},
-            // TODO This one doesn't work - even 'toArray(new String[0]) returns Object[] and so the wrong method is called - currently no idea how to handle this...
-            // { "testMethods.showList(testMethods.getStringList().toArray(new String[0]))", ROOT.getTestMethods().showList(ROOT.getTestMethods().getStringList().toArray(new String[0])) },
-            // but this one works - at least in interpretation mode...
-            {"testMethods.showStringList(testMethods.getStringList().toArray(new String[0]))", ROOT.getTestMethods().showStringList(ROOT.getTestMethods().getStringList().toArray(new String[0]))},
+    private Simple root;
+    private ListSource list;
+    private BaseGeneric<GameGenericObject, Long> generic;
+    private OgnlContext context;
 
-            //	https://github.com/jkuhnert/ognl/issues/23 - Exception selecting overloaded method in 3.1.4
-            {"testMethods.avg({ 5, 5 })", ROOT.getTestMethods().avg((List) Arrays.asList(5, 5))},
-    };
+    @BeforeEach
+    void setUp() {
+        root = new Simple();
+        list = new ListSourceImpl();
+        generic = new GameGeneric();
+        context = Ognl.createDefaultContext(root);
+    }
 
-    public void testNullVarArgs() throws OgnlException {
-        OgnlContext context = Ognl.createDefaultContext(ROOT);
+    @Test
+    void testHashCode() throws Exception {
+        Object actual = Ognl.getValue("hashCode()", context, root);
+        assertEquals(root.hashCode(), actual);
+    }
 
-        Object value = Ognl.getValue("isThisVarArgsWorking()", context, ROOT);
+    @Test
+    void testGetBooleanValue() throws Exception {
+        Object actual = Ognl.getValue("getBooleanValue() ? \"here\" : \"\"", context, root);
+        assertEquals("", actual);
+    }
 
-        assertTrue(value instanceof Boolean);
+    @Test
+    void testGetValueIsTrue() throws Exception {
+        Object actual = Ognl.getValue("getValueIsTrue(!false) ? \"\" : \"here\" ", context, root);
+        assertEquals("", actual);
+    }
+
+    @Test
+    void testMessagesFormatShowAllCountOne() throws Exception {
+        Object actual = Ognl.getValue("messages.format('ShowAllCount', one)", context, root);
+        assertEquals(root.getMessages().format("ShowAllCount", root.getOne()), actual);
+    }
+
+    @Test
+    void testMessagesFormatShowAllCountArrayOne() throws Exception {
+        Object actual = Ognl.getValue("messages.format('ShowAllCount', {one})", context, root);
+        assertEquals(root.getMessages().format("ShowAllCount", new Object[]{root.getOne()}), actual);
+    }
+
+    @Test
+    void testMessagesFormatShowAllCountArrayOneTwo() throws Exception {
+        Object actual = Ognl.getValue("messages.format('ShowAllCount', {one, two})", context, root);
+        assertEquals(root.getMessages().format("ShowAllCount", new Object[]{root.getOne(), root.getTwo()}), actual);
+    }
+
+    @Test
+    void testMessagesFormatShowAllCountOneTwo() throws Exception {
+        Object actual = Ognl.getValue("messages.format('ShowAllCount', one, two)", context, root);
+        assertEquals(root.getMessages().format("ShowAllCount", root.getOne(), root.getTwo()), actual);
+    }
+
+    @Test
+    void testGetTestValue() throws Exception {
+        Object actual = Ognl.getValue("getTestValue(@ognl.test.objects.SimpleEnum@ONE.value)", context, root);
+        assertEquals(2, actual);
+    }
+
+    @Test
+    void testGetAIsProperty() throws Exception {
+        Object actual = Ognl.getValue("@ognl.test.MethodTest@getA().isProperty()", context, root);
+        assertEquals(Boolean.FALSE, actual);
+    }
+
+    @Test
+    void testIsDisabled() throws Exception {
+        Object actual = Ognl.getValue("isDisabled()", context, root);
+        assertEquals(Boolean.TRUE, actual);
+    }
+
+    @Test
+    void testIsTruck() throws Exception {
+        assertEquals(Boolean.TRUE, Ognl.getValue("isTruck", context, root));
+    }
+
+    @Test
+    void testIsEditorDisabled() throws Exception {
+        Object actual = Ognl.getValue("isEditorDisabled()", context, root);
+        assertEquals(Boolean.FALSE, actual);
+    }
+
+    @Test
+    void testListAddValue() throws Exception {
+        Object actual = Ognl.getValue("addValue(name)", context, list);
+        assertEquals(Boolean.TRUE, actual);
+    }
+
+    @Test
+    void testGetDisplayValue() throws Exception {
+        Object actual = Ognl.getValue("getDisplayValue(methodsTest.allowDisplay)", context, root);
+        assertEquals("test", actual);
+    }
+
+    @Test
+    void testIsThisVarArgsWorkingWithArgs() throws Exception {
+        Object actual = Ognl.getValue("isThisVarArgsWorking(three, rootValue)", context, root);
+        assertEquals(Boolean.TRUE, actual);
+    }
+
+    @Test
+    void testIsThisVarArgsWorkingWithoutArgs() throws Exception {
+        Object actual = Ognl.getValue("isThisVarArgsWorking()", context, root);
+        assertEquals(Boolean.TRUE, actual);
+    }
+
+    @Test
+    void testGenericServiceGetFullMessageFor() throws Exception {
+        Object actual = Ognl.getValue("service.getFullMessageFor(value, null)", context, generic);
+        assertEquals("Halo 3", actual);
+    }
+
+    @Test
+    void testTestMethodsGetBean() throws Exception {
+        Object actual = Ognl.getValue("testMethods.getBean('TestBean')", context, root);
+        assertEquals(root.getTestMethods().getBean("TestBean"), actual);
+    }
+
+    @Test
+    void testTestMethodsTestProperty() throws Exception {
+        Object actual = Ognl.getValue("testMethods.testProperty", context, root);
+        assertEquals(root.getTestMethods().testProperty(), actual);
+    }
+
+    @Test
+    void testTestMethodsArgsTest1() throws Exception {
+        Object actual = Ognl.getValue("testMethods.argsTest1({one})", context, root);
+        assertEquals(root.getTestMethods().argsTest1(List.of(root.getOne()).toArray()), actual);
+    }
+
+    @Test
+    void testTestMethodsArgsTest2() throws Exception {
+        Object actual = Ognl.getValue("testMethods.argsTest2({one})", context, root);
+        assertEquals(root.getTestMethods().argsTest2(List.of(root.getOne())), actual);
+    }
+
+    @Test
+    void testTestMethodsArgsTest3() throws Exception {
+        Object actual = Ognl.getValue("testMethods.argsTest3({one})", context, root);
+        assertEquals("List: [1]", actual);
+    }
+
+    @Test
+    void testTestMethodsShowListObjectList() throws Exception {
+        Object actual = Ognl.getValue("testMethods.showList(testMethods.getObjectList())", context, root);
+        assertEquals(root.getTestMethods().showList(root.getTestMethods().getObjectList().toArray()), actual);
+    }
+
+    @Test
+    void testTestMethodsShowListStringList() throws Exception {
+        Object actual = Ognl.getValue("testMethods.showList(testMethods.getStringList())", context, root);
+        assertEquals(root.getTestMethods().showList(root.getTestMethods().getStringList().toArray()), actual);
+    }
+
+    @Test
+    void testTestMethodsShowListStringArray() throws Exception {
+        Object actual = Ognl.getValue("testMethods.showList(testMethods.getStringArray())", context, root);
+        assertEquals(root.getTestMethods().showList(root.getTestMethods().getStringArray()), actual);
+    }
+
+    @Test
+    void testTestMethodsShowStringList() throws Exception {
+        Object actual = Ognl.getValue("testMethods.showStringList(testMethods.getStringList().toArray(new String[0]))", context, root);
+        assertEquals(root.getTestMethods().showStringList(root.getTestMethods().getStringList().toArray(new String[0])), actual);
+    }
+
+    @Test
+    void testTestMethodsAvg() throws Exception {
+        Object actual = Ognl.getValue("testMethods.avg({ 5, 5 })", context, root);
+        assertEquals(root.getTestMethods().avg(Arrays.asList(5, 5)), actual);
+    }
+
+    @Test
+    void testNullVarArgs() throws OgnlException {
+        Object value = Ognl.getValue("isThisVarArgsWorking()", context, root);
+
+        assertInstanceOf(Boolean.class, value);
         assertTrue((Boolean) value);
     }
 
@@ -95,47 +229,5 @@ public class MethodTest extends OgnlTestCase {
 
     public static A getA() {
         return new A();
-    }
-
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new MethodTest((String) TESTS[i][1] + " (" + TESTS[i][2] + ")", TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
-            } else {
-                result.addTest(new MethodTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", ROOT, (String) TESTS[i][0], TESTS[i][1]));
-            }
-        }
-        return result;
-    }
-
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public MethodTest() {
-        super();
-    }
-
-    public MethodTest(String name) {
-        super(name);
-    }
-
-    public MethodTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-                      Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
-    }
-
-    public MethodTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public MethodTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
     }
 }

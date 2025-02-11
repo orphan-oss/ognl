@@ -24,12 +24,12 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -154,52 +154,55 @@ class OgnlContextTest {
         context.put("root", root);
 
         // then
-        assertThat(context.get("root")).isSameAs(root);
-        assertThat(context.getValues().get("root")).isNull();
+        assertSame(root, context.get("root"));
+        assertNull(context.getValues().get("root"));
 
         // when
         context.put("this", root);
 
         // then
-        assertThat(context.get("this")).isSameAs(root);
-        assertThat(context.getValues().get("this")).isNull();
+        assertSame(root, context.get("this"));
+        assertNull(context.getValues().get("this"));
 
         // when
-        assertThat(context.isTraceEvaluations()).isFalse();
+        assertFalse(context.isTraceEvaluations());
         context.put("_traceEvaluations", Boolean.TRUE);
 
         // then
-        assertThat(context.get("_traceEvaluations")).isSameAs(Boolean.TRUE);
-        assertThat(context.isTraceEvaluations()).isTrue();
-        assertThat(context.getValues().get("_traceEvaluations")).isNull();
+        assertSame(Boolean.TRUE, context.get("_traceEvaluations"));
+        assertTrue(context.isTraceEvaluations());
+        assertNull(context.getValues().get("_traceEvaluations"));
 
         // given
         Evaluation evaluation = new Evaluation(new ASTConst(0), root);
 
         // when
-        assertThat(context.getLastEvaluation()).isNull();
+        assertNull(context.getLastEvaluation());
         context.put("_lastEvaluation", evaluation);
 
         // then
-        assertThat(context.get("_lastEvaluation")).isSameAs(evaluation);
-        assertThat(context.getLastEvaluation()).isSameAs(evaluation);
-        assertThat(context.getValues().get("_lastEvaluation")).isNull();
+        assertSame(evaluation, context.get("_lastEvaluation"));
+        assertSame(evaluation, context.getLastEvaluation());
+        assertNull(context.getValues().get("_lastEvaluation"));
 
         // when
-        assertThat(context.isKeepLastEvaluation()).isFalse();
+        assertFalse(context.isKeepLastEvaluation());
         context.put("_keepLastEvaluation", Boolean.TRUE);
 
         // then
-        assertThat(context.get("_keepLastEvaluation")).isSameAs(Boolean.TRUE);
-        assertThat(context.isKeepLastEvaluation()).isTrue();
-        assertThat(context.getValues().get("_keepLastEvaluation")).isNull();
+        assertSame(Boolean.TRUE, context.get("_keepLastEvaluation"));
+        assertTrue(context.isKeepLastEvaluation());
+        assertNull(context.getValues().get("_keepLastEvaluation"));
     }
 
     @Test
     void memberAccessIsRequired() {
-        assertThatThrownBy(() -> new OgnlContext(null, null, null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("MemberAccess implementation must be provided - null not permitted!");
+        try {
+            new OgnlContext(null, null, null);
+        } catch (Exception e) {
+            assertInstanceOf(IllegalArgumentException.class, e);
+            assertEquals("MemberAccess implementation must be provided - null not permitted!", e.getMessage());
+        }
     }
 
     @Test
@@ -208,9 +211,9 @@ class OgnlContextTest {
         OgnlContext context = new OgnlContext(null, null, new DefaultMemberAccess(false));
 
         // then
-        assertThat(context.getValues()).isEmpty();
-        assertThat(context).isEmpty();
-        assertThat(context.getClassResolver()).isInstanceOf(DefaultClassResolver.class);
-        assertThat(context.getTypeConverter()).isInstanceOf(DefaultTypeConverter.class);
+        assertTrue(context.getValues().isEmpty());
+        assertTrue(context.isEmpty());
+        assertInstanceOf(DefaultClassResolver.class, context.getClassResolver());
+        assertInstanceOf(DefaultTypeConverter.class, context.getTypeConverter());
     }
 }

@@ -18,56 +18,34 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ProtectedInnerClassTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static Root ROOT = new Root();
+class ProtectedInnerClassTest {
 
-    private static Object[][] TESTS = {
-            // member access of inner class (Arrays.asList() returned protected inner class)
-            {ROOT, "list.size()", new Integer(ROOT.getList().size())},
-            {ROOT, "list[0]", ROOT.getList().get(0)},
-    };
+    private Root root;
+    private OgnlContext context;
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new ProtectedInnerClassTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                    TESTS[i][2]));
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        root = new Root();
+        context = Ognl.createDefaultContext(root);
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public ProtectedInnerClassTest() {
-        super();
+    @Test
+    void testListSize() throws Exception {
+        Object actual = Ognl.getValue("list.size()", context, root);
+        assertEquals(root.getList().size(), actual);
     }
 
-    public ProtectedInnerClassTest(String name) {
-        super(name);
-    }
-
-    public ProtectedInnerClassTest(String name, Object root, String expressionString, Object expectedResult,
-                                   Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
-    }
-
-    public ProtectedInnerClassTest(String name, Object root, String expressionString, Object expectedResult,
-                                   Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public ProtectedInnerClassTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testListElement() throws Exception {
+        Object actual = Ognl.getValue("list[0]", context, root);
+        assertEquals(root.getList().get(0), actual);
     }
 }

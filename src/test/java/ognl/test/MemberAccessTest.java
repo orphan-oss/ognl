@@ -31,7 +31,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MemberAccessTest {
@@ -54,10 +54,9 @@ class MemberAccessTest {
 
     @Test
     void shouldAllowAccessToOtherProperties() throws Exception {
-        assertThat(Ognl.getValue("@System@getProperty('java.specification.version')", context, root))
-                .isEqualTo(System.getProperty("java.specification.version"));
-        assertThat(Ognl.getValue("stringValue", context, root))
-                .isEqualTo(root.getStringValue());
+        Object actual = Ognl.getValue("@System@getProperty('java.specification.version')", context, root);
+        assertEquals(System.getProperty("java.specification.version"), actual);
+        assertEquals(root.getStringValue(), Ognl.getValue("stringValue", context, root));
     }
 
     @BeforeEach

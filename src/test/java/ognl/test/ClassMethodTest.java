@@ -18,58 +18,60 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.DefaultMemberAccess;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.CorrectedObject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ClassMethodTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static CorrectedObject CORRECTED = new CorrectedObject();
+class ClassMethodTest {
 
-    private static Object[][] TESTS = {
-            // Methods on Class
-            {CORRECTED, "getClass().getName()", CORRECTED.getClass().getName()},
-            {CORRECTED, "getClass().getInterfaces()", CORRECTED.getClass().getInterfaces()},
-            {CORRECTED, "getClass().getInterfaces().length", new Integer(CORRECTED.getClass().getInterfaces().length)},
-            {null, "@System@class.getInterfaces()", System.class.getInterfaces()},
-            {null, "@Class@class.getName()", Class.class.getName()},
-            {null, "@java.awt.image.ImageObserver@class.getName()", java.awt.image.ImageObserver.class.getName()},
-    };
+    private CorrectedObject corrected;
+    private OgnlContext context;
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new ClassMethodTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        corrected = new CorrectedObject();
+        context = Ognl.createDefaultContext(corrected, new DefaultMemberAccess(true));
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public ClassMethodTest() {
-        super();
+    @Test
+    void testGetClassName() throws Exception {
+        Object actual = Ognl.getValue("getClass().getName()", context, corrected);
+        assertEquals(corrected.getClass().getName(), actual);
     }
 
-    public ClassMethodTest(String name) {
-        super(name);
+    @Test
+    void testGetClassInterfaces() throws Exception {
+        Class<?>[] actual = (Class<?>[]) Ognl.getValue("getClass().getInterfaces()", context, corrected);
+        assertArrayEquals(corrected.getClass().getInterfaces(), actual);
     }
 
-    public ClassMethodTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-                           Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testGetClassInterfacesLength() throws Exception {
+        Object actual = Ognl.getValue("getClass().getInterfaces().length", context, corrected);
+        assertEquals(corrected.getClass().getInterfaces().length, actual);
     }
 
-    public ClassMethodTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void testSystemClassGetInterfaces() throws Exception {
+        Class<?>[] actual = (Class<?>[]) Ognl.getValue("@System@class.getInterfaces()", context, corrected);
+        assertArrayEquals(System.class.getInterfaces(), actual);
     }
 
-    public ClassMethodTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testClassGetName() throws Exception {
+        Object actual = Ognl.getValue("@Class@class.getName()", context, corrected);
+        assertEquals(Class.class.getName(), actual);
+    }
+
+    @Test
+    void testImageObserverClassGetName() throws Exception {
+        Object actual = Ognl.getValue("@java.awt.image.ImageObserver@class.getName()", context, corrected);
+        assertEquals(java.awt.image.ImageObserver.class.getName(), actual);
     }
 }

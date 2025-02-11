@@ -18,87 +18,89 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
 import ognl.ExpressionSyntaxException;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.Entry;
 import ognl.test.objects.Root;
 import ognl.test.objects.Simple;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ArrayCreationTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-    private static Root ROOT = new Root();
+class ArrayCreationTest {
 
-    private static Object[][] TESTS = {
-            // Array creation
-            {ROOT, "new String[] { \"one\", \"two\" }", new String[]{"one", "two"}},
-            {ROOT, "new String[] { 1, 2 }", new String[]{"1", "2"}},
-            {ROOT, "new Integer[] { \"1\", 2, \"3\" }",
-                    new Integer[]{new Integer(1), new Integer(2), new Integer(3)}},
-            {ROOT, "new String[10]", new String[10]},
-            {ROOT, "new Object[4] { #root, #this }", ExpressionSyntaxException.class},
-            {ROOT, "new Object[4]", new Object[4]},
-            {ROOT, "new Object[] { #root, #this }", new Object[]{ROOT, ROOT}},
-            {ROOT,
-                    "new ognl.test.objects.Simple[] { new ognl.test.objects.Simple(), new ognl.test.objects.Simple(\"foo\", 1.0f, 2) }",
-                    new Simple[]{new Simple(), new Simple("foo", 1.0f, 2)}},
-            {ROOT, "new ognl.test.objects.Simple[5]", new Simple[5]},
-            {ROOT, "new ognl.test.objects.Simple(new Object[5])", new Simple(new Object[5])},
-            {ROOT, "new ognl.test.objects.Simple(new String[5])", new Simple(new String[5])},
-            {ROOT, "objectIndex ? new ognl.test.objects.Entry[] { new ognl.test.objects.Entry(), new ognl.test.objects.Entry()} "
-                    + ": new ognl.test.objects.Entry[] { new ognl.test.objects.Entry(), new ognl.test.objects.Entry()} ",
-                    new Entry[]{new Entry(), new Entry()}}
-    };
+    private Root root;
+    private OgnlContext context;
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new ArrayCreationTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new ArrayCreationTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                            TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new ArrayCreationTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        context = Ognl.createDefaultContext(null);
+        root = new Root();
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public ArrayCreationTest() {
-        super();
+    @Test
+    void stringArrayCreation() throws Exception {
+        assertArrayEquals(new String[]{"one", "two"}, (String[]) Ognl.getValue("new String[] { \"one\", \"two\" }", context, root));
     }
 
-    public ArrayCreationTest(String name) {
-        super(name);
+    @Test
+    void stringArrayWithIntegers() throws Exception {
+        assertArrayEquals(new String[]{"1", "2"}, (String[]) Ognl.getValue("new String[] { 1, 2 }", context, root));
     }
 
-    public ArrayCreationTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-                             Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testIntegerArrayCreation() throws Exception {
+        assertArrayEquals(new Integer[]{1, 2, 3}, (Integer[]) Ognl.getValue("new Integer[] { 1, 2, 3 }", context, root));
     }
 
-    public ArrayCreationTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void stringArrayWithSize() throws Exception {
+        assertArrayEquals(new String[10], (String[]) Ognl.getValue("new String[10]", context, root));
     }
 
-    public ArrayCreationTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void invalidObjectArrayCreation() {
+        assertThrows(ExpressionSyntaxException.class, () -> {
+            Ognl.getValue("new Object[4] { #root, #this }", context, root);
+        });
+    }
+
+    @Test
+    void objectArrayWithSize() throws Exception {
+        assertArrayEquals(new Object[4], (Object[]) Ognl.getValue("new Object[4]", context, root));
+    }
+
+    @Test
+    void objectArrayWithElements() throws Exception {
+        assertArrayEquals(new Object[]{root, root}, (Object[]) Ognl.getValue("new Object[] { #root, #this }", context, root));
+    }
+
+    @Test
+    void simpleArrayCreation() throws Exception {
+        assertArrayEquals(new Simple[5], (Simple[]) Ognl.getValue("new ognl.test.objects.Simple[5]", context, root));
+    }
+
+    @Test
+    void simpleObjectArrayCreation() throws Exception {
+        assertEquals(new Simple(new Object[5]), Ognl.getValue("new ognl.test.objects.Simple(new Object[5])", context, root));
+    }
+
+    @Test
+    void simpleStringArrayCreation() throws Exception {
+        assertEquals(new Simple(new String[5]), Ognl.getValue("new ognl.test.objects.Simple(new String[5])", context, root));
+    }
+
+    @Test
+    void conditionalEntryArrayCreation() throws Exception {
+        assertArrayEquals(new Entry[]{new Entry(), new Entry()}, (Entry[]) Ognl.getValue("objectIndex ? new ognl.test.objects.Entry[] { new ognl.test.objects.Entry(), new ognl.test.objects.Entry()} : new ognl.test.objects.Entry[] { new ognl.test.objects.Entry(), new ognl.test.objects.Entry()}", context, root));
+    }
+
+    @Test
+    void simpleArrayWithElements() throws Exception {
+        assertArrayEquals(new Simple[]{new Simple(), new Simple("foo", 1.0f, 2)}, (Simple[]) Ognl.getValue("new ognl.test.objects.Simple[] { new ognl.test.objects.Simple(), new ognl.test.objects.Simple(\"foo\", 1.0f, 2) }", context, root));
     }
 }

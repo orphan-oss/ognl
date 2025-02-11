@@ -21,21 +21,20 @@ import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.SimpleNode;
 import ognl.test.objects.Root;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for {@link SimpleNode#isChain(OgnlContext)}.
  */
-public class ChainTest {
+class ChainTest {
 
     @Test
-    public void test_isChain() throws Exception {
+    void test_isChain() throws Exception {
         OgnlContext context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
 
         SimpleNode node = (SimpleNode) Ognl.parseExpression("#name");
@@ -58,7 +57,7 @@ public class ChainTest {
     }
 
     @Test
-    public void shouldShortCircuitAccessingNullChild() throws OgnlException {
+    void shouldShortCircuitAccessingNullChild() throws OgnlException {
         OgnlContext context = Ognl.createDefaultContext(null);
         Parent parent = new Parent(new Parent(null));
         context.put("parent", parent);
@@ -67,7 +66,7 @@ public class ChainTest {
     }
 
     @Test
-    public void shouldEvaluateThisProperty() throws OgnlException {
+    void shouldEvaluateThisProperty() throws OgnlException {
         Root root = new Root();
         OgnlContext context = Ognl.createDefaultContext(root);
 

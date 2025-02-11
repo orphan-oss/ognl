@@ -24,17 +24,23 @@ import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.OgnlRuntime;
 import ognl.PropertyAccessor;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PropertyAccessorTest {
+class PropertyAccessorTest {
 
     private OgnlContext context;
 
+    @BeforeEach
+    void setUp() {
+        this.context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+        OgnlRuntime.setPropertyAccessor(Parent.class, new ChildPropertyAccessor());
+    }
+
     @Test
-    public void shouldAccessProperty_usingCustomAccessor() throws Exception {
+    void shouldAccessProperty_usingCustomAccessor() throws Exception {
         // given
         Parent root = new Parent(new Child("Luk"));
         String expectedResult = "Luk";
@@ -43,13 +49,7 @@ public class PropertyAccessorTest {
         assertEquals(expectedResult, Ognl.getValue("child", context, root));
     }
 
-    @Before
-    public void setUp() {
-        this.context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
-        OgnlRuntime.setPropertyAccessor(Parent.class, new ChildPropertyAccessor());
-    }
-
-    public static class Child {
+    static class Child {
         String name;
 
         public Child(String name) {
@@ -92,5 +92,4 @@ public class PropertyAccessorTest {
             return index.toString();
         }
     }
-
 }
