@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package ognl;
 
 import ognl.test.objects.BaseGeneric;
@@ -17,23 +35,16 @@ import ognl.test.objects.OtherEnum;
 import ognl.test.objects.Root;
 import ognl.test.objects.SetterReturns;
 import ognl.test.objects.SubclassSyntheticObject;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static ognl.test.OgnlTestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -158,7 +169,7 @@ public class TestOgnlRuntime {
         ListSource list = new ListSourceImpl();
         OgnlContext context = this.context;
 
-        Object ret = OgnlRuntime.callMethod(context, list, "addValue", new String[] {null});
+        Object ret = OgnlRuntime.callMethod(context, list, "addValue", new String[]{null});
 
         assert ret != null;
     }
@@ -204,312 +215,6 @@ public class TestOgnlRuntime {
         args[0] = argument;
 
         assertEquals("Halo 3", OgnlRuntime.callMethod(context, service, "getFullMessageFor", args));
-    }
-
-    @Test
-    public void test_Call_Method_In_JDK_Sandbox() {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
-            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox() -invocation test.");
-            return;  // JVM option was set to disable sandbox, do not attempt invocation.
-        }
-
-        OgnlContext context = this.context;
-        GenericService service = new GenericServiceImpl();
-
-        Object[] args = new Object[1];
-        args[0] = 0;
-
-        boolean temporaryEnabled = false;
-        try {
-            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
-            temporaryEnabled = true;
-        } catch (Exception ignore) {
-            // already enabled
-        }
-
-        try {
-            OgnlRuntime.callMethod(context, service, "exec", args);
-            fail("JDK sandbox should block execution");
-        } catch (Exception ex) {
-            assertTrue(ex.getCause() instanceof InvocationTargetException);
-            assertTrue(((InvocationTargetException) ex.getCause()).getTargetException().getMessage().contains("execute"));
-        } finally {
-            if (temporaryEnabled) {
-                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
-            }
-        }
-    }
-
-    @Test
-    public void test_Call_Method_In_JDK_Sandbox_Thread_Safety()
-            throws Exception {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
-            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox_Thread_Safety() invocation test.");
-            return;  // JVM option was set to disable sandbox, do not attempt invocation.
-        }
-
-        final OgnlContext context = this.context;
-        final GenericService service = new GenericServiceImpl();
-
-        boolean temporaryEnabled = false;
-        try {
-            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
-            temporaryEnabled = true;
-        } catch (Exception ignore) {
-            // already enabled
-        }
-
-        try {
-            final int NUM_THREADS = 100;
-            final int MAX_WAIT_MS = 300;
-            ExecutorService exec = Executors.newFixedThreadPool(NUM_THREADS);
-            final CountDownLatch allThreadsWaitOnThis = new CountDownLatch(1);
-            final AtomicInteger numThreadsFailedTest = new AtomicInteger(0);
-            for (int i = 0; i < NUM_THREADS; ++i) {
-                exec.submit(() -> {
-                    try {
-                        allThreadsWaitOnThis.await();
-                    } catch (InterruptedException ignored) {
-                    }
-
-                    try {
-                        Thread.sleep((long) (Math.random() * MAX_WAIT_MS));
-                    } catch (InterruptedException ignored) {
-                    }
-
-                    Object[] args = new Object[1];
-                    args[0] = Math.random() * MAX_WAIT_MS;
-
-                    try {
-                        OgnlRuntime.callMethod(context, service, "exec", args);
-                        numThreadsFailedTest.incrementAndGet();
-                    } catch (Exception ex) {
-                        if (!((ex.getCause() instanceof InvocationTargetException &&
-                                ((InvocationTargetException) ex.getCause()).getTargetException().getMessage().contains("execute"))
-                                ||
-                                (ex.getCause() instanceof SecurityException &&
-                                        ex.getCause().getMessage().contains("createClassLoader")))) {
-                            numThreadsFailedTest.incrementAndGet();
-                        }
-                    }
-                });
-            }
-
-            // release all the threads
-            allThreadsWaitOnThis.countDown();
-
-            // wait for them all to finish
-            Thread.sleep(MAX_WAIT_MS * 3);
-            exec.shutdown();
-            exec.awaitTermination(MAX_WAIT_MS * 3, TimeUnit.MILLISECONDS);
-            assertTrue(exec.isTerminated());
-            assertEquals(0, numThreadsFailedTest.get());
-        } finally {
-            if (temporaryEnabled) {
-                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
-            }
-        }
-    }
-
-    @Test
-    public void test_Disable_JDK_Sandbox() {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
-            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Disable_JDK_Sandbox() invocation test.");
-            return;  // JVM option was set to disable sandbox, do not attempt invocation.
-        }
-
-        OgnlContext context = this.context;
-        GenericService service = new GenericServiceImpl();
-
-        Object[] args = new Object[]{};
-
-        boolean temporaryEnabled = false;
-        try {
-            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
-            temporaryEnabled = true;
-        } catch (Exception ignore) {
-            // already enabled
-        }
-
-        try {
-            OgnlRuntime.callMethod(context, service, "disableSandboxViaReflectionByProperty", args);
-            fail("JDK sandbox should block execution");
-        } catch (Exception ex) {
-            assertTrue(ex.getCause() instanceof InvocationTargetException);
-            assertTrue(((InvocationTargetException) ex.getCause()).getTargetException().getMessage().contains(OgnlRuntime.OGNL_SECURITY_MANAGER));
-            assertTrue(((InvocationTargetException) ex.getCause()).getTargetException().getMessage().contains("write"));
-        } finally {
-            if (temporaryEnabled) {
-                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
-            }
-        }
-
-        temporaryEnabled = false;
-        try {
-            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
-            temporaryEnabled = true;
-        } catch (Exception ignore) {
-            // already enabled
-        }
-
-        try {
-            OgnlRuntime.callMethod(context, service, "disableSandboxViaReflectionByField", args);
-            fail("JDK sandbox should block execution");
-        } catch (Exception ex) {
-            assertTrue(ex.getCause().getMessage().contains("accessDeclaredMembers"));
-        } finally {
-            if (temporaryEnabled) {
-                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
-            }
-        }
-
-        temporaryEnabled = false;
-        try {
-            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
-            temporaryEnabled = true;
-        } catch (Exception ignore) {
-            // already enabled
-        }
-
-        try {
-            OgnlRuntime.callMethod(context, service, "disableSandboxViaReflectionByMethod", args);
-            fail("JDK sandbox should block execution");
-        } catch (Exception ex) {
-            assertTrue(ex.getCause() instanceof InvocationTargetException);
-            assertTrue(((InvocationTargetException) ex.getCause()).getTargetException() instanceof SecurityException);
-            assertNull(((InvocationTargetException) ex.getCause()).getTargetException().getMessage());
-        } finally {
-            if (temporaryEnabled) {
-                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
-            }
-        }
-    }
-
-    @Test
-    public void test_Exit_JDK_Sandbox() {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
-            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Exit_JDK_Sandbox() invocation test.");
-            return;  // JVM option was set to disable sandbox, do not attempt invocation.
-        }
-
-        OgnlContext context = this.context;
-        GenericService service = new GenericServiceImpl();
-
-        Object[] args = new Object[]{};
-
-        boolean temporaryEnabled = false;
-        try {
-            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
-            temporaryEnabled = true;
-        } catch (Exception ignore) {
-            // already enabled
-        }
-
-        try {
-            OgnlRuntime.callMethod(context, service, "exit", args);
-            fail("JDK sandbox should block execution");
-        } catch (Exception ex) {
-            assertTrue(ex.getCause() instanceof InvocationTargetException);
-            assertTrue(((InvocationTargetException) ex.getCause()).getTargetException().getMessage().contains("exit"));
-        } finally {
-            if (temporaryEnabled) {
-                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
-            }
-        }
-    }
-
-    @Test
-    public void test_Call_Method_In_JDK_Sandbox_Privileged() throws Exception {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
-            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox_Privileged() invocation test.");
-            return;  // JVM option was set to disable sandbox, do not attempt invocation.
-        }
-
-        OgnlContext context = this.context;
-        GenericService service = new GenericServiceImpl();
-
-        Object[] args = new Object[]{};
-
-        boolean temporaryEnabled = false;
-        try {
-            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
-            temporaryEnabled = true;
-        } catch (Exception ignore) {
-            // already enabled
-        }
-
-        try {
-            OgnlRuntime.callMethod(context, service, "doNotPrivileged", args);
-            fail("JDK sandbox should block execution");
-        } catch (Exception ex) {
-            assertTrue(ex.getCause() instanceof SecurityException);
-            assertTrue(ex.getCause().getMessage().contains("FilePermission"));
-            assertTrue(ex.getCause().getMessage().contains("read"));
-            assertTrue(ex.getCause().getMessage().contains("test.properties"));
-        } finally {
-            if (temporaryEnabled) {
-                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
-            }
-        }
-
-        temporaryEnabled = false;
-        try {
-            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
-            temporaryEnabled = true;
-        } catch (Exception ignore) {
-            // already enabled
-        }
-
-        try {
-            Object result = OgnlRuntime.callMethod(context, service, "doPrivileged", args);
-            assertNotNull(result);
-            assertNotSame(-1, result);
-        } finally {
-            if (temporaryEnabled) {
-                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
-            }
-        }
-    }
-
-    @Test
-    public void test_Class_Loader_Direct_Access() {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
-            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Class_Loader_Direct_Access() invocation test.");
-            return;  // JVM option was set to disable sandbox, do not attempt invocation.
-        }
-
-        OgnlContext context = this.context;
-        ClassLoader classLoader = getClass().getClassLoader();
-
-        Object[] args = new Object[1];
-        args[0] = "test.properties";
-
-        boolean temporaryEnabled = false;
-        try {
-            System.setProperty(OgnlRuntime.OGNL_SECURITY_MANAGER, "");
-            temporaryEnabled = true;
-        } catch (Exception ignore) {
-            // already enabled
-        }
-
-        try {
-            OgnlRuntime.callMethod(context, classLoader, "getResourceAsStream", args);
-            fail("JDK sandbox should block execution");
-        } catch (Exception ex) {
-            assertTrue(ex.getCause() instanceof IllegalAccessException);
-            if (OgnlRuntime.getUseStricterInvocationValue()) {
-                // Blocked by stricter invocation check first, if active.
-                assertTrue("Didn't find expected stricter invocation mode exception message ?",
-                        ex.getCause().getMessage().endsWith("] cannot be called from within OGNL invokeMethod() under stricter invocation mode."));
-            } else {
-                // Otherwise, blocked by OGNL SecurityManager sandbox.
-                assertEquals("OGNL direct access to class loader denied!", ex.getCause().getMessage());
-            }
-        } finally {
-            if (temporaryEnabled) {
-                System.clearProperty(OgnlRuntime.OGNL_SECURITY_MANAGER);
-            }
-        }
     }
 
     @Test
@@ -846,6 +551,7 @@ public class TestOgnlRuntime {
         private String address = "1 Glen st";
     }
 
+    @Test
     public void testSetFieldValueWhenCheckAccess() throws OgnlException, NoSuchFieldException {
         OgnlContext context = (OgnlContext) this.context;
         SimpleFieldClass simpleField = new SimpleFieldClass();
@@ -870,29 +576,33 @@ public class TestOgnlRuntime {
         assertEquals("1 Glen st", simpleField.address);
     }
 
+    @Test
     public void testSetFieldValueWhenNotCheckAccess() throws OgnlException, NoSuchFieldException {
         ExcludedObjectMemberAccess memberAccess = new ExcludedObjectMemberAccess(false);
         OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null, memberAccess);
         SimpleFieldClass simpleField = new SimpleFieldClass();
 
         // verify that the static & final field is NOT accessible and bypass set field value
-        assertFalse(OgnlRuntime.setFieldValue(context, simpleField, "NAME", "new name"));
+        assertFalse(OgnlRuntime.setFieldValue(context, simpleField, "NAME", "new name", true));
         assertEquals("name", SimpleFieldClass.NAME);
 
-        assertFalse(OgnlRuntime.setFieldValue(context, simpleField, "numbers", Collections.singletonList("four")));
+        assertFalse(OgnlRuntime.setFieldValue(context, simpleField, "numbers", Collections.singletonList("four"), true));
         assertEquals(3, simpleField.numbers.size());
 
         // verify that the field is accessible and set field value successfully
         Field genderField = SimpleFieldClass.class.getDeclaredField("gender");
         assertTrue(context.getMemberAccess().isAccessible(context, simpleField, genderField, null));
-        assertTrue(OgnlRuntime.setFieldValue(context, simpleField, "gender", "female"));
+        assertTrue(OgnlRuntime.setFieldValue(context, simpleField, "gender", "female", true));
         assertEquals("female", simpleField.gender);
 
         // verify that even the field is NOT accessible, and it processes to set field value successfully
         Field emailField = SimpleFieldClass.class.getDeclaredField("email");
         memberAccess.exclude(emailField);
         assertFalse(memberAccess.isAccessible(context, simpleField, emailField, null));
-        OgnlRuntime.setFieldValue(context, simpleField, "email", "admin@admin.com");
+        OgnlRuntime.setFieldValue(context, simpleField, "email", "admin@admin.com", true);
+        assertEquals("test@test.com", simpleField.email);
+
+        OgnlRuntime.setFieldValue(context, simpleField, "email", "admin@admin.com", false);
         assertEquals("admin@admin.com", simpleField.email);
 
         // verify that even the field is NOT accessible, and it processes to set field value but throws NoSuchPropertyException (as for private field)
@@ -900,10 +610,11 @@ public class TestOgnlRuntime {
         memberAccess.exclude(addressField);
         assertFalse(memberAccess.isAccessible(context, simpleField, addressField, null));
         try {
-            OgnlRuntime.setFieldValue(context, simpleField, "address", "2 Glen st");
+            OgnlRuntime.setFieldValue(context, simpleField, "address", "2 Glen st", true);
         } catch (NoSuchPropertyException e) {
             assertEquals("ognl.TestOgnlRuntime$SimpleFieldClass.address", e.getMessage());
             assertEquals("1 Glen st", simpleField.address);
         }
     }
+
 }

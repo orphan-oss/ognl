@@ -73,15 +73,7 @@ class AccessibleObjectHandlerJDK9Plus implements AccessibleObjectHandler {
      * @return class if available, null otherwise
      */
     private static Class<?> instantiateClazzUnsafe() {
-        Class<?> clazz;
-
-        try {
-            clazz = Class.forName("sun.misc.Unsafe");
-        } catch (Throwable t) {
-            clazz = null;
-        }
-
-        return clazz;
+        return null;
     }
 
     /**
@@ -207,11 +199,7 @@ class AccessibleObjectHandlerJDK9Plus implements AccessibleObjectHandler {
      * @since 3.1.24
      */
     static AccessibleObjectHandler createHandler() {
-        if (OgnlRuntime.usingJDK9PlusAccessHandler()) {
-            return new AccessibleObjectHandlerJDK9Plus();
-        } else {
-            return AccessibleObjectHandlerPreJDK9.createHandler();
-        }
+        return new AccessibleObjectHandlerJDK9Plus();
     }
 
     /**

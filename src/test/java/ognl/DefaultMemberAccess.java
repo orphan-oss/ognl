@@ -38,13 +38,12 @@ public class DefaultMemberAccess implements MemberAccess {
     private static final AccessibleObjectHandler _accessibleObjectHandler;
 
     static {
-        _accessibleObjectHandler = OgnlRuntime.usingJDK9PlusAccessHandler() ? AccessibleObjectHandlerJDK9Plus.createHandler() :
-                AccessibleObjectHandlerPreJDK9.createHandler();
+        _accessibleObjectHandler = AccessibleObjectHandlerJDK9Plus.createHandler();
     }
 
-    public boolean allowPrivateAccess = false;
-    public boolean allowProtectedAccess = false;
-    public boolean allowPackageProtectedAccess = false;
+    public boolean allowPrivateAccess;
+    public boolean allowProtectedAccess;
+    public boolean allowPackageProtectedAccess;
 
     public DefaultMemberAccess(boolean allowAllAccess) {
         this(allowAllAccess, allowAllAccess, allowAllAccess);
@@ -87,7 +86,7 @@ public class DefaultMemberAccess implements MemberAccess {
         if (isAccessible(context, target, member, propertyName)) {
             AccessibleObject accessible = (AccessibleObject) member;
 
-            if (!accessible.isAccessible()) {
+            if (!accessible.canAccess(target)) {
                 result = Boolean.FALSE;
                 _accessibleObjectHandler.setAccessible(accessible, true);
             }

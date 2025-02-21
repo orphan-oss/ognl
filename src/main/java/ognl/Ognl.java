@@ -20,7 +20,6 @@ package ognl;
 
 import ognl.enhance.ExpressionAccessor;
 import ognl.enhance.OgnlExpressionCompiler;
-import ognl.security.OgnlSecurityManager;
 
 import java.io.StringReader;
 import java.lang.reflect.Member;
@@ -76,9 +75,6 @@ public abstract class Ognl {
      * @since 3.1.26
      */
     public static synchronized void applyExpressionMaxLength(Integer expressionMaxLength) {
-        if (System.getSecurityManager() instanceof OgnlSecurityManager) {
-            throw new SecurityException("the OGNL expressions maximum allowed length is not accessible inside expression itself!");
-        }
         if (expressionMaxLengthFrozen) {
             throw new IllegalStateException("The OGNL expression maximum allowed length has been frozen and cannot be changed.");
         }
@@ -97,9 +93,6 @@ public abstract class Ognl {
      * @since 3.1.26
      */
     public static synchronized void freezeExpressionMaxLength() {
-        if (System.getSecurityManager() instanceof OgnlSecurityManager) {
-            throw new SecurityException("Freezing the OGNL expressions maximum allowed length is not accessible inside expression itself!");
-        }
         Ognl.expressionMaxLengthFrozen = Boolean.TRUE;
     }
 
@@ -111,9 +104,6 @@ public abstract class Ognl {
      * @since 3.1.26
      */
     public static synchronized void thawExpressionMaxLength() {
-        if (System.getSecurityManager() instanceof OgnlSecurityManager) {
-            throw new SecurityException("Thawing the OGNL expressions maximum allowed length is not accessible inside expression itself!");
-        }
         Ognl.expressionMaxLengthFrozen = Boolean.FALSE;
     }
 
