@@ -16,8 +16,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
 
         <public.serverId>ossrh</public.serverId>
         <public.nexusUrl>https://oss.sonatype.org</public.nexusUrl>
@@ -29,14 +29,14 @@
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
     </properties>
 
-    <inceptionYear>2022</inceptionYear>
+    <inceptionYear>2025</inceptionYear>
 
     <url>https://github.com/orphan-oss/ognl/orphan/ognl/</url>
 
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -176,7 +176,7 @@
                             <compress>true</compress>
                             <index>true</index>
                         </archive>
-                        <source>1.8</source>
+                        <source>17</source>
                         <links>
                             <link>https://docs.oracle.com/javase/8/docs/api/</link>
                         </links>
@@ -269,10 +269,8 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <argLine>
-                                --illegal-access=permit
                                 --add-opens java.base/java.lang=ALL-UNNAMED
                                 --add-opens java.base/java.util=ALL-UNNAMED
-                                -Dillegal-access=permit
                             </argLine>
                         </configuration>
                     </plugin>
@@ -318,10 +316,8 @@
                         <configuration>
                             <argLine>
                                 @{argLine}
-                                --illegal-access=permit
                                 --add-opens java.base/java.lang=ALL-UNNAMED
                                 --add-opens java.base/java.util=ALL-UNNAMED
-                                -Dillegal-access=permit
                             </argLine>
                         </configuration>
                     </plugin>

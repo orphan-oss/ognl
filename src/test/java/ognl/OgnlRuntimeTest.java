@@ -384,35 +384,6 @@ public class OgnlRuntimeTest {
     }
 
     /**
-     * Test OgnlRuntime value for _useJDK9PlusAccessHandler based on the System property
-     * represented by {@link OgnlRuntime#USE_JDK9PLUS_ACCESS_HANDLER}.
-     */
-    @Test
-    public void testAccessHanderStateFlag() {
-        // Ensure no exceptions, basic ouput for test report and sanity check on flag state.
-        final boolean defaultValue = false;          // Expected non-configured default
-        boolean optionDefinedInEnvironment = false;  // Track if option defined in environment
-        boolean flagValueFromEnvironment = false;    // Value result from environment retrieval
-        try {
-            final String propertyString = System.getProperty(OgnlRuntime.USE_JDK9PLUS_ACCESS_HANDLER);
-            if (propertyString != null && propertyString.length() > 0) {
-                optionDefinedInEnvironment = true;
-                flagValueFromEnvironment = Boolean.parseBoolean(propertyString);
-            }
-        } catch (Exception ex) {
-            // Unavailable (SecurityException, etc.)
-        }
-        if (optionDefinedInEnvironment) {
-            System.out.println("System property " + OgnlRuntime.USE_JDK9PLUS_ACCESS_HANDLER + " value: " + flagValueFromEnvironment);
-        } else {
-            System.out.println("System property " + OgnlRuntime.USE_JDK9PLUS_ACCESS_HANDLER + " not present.  Default value should be: " + defaultValue);
-        }
-        System.out.println("Current OGNL value for use JDK9+ Access Handler: " + OgnlRuntime.getUseJDK9PlusAccessHandlerValue());
-        Assert.assertEquals("Mismatch between system property (or default) and OgnlRuntime _usJDK9PlusAccessHandler flag state ?",
-                optionDefinedInEnvironment ? flagValueFromEnvironment : defaultValue, OgnlRuntime.getUseJDK9PlusAccessHandlerValue());
-    }
-
-    /**
      * Test OgnlRuntime value for _useStricterInvocation based on the System properties
      * represented by {@link OgnlRuntime#USE_STRICTER_INVOCATION}.
      */

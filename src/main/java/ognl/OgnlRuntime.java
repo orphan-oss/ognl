@@ -24,8 +24,6 @@ import ognl.internal.CacheException;
 import ognl.internal.entry.DeclaredMethodCacheEntry;
 import ognl.internal.entry.GenericMethodParameterTypeCacheEntry;
 import ognl.internal.entry.PermissionCacheEntry;
-import ognl.security.OgnlSecurityManagerFactory;
-import ognl.security.UserMethod;
 
 import java.beans.BeanInfo;
 import java.beans.IndexedPropertyDescriptor;
@@ -43,12 +41,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
-import java.security.AccessControlContext;
-import java.security.AccessController;
 import java.security.Permission;
-import java.security.Permissions;
-import java.security.PrivilegedActionException;
-import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -131,26 +124,6 @@ public class OgnlRuntime {
     private static final String NULL_OBJECT_STRING = "<null>";
 
     /**
-     * Control usage of JDK9+ access handler using the JVM option:
-     * -Dognl.UseJDK9PlusAccessHandler=true
-     * -Dognl.UseJDK9PlusAccessHandler=false
-     * <p>
-     * Note: Set to "true" to allow the new JDK9 and later behaviour, <b>provided a newer JDK9+
-     * is detected</b>.  By default the standard pre-JDK9 AccessHandler will be used even when
-     * running on JDK9+, so users must "opt-in" in order to enable the alternate JDK9+ AccessHandler.
-     * Using the JDK9PlusAccessHandler <b>may</b> avoid / mask JDK9+ warnings of the form:
-     * "WARNING: Illegal reflective access by ognl.OgnlRuntime"
-     * or provide an alternative  when running in environments set with "--illegal-access=deny".
-     * <p>
-     * Note:  The default behaviour is to use the standard pre-JDK9 access handler.
-     * Using the "false" value has the same effect as omitting the option completely.
-     * <p>
-     * Warning: Users are <b>strongly advised</b> to review their code and confirm they really
-     * need the AccessHandler modifying access levels, looking at alternatives to avoid that need.
-     */
-    static final String USE_JDK9PLUS_ACCESS_HANDLER = "ognl.UseJDK9PlusAccessHandler";
-
-    /**
      * Control usage of "stricter" invocation processing by invokeMethod() using the JVM options:
      * -Dognl.UseStricterInvocation=true
      * -Dognl.UseStricterInvocation=false
@@ -163,25 +136,6 @@ public class OgnlRuntime {
     static final String USE_STRICTER_INVOCATION = "ognl.UseStricterInvocation";
 
     /**
-     * Hold environment flag state associated with USE_JDK9PLUS_ACESS_HANDLER.
-     * Default: false (if not set)
-     */
-    private static final boolean _useJDK9PlusAccessHandler;
-
-    static {
-        boolean initialFlagState = false;
-        try {
-            final String propertyString = System.getProperty(USE_JDK9PLUS_ACCESS_HANDLER);
-            if (propertyString != null && propertyString.length() > 0) {
-                initialFlagState = Boolean.parseBoolean(propertyString);
-            }
-        } catch (Exception ex) {
-            // Unavailable (SecurityException, etc.)
-        }
-        _useJDK9PlusAccessHandler = initialFlagState;
-    }
-
-    /**
      * Hold environment flag state associated with USE_STRICTER_INVOCATION.
      * Default: true (if not set)
      */
@@ -191,7 +145,7 @@ public class OgnlRuntime {
         boolean initialFlagState = true;
         try {
             final String propertyString = System.getProperty(USE_STRICTER_INVOCATION);
-            if (propertyString != null && propertyString.length() > 0) {
+            if (propertyString != null && !propertyString.isEmpty()) {
                 initialFlagState = Boolean.parseBoolean(propertyString);
             }
         } catch (Exception ex) {
@@ -216,8 +170,7 @@ public class OgnlRuntime {
     private static final AccessibleObjectHandler _accessibleObjectHandler;
 
     static {
-        _accessibleObjectHandler = usingJDK9PlusAccessHandler() ? AccessibleObjectHandlerJDK9Plus.createHandler() :
-                AccessibleObjectHandlerPreJDK9.createHandler();
+        _accessibleObjectHandler = AccessibleObjectHandlerJDK9Plus.createHandler();
     }
 
     /**
@@ -286,46 +239,6 @@ public class OgnlRuntime {
     }
 
     /**
-     * Control usage of the OGNL Security Manager using the JVM option:
-     * -Dognl.security.manager=true  (or any non-null value other than 'disable')
-     * <p>
-     * Omit '-Dognl.security.manager=' or nullify the property to disable the feature.
-     * <p>
-     * To forcibly disable the feature (only possible at OGNL Library initialization, use the option:
-     * -Dognl.security.manager=forceDisableOnInit
-     * <p>
-     * Users that have their own Security Manager implementations and no intention to use the OGNL SecurityManager
-     * sandbox may choose to use the 'forceDisableOnInit' flag option for performance reasons (avoiding overhead
-     * involving the system property security checks - when that feature will not be used).
-     * @deprecated will removed in 3.5.x
-     */
-    @Deprecated
-    static final String OGNL_SECURITY_MANAGER = "ognl.security.manager";
-    static final String OGNL_SM_FORCE_DISABLE_ON_INIT = "forceDisableOnInit";
-
-    /**
-     * Hold environment flag state associated with OGNL_SECURITY_MANAGER.  See
-     * {@link OgnlRuntime#OGNL_SECURITY_MANAGER} for more details.
-     * Default: false (if not set).
-     * @deprecated will be removed in 3.5.x
-     */
-    @Deprecated
-    private static final boolean _disableOgnlSecurityManagerOnInit;
-
-    static {
-        boolean initialFlagState = false;
-        try {
-            final String propertyString = System.getProperty(OGNL_SECURITY_MANAGER);
-            if (propertyString != null && propertyString.length() > 0) {
-                initialFlagState = OGNL_SM_FORCE_DISABLE_ON_INIT.equalsIgnoreCase(propertyString);
-            }
-        } catch (Exception ex) {
-            // Unavailable (SecurityException, etc.)
-        }
-        _disableOgnlSecurityManagerOnInit = initialFlagState;
-    }
-
-    /**
      * Allow users to revert to the old "first match" lookup for getters/setters by OGNL using the JVM options:
      * -Dognl.UseFirstMatchGetSetLookup=true
      * -Dognl.UseFirstMatchGetSetLookup=false
@@ -347,7 +260,7 @@ public class OgnlRuntime {
         boolean initialFlagState = false;
         try {
             final String propertyString = System.getProperty(USE_FIRSTMATCH_GETSET_LOOKUP);
-            if (propertyString != null && propertyString.length() > 0) {
+            if (propertyString != null && !propertyString.isEmpty()) {
                 initialFlagState = Boolean.parseBoolean(propertyString);
             }
         } catch (Exception ex) {
@@ -361,11 +274,6 @@ public class OgnlRuntime {
     private static final PrimitiveTypes primitiveTypes = new PrimitiveTypes();
     private static final PrimitiveDefaults primitiveDefaults = new PrimitiveDefaults();
 
-    /**
-     * @deprecated will be removed in 3.5.x
-     */
-    @Deprecated
-    static SecurityManager securityManager = System.getSecurityManager();
     static final EvaluationPool _evaluationPool = new EvaluationPool();
 
     static final Map<Method, Boolean> _methodAccessCache = new ConcurrentHashMap<>();
@@ -527,6 +435,7 @@ public class OgnlRuntime {
      *
      * @return Return true if the Detected Major Java version is 9 or higher, otherwise false.
      */
+    @Deprecated(since = "3.5.0", forRemoval = true)
     public static boolean isJdk9Plus() {
         return _jdk9Plus;
     }
@@ -645,9 +554,7 @@ public class OgnlRuntime {
         if ((pad = HEX_PADDING.get(l)) == null) {
             StringBuilder pb = new StringBuilder();
 
-            for (int i = hex.length(); i < HEX_LENGTH; i++) {
-                pb.append('0');
-            }
+            pb.append("0".repeat(HEX_LENGTH - hex.length()));
             pad = new String(pb);
             HEX_PADDING.put(l, pad);
         }
@@ -746,28 +653,6 @@ public class OgnlRuntime {
     }
 
     /**
-     * Gets the SecurityManager that OGNL uses to determine permissions for invoking methods.
-     *
-     * @return SecurityManager for OGNL
-     * @deprecated will be removed in 3.5.x
-     */
-    @Deprecated
-    public static SecurityManager getSecurityManager() {
-        return securityManager;
-    }
-
-    /**
-     * Sets the SecurityManager that OGNL uses to determine permissions for invoking methods.
-     *
-     * @param value SecurityManager to set
-     * @deprecated will be removed in 3.5.x
-     */
-    @Deprecated
-    public static void setSecurityManager(SecurityManager value) {
-        securityManager = value;
-    }
-
-    /**
      * Permission will be named "invoke.&lt;declaring-class&gt;.&lt;method-name&gt;".
      *
      * @param method the Method whose Permission is being requested.
@@ -781,7 +666,6 @@ public class OgnlRuntime {
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException {
         boolean syncInvoke;
-        boolean checkPermission;
         Boolean methodAccessCacheValue;
         Boolean methodPermCacheValue;
 
@@ -827,24 +711,7 @@ public class OgnlRuntime {
             }
             syncInvoke = Boolean.TRUE.equals(methodAccessCacheValue);
 
-            methodPermCacheValue = _methodPermCache.get(method);
-            if (methodPermCacheValue == null) {
-                if (securityManager != null) {
-                    try {
-                        securityManager.checkPermission(getPermission(method));
-                        methodPermCacheValue = Boolean.TRUE;
-                        _methodPermCache.put(method, methodPermCacheValue);
-                    } catch (SecurityException ex) {
-                        methodPermCacheValue = Boolean.FALSE;
-                        _methodPermCache.put(method, methodPermCacheValue);
-                        throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-                    }
-                } else {
-                    methodPermCacheValue = Boolean.TRUE;
-                    _methodPermCache.put(method, methodPermCacheValue);
-                }
-            }
-            checkPermission = Boolean.FALSE.equals(methodPermCacheValue);
+            _methodPermCache.computeIfAbsent(method, k -> Boolean.TRUE);
         }
 
         Object result;
@@ -852,90 +719,18 @@ public class OgnlRuntime {
         if (syncInvoke) //if is not public and is not accessible
         {
             synchronized (method) {
-                if (checkPermission) {
-                    try {
-                        securityManager.checkPermission(getPermission(method));
-                    } catch (SecurityException ex) {
-                        throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-                    }
-                }
-
                 _accessibleObjectHandler.setAccessible(method, true);
                 try {
-                    result = invokeMethodInsideSandbox(target, method, argsArray);
+                    result = method.invoke(target, argsArray);
                 } finally {
                     _accessibleObjectHandler.setAccessible(method, false);
                 }
             }
         } else {
-            if (checkPermission) {
-                try {
-                    securityManager.checkPermission(getPermission(method));
-                } catch (SecurityException ex) {
-                    throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
-                }
-            }
-
-            result = invokeMethodInsideSandbox(target, method, argsArray);
+            result = method.invoke(target, argsArray);
         }
 
         return result;
-    }
-
-    private static Object invokeMethodInsideSandbox(Object target, Method method, Object[] argsArray)
-            throws InvocationTargetException, IllegalAccessException {
-
-        if (_disableOgnlSecurityManagerOnInit) {
-            return method.invoke(target, argsArray);  // Feature was disabled at OGNL initialization.
-        }
-
-        try {
-            if (System.getProperty(OGNL_SECURITY_MANAGER) == null) {
-                return method.invoke(target, argsArray);
-            }
-        } catch (SecurityException ignored) {
-            // already enabled or user has applied a policy that doesn't allow read property so we have to honor user's sandbox
-        }
-
-        if (ClassLoader.class.isAssignableFrom(method.getDeclaringClass())) {
-            // to support OgnlSecurityManager.isAccessDenied
-            throw new IllegalAccessException("OGNL direct access to class loader denied!");
-        }
-
-        // creating object before entering sandbox to load classes out of the sandbox
-        UserMethod userMethod = new UserMethod(target, method, argsArray);
-        Permissions p = new Permissions(); // not any permission
-        ProtectionDomain pd = new ProtectionDomain(null, p);
-        AccessControlContext acc = new AccessControlContext(new ProtectionDomain[]{pd});
-
-        Object ognlSecurityManager = OgnlSecurityManagerFactory.getOgnlSecurityManager();
-
-        Long token;
-        try {
-            token = (Long) ognlSecurityManager.getClass().getMethod("enter").invoke(ognlSecurityManager);
-        } catch (NoSuchMethodException e) {
-            throw new InvocationTargetException(e);
-        }
-        if (token == null) {
-            // user has applied a policy that doesn't allow setSecurityManager so we have to honor user's sandbox
-            return method.invoke(target, argsArray);
-        }
-
-        // execute user method body with all permissions denied
-        try {
-            return AccessController.doPrivileged(userMethod, acc);
-        } catch (PrivilegedActionException e) {
-            if (e.getException() instanceof InvocationTargetException) {
-                throw (InvocationTargetException) e.getException();
-            }
-            throw new InvocationTargetException(e);
-        } finally {
-            try {
-                ognlSecurityManager.getClass().getMethod("leave", long.class).invoke(ognlSecurityManager, token);
-            } catch (NoSuchMethodException e) {
-                throw new InvocationTargetException(e);
-            }
-        }
     }
 
     /**
@@ -1602,23 +1397,6 @@ public class OgnlRuntime {
     /**
      * Invokes the specified method against the target object.
      *
-     * @param context      The current execution context.
-     * @param target       The object to invoke the method on.
-     * @param methodName   Name of the method - as in "getValue" or "add", etc..
-     * @param propertyName Name of the property to call instead?
-     * @param args         Optional arguments needed for method.
-     * @return Result of invoking method.
-     * @throws OgnlException For lots of different reasons.
-     * @deprecated Use {@link #callMethod(OgnlContext, Object, String, Object[])} instead.
-     */
-    public static Object callMethod(OgnlContext context, Object target, String methodName, String propertyName, Object[] args)
-            throws OgnlException {
-        return callMethod(context, target, methodName == null ? propertyName : methodName, args);
-    }
-
-    /**
-     * Invokes the specified method against the target object.
-     *
      * @param context    The current execution context.
      * @param target     The object to invoke the method on.
      * @param methodName Name of the method - as in "getValue" or "add", etc..
@@ -1675,24 +1453,6 @@ public class OgnlRuntime {
     }
 
     /**
-     * Don't use this method as it doesn't check member access rights via {@link MemberAccess} interface
-     *
-     * @param context      the current execution context.
-     * @param target       the object to invoke the property name get on.
-     * @param propertyName the name of the property to be retrieved from target.
-     * @return the result invoking property retrieval of propertyName for target.
-     * @throws OgnlException          for lots of different reasons.
-     * @throws IllegalAccessException if access not permitted.
-     * @throws NoSuchMethodException  if no property accessor exists.
-     * @throws IntrospectionException on errors using {@link Introspector}.
-     */
-    @Deprecated
-    public static Object getMethodValue(OgnlContext context, Object target, String propertyName)
-            throws OgnlException, IllegalAccessException, NoSuchMethodException, IntrospectionException {
-        return getMethodValue(context, target, propertyName, false);
-    }
-
-    /**
      * If the checkAccessAndExistence flag is true this method will check to see if the method
      * exists and if it is accessible according to the context's MemberAccess. If neither test
      * passes this will return NotFound.
@@ -1742,11 +1502,6 @@ public class OgnlRuntime {
      * @return true if the operation succeeded, false otherwise.
      * @throws OgnlException for lots of different reasons.
      */
-    @Deprecated
-    public static boolean setMethodValue(OgnlContext context, Object target, String propertyName, Object value) throws OgnlException {
-        return setMethodValue(context, target, propertyName, value, false);
-    }
-
     public static boolean setMethodValue(OgnlContext context, Object target, String propertyName, Object value, boolean checkAccessAndExistence) throws OgnlException {
         boolean result = true;
         Method m = getSetMethod(context, (target == null) ? null : target.getClass(), propertyName);
@@ -1812,24 +1567,8 @@ public class OgnlRuntime {
                 && method.getDeclaringClass().isInterface();
     }
 
-    /*
-     * @deprecated use {@link #getMethods(Class, boolean)} directly
-     */
-    @Deprecated
-    public static Map<String, List<Method>> getAllMethods(Class<?> targetClass, boolean staticMethods) {
-        return getMethods(targetClass, staticMethods);
-    }
-
     public static List<Method> getMethods(Class<?> targetClass, String name, boolean staticMethods) {
         return getMethods(targetClass, staticMethods).get(name);
-    }
-
-    /*
-     * @deprecated use {@link #getMethods(Class, String, boolean)} directly
-     */
-    @Deprecated
-    public static List<Method> getAllMethods(Class<?> targetClass, String name, boolean staticMethods) {
-        return getAllMethods(targetClass, staticMethods).get(name);
     }
 
     public static Map<String, Field> getFields(Class<?> targetClass) {
@@ -1862,12 +1601,6 @@ public class OgnlRuntime {
      * @return the result invoking field retrieval of propertyName for target.
      * @throws NoSuchFieldException if the field does not exist.
      */
-    @Deprecated
-    public static Object getFieldValue(OgnlContext context, Object target, String propertyName)
-            throws NoSuchFieldException {
-        return getFieldValue(context, target, propertyName, false);
-    }
-
     public static Object getFieldValue(OgnlContext context, Object target, String propertyName,
                                        boolean checkAccessAndExistence)
             throws NoSuchFieldException {
@@ -1908,15 +1641,9 @@ public class OgnlRuntime {
     /**
      * Don't use this method as it doesn't check member access rights via {@link MemberAccess} interface
      */
-    @Deprecated
-    public static boolean setFieldValue(OgnlContext context, Object target, String propertyName, Object value) throws OgnlException {
-        return setFieldValue(context, target, propertyName, value, false);
-    }
-
     public static boolean setFieldValue(OgnlContext context, Object target, String propertyName, Object value,
                                         boolean checkAccessAndExistence)
-            throws OgnlException
-    {
+            throws OgnlException {
         boolean result = false;
 
         try {
@@ -2418,11 +2145,11 @@ public class OgnlRuntime {
             PropertyDescriptor pd = getPropertyDescriptor((source == null) ? null : source.getClass(), name);
             Method m;
 
-            if (pd instanceof IndexedPropertyDescriptor) {
-                m = ((IndexedPropertyDescriptor) pd).getIndexedReadMethod();
+            if (pd instanceof IndexedPropertyDescriptor ipd) {
+                m = ipd.getIndexedReadMethod();
             } else {
-                if (pd instanceof ObjectIndexedPropertyDescriptor) {
-                    m = ((ObjectIndexedPropertyDescriptor) pd).getIndexedReadMethod();
+                if (pd instanceof ObjectIndexedPropertyDescriptor oipd) {
+                    m = oipd.getIndexedReadMethod();
                 } else {
                     throw new OgnlException("property '" + name + "' is not an indexed property");
                 }
@@ -2445,11 +2172,11 @@ public class OgnlRuntime {
             PropertyDescriptor pd = getPropertyDescriptor((source == null) ? null : source.getClass(), name);
             Method m;
 
-            if (pd instanceof IndexedPropertyDescriptor) {
-                m = ((IndexedPropertyDescriptor) pd).getIndexedWriteMethod();
+            if (pd instanceof IndexedPropertyDescriptor ipd) {
+                m = ipd.getIndexedWriteMethod();
             } else {
-                if (pd instanceof ObjectIndexedPropertyDescriptor) {
-                    m = ((ObjectIndexedPropertyDescriptor) pd).getIndexedWriteMethod();
+                if (pd instanceof ObjectIndexedPropertyDescriptor oipd) {
+                    m = oipd.getIndexedWriteMethod();
                 } else {
                     throw new OgnlException("property '" + name + "' is not an indexed property");
                 }
@@ -2844,7 +2571,7 @@ public class OgnlRuntime {
             source = cast + source;
         }
 
-        if (source == null || source.trim().length() < 1)
+        if (source == null || source.trim().isEmpty())
             source = "null";
 
         return source;
@@ -2948,19 +2675,19 @@ public class OgnlRuntime {
      * Should support naming conventions of pre-JDK9 and JDK9+.
      * See <a href="https://openjdk.java.net/jeps/223">JEP 223: New Version-String Scheme</a> for details.
      *
-     * @return Detected Major Java Version, or 5 (minimum supported version for OGNL) if unable to detect.
+     * @return Detected Major Java Version, or 17 (minimum supported version for OGNL) if unable to detect.
      * @since 3.1.25
      */
     static int parseMajorJavaVersion(String versionString) {
         int majorVersion = -1;
         try {
-            if (versionString != null && versionString.length() > 0) {
+            if (versionString != null && !versionString.isEmpty()) {
                 final String[] sections = versionString.split("[.\\-+]");
                 final int firstSection;
                 final int secondSection;
                 if (sections.length > 0) {  // Should not happen, guard anyway
-                    if (sections[0].length() > 0) {
-                        if (sections.length > 1 && sections[1].length() > 0) {
+                    if (!sections[0].isEmpty()) {
+                        if (sections.length > 1 && !sections[1].isEmpty()) {
                             firstSection = Integer.parseInt(sections[0]);
                             if (sections[1].matches("\\d+")) {
                                 secondSection = Integer.parseInt(sections[1]);
@@ -2983,23 +2710,10 @@ public class OgnlRuntime {
             // Unavailable (NumberFormatException, etc.)
         }
         if (majorVersion == -1) {
-            majorVersion = 5;  // Return minimum supported Java version for OGNL
+            majorVersion = 17;  // Return minimum supported Java version for OGNL
         }
 
         return majorVersion;
-    }
-
-    /**
-     * Returns the value of the flag indicating whether the JDK9+ access handler has been
-     * been requested (it can then be used if the Major Java Version number is 9+).
-     * <p>
-     * Note: Value is controlled by a Java option flag {@link OgnlRuntime#USE_JDK9PLUS_ACCESS_HANDLER}.
-     *
-     * @return true if a request to use the JDK9+ access handler is requested, false otherwise (always use pre-JDK9 handler).
-     * @since 3.1.25
-     */
-    public static boolean getUseJDK9PlusAccessHandlerValue() {
-        return _useJDK9PlusAccessHandler;
     }
 
     /**
@@ -3013,35 +2727,6 @@ public class OgnlRuntime {
      */
     public static boolean getUseStricterInvocationValue() {
         return _useStricterInvocation;
-    }
-
-    /**
-     * Returns the value of the flag indicating whether the OGNL SecurityManager was disabled
-     * on initialization or not.
-     * <p>
-     * Note: Value is controlled by a Java option flag {@link OgnlRuntime#OGNL_SECURITY_MANAGER} using
-     * the value {@link OgnlRuntime#OGNL_SM_FORCE_DISABLE_ON_INIT}.
-     *
-     * @return true if OGNL SecurityManager was disabled on initialization, false otherwise.
-     * @since 3.1.25
-     * @deprecated will be removed in 3.5.x
-     */
-    @Deprecated
-    public static boolean getDisableOgnlSecurityManagerOnInitValue() {
-        return _disableOgnlSecurityManagerOnInit;
-    }
-
-    /**
-     * Returns an indication as to whether the current state indicates the
-     * JDK9+ (9 and later) access handler is being used / should be used.  This
-     * is based on a combination of the detected Major Java Version and the
-     * Java option flag {@link OgnlRuntime#USE_JDK9PLUS_ACCESS_HANDLER}.
-     *
-     * @return true if the JDK9 and later access handler is being used / should be used, false otherwise.
-     * @since 3.1.25
-     */
-    public static boolean usingJDK9PlusAccessHandler() {
-        return (_jdk9Plus && _useJDK9PlusAccessHandler);
     }
 
     /**
@@ -3061,9 +2746,9 @@ public class OgnlRuntime {
      * Returns true if the given member is accessible or can be made accessible
      * by this object.
      *
-     * @param context the current execution context.
-     * @param target the Object to test accessibility for.
-     * @param member the Member to test accessibility for.
+     * @param context      the current execution context.
+     * @param target       the Object to test accessibility for.
+     * @param member       the Member to test accessibility for.
      * @param propertyName the property to test accessibility for.
      * @return true if the target/member/propertyName is accessible in the context, false otherwise.
      */
