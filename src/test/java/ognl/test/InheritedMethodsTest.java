@@ -18,7 +18,6 @@
  */
 package ognl.test;
 
-import junit.framework.TestCase;
 import ognl.DefaultMemberAccess;
 import ognl.Node;
 import ognl.Ognl;
@@ -27,15 +26,19 @@ import ognl.test.objects.BaseBean;
 import ognl.test.objects.FirstBean;
 import ognl.test.objects.Root;
 import ognl.test.objects.SecondBean;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests functionality of casting inherited method expressions.
  */
-public class InheritedMethodsTest extends TestCase {
+class InheritedMethodsTest {
 
     private static final Root ROOT = new Root();
 
-    public void test_Base_Inheritance() throws Exception {
+    @Test
+    void test_Base_Inheritance() throws Exception {
         OgnlContext context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
         String expression = "map.bean.name";
         BaseBean first = new FirstBean();

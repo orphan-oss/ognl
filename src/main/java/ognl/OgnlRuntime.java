@@ -658,16 +658,15 @@ public class OgnlRuntime {
      * @param method the Method whose Permission is being requested.
      * @return the Permission for method named "invoke.&lt;declaring-class&gt;.&lt;method-name&gt;".
      */
+    @Deprecated(since = "3.5.0", forRemoval = true)
     public static Permission getPermission(Method method) throws CacheException {
-        PermissionCacheEntry key = new PermissionCacheEntry(method);
-        return cache.getInvokePermission(key);
+        return null;
     }
 
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException {
         boolean syncInvoke;
         Boolean methodAccessCacheValue;
-        Boolean methodPermCacheValue;
 
         if (_useStricterInvocation) {
             final Class<?> methodDeclaringClass = method.getDeclaringClass();  // Note: synchronized(method) call below will already NPE, so no null check.

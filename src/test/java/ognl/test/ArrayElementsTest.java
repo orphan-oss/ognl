@@ -18,112 +18,95 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
-import ognl.TypeConverter;
+import ognl.Ognl;
+import ognl.OgnlContext;
+import ognl.OgnlException;
 import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-public class ArrayElementsTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static String[] STRING_ARRAY = new String[]{"hello", "world"};
-    private static int[] INT_ARRAY = new int[]{10, 20};
-    private static Root ROOT = new Root();
+class ArrayElementsTest {
 
-    private static Object[][] TESTS = {
-            // Array elements test
-            {STRING_ARRAY, "length", new Integer(2)},
-            {STRING_ARRAY, "#root[1]", "world"},
-            {INT_ARRAY, "#root[1]", new Integer(20)},
-            {INT_ARRAY, "#root[1]", new Integer(20), "50", new Integer(50)},
-            {INT_ARRAY, "#root[1]", new Integer(50), new String[]{"50", "100"}, new Integer(50)},
-            {ROOT, "intValue", new Integer(0), new String[]{"50", "100"}, new Integer(50)},
-            {ROOT, "array", ROOT.getArray(), new String[]{"50", "100"}, new int[]{50, 100}},
-            {null, "\"{Hello}\".toCharArray()[6]", new Character('}')},
-            {null, "\"Tapestry\".toCharArray()[2]", new Character('p')},
-            {null, "{'1','2','3'}", Arrays.asList(new Object[]{new Character('1'), new Character('2'), new Character('3')})},
-            {null, "{ true, !false }", Arrays.asList(new Boolean[]{Boolean.TRUE, Boolean.TRUE})}
-    };
+    private Root root;
+    private int[] intArray;
+    private String[] stringArray;
 
-    /*
-     * =================================================================== Private static methods
-     * ===================================================================
-     */
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
+    private OgnlContext rootContext;
+    private OgnlContext intArrayContext;
+    private OgnlContext stringArrayContext;
 
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new ArrayElementsTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new ArrayElementsTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                            TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new ArrayElementsTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        root = new Root();
+        rootContext = Ognl.createDefaultContext(root);
+
+        intArray = new int[]{10, 20};
+        intArrayContext = Ognl.createDefaultContext(intArray);
+
+        stringArray = new String[]{"hello", "world"};
+        stringArrayContext = Ognl.createDefaultContext(stringArray);
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public ArrayElementsTest() {
-        super();
+    @Test
+    void stringArrayLength() throws OgnlException {
+        assertEquals(2, Ognl.getValue("length", stringArrayContext, stringArray));
     }
 
-    public ArrayElementsTest(String name) {
-        super(name);
+    @Test
+    void stringArrayElement() throws OgnlException {
+        assertEquals("world", Ognl.getValue("#root[1]", stringArrayContext, stringArray));
     }
 
-    public ArrayElementsTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-                             Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void intArrayElement() throws OgnlException {
+        assertEquals(20, Ognl.getValue("#root[1]", intArrayContext, intArray));
     }
 
-    public ArrayElementsTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void intArrayElementAfterSet() throws OgnlException {
+        Ognl.setValue("#root[1]", intArrayContext, intArray, 50);
+        assertEquals(50, Ognl.getValue("#root[1]", intArrayContext, intArray));
     }
 
-    public ArrayElementsTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void intArrayElementAfterSetWithString() throws OgnlException {
+        Ognl.setValue("#root[1]", intArrayContext, intArray, "50");
+        assertEquals(50, Ognl.getValue("#root[1]", intArrayContext, intArray));
     }
 
-    /*
-     * =================================================================== Overridden methods
-     * ===================================================================
-     */
-    protected void setUp() {
-        TypeConverter arrayConverter;
+    @Test
+    void rootIntValueAfterSetWithString() throws OgnlException {
+        Ognl.setValue("intValue", rootContext, root, "50");
+        assertEquals(50, Ognl.getValue("intValue", rootContext, root));
+    }
 
-        super.setUp();
-        /**
-         arrayConverter = new DefaultTypeConverter() {
+    @Test
+    void rootArrayAfterSetWithStringArray() throws OgnlException {
+        Ognl.setValue("array", rootContext, root, new String[]{"50", "100"});
+        assertEquals(Arrays.toString(new int[]{50, 100}), Arrays.toString((int[]) Ognl.getValue("array", rootContext, root)));
+    }
 
-         public Object convertValue(Map context, Object target, Member member, String propertyName, Object value,
-         Class toType)
-         {
-         if (value.getClass().isArray()) {
-         if (!toType.isArray()) {
-         value = Array.get(value, 0);
-         }
-         }
-         return super.convertValue(context, target, member, propertyName, value, toType);
-         }
-         };
-         _context.setTypeConverter(arrayConverter); */
+    @Test
+    void charArrayElement() throws OgnlException {
+        assertEquals('}', Ognl.getValue("\"{Hello}\".toCharArray()[6]", rootContext, root));
+    }
+
+    @Test
+    void charArrayElementFromString() throws OgnlException {
+        assertEquals('p', Ognl.getValue("\"Tapestry\".toCharArray()[2]", rootContext, root));
+    }
+
+    @Test
+    void charArray() throws OgnlException {
+        assertEquals(Arrays.asList('1', '2', '3'), Ognl.getValue("{'1','2','3'}", rootContext, root));
+    }
+
+    @Test
+    void booleanArray() throws OgnlException {
+        assertEquals(Arrays.asList(true, true), Ognl.getValue("{ true, !false }", rootContext, root));
     }
 }

@@ -18,43 +18,26 @@
  */
 package ognl.test;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import ognl.DefaultMemberAccess;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.OgnlRuntime;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-/**
- * This is a test program for private access in OGNL.
- * Shows the failures and a summary.
- */
-public class PrivateMemberTest extends TestCase {
-    private static String _privateStaticProperty = "private static value";
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class PrivateMemberTest {
+
+    private static final String _privateStaticProperty = "private static value";
     private String _privateProperty = "private value";
     private final String _privateFinalProperty = "private final value";
     private static final String _privateStaticFinalProperty = "private static final value";
-    protected OgnlContext context;
 
+    private OgnlContext context;
 
-    /*===================================================================
-        Public static methods
-      ===================================================================*/
-    public static TestSuite suite() {
-        return new TestSuite(PrivateMemberTest.class);
-    }
-
-    /*===================================================================
-        Constructors
-      ===================================================================*/
-    public PrivateMemberTest(String name) {
-        super(name);
-    }
-
-    /*===================================================================
-        Private methods
-      ===================================================================*/
     private String getPrivateProperty() {
         return _privateProperty;
     }
@@ -71,258 +54,313 @@ public class PrivateMemberTest extends TestCase {
         return _privateStaticFinalProperty;
     }
 
-    /*===================================================================
-      Public methods
-      ===================================================================*/
-    public void testPrivateAccessor() throws OgnlException {
-        assertEquals(Ognl.getValue("privateProperty", context, this), getPrivateProperty());
+    @BeforeEach
+    void setUp() {
+        context = Ognl.createDefaultContext(this, new DefaultMemberAccess(true, false, false));
     }
 
-    public void testPrivateField() throws OgnlException {
-        assertEquals(Ognl.getValue("_privateProperty", context, this), _privateProperty);
+    @Test
+    void testPrivateAccessor() throws OgnlException {
+        Object actual = Ognl.getValue("privateProperty", context, this);
+        assertEquals(getPrivateProperty(), actual);
     }
 
-    public void testPrivateFinalAccessor() throws OgnlException {
-        assertEquals(Ognl.getValue("privateFinalProperty", context, this), getPrivateFinalProperty());
+    @Test
+    void testPrivateField() throws OgnlException {
+        Object actual = Ognl.getValue("_privateProperty", context, this);
+        assertEquals(_privateProperty, actual);
     }
 
-    public void testPrivateFinalField() throws OgnlException {
-        assertEquals(Ognl.getValue("_privateFinalProperty", context, this), _privateFinalProperty);
+    @Test
+    void testPrivateFinalAccessor() throws OgnlException {
+        Object actual = Ognl.getValue("privateFinalProperty", context, this);
+        assertEquals(getPrivateFinalProperty(), actual);
     }
 
-    public void testPrivateStaticAccessor() throws OgnlException {
-        // Test following PR#59/PR#60 (MemberAccess support private static field).
-        assertEquals(Ognl.getValue("privateStaticProperty", context, this), getPrivateStaticProperty());
-        // Succeeds due to calling the static getter to retrieve it.
+    @Test
+    void testPrivateFinalField() throws OgnlException {
+        Object actual = Ognl.getValue("_privateFinalProperty", context, this);
+        assertEquals(_privateFinalProperty, actual);
     }
 
-    public void testPrivateStaticFieldNormalAccess() throws OgnlException {
-        // Test following PR#59/PR#60 (MemberAccess support private static field).
+    @Test
+    void testPrivateStaticAccessor() throws OgnlException {
+        Object actual = Ognl.getValue("privateStaticProperty", context, this);
+        assertEquals(getPrivateStaticProperty(), actual);
+    }
+
+    @Test
+    void testPrivateStaticFieldNormalAccess() {
         try {
-            assertEquals(Ognl.getValue("_privateStaticProperty", context, this), _privateStaticProperty);
+            Object actual = Ognl.getValue("_privateStaticProperty", context, this);
+            assertEquals(_privateStaticProperty, actual);
             fail("Should not be able to access private static _privateStaticProperty through getValue()");
         } catch (OgnlException oex) {
-            // Fails as test attempts to access a static field using non-static getValue
+            assertEquals("_privateStaticProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateStaticFieldStaticAccess() throws OgnlException {
-        // Test following PR#59/PR#60 (MemberAccess support private static field).
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticProperty"), _privateStaticProperty);
-        // Only succeeds due to directly using the runtime to access the field as a static field.
+    @Test
+    void testPrivateStaticFieldStaticAccess() throws OgnlException {
+        Object actual = OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticProperty");
+        assertEquals(_privateStaticProperty, actual);
     }
 
-    public void testPrivateStaticFinalAccessor() throws OgnlException {
-        assertEquals(Ognl.getValue("privateStaticFinalProperty", context, this), getPrivateStaticFinalProperty());
-        // Succeeds due to calling the static getter to retrieve it.
+    @Test
+    void testPrivateStaticFinalAccessor() throws OgnlException {
+        Object actual = Ognl.getValue("privateStaticFinalProperty", context, this);
+        assertEquals(actual, getPrivateStaticFinalProperty());
     }
 
-    public void testPrivateStaticFinalFieldNormalAccess() throws OgnlException {
+    @Test
+    void testPrivateStaticFinalFieldNormalAccess() {
         try {
-            assertEquals(Ognl.getValue("_privateStaticFinalProperty", context, this), _privateStaticFinalProperty);
+            Object actual = Ognl.getValue("_privateStaticFinalProperty", context, this);
+            assertEquals(_privateStaticFinalProperty, actual);
             fail("Should not be able to access private static _privateStaticFinalProperty through getValue()");
         } catch (OgnlException oex) {
-            // Fails as test attempts to access a static field using non-static getValue
+            assertEquals("_privateStaticFinalProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateStaticFinalFieldStaticAccess() throws OgnlException {
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticFinalProperty"), _privateStaticFinalProperty);
-        // Only succeeds due to directly using the runtime to access the field as a static field.
+    @Test
+    void testPrivateStaticFinalFieldStaticAccess() throws OgnlException {
+        Object actual = OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticFinalProperty");
+        assertEquals(_privateStaticFinalProperty, actual);
     }
 
-    public void testPrivateFieldSet() throws OgnlException {
+    @Test
+    void testPrivateFieldSet() throws OgnlException {
         final String originalValue = _privateProperty;
-        assertEquals(Ognl.getValue("_privateProperty", context, this), originalValue);
+        Object actual = Ognl.getValue("_privateProperty", context, this);
+        assertEquals(originalValue, actual);
+
         Ognl.setValue("_privateProperty", context, this, "changevalue");
-        assertEquals(Ognl.getValue("_privateProperty", context, this), "changevalue");
+
+        actual = Ognl.getValue("_privateProperty", context, this);
+        assertEquals("changevalue", actual);
+
         Ognl.setValue("_privateProperty", context, this, originalValue);
-        assertEquals(Ognl.getValue("_privateProperty", context, this), originalValue);
+
+        actual = Ognl.getValue("_privateProperty", context, this);
+        assertEquals(actual, originalValue);
     }
 
-    public void testPrivateFinalFieldSet() throws OgnlException {
+    @Test
+    void testPrivateFinalFieldSet() throws OgnlException {
         final String originalValue = _privateFinalProperty;
-        assertEquals(Ognl.getValue("_privateFinalProperty", context, this), originalValue);
+
+        Object actual = Ognl.getValue("_privateFinalProperty", context, this);
+        assertEquals(originalValue, actual);
+
         try {
             Ognl.setValue("_privateFinalProperty", context, this, "changevalue");
             fail("Should not be able to modify final property");
         } catch (OgnlException oex) {
-            // Fails as test attempts to modify a final property
+            assertEquals("ognl.test.PrivateMemberTest._privateFinalProperty", oex.getMessage());
         }
-        assertEquals(Ognl.getValue("_privateFinalProperty", context, this), originalValue);
+
+        actual = Ognl.getValue("_privateFinalProperty", context, this);
+        assertEquals(originalValue, actual);
     }
 
-    public void testPrivateStaticFieldSet() throws OgnlException {
+    @Test
+    void testPrivateStaticFieldSet() throws OgnlException {
         final String originalValue = _privateStaticProperty;
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticProperty"), originalValue);
+
+        Object actual = OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticProperty");
+        assertEquals(originalValue, actual);
+
         try {
             Ognl.setValue("_privateStaticProperty", context, this, "changevalue");
             fail("Should not be able to modify static property");
         } catch (OgnlException oex) {
-            // Fails as test attempts to modify a static property
+            assertEquals("ognl.test.PrivateMemberTest._privateStaticProperty", oex.getMessage());
         }
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticProperty"), originalValue);
+
+        actual = OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticProperty");
+        assertEquals(originalValue, actual);
     }
 
-    public void testPrivateStaticFinalFieldSet() throws OgnlException {
+    @Test
+    void testPrivateStaticFinalFieldSet() throws OgnlException {
         final String originalValue = _privateStaticFinalProperty;
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticFinalProperty"), originalValue);
+
+        Object actual = OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticFinalProperty");
+        assertEquals(originalValue, actual);
+
         try {
             Ognl.setValue("_privateStaticFinalProperty", context, this, "changevalue");
             fail("Should not be able to modify static property");
         } catch (OgnlException oex) {
-            // Fails as test attempts to modify a static property
+            assertEquals("ognl.test.PrivateMemberTest._privateStaticFinalProperty", oex.getMessage());
         }
-        assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticFinalProperty"), originalValue);
+
+        actual = OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticFinalProperty");
+        assertEquals(originalValue, actual);
     }
 
-    public void testPrivateFieldSetFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+    @Test
+    void testPrivateFieldSetFail() {
+        context = Ognl.createDefaultContext(this, new DefaultMemberAccess(false, true, true), null, null);
         try {
             Ognl.setValue("_privateProperty", context, this, "changevalue");
             fail("Should not be able to set private property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to set a private field with private access turned off
+            assertEquals("ognl.test.PrivateMemberTest._privateProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateFinalFieldSetFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+    @Test
+    void testPrivateFinalFieldSetFail() {
+        context = Ognl.createDefaultContext(this, new DefaultMemberAccess(false, true, true), null, null);
         try {
             Ognl.setValue("_privateFinalProperty", context, this, "changevalue");
             fail("Should not be able to set private property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to set a private field with private access turned off
+            assertEquals("ognl.test.PrivateMemberTest._privateFinalProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateStaticFieldSetFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+    @Test
+    void testPrivateStaticFieldSetFail() {
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true));
         try {
             Ognl.setValue("_privateStaticProperty", context, this, "changevalue");
             fail("Should not be able to set private property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to set a private field with private access turned off
+            assertEquals("ognl.test.PrivateMemberTest._privateStaticProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateStaticFinalFieldSetFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+    @Test
+    void testPrivateStaticFinalFieldSetFail() {
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true));
         try {
             Ognl.setValue("_privateStaticFinalProperty", context, this, "changevalue");
             fail("Should not be able to set private property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to set a private field with private access turned off
+            assertEquals("ognl.test.PrivateMemberTest._privateStaticFinalProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateAccessorFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+    @Test
+    void testPrivateAccessorFail() {
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true));
         try {
-            assertEquals(Ognl.getValue("privateProperty", context, this), getPrivateProperty());
+            Object actual = Ognl.getValue("privateProperty", context, this);
+            assertEquals(actual, getPrivateProperty());
             fail("Should not be able to access private property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to access a private accessor with private access turned off
+            assertEquals("ognl.test.PrivateMemberTest.privateProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateFieldFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+    @Test
+    void testPrivateFieldFail() {
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true));
         try {
-            assertEquals(Ognl.getValue("_privateProperty", context, this), _privateProperty);
+            Object actual = Ognl.getValue("_privateProperty", context, this);
+            assertEquals(actual, _privateProperty);
             fail("Should not be able to access private property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to access a private accessor with private access turned off
+            assertEquals("ognl.test.PrivateMemberTest._privateProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateFinalAccessorFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+    @Test
+    void testPrivateFinalAccessorFail() {
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true));
         try {
-            assertEquals(Ognl.getValue("privateFinalProperty", context, this), getPrivateFinalProperty());
+            Object actual = Ognl.getValue("privateFinalProperty", context, this);
+            assertEquals(actual, getPrivateFinalProperty());
             fail("Should not be able to access private final property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to access a private final accessor with private access turned off
+            assertEquals("ognl.test.PrivateMemberTest.privateFinalProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateFinalFieldFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+    @Test
+    void testPrivateFinalFieldFail() {
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true));
         try {
-            assertEquals(Ognl.getValue("_privateFinalProperty", context, this), _privateFinalProperty);
+            Object actual = Ognl.getValue("_privateFinalProperty", context, this);
+            assertEquals(actual, _privateFinalProperty);
             fail("Should not be able to access private final property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to access a private field with private access turned off
+            assertEquals("ognl.test.PrivateMemberTest._privateFinalProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateStaticAccessorFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
-        // Test following PR#59/PR#60 (MemberAccess support private static field).
+    @Test
+    void testPrivateStaticAccessorFail() {
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true));
         try {
-            assertEquals(Ognl.getValue("privateStaticProperty", context, this), getPrivateStaticProperty());
+            Object actual = Ognl.getValue("privateStaticProperty", context, this);
+            assertEquals(actual, getPrivateStaticProperty());
             fail("Should not be able to access private static property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to access a private accessor with private access turned off
+            assertEquals("ognl.test.PrivateMemberTest.privateStaticProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateStaticFieldNormalAccessFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
-        // Test following PR#59/PR#60 (MemberAccess support private static field).
+    @Test
+    void testPrivateStaticFieldNormalAccessFail() {
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true));
         try {
-            assertEquals(Ognl.getValue("_privateStaticProperty", context, this), _privateStaticProperty);
+            Object actual = Ognl.getValue("_privateStaticProperty", context, this);
+            assertEquals(_privateStaticProperty, actual);
             fail("Should not be able to access private static property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to access a private accessor with private access turned off
+            assertEquals("ognl.test.PrivateMemberTest._privateStaticProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateStaticFieldStaticAccessFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
-        // Test following PR#59/PR#60 (MemberAccess support private static field).
+    @Test
+    void testPrivateStaticFieldStaticAccessFail() {
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true));
         try {
-            assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticProperty"), _privateStaticProperty);
+            Object actual = OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticProperty");
+            assertEquals(_privateStaticProperty, actual);
             fail("Should not be able to access private static property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to access a private accessor with private access turned off
+            assertEquals("Could not get static field _privateStaticProperty from class ognl.test.PrivateMemberTest", oex.getMessage());
         }
     }
 
-    public void testPrivateStaticFinalAccessorFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+    @Test
+    void testPrivateStaticFinalAccessorFail() {
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true));
         try {
-            assertEquals(Ognl.getValue("privateStaticFinalProperty", context, this), getPrivateStaticFinalProperty());
+            Object actual = Ognl.getValue("privateStaticFinalProperty", context, this);
+            assertEquals(actual, getPrivateStaticFinalProperty());
             fail("Should not be able to access private static final property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to access a private accessor with private access turned off
+            assertEquals("ognl.test.PrivateMemberTest.privateStaticFinalProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateStaticFinalFieldNormalAccessFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+    @Test
+    void testPrivateStaticFinalFieldNormalAccessFail() {
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true));
         try {
-            assertEquals(Ognl.getValue("_privateStaticFinalProperty", context, this), _privateStaticFinalProperty);
+            Object actual = Ognl.getValue("_privateStaticFinalProperty", context, this);
+            assertEquals(_privateStaticFinalProperty, actual);
             fail("Should not be able to access private static final property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to access a private final field with private access turned off
+            assertEquals("ognl.test.PrivateMemberTest._privateStaticFinalProperty", oex.getMessage());
         }
     }
 
-    public void testPrivateStaticFinalFieldStaticAccessFail() throws OgnlException {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true), null, null);  // Prevent private access
+    @Test
+    void testPrivateStaticFinalFieldStaticAccessFail() {
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false, true, true));
         try {
-            assertEquals(OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticFinalProperty"), _privateStaticFinalProperty);
+            Object actual = OgnlRuntime.getStaticField(context, this.getClass().getName(), "_privateStaticFinalProperty");
+            assertEquals(_privateStaticFinalProperty, actual);
             fail("Should not be able to access private static final property with private access turned off");
         } catch (OgnlException oex) {
-            // Fails as test attempts to access a private field with private access turned off
+            assertEquals("Could not get static field _privateStaticFinalProperty from class ognl.test.PrivateMemberTest", oex.getMessage());
         }
-    }
-
-    /*===================================================================
-        Overridden methods
-      ===================================================================*/
-    public void setUp() {
-        context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(true, false, false), null, null);  // Permit private access, prevent protected and package access
     }
 }

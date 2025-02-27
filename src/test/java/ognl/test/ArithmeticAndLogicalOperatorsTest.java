@@ -18,281 +18,188 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
+import ognl.OgnlException;
+import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
-public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    public enum EnumNoBody {ENUM1, ENUM2;}
+class ArithmeticAndLogicalOperatorsTest {
 
-    ;  // Basic enumeration
+    private OgnlContext context;
+    private Root root;
 
-    public enum EnumEmptyBody {ENUM1 {}, ENUM2 {};}
+    @BeforeEach
+    void setUp() {
+        context = Ognl.createDefaultContext(null);
+        context.put("x", "1");
+        context.put("y", new BigDecimal(1));
 
-    ;  // Enumeration whose elements have (empty) bodies
-
-    public enum EnumBasicBody {
-        ENUM1 {
-            public final Integer value() {
-                return Integer.valueOf(10);
-            }
-        },
-        ENUM2 {
-            public final Integer value() {
-                return Integer.valueOf(20);
-            }
-        };
+        root = new Root();
     }
 
-    ;  // Enumeration whose elements have bodies
-    protected static final String FULLY_QUALIFIED_CLASSNAME = ArithmeticAndLogicalOperatorsTest.class.getName();
-
-    private static Object[][] TESTS = {
-            // Double-valued arithmetic expressions
-            {"-1d", new Double(-1)},
-            {"+1d", new Double(1)},
-            {"--1f", new Double(1)},
-            {"2*2.0", new Double(4.0)},
-            {"5/2.", new Double(2.5)},
-            {"5+2D", new Double(7)},
-            {"5f-2F", new Double(3.0)},
-            {"5.+2*3", new Double(11)},
-            {"(5.+2)*3", new Double(21)},
-
-            // BigDecimal-valued arithmetic expressions
-            {"-1b", new Integer(-1)},
-            {"+1b", new Integer(1)},
-            {"--1b", new Integer(1)},
-            {"2*2.0b", new Double(4.0)},
-            {"5/2.B", new Integer(2)},
-            {"5.0B/2", new Double(2.5)},
-            {"5+2b", new Integer(7)},
-            {"5-2B", new Integer(3)},
-            {"5.+2b*3", new Double(11)},
-            {"(5.+2b)*3", new Double(21)},
-
-            // Integer-valued arithmetic expressions
-            {"-1", new Integer(-1)},
-            {"+1", new Integer(1)},
-            {"--1", new Integer(1)},
-            {"2*2", new Integer(4)},
-            {"5/2", new Integer(2)},
-            {"5+2", new Integer(7)},
-            {"5-2", new Integer(3)},
-            {"5+2*3", new Integer(11)},
-            {"(5+2)*3", new Integer(21)},
-            {"~1", new Integer(~1)},
-            {"5%2", new Integer(1)},
-            {"5<<2", new Integer(20)},
-            {"5>>2", new Integer(1)},
-            {"5>>1+1", new Integer(1)},
-            {"-5>>>2", new Integer(-5 >>> 2)},
-            {"-5L>>>2", new Long(-5L >>> 2)},
-            {"5. & 3", new Long(1)},
-            {"5 ^3", new Integer(6)},
-            {"5l&3|5^3", new Long(7)},
-            {"5&(3|5^3)", new Long(5)},
-            {"true ? 1 : 1/0", new Integer(1)},
-
-            // BigInteger-valued arithmetic expressions
-            {"-1h", Integer.valueOf(-1)},
-            {"+1H", Integer.valueOf(1)},
-            {"--1h", Integer.valueOf(1)},
-            {"2h*2", Integer.valueOf(4)},
-            {"5/2h", Integer.valueOf(2)},
-            {"5h+2", Integer.valueOf(7)},
-            {"5-2h", Integer.valueOf(3)},
-            {"5+2H*3", Integer.valueOf(11)},
-            {"(5+2H)*3", Integer.valueOf(21)},
-            {"~1h", Integer.valueOf(~1)},
-            {"5h%2", Integer.valueOf(1)},
-            {"5h<<2", Integer.valueOf(20)},
-            {"5h>>2", Integer.valueOf(1)},
-            {"5h>>1+1", Integer.valueOf(1)},
-            {"-5h>>>2", Integer.valueOf(-2)},
-            {"5.b & 3", new Long(1)},
-            {"5h ^3", Integer.valueOf(6)},
-            {"5h&3|5^3", new Long(7)},
-            {"5H&(3|5^3)", new Long(5)},
-
-            // Logical expressions
-            {"!1", Boolean.FALSE},
-            {"!null", Boolean.TRUE},
-            {"5<2", Boolean.FALSE},
-            {"5>2", Boolean.TRUE},
-            {"5<=5", Boolean.TRUE},
-            {"5>=3", Boolean.TRUE},
-            {"5<-5>>>2", Boolean.TRUE},
-            {"5==5.0", Boolean.TRUE},
-            {"5!=5.0", Boolean.FALSE},
-            {"null in {true,false,null}", Boolean.TRUE},
-            {"null not in {true,false,null}", Boolean.FALSE},
-            {"null in {true,false,null}.toArray()", Boolean.TRUE},
-            {"5 in {true,false,null}", Boolean.FALSE},
-            {"5 not in {true,false,null}", Boolean.TRUE},
-            {"5 instanceof java.lang.Integer", Boolean.TRUE},
-            {"5. instanceof java.lang.Integer", Boolean.FALSE},
-            {"!false || true", Boolean.TRUE},
-            {"!(true && true)", Boolean.FALSE},
-            {"(1 > 0 && true) || 2 > 0", Boolean.TRUE},
-
-            // Logical expressions (string versions)
-            {"2 or 0", Integer.valueOf(2)},
-            {"1 and 0", Integer.valueOf(0)},
-            {"1 bor 0", new Integer(1)},
-            {"true && 12", Integer.valueOf(12)},
-            {"1 xor 0", new Integer(1)}, {"1 band 0", new Long(0)}, {"1 eq 1", Boolean.TRUE},
-            {"1 neq 1", Boolean.FALSE}, {"1 lt 5", Boolean.TRUE}, {"1 lte 5", Boolean.TRUE},
-            {"1 gt 5", Boolean.FALSE}, {"1 gte 5", Boolean.FALSE}, {"1 lt 5", Boolean.TRUE},
-            {"1 shl 2", new Integer(4)}, {"4 shr 2", new Integer(1)}, {"4 ushr 2", new Integer(1)},
-            {"not null", Boolean.TRUE}, {"not 1", Boolean.FALSE},
-
-            // Equality on identity; Object does not implement Comparable
-            {"#a = new java.lang.Object(), #a == #a", Boolean.TRUE},
-            {"#a = new java.lang.Object(), #b = new java.lang.Object(), #a == #b", Boolean.FALSE},
-
-            // Comparable and non-Comparable
-            {"#a = new java.lang.Object(), #a == ''", Boolean.FALSE},
-            {"#a = new java.lang.Object(), '' == #a", Boolean.FALSE},
-
-            {"#x > 0", Boolean.TRUE},
-            {"#x < 0", Boolean.FALSE},
-            {"#x == 0", Boolean.FALSE},
-            {"#x == 1", Boolean.TRUE},
-            {"0 > #x", Boolean.FALSE},
-            {"0 < #x", Boolean.TRUE},
-            {"0 == #x", Boolean.FALSE},
-            {"1 == #x", Boolean.TRUE},
-            {"\"1\" > 0", Boolean.TRUE},
-            {"\"1\" < 0", Boolean.FALSE},
-            {"\"1\" == 0", Boolean.FALSE},
-            {"\"1\" == 1", Boolean.TRUE},
-            {"0 > \"1\"", Boolean.FALSE},
-            {"0 < \"1\"", Boolean.TRUE},
-            {"0 == \"1\"", Boolean.FALSE},
-            {"1 == \"1\"", Boolean.TRUE},
-            {"#x + 1", "11"},
-            {"1 + #x", "11"},
-            {"#y == 1", Boolean.TRUE},
-            {"#y == \"1\"", Boolean.TRUE},
-            {"#y + \"1\"", "11"},
-            {"\"1\" + #y", "11"},
-
-            // Enumerated type equality and inequality comparisons (with and without element bodies, reversing order for completeness).
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", Boolean.TRUE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", Boolean.FALSE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", Boolean.TRUE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", Boolean.FALSE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", Boolean.TRUE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", Boolean.FALSE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", Boolean.TRUE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", Boolean.FALSE},
-
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", Boolean.TRUE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", Boolean.FALSE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", Boolean.TRUE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", Boolean.FALSE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", Boolean.TRUE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", Boolean.FALSE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", Boolean.TRUE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", Boolean.FALSE},
-
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", Boolean.TRUE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", Boolean.FALSE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", Boolean.TRUE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", Boolean.FALSE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", Boolean.TRUE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", Boolean.FALSE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", Boolean.TRUE},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", Boolean.FALSE},
-
-            // As per JDK JavaDocs it is only possible to compare Enum elements of the same type.  Attempting to compare different types
-            //   will normally result in ClassCastExceptions.  However, OGNL should avoid that and produce an IllegalArgumentException instead.
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", IllegalArgumentException.class},
-
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumNoBody@ENUM2", IllegalArgumentException.class},
-
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM2", IllegalArgumentException.class},
-
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM1", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 == @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", IllegalArgumentException.class},
-            {"@" + FULLY_QUALIFIED_CLASSNAME + "$EnumBasicBody@ENUM1 != @" + FULLY_QUALIFIED_CLASSNAME + "$EnumEmptyBody@ENUM2", IllegalArgumentException.class}
-    };
-
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new ArithmeticAndLogicalOperatorsTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", null,
-                    (String) TESTS[i][0], TESTS[i][1]));
-        }
-        return result;
+    @Test
+    void doubleValuedArithmeticExpressions() throws OgnlException {
+        assertEquals(-1d, Ognl.getValue("-1d", context, root));
+        assertEquals(1d, Ognl.getValue("+1d", context, root));
+        assertEquals(1f, Ognl.getValue("--1f", context, root));
+        assertEquals(4.0d, Ognl.getValue("2*2.0", context, root));
+        assertEquals(2.5d, Ognl.getValue("5/2.", context, root));
+        assertEquals(7d, Ognl.getValue("5+2D", context, root));
+        assertEquals(3.0f, Ognl.getValue("5f-2F", context, root));
+        assertEquals(11d, Ognl.getValue("5.+2*3", context, root));
+        assertEquals(21d, Ognl.getValue("(5.+2)*3", context, root));
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public ArithmeticAndLogicalOperatorsTest() {
-        super();
+    @Test
+    void bigDecimalValuedArithmeticExpressions() throws OgnlException {
+        assertEquals(BigDecimal.valueOf(-1), Ognl.getValue("-1b", context, root));
+        assertEquals(BigDecimal.valueOf(1), Ognl.getValue("+1b", context, root));
+        assertEquals(BigDecimal.valueOf(1), Ognl.getValue("--1b", context, root));
+        assertEquals(BigDecimal.valueOf(4.0), Ognl.getValue("2*2.0b", context, root));
+        assertEquals(BigDecimal.valueOf(2), Ognl.getValue("5/2.B", context, root));
+        assertEquals(BigDecimal.valueOf(2.5), Ognl.getValue("5.0B/2", context, root));
+        assertEquals(BigDecimal.valueOf(7), Ognl.getValue("5+2b", context, root));
+        assertEquals(BigDecimal.valueOf(3), Ognl.getValue("5-2B", context, root));
+        assertEquals(BigDecimal.valueOf(11d), Ognl.getValue("5.+2b*3", context, root));
+        assertEquals(BigDecimal.valueOf(21d), Ognl.getValue("(5.+2b)*3", context, root));
     }
 
-    public ArithmeticAndLogicalOperatorsTest(String name) {
-        super(name);
+    @Test
+    void integerValuedArithmeticExpressions() throws OgnlException {
+        assertEquals(-1, Ognl.getValue("-1", context, root));
+        assertEquals(1, Ognl.getValue("+1", context, root));
+        assertEquals(1, Ognl.getValue("--1", context, root));
+        assertEquals(4, Ognl.getValue("2*2", context, root));
+        assertEquals(2, Ognl.getValue("5/2", context, root));
+        assertEquals(7, Ognl.getValue("5+2", context, root));
+        assertEquals(3, Ognl.getValue("5-2", context, root));
+        assertEquals(11, Ognl.getValue("5+2*3", context, root));
+        assertEquals(21, Ognl.getValue("(5+2)*3", context, root));
+        assertEquals(~1, Ognl.getValue("~1", context, root));
+        assertEquals(1, Ognl.getValue("5%2", context, root));
+        assertEquals(20, Ognl.getValue("5<<2", context, root));
+        assertEquals(1, Ognl.getValue("5>>2", context, root));
+        assertEquals(1, Ognl.getValue("5>>1+1", context, root));
+        assertEquals(-5 >>> 2, Ognl.getValue("-5>>>2", context, root));
+        assertEquals(-5L >>> 2, Ognl.getValue("-5L>>>2", context, root));
+        assertEquals(1.0, Ognl.getValue("5. & 3", context, root));
+        assertEquals(6, Ognl.getValue("5 ^3", context, root));
+        assertEquals(7L, Ognl.getValue("5l&3|5^3", context, root));
+        assertEquals(5, Ognl.getValue("5&(3|5^3)", context, root));
+        assertEquals(1, Ognl.getValue("true ? 1 : 1/0", context, root));
     }
 
-    public ArithmeticAndLogicalOperatorsTest(String name, Object root, String expressionString, Object expectedResult,
-                                             Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void bigIntegerValuedArithmeticExpressions() throws OgnlException {
+        assertEquals(BigInteger.valueOf(-1), Ognl.getValue("-1h", context, root));
+        assertEquals(BigInteger.valueOf(1), Ognl.getValue("+1H", context, root));
+        assertEquals(BigInteger.valueOf(1), Ognl.getValue("--1h", context, root));
+        assertEquals(BigInteger.valueOf(4), Ognl.getValue("2h*2", context, root));
+        assertEquals(BigInteger.valueOf(2), Ognl.getValue("5/2h", context, root));
+        assertEquals(BigInteger.valueOf(7), Ognl.getValue("5h+2", context, root));
+        assertEquals(BigInteger.valueOf(3), Ognl.getValue("5-2h", context, root));
+        assertEquals(BigInteger.valueOf(11), Ognl.getValue("5+2H*3", context, root));
+        assertEquals(BigInteger.valueOf(21), Ognl.getValue("(5+2H)*3", context, root));
+        assertEquals(BigInteger.valueOf(~1), Ognl.getValue("~1h", context, root));
+        assertEquals(BigInteger.valueOf(1), Ognl.getValue("5h%2", context, root));
+        assertEquals(BigInteger.valueOf(20), Ognl.getValue("5h<<2", context, root));
+        assertEquals(BigInteger.valueOf(1), Ognl.getValue("5h>>2", context, root));
+        assertEquals(BigInteger.valueOf(1), Ognl.getValue("5h>>1+1", context, root));
+        assertEquals(BigInteger.valueOf(-2), Ognl.getValue("-5h>>>2", context, root));
+        assertEquals(BigInteger.valueOf(1L), Ognl.getValue("5.b & 3", context, root));
+        assertEquals(BigInteger.valueOf(6), Ognl.getValue("5h ^3", context, root));
+        assertEquals(BigInteger.valueOf(7L), Ognl.getValue("5h&3|5^3", context, root));
+        assertEquals(BigInteger.valueOf(5L), Ognl.getValue("5H&(3|5^3)", context, root));
     }
 
-    public ArithmeticAndLogicalOperatorsTest(String name, Object root, String expressionString, Object expectedResult,
-                                             Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void logicalExpressions() throws OgnlException {
+        assertEquals(Boolean.FALSE, Ognl.getValue("!1", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("!null", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("5<2", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("5>2", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("5<=5", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("5>=3", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("5<-5>>>2", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("5==5.0", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("5!=5.0", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("null in {true,false,null}", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("null not in {true,false,null}", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("null in {true,false,null}.toArray()", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("5 in {true,false,null}", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("5 not in {true,false,null}", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("5 instanceof java.lang.Integer", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("5. instanceof java.lang.Integer", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("!false || true", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("!(true && true)", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("(1 > 0 && true) || 2 > 0", context, root));
     }
 
-    public ArithmeticAndLogicalOperatorsTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void logicalExpressionsStringVersions() throws OgnlException {
+        assertEquals(Integer.valueOf(2), Ognl.getValue("2 or 0", context, root));
+        assertEquals(Integer.valueOf(0), Ognl.getValue("1 and 0", context, root));
+        assertEquals(Integer.valueOf(1), Ognl.getValue("1 bor 0", context, root));
+        assertEquals(Integer.valueOf(12), Ognl.getValue("true && 12", context, root));
+        assertEquals(Integer.valueOf(1), Ognl.getValue("1 xor 0", context, root));
+        assertEquals(0, Ognl.getValue("1 band 0", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("1 eq 1", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("1 neq 1", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("1 lt 5", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("1 lte 5", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("1 gt 5", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("1 gte 5", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("1 lt 5", context, root));
+        assertEquals(Integer.valueOf(4), Ognl.getValue("1 shl 2", context, root));
+        assertEquals(Integer.valueOf(1), Ognl.getValue("4 shr 2", context, root));
+        assertEquals(Integer.valueOf(1), Ognl.getValue("4 ushr 2", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("not null", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("not 1", context, root));
     }
 
-    /*
-     * =================================================================== Overridden methods
-     * ===================================================================
-     */
-    protected void setUp() {
-        super.setUp();
-        _context.put("x", "1");
-        _context.put("y", new BigDecimal(1));
+    @Test
+    void equalityOnIdentity() throws OgnlException {
+        assertEquals(Boolean.TRUE, Ognl.getValue("#a = new java.lang.Object(), #a == #a", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("#a = new java.lang.Object(), #b = new java.lang.Object(), #a == #b", context, root));
     }
+
+    @Test
+    void comparableAndNonComparable() throws OgnlException {
+        assertEquals(Boolean.FALSE, Ognl.getValue("#a = new java.lang.Object(), #a == ''", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("#a = new java.lang.Object(), '' == #a", context, root));
+    }
+
+    @Test
+    void expressionsWithVariables() throws OgnlException {
+        assertEquals(Boolean.TRUE, Ognl.getValue("#x > 0", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("#x < 0", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("#x == 0", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("#x == 1", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("0 > #x", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("0 < #x", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("0 == #x", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("1 == #x", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("\"1\" > 0", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("\"1\" < 0", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("\"1\" == 0", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("\"1\" == 1", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("0 > \"1\"", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("0 < \"1\"", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("0 == \"1\"", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("1 == \"1\"", context, root));
+        assertEquals("11", Ognl.getValue("#x + 1", context, root));
+        assertEquals("11", Ognl.getValue("1 + #x", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("#y == 1", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("#y == \"1\"", context, root));
+        assertEquals("11", Ognl.getValue("#y + \"1\"", context, root));
+        assertEquals("11", Ognl.getValue("\"1\" + #y", context, root));
+    }
+
 }

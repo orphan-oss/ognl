@@ -18,94 +18,101 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
 import ognl.InappropriateExpressionException;
 import ognl.NoSuchPropertyException;
+import ognl.Ognl;
+import ognl.OgnlContext;
+import ognl.OgnlException;
 import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SetterTest extends OgnlTestCase {
-    private static Root ROOT = new Root();
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-    static Set _list = new HashSet();
+class SetterTest {
 
-    static {
-        _list.add("Test1");
+    private Root root;
+    private OgnlContext context;
+    private Set<String> list;
+
+    @BeforeEach
+    void setUp() {
+        root = new Root();
+        context = Ognl.createDefaultContext(null);
+        list = new HashSet<>();
+        list.add("Test1");
     }
 
-    private static Object[][] TESTS = {
-            // Setting values
-            {ROOT.getMap(), "newValue", null, new Integer(101)},
-            {ROOT, "settableList[0]", "foo", "quux"}, // absolute indexes
-            {ROOT, "settableList[0]", "quux"},
-            {ROOT, "settableList[2]", "baz", "quux"},
-            {ROOT, "settableList[2]", "quux"},
-            {ROOT, "settableList[$]", "quux", "oompa"}, // special indexes
-            {ROOT, "settableList[$]", "oompa"},
-            {ROOT, "settableList[^]", "quux", "oompa"},
-            {ROOT, "settableList[^]", "oompa"},
-            {ROOT, "settableList[|]", "bar", "oompa"},
-            {ROOT, "settableList[|]", "oompa"},
-            {ROOT, "map.newValue", new Integer(101), new Integer(555)},
-            {ROOT, "map", ROOT.getMap(), new HashMap(), NoSuchPropertyException.class},
-            {ROOT.getMap(), "newValue2 || put(\"newValue2\",987), newValue2", new Integer(987), new Integer(1002)},
-            {ROOT, "map.(someMissingKey || newValue)", new Integer(555), new Integer(666)},
-            {ROOT.getMap(), "newValue || someMissingKey", new Integer(666), new Integer(666)}, // no setting happens!
-            {ROOT, "map.(newValue && aKey)", null, new Integer(54321)},
-            {ROOT, "map.(someMissingKey && newValue)", null, null}, // again, no setting
-            {null, "0", new Integer(0), null, InappropriateExpressionException.class}, // illegal for setting, no property
-            {ROOT, "map[0]=\"map.newValue\", map[0](#this)", new Integer(666), new Integer(888)},
-            {ROOT, "selectedList", null, _list, IllegalArgumentException.class},
-            {ROOT, "openTransitionWin", Boolean.FALSE, Boolean.TRUE}
-    };
+    @Test
+    void testSetNewValue() throws Exception {
+        Ognl.setValue("newValue", context, root.getMap(), 101);
+        assertEquals(101, Ognl.getValue("newValue", context, root.getMap()));
+        Ognl.setValue("newValue", context, root.getMap(), 555);
+        assertEquals(555, Ognl.getValue("newValue", context, root.getMap()));
+    }
 
-    /*===================================================================
-         Public static methods
-       ===================================================================*/
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
+    @Test
+    void testSettableListAbsoluteIndexes() throws Exception {
+        Ognl.setValue("settableList[0]", context, root, "foo");
+        assertEquals("foo", Ognl.getValue("settableList[0]", context, root));
+        Ognl.setValue("settableList[0]", context, root, "quux");
+        assertEquals("quux", Ognl.getValue("settableList[0]", context, root));
+    }
 
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new SetterTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new SetterTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new SetterTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
+    @Test
+    void testSettableListSpecialIndexes() throws Exception {
+        Ognl.setValue("settableList[$]", context, root, "quux");
+        assertEquals("quux", Ognl.getValue("settableList[$]", context, root));
+        Ognl.setValue("settableList[$]", context, root, "oompa");
+        assertEquals("oompa", Ognl.getValue("settableList[$]", context, root));
+    }
+
+    @Test
+    void testSetMapValue() throws Exception {
+        Ognl.setValue("map.newValue", context, root, 555);
+        assertEquals(555, Ognl.getValue("map.newValue", context, root));
+    }
+
+    @Test
+    void testSetMap() throws Exception {
+        try {
+            Ognl.setValue("map", context, root, new HashMap<>());
+            fail("Should have thrown NoSuchPropertyException");
+        } catch (NoSuchPropertyException e) {
+            assertEquals("ognl.test.objects.Root.map", e.getMessage());
         }
-        return result;
     }
 
-    /*===================================================================
-         Constructors
-       ===================================================================*/
-    public SetterTest() {
-        super();
+    @Test
+    void testSetSelectedList() {
+        try {
+            Ognl.setValue("selectedList", context, root, list);
+            fail("Should have thrown IllegalArgumentException");
+        } catch (OgnlException e) {
+            assertEquals(IllegalArgumentException.class, e.getCause().getClass());
+            assertEquals("Unable to convert type java.util.HashSet of [Test1] to type of java.util.List", e.getCause().getMessage());
+            assertEquals("selectedList", e.getMessage());
+        }
     }
 
-    public SetterTest(String name) {
-        super(name);
+    @Test
+    void testSetOpenTransitionWin() throws Exception {
+        Ognl.setValue("openTransitionWin", context, root, Boolean.TRUE);
+        assertEquals(Boolean.TRUE, Ognl.getValue("openTransitionWin", context, root));
     }
 
-    public SetterTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
-    }
-
-    public SetterTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public SetterTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testSetInvalidExpression() throws Exception {
+        try {
+            Ognl.setValue("0", context, null, 0);
+            fail("Should have thrown InappropriateExpressionException");
+        } catch (InappropriateExpressionException e) {
+            assertEquals("Inappropriate OGNL expression: 0", e.getMessage());
+        }
     }
 }

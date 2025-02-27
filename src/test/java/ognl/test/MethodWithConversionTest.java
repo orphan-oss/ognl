@@ -18,75 +18,68 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.Simple;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class MethodWithConversionTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static Simple SIMPLE = new Simple();
+class MethodWithConversionTest {
 
-    private static Object[][] TESTS = {
-            // Method call with conversion
-            {SIMPLE, "setValues(new Integer(10), \"10.56\", new Double(34.225))", null},
-            {SIMPLE, "stringValue", "10"},
-            {SIMPLE, "stringValue", "10", new Character('x'), "x"},
-            {SIMPLE, "setStringValue('x')", null}, // set by calling setStringValue() directly
-            {SIMPLE, "floatValue", new Float(10.56)},
-            {SIMPLE, "getValueIsTrue(rootValue)", Boolean.TRUE},
-            {SIMPLE, "messages.format('Testing', one, two, three)", "blah"}
-    };
+    private Simple simple;
+    private OgnlContext context;
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new MethodWithConversionTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new MethodWithConversionTest((String) TESTS[i][1], TESTS[i][0],
-                            (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new MethodWithConversionTest((String) TESTS[i][1], TESTS[i][0],
-                                (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        simple = new Simple();
+        context = Ognl.createDefaultContext(simple);
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public MethodWithConversionTest() {
-        super();
+    @Test
+    void testSetValues() throws Exception {
+        Ognl.getValue("setValues(10, \"10.56\", 34.225D)", context, simple);
+        assertEquals("10", simple.getStringValue());
+        assertEquals(10.56F, simple.getFloatValue());
+        assertEquals(34, simple.getIntValue());
     }
 
-    public MethodWithConversionTest(String name) {
-        super(name);
+    @Test
+    void testStringValue() throws Exception {
+        Ognl.getValue("setValues(10, \"10.56\", 34.225D)", context, simple);
+        assertEquals("10", Ognl.getValue("stringValue", context, simple));
+        assertEquals(10.56F, Ognl.getValue("floatValue", context, simple));
+        assertEquals(34, Ognl.getValue("intValue", context, simple));
     }
 
-    public MethodWithConversionTest(String name, Object root, String expressionString, Object expectedResult,
-                                    Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testStringValueWithChar() throws Exception {
+        Ognl.setValue("stringValue", context, simple, 'x');
+        assertEquals("x", Ognl.getValue("stringValue", context, simple));
     }
 
-    public MethodWithConversionTest(String name, Object root, String expressionString, Object expectedResult,
-                                    Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void testSetStringValue() throws Exception {
+        Ognl.getValue("setStringValue('x')", context, simple);
+        assertEquals("x", Ognl.getValue("stringValue", context, simple));
     }
 
-    public MethodWithConversionTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testFloatValue() throws Exception {
+        Ognl.getValue("setValues(10, \"10.56\", 34.225D)", context, simple);
+        assertEquals(10.56f, Ognl.getValue("floatValue", context, simple));
+    }
+
+    @Test
+    void testGetValueIsTrue() throws Exception {
+        Object actual = Ognl.getValue("getValueIsTrue(rootValue)", context, simple);
+        assertEquals(Boolean.TRUE, actual);
+    }
+
+    @Test
+    void testMessagesFormat() throws Exception {
+        Object actual = Ognl.getValue("messages.format('Testing', one, two, three)", context, simple);
+        assertEquals("blah", actual);
     }
 }
