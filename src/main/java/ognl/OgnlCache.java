@@ -31,9 +31,7 @@ import ognl.internal.entry.GenericMethodParameterTypeCacheEntry;
 import ognl.internal.entry.GenericMethodParameterTypeFactory;
 import ognl.internal.entry.MethodAccessCacheEntryFactory;
 import ognl.internal.entry.MethodAccessEntryValue;
-import ognl.internal.entry.MethodPermCacheEntryFactory;
 import ognl.internal.entry.PermissionCacheEntry;
-import ognl.internal.entry.PermissionCacheEntryFactory;
 import ognl.internal.entry.PropertyDescriptorCacheEntryFactory;
 
 import java.beans.PropertyDescriptor;
@@ -135,9 +133,6 @@ public class OgnlCache {
     private final Cache<DeclaredMethodCacheEntry, Map<String, List<Method>>> methodCache =
             cacheFactory.createCache(new DeclaredMethodCacheEntryFactory());
 
-    private final Cache<PermissionCacheEntry, Permission> invokePermissionCache =
-            cacheFactory.createCache(new PermissionCacheEntryFactory());
-
     private final ClassCache<Map<String, Field>> fieldCache =
             cacheFactory.createClassCache(new FieldCacheEntryFactory());
 
@@ -152,11 +147,6 @@ public class OgnlCache {
 
     private final Cache<Method, MethodAccessEntryValue> methodAccessCache =
             cacheFactory.createCache(new MethodAccessCacheEntryFactory());
-
-    private final MethodPermCacheEntryFactory methodPermCacheEntryFactory =
-            new MethodPermCacheEntryFactory(System.getSecurityManager());
-
-    private final Cache<Method, Boolean> methodPermCache = cacheFactory.createCache(methodPermCacheEntryFactory);
 
     public Class<?>[] getMethodParameterTypes(Method method) throws CacheException {
         return methodParameterTypesCache.get(method);
@@ -182,8 +172,9 @@ public class OgnlCache {
         return propertyDescriptorCache.get(clazz);
     }
 
+    @Deprecated(since = "3.5", forRemoval = true)
     public Permission getInvokePermission(PermissionCacheEntry permissionCacheEntry) throws CacheException {
-        return invokePermissionCache.get(permissionCacheEntry);
+        return null;
     }
 
     public MethodAccessor getMethodAccessor(Class<?> clazz) throws OgnlException {
@@ -219,9 +210,6 @@ public class OgnlCache {
     public void setClassCacheInspector(ClassCacheInspector inspector) {
         propertyDescriptorCache.setClassInspector(inspector);
         constructorCache.setClassInspector(inspector);
-        //TODO: methodCache and invokePC should allow to use classCacheInsecptor
-//        _methodCache.setClassInspector( inspector );
-//        _invokePermissionCache.setClassInspector( inspector );
         fieldCache.setClassInspector(inspector);
     }
 
@@ -229,8 +217,9 @@ public class OgnlCache {
         return genericMethodParameterTypesCache.get(key);
     }
 
+    @Deprecated(since = "3.5", forRemoval = true)
     public boolean getMethodPerm(Method method) throws CacheException {
-        return methodPermCache.get(method);
+        return true;
     }
 
     public MethodAccessEntryValue getMethodAccess(Method method) throws CacheException {
@@ -244,7 +233,6 @@ public class OgnlCache {
         genericMethodParameterTypesCache.clear();
         constructorCache.clear();
         methodCache.clear();
-        invokePermissionCache.clear();
         fieldCache.clear();
         methodAccessCache.clear();
     }
@@ -271,10 +259,6 @@ public class OgnlCache {
 
     public void setNullHandler(Class<?> clazz, NullHandler handler) {
         nullHandlers.put(clazz, handler);
-    }
-
-    public void setSecurityManager(SecurityManager securityManager) {
-        methodPermCacheEntryFactory.setSecurityManager(securityManager);
     }
 
 }

@@ -18,63 +18,34 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class QuotingTest extends OgnlTestCase {
-    private static Object[][] TESTS = {
-            // Quoting
-            {null, "`c`", new Character('c')},
-            {null, "'s'", new Character('s')},
-            {null, "'string'", "string"},
-            {null, "\"string\"", "string"},
-            {null, "'' + 'bar'", "bar"},
-            {null, "'yyyy年MM月dd日'", "yyyy年MM月dd日"}
-    };
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    /*===================================================================
-         Public static methods
-       ===================================================================*/
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
+class QuotingTest {
 
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new QuotingTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new QuotingTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new QuotingTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    private OgnlContext context;
+
+    @BeforeEach
+    void setUp() {
+        context = Ognl.createDefaultContext(null);
     }
 
-    /*===================================================================
-         Constructors
-       ===================================================================*/
-    public QuotingTest() {
-        super();
+    @Test
+    void testCharacterQuoting() throws Exception {
+        assertEquals('c', Ognl.getValue("'c'", context, (Object) null));
+        assertEquals('s', Ognl.getValue("'s'", context, (Object) null));
     }
 
-    public QuotingTest(String name) {
-        super(name);
+    @Test
+    void testStringQuoting() throws Exception {
+        assertEquals("string", Ognl.getValue("'string'", context, (Object) null));
+        assertEquals("string", Ognl.getValue("\"string\"", context, (Object) null));
+        assertEquals("bar", Ognl.getValue("'' + 'bar'", context, (Object) null));
+        assertEquals("yyyy年MM月dd日", Ognl.getValue("'yyyy年MM月dd日'", context, (Object) null));
     }
 
-    public QuotingTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
-    }
-
-    public QuotingTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public QuotingTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
-    }
 }

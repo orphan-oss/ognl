@@ -16,27 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package ognl;
+package ognl.test;
 
-import java.security.BasicPermission;
+import ognl.OgnlException;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
- * BasicPermission subclass that defines a permission token for invoking
- * methods within OGNL.  This does not override any methods (except
- * constructors) and does not implement actions.  It is similar in spirit
- * to the {@link java.lang.reflect.ReflectPermission} class in that it
- * guards access to methods.
+ * Tests {@link OgnlException}.
  */
-public class OgnlInvokePermission extends BasicPermission {
+class OgnlExceptionTest {
 
-    private static final long serialVersionUID = -1075128617667321761L;
-
-    public OgnlInvokePermission(String name) {
-        super(name);
+    @Test
+    void test_Throwable_Reason() {
+        try {
+            throwException();
+        } catch (OgnlException e) {
+            assertInstanceOf(NumberFormatException.class, e.getReason());
+            assertEquals("Unable to parse input string.", e.getMessage());
+        }
     }
 
-    public OgnlInvokePermission(String name, String actions) {
-        super(name, actions);
+    void throwException() throws OgnlException {
+        try {
+            Integer.parseInt("45ac");
+        } catch (NumberFormatException et) {
+            throw new OgnlException("Unable to parse input string.", et);
+        }
     }
 }
-

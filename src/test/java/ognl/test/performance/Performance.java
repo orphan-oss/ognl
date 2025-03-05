@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package ognl.test;
+package ognl.test.performance;
 
 import ognl.DefaultMemberAccess;
 import ognl.Ognl;
