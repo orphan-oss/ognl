@@ -46,47 +46,4 @@ public final class EvaluationPool {
         // synchronization is removed as we do not rely anymore on the in-house object pooling
         return new Evaluation(node, source, setOperation);
     }
-
-    /**
-     * Returns the number of items in the pool
-     *
-     * @return the size of the Evaluation pool (always 0).
-     * @deprecated object-pooling now relies on the jvm garbage collection
-     */
-    public int getSize() {
-        return 0;
-    }
-
-    /**
-     * Returns the number of items this pool has created since
-     * it's construction.
-     *
-     * @return the creation count for the Evaluation pool (always 0).
-     * @deprecated object-pooling now relies on the jvm garbage collection
-     */
-    public int getCreatedCount() {
-        return 0;
-    }
-
-    /**
-     * Returns the number of items this pool has recovered from
-     * the pool since its construction.
-     *
-     * @return the recovered count for the Evaluation pool (always 0).
-     * @deprecated object-pooling now relies on the jvm garbage collection
-     */
-    public int getRecoveredCount() {
-        return 0;
-    }
-
-    /**
-     * Returns the number of items this pool has recycled since
-     * it's construction.
-     *
-     * @return the recycled count for the Evaluation pool (always 0).
-     * @deprecated object-pooling now relies on the jvm garbage collection
-     */
-    public int getRecycledCount() {
-        return 0;
-    }
 }

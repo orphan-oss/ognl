@@ -30,10 +30,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Tests for {@link SimpleNode#isOperation(OgnlContext)}.
  */
-public class OperationTest {
+class OperationTest {
 
     @Test
-    public void test_isOperation() throws Exception {
+    void test_isOperation() throws Exception {
         OgnlContext context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
 
         SimpleNode node = (SimpleNode) Ognl.parseExpression("#name");
