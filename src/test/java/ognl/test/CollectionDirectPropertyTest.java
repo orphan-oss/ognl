@@ -18,87 +18,99 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-public class CollectionDirectPropertyTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static Root ROOT = new Root();
+class CollectionDirectPropertyTest {
 
-    private static Object[][] TESTS = {
-            // Collection direct properties
-            {Arrays.asList(new String[]{"hello", "world"}), "size", new Integer(2)},
-            {Arrays.asList(new String[]{"hello", "world"}), "isEmpty", Boolean.FALSE},
-            {Arrays.asList(new String[]{}), "isEmpty", Boolean.TRUE},
-            {Arrays.asList(new String[]{"hello", "world"}), "iterator.next", "hello"},
-            {Arrays.asList(new String[]{"hello", "world"}), "iterator.hasNext", Boolean.TRUE},
-            {Arrays.asList(new String[]{"hello", "world"}), "#it = iterator, #it.next, #it.next, #it.hasNext",
-                    Boolean.FALSE},
-            {Arrays.asList(new String[]{"hello", "world"}), "#it = iterator, #it.next, #it.next", "world"},
-            {Arrays.asList(new String[]{"hello", "world"}), "size", new Integer(2)},
-            {ROOT, "map[\"test\"]", ROOT},
-            {ROOT, "map.size", new Integer(ROOT.getMap().size())},
-            {ROOT, "map.keySet", ROOT.getMap().keySet()},
-            {ROOT, "map.values", ROOT.getMap().values()},
-            {ROOT, "map.keys.size", new Integer(ROOT.getMap().keySet().size())},
-            {ROOT, "map[\"size\"]", ROOT.getMap().get("size")},
-            {ROOT, "map.isEmpty", ROOT.getMap().isEmpty() ? Boolean.TRUE : Boolean.FALSE},
-            {ROOT, "map[\"isEmpty\"]", null},
-    };
+    private Root root;
+    private OgnlContext context;
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new CollectionDirectPropertyTest((String) TESTS[i][1], TESTS[i][0],
-                        (String) TESTS[i][1], TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new CollectionDirectPropertyTest((String) TESTS[i][1], TESTS[i][0],
-                            (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new CollectionDirectPropertyTest((String) TESTS[i][1], TESTS[i][0],
-                                (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        root = new Root();
+        context = Ognl.createDefaultContext(root);
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public CollectionDirectPropertyTest() {
-        super();
+    @Test
+    void testSize() throws Exception {
+        assertEquals(2, Ognl.getValue("size", context, Arrays.asList("hello", "world")));
     }
 
-    public CollectionDirectPropertyTest(String name) {
-        super(name);
+    @Test
+    void testIsEmptyFalse() throws Exception {
+        assertEquals(false, Ognl.getValue("isEmpty", context, Arrays.asList("hello", "world")));
     }
 
-    public CollectionDirectPropertyTest(String name, Object root, String expressionString, Object expectedResult,
-                                        Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testIsEmptyTrue() throws Exception {
+        assertEquals(true, Ognl.getValue("isEmpty", context, Arrays.asList()));
     }
 
-    public CollectionDirectPropertyTest(String name, Object root, String expressionString, Object expectedResult,
-                                        Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void testIteratorNext() throws Exception {
+        assertEquals("hello", Ognl.getValue("iterator.next", context, Arrays.asList("hello", "world")));
     }
 
-    public CollectionDirectPropertyTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testIteratorHasNext() throws Exception {
+        assertEquals(true, Ognl.getValue("iterator.hasNext", context, Arrays.asList("hello", "world")));
+    }
+
+    @Test
+    void testIteratorHasNextAfterTwoNexts() throws Exception {
+        assertEquals(false, Ognl.getValue("#it = iterator, #it.next, #it.next, #it.hasNext", context, Arrays.asList("hello", "world")));
+    }
+
+    @Test
+    void testIteratorNextAfterTwoNexts() throws Exception {
+        assertEquals("world", Ognl.getValue("#it = iterator, #it.next, #it.next", context, Arrays.asList("hello", "world")));
+    }
+
+    @Test
+    void testRootMapTest() throws Exception {
+        assertEquals(root, Ognl.getValue("map[\"test\"]", context, root));
+    }
+
+    @Test
+    void testRootMapSize() throws Exception {
+        assertEquals(root.getMap().size(), Ognl.getValue("map.size", context, root));
+    }
+
+    @Test
+    void testRootMapKeySet() throws Exception {
+        assertEquals(root.getMap().keySet(), Ognl.getValue("map.keySet", context, root));
+    }
+
+    @Test
+    void testRootMapValues() throws Exception {
+        assertEquals(root.getMap().values(), Ognl.getValue("map.values", context, root));
+    }
+
+    @Test
+    void testRootMapKeysSize() throws Exception {
+        assertEquals(root.getMap().keySet().size(), Ognl.getValue("map.keys.size", context, root));
+    }
+
+    @Test
+    void testRootMapSizeValue() throws Exception {
+        assertEquals(root.getMap().get("size"), Ognl.getValue("map[\"size\"]", context, root));
+    }
+
+    @Test
+    void testRootMapIsEmpty() throws Exception {
+        assertEquals(root.getMap().isEmpty() ? Boolean.TRUE : Boolean.FALSE, Ognl.getValue("map.isEmpty", context, root));
+    }
+
+    @Test
+    void testRootMapIsEmptyKey() throws Exception {
+        assertEquals(null, Ognl.getValue("map[\"isEmpty\"]", context, root));
     }
 }

@@ -18,91 +18,187 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
 import ognl.ExpressionSyntaxException;
+import ognl.Ognl;
+import ognl.OgnlContext;
+import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Arrays;
 
-public class ConstantTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-    private static Object[][] TESTS = {
-            {"12345", new Integer(12345)},
-            {"0x100", new Integer(256)},
-            {"0xfE", new Integer(254)},
-            {"01000", new Integer(512)},
-            {"1234L", new Integer(1234)},
-            {"12.34", new Double(12.34)},
-            {".1234", new Double(.12340000000000)},
-            {"12.34f", Double.valueOf(12.34)},
-            {"12.", new Double(12)},
-            {"12e+1d", new Double(120)},
-            {"'x'", new Character('x')},
-            {"'\\n'", new Character('\n')},
-            {"'\\u048c'", new Character('\u048c')},
-            {"'\\47'", new Character('\47')},
-            {"'\\367'", new Character('\367')},
-            {"'\\367", ExpressionSyntaxException.class},
-            {"'\\x'", ExpressionSyntaxException.class},
-            {"\"hello world\"", "hello world"},
-            {"\"\\u00a0\\u0068ell\\'o\\\\\\n\\r\\f\\t\\b\\\"\\167orld\\\"\"", "\u00a0hell'o\\\n\r\f\t\b\"world\""},
-            {"\"hello world", ExpressionSyntaxException.class},
-            {"\"hello\\x world\"", ExpressionSyntaxException.class},
-            {"null", null},
-            {"true", Boolean.TRUE},
-            {"false", Boolean.FALSE},
-            {"{ false, true, null, 0, 1. }",
-                    Arrays.asList(new Object[]{Boolean.FALSE, Boolean.TRUE, null, new Integer(0), new Double(1)})},
-            {"'HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"'",
-                    "HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\""},
-    };
+class ConstantTest {
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
+    private Root root;
+    private OgnlContext context;
 
-        for (Object[] test : TESTS) {
-            String name = test[0] + " (" + test[1] + ")";
-            try {
-                name = URLEncoder.encode(name, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
-            result.addTest(new ConstantTest(
-                    name,
-                    null,
-                    (String) test[0],
-                    test[1]));
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        root = new Root();
+        context = Ognl.createDefaultContext(root);
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public ConstantTest() {
-        super();
+    @Test
+    void test12345() throws Exception {
+        Object actual = Ognl.getValue("12345", context, root);
+        assertEquals(12345, actual);
     }
 
-    public ConstantTest(String name) {
-        super(name);
+    @Test
+    void test0x100() throws Exception {
+        Object actual = Ognl.getValue("0x100", context, root);
+        assertEquals(256, actual);
     }
 
-    public ConstantTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-                        Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void test0xfE() throws Exception {
+        Object actual = Ognl.getValue("0xfE", context, root);
+        assertEquals(254, actual);
     }
 
-    public ConstantTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void test01000() throws Exception {
+        assertEquals(512, Ognl.getValue("01000", context, root));
     }
 
-    public ConstantTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void test1234L() throws Exception {
+        Object actual = Ognl.getValue("1234L", context, root);
+        assertEquals(1234L, actual);
     }
+
+    @Test
+    void test12_34() throws Exception {
+        Object actual = Ognl.getValue("12.34", context, root);
+        assertEquals(12.34, actual);
+    }
+
+    @Test
+    void test_1234() throws Exception {
+        Object actual = Ognl.getValue(".1234", context, root);
+        assertEquals(0.1234, actual);
+    }
+
+    @Test
+    void test12_34f() throws Exception {
+        Object actual = Ognl.getValue("12.34f", context, root);
+        assertEquals(12.34F, actual);
+    }
+
+    @Test
+    void test12_() throws Exception {
+        Object actual = Ognl.getValue("12.", context, root);
+        assertEquals(12.0, actual);
+    }
+
+    @Test
+    void test12e_1d() throws Exception {
+        Object actual = Ognl.getValue("12e+1d", context, root);
+        assertEquals(120.0, actual);
+    }
+
+    @Test
+    void test_x() throws Exception {
+        Object actual = Ognl.getValue("'x'", context, root);
+        assertEquals('x', actual);
+    }
+
+    @Test
+    void test_n() throws Exception {
+        Object actual = Ognl.getValue("'\\n'", context, root);
+        assertEquals('\n', actual);
+    }
+
+    @Test
+    void test_u048c() throws Exception {
+        Object actual = Ognl.getValue("'\\u048c'", context, root);
+        assertEquals('\u048c', actual);
+    }
+
+    @Test
+    void test_47() throws Exception {
+        Object actual = Ognl.getValue("'\\47'", context, root);
+        assertEquals('\47', actual);
+    }
+
+    @Test
+    void test_367() throws Exception {
+        Object actual = Ognl.getValue("'\\367'", context, root);
+        assertEquals('\367', actual);
+    }
+
+    @Test
+    void test_367Exception() {
+        assertThrows(ExpressionSyntaxException.class,
+                () -> Ognl.getValue("'\\367", context, root),
+                "Invalid octal escape sequence");
+    }
+
+    @Test
+    void test_xException() {
+        assertThrows(ExpressionSyntaxException.class,
+                () -> Ognl.getValue("'\\x'", context, root),
+                "Invalid hexadecimal escape sequence");
+    }
+
+    @Test
+    void testHelloWorld() throws Exception {
+        Object actual = Ognl.getValue("\"hello world\"", context, root);
+        assertEquals("hello world", actual);
+    }
+
+    @Test
+    void testUnicodeString() throws Exception {
+        Object actual = Ognl.getValue("\"\\u00a0\\u0068ell\\'o\\\\\\n\\r\\f\\t\\b\\\"\\167orld\\\"\"", context, root);
+        assertEquals("\u00a0hell'o\\\n\r\f\t\b\"world\"", actual);
+    }
+
+    @Test
+    void testHelloWorldException() {
+        assertThrows(ExpressionSyntaxException.class,
+                () -> Ognl.getValue("\"hello world", context, root),
+                "Unterminated string");
+    }
+
+    @Test
+    void testHelloXWorldException() {
+        assertThrows(ExpressionSyntaxException.class,
+                () -> Ognl.getValue("\"hello\\x world\"", context, root),
+                "Invalid escape sequence");
+    }
+
+    @Test
+    void testNull() throws Exception {
+        Object actual = Ognl.getValue("null", context, root);
+        assertNull(actual);
+    }
+
+    @Test
+    void testTrue() throws Exception {
+        Object actual = Ognl.getValue("true", context, root);
+        assertEquals(true, actual);
+    }
+
+    @Test
+    void testFalse() throws Exception {
+        Object actual = Ognl.getValue("false", context, root);
+        assertEquals(false, actual);
+    }
+
+    @Test
+    void testArray() throws Exception {
+        Object actual = Ognl.getValue("{ false, true, null, 0, 1. }", context, root);
+        assertEquals(Arrays.asList(false, true, null, 0, 1.0), actual);
+    }
+
+    @Test
+    void testHtmlPublic() throws Exception {
+        Object actual = Ognl.getValue("'HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"'", context, root);
+        assertEquals("HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"", actual);
+    }
+
 }

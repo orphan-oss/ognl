@@ -1,8 +1,5 @@
 package ognl.test.race;
 
-/**
- *
- */
 public class Base {
     private Boolean yn = true;
 

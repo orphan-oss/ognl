@@ -1,11 +1,12 @@
 package ognl.test.objects;
 
+import java.io.Serial;
 import java.util.ArrayList;
 
-/**
- *
- */
-public class ListSourceImpl extends ArrayList implements ListSource {
+public class ListSourceImpl extends ArrayList<Object> implements ListSource {
+
+    @Serial
+    private static final long serialVersionUID = 6144140702137776331L;
 
     public ListSourceImpl() {
     }

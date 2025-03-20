@@ -22,21 +22,21 @@ import ognl.DefaultMemberAccess;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.SimpleNode;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class LambdaExpressionTest {
+class LambdaExpressionTest {
 
     private OgnlContext context;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         this.context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
     }
 
@@ -48,7 +48,7 @@ public class LambdaExpressionTest {
     }
 
     @Test
-    public void shouldReadArrayLength() throws Exception {
+    void shouldReadArrayLength() throws Exception {
         // given
         Object root = new Object[]{};
         String expressionStr = "#a=:[33](20).longValue().{0}.toArray().length";
@@ -62,7 +62,7 @@ public class LambdaExpressionTest {
     }
 
     @Test
-    public void shouldEvaluateLambda1() throws Exception {
+    void shouldEvaluateLambda1() throws Exception {
         // given
         Object root = null;
         String expressionStr = "#fact=:[#this <=1 ? 1 : #fact(#this-1) * #this], #fact(30)";
@@ -76,7 +76,7 @@ public class LambdaExpressionTest {
     }
 
     @Test
-    public void shouldEvaluateLambda2() throws Exception {
+    void shouldEvaluateLambda2() throws Exception {
         // given
         Object root = null;
         String expressionStr = "#fact=:[#this <= 1 ? 1 : #fact(#this-1) * #this], #fact(30L)";
@@ -90,7 +90,7 @@ public class LambdaExpressionTest {
     }
 
     @Test
-    public void shouldEvaluateLambda3() throws Exception {
+    void shouldEvaluateLambda3() throws Exception {
         // given
         Object root = null;
         String expressionStr = "#fact=:[#this <= 1 ? 1 : #fact(#this-1) * #this], #fact(30h)";
@@ -104,7 +104,7 @@ public class LambdaExpressionTest {
     }
 
     @Test
-    public void shouldEvaluateLambda4() throws Exception {
+    void shouldEvaluateLambda4() throws Exception {
         // given
         Object root = null;
         String expressionStr = "#bump = :[ #this.{ #this + 1 } ], (#bump)({ 1, 2, 3 })";
@@ -118,7 +118,7 @@ public class LambdaExpressionTest {
     }
 
     @Test
-    public void shouldEvaluateLambda5() throws Exception {
+    void shouldEvaluateLambda5() throws Exception {
         // given
         Object root = null;
         String expressionStr = "#call = :[ \"calling \" + [0] + \" on \" + [1] ], (#call)({ \"x\", \"y\" })";

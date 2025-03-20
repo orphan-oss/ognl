@@ -18,74 +18,87 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
 import ognl.Ognl;
+import ognl.OgnlContext;
+import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ConstantTreeTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+class ConstantTreeTest {
+
+    /**
+     * Field used in test
+     */
     public static int nonFinalStaticVariable = 15;
 
-    private static Object[][] TESTS = {
-            {"true", Boolean.TRUE},
-            {"55", Boolean.TRUE},
-            {"@java.awt.Color@black", Boolean.TRUE},
-            {"@ognl.test.ConstantTreeTest@nonFinalStaticVariable", Boolean.FALSE},
-            {"@ognl.test.ConstantTreeTest@nonFinalStaticVariable + 10", Boolean.FALSE},
-            {"55 + 24 + @java.awt.Event@ALT_MASK", Boolean.TRUE},
-            {"name", Boolean.FALSE},
-            {"name[i]", Boolean.FALSE},
-            {"name[i].property", Boolean.FALSE},
-            {"name.{? foo }", Boolean.FALSE},
-            {"name.{ foo }", Boolean.FALSE},
-            {"name.{ 25 }", Boolean.FALSE}
+    private OgnlContext context;
 
-    };
-
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new ConstantTreeTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", null,
-                    (String) TESTS[i][0], TESTS[i][1]));
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        Root root = new Root();
+        context = Ognl.createDefaultContext(root);
     }
 
-    /*
-     * =================================================================== Overridden methods
-     * ===================================================================
-     */
-    protected void runTest()
-            throws Exception {
-        assertTrue(Ognl.isConstant(getExpression(), _context) == ((Boolean) getExpectedResult()).booleanValue());
+    @Test
+    void testTrue() throws Exception {
+        assertTrue(Ognl.isConstant("true", context));
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public ConstantTreeTest() {
-        super();
+    @Test
+    void test55() throws Exception {
+        assertTrue(Ognl.isConstant("55", context));
     }
 
-    public ConstantTreeTest(String name) {
-        super(name);
+    @Test
+    void testJavaAwtColorBlack() throws Exception {
+        assertTrue(Ognl.isConstant("@java.awt.Color@black", context));
     }
 
-    public ConstantTreeTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-                            Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testNonFinalStaticVariable() throws Exception {
+        assertFalse(Ognl.isConstant("@ognl.test.ConstantTreeTest@nonFinalStaticVariable", context));
     }
 
-    public ConstantTreeTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void testNonFinalStaticVariablePlus10() throws Exception {
+        assertFalse(Ognl.isConstant("@ognl.test.ConstantTreeTest@nonFinalStaticVariable + 10", context));
     }
 
-    public ConstantTreeTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void test55Plus24PlusJavaAwtEventAltMask() throws Exception {
+        assertTrue(Ognl.isConstant("55 + 24 + @java.awt.Event@ALT_MASK", context));
+    }
+
+    @Test
+    void testName() throws Exception {
+        assertFalse(Ognl.isConstant("name", context));
+    }
+
+    @Test
+    void testNameI() throws Exception {
+        assertFalse(Ognl.isConstant("name[i]", context));
+    }
+
+    @Test
+    void testNameIProperty() throws Exception {
+        assertFalse(Ognl.isConstant("name[i].property", context));
+    }
+
+    @Test
+    void testNameFoo() throws Exception {
+        assertFalse(Ognl.isConstant("name.{? foo }", context));
+    }
+
+    @Test
+    void testNameFoo2() throws Exception {
+        assertFalse(Ognl.isConstant("name.{ foo }", context));
+    }
+
+    @Test
+    void testName25() throws Exception {
+        assertFalse(Ognl.isConstant("name.{ 25 }", context));
     }
 }

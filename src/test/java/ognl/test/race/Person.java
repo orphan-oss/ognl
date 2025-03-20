@@ -1,8 +1,7 @@
 package ognl.test.race;
 
-public class Persion extends Base {
+public class Person extends Base {
     private String name = "abc";
-
 
     public String getName() {
         return name;

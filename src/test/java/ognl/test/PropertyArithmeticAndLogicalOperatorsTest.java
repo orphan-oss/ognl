@@ -1,82 +1,81 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.Root;
 import ognl.test.objects.SimpleNumeric;
 import ognl.test.objects.TestModel;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-/**
- *
- */
-public class PropertyArithmeticAndLogicalOperatorsTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static Root ROOT = new Root();
-    private static TestModel MODEL = new TestModel();
-    private static SimpleNumeric NUMERIC = new SimpleNumeric();
+class PropertyArithmeticAndLogicalOperatorsTest {
 
-    private static Object[][] TESTS = {
-            {ROOT, "objectIndex > 0", Boolean.TRUE},
-            {ROOT, "false", Boolean.FALSE},
-            {ROOT, "!false || true", Boolean.TRUE},
-            {ROOT, "property.bean3.value >= 24", Boolean.TRUE},
-            {ROOT, "genericIndex-1", new Integer(1)},
-            {ROOT, "((renderNavigation ? 0 : 1) + map.size) * theInt", new Integer(((ROOT.getRenderNavigation() ? 0 : 1) + ROOT.getMap().size()) * ROOT.getTheInt())},
-            {ROOT, "{theInt + 1}", Arrays.asList(new Integer(ROOT.getTheInt() + 1))},
-            {MODEL, "(unassignedCopyModel.optionCount > 0 && canApproveCopy) || entry.copy.size() > 0", Boolean.TRUE},
-            {ROOT, " !(printDelivery || @Boolean@FALSE)", Boolean.FALSE},
-            {ROOT, "(getIndexedProperty('nested').size - 1) > genericIndex", Boolean.FALSE},
-            {ROOT, "(getIndexedProperty('nested').size + 1) >= genericIndex", Boolean.TRUE},
-            {ROOT, "(getIndexedProperty('nested').size + 1) == genericIndex", Boolean.TRUE},
-            {ROOT, "(getIndexedProperty('nested').size + 1) < genericIndex", Boolean.FALSE},
-            {ROOT, "map.size * genericIndex", new Integer(ROOT.getMap().size() * ((Integer) ROOT.getGenericIndex()).intValue())},
-            {ROOT, "property == property", Boolean.TRUE},
-            {ROOT, "property.bean3.value % 2 == 0", Boolean.TRUE},
-            {ROOT, "genericIndex % 3 == 0", Boolean.FALSE},
-            {ROOT, "genericIndex % theInt == property.bean3.value", Boolean.FALSE},
-            {ROOT, "theInt / 100.0", ROOT.getTheInt() / 100.0},
-            {ROOT, "@java.lang.Long@valueOf('100') == @java.lang.Long@valueOf('100')", Boolean.TRUE},
-            {NUMERIC, "budget - timeBilled", new Double(NUMERIC.getBudget() - NUMERIC.getTimeBilled())},
-            {NUMERIC, "(budget % tableSize) == 0", Boolean.TRUE}
-    };
+    private Root root;
+    private TestModel model;
+    private SimpleNumeric numeric;
+    private OgnlContext context;
 
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 5) {
-                result.addTest(new PropertyArithmeticAndLogicalOperatorsTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-            } else
-                result.addTest(new PropertyArithmeticAndLogicalOperatorsTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
-        }
-
-        return result;
+    @BeforeEach
+    void setUp() {
+        root = new Root();
+        model = new TestModel();
+        numeric = new SimpleNumeric();
+        context = Ognl.createDefaultContext(root);
     }
 
-    /*===================================================================
-         Constructors
-       ===================================================================*/
-    public PropertyArithmeticAndLogicalOperatorsTest() {
-        super();
+    @Test
+    void testBooleanExpressions() throws Exception {
+        assertEquals(Boolean.TRUE, Ognl.getValue("objectIndex > 0", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("false", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("!false || true", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("property.bean3.value >= 24", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("(unassignedCopyModel.optionCount > 0 && canApproveCopy) || entry.copy.size() > 0", context, model));
+        assertEquals(Boolean.FALSE, Ognl.getValue(" !(printDelivery || @Boolean@FALSE)", context, root));
     }
 
-    public PropertyArithmeticAndLogicalOperatorsTest(String name) {
-        super(name);
+    @Test
+    void testIntegerExpressions() throws Exception {
+        assertEquals(1, Ognl.getValue("genericIndex-1", context, root));
+        assertEquals(((root.getRenderNavigation() ? 0 : 1) + root.getMap().size()) * root.getTheInt(), Ognl.getValue("((renderNavigation ? 0 : 1) + map.size) * theInt", context, root));
+        assertEquals(Arrays.asList(root.getTheInt() + 1), Ognl.getValue("{theInt + 1}", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("(getIndexedProperty('nested').size - 1) > genericIndex", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("(getIndexedProperty('nested').size + 1) >= genericIndex", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("(getIndexedProperty('nested').size + 1) == genericIndex", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("(getIndexedProperty('nested').size + 1) < genericIndex", context, root));
+        assertEquals(root.getMap().size() * ((Integer) root.getGenericIndex()).intValue(), Ognl.getValue("map.size * genericIndex", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("property == property", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("property.bean3.value % 2 == 0", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("genericIndex % 3 == 0", context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue("genericIndex % theInt == property.bean3.value", context, root));
+        assertEquals(root.getTheInt() / 100.0, Ognl.getValue("theInt / 100.0", context, root));
+        assertEquals(Boolean.TRUE, Ognl.getValue("@java.lang.Long@valueOf('100') == @java.lang.Long@valueOf('100')", context, root));
     }
 
-    public PropertyArithmeticAndLogicalOperatorsTest(String name, Object root, String expressionString,
-                                                     Object expectedResult, Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
-    }
-
-    public PropertyArithmeticAndLogicalOperatorsTest(String name, Object root, String expressionString,
-                                                     Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public PropertyArithmeticAndLogicalOperatorsTest(String name, Object root,
-                                                     String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testDoubleExpressions() throws Exception {
+        assertEquals(numeric.getBudget() - numeric.getTimeBilled(), Ognl.getValue("budget - timeBilled", context, numeric));
+        assertEquals(Boolean.TRUE, Ognl.getValue("(budget % tableSize) == 0", context, numeric));
     }
 }

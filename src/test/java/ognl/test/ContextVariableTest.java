@@ -18,56 +18,46 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.Simple;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ContextVariableTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static Object ROOT = new Simple();
-    private static Object[][] TESTS = {
-            // Naming and referring to names
-            {"#root", ROOT}, // Special root reference
-            {"#this", ROOT}, // Special this reference
-            {"#f=5, #s=6, #f + #s", new Integer(11)},
-            {"#six=(#five=5, 6), #five + #six", new Integer(11)},
-    };
+class ContextVariableTest {
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
+    private Simple root;
+    private OgnlContext context;
 
-        for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new ContextVariableTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", ROOT,
-                    (String) TESTS[i][0], TESTS[i][1]));
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        root = new Simple();
+        context = Ognl.createDefaultContext(root);
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public ContextVariableTest() {
-        super();
+    @Test
+    void testRoot() throws Exception {
+        Object actual = Ognl.getValue("#root", context, root);
+        assertEquals(root, actual);
     }
 
-    public ContextVariableTest(String name) {
-        super(name);
+    @Test
+    void testThis() throws Exception {
+        Object actual = Ognl.getValue("#this", context, root);
+        assertEquals(root, actual);
     }
 
-    public ContextVariableTest(String name, Object root, String expressionString, Object expectedResult,
-                               Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testSumOfFiveAndSix() throws Exception {
+        Object actual = Ognl.getValue("#f=5, #s=6, #f + #s", context, root);
+        assertEquals(11, actual);
     }
 
-    public ContextVariableTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public ContextVariableTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testSumOfFiveAndSixWithIntermediateAssignment() throws Exception {
+        Object actual = Ognl.getValue("#six=(#five=5, 6), #five + #six", context, root);
+        assertEquals(11, actual);
     }
 }

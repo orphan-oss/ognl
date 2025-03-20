@@ -18,78 +18,124 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.Indexed;
 import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class IndexedPropertyTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static Indexed INDEXED = new Indexed();
-    private static Root ROOT = new Root();
+class IndexedPropertyTest {
 
-    private static Object[][] TESTS = {
-            // Indexed properties
-            {INDEXED, "getValues", INDEXED.getValues()}, // gets String[]
-            {INDEXED, "[\"values\"]", INDEXED.getValues()}, // String[]
-            {INDEXED.getValues(), "[0]", INDEXED.getValues()[0]}, // "foo"
-            {INDEXED, "getValues()[0]", INDEXED.getValues()[0]}, // "foo" directly from array
-            {INDEXED, "values[0]", INDEXED.getValues(0)}, // "foo" + "xxx"
-            {INDEXED, "values[^]", INDEXED.getValues(0)}, // "foo" + "xxx"
-            {INDEXED, "values[|]", INDEXED.getValues(1)}, // "bar" + "xxx"
-            {INDEXED, "values[$]", INDEXED.getValues(2)}, // "baz" + "xxx"
-            {INDEXED, "values[1]", "bar" + "xxx", "xxxx" + "xxx", "xxxx" + "xxx"}, // set through setValues(int, String)
-            {INDEXED, "values[1]", "xxxx" + "xxx"}, // getValues(int) again to check if setValues(int, String) was called
-            {INDEXED, "setValues(2, \"xxxx\")", null}, // was "baz" -> "xxxx"
-            {INDEXED, "getTitle(list.size)", "Title count 3"},
-            {INDEXED, "source.total", 1},
-            {ROOT, "indexer.line[index]", "line:1"},
-            {INDEXED, "list[2].longValue()", (long) 3},
-            {ROOT, "map.value.id", (long) 1},
-            {INDEXED, "property['hoodak']", null, "random string", "random string"}
-    };
+    private Indexed indexed;
+    private Root root;
+    private OgnlContext context;
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new IndexedPropertyTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new IndexedPropertyTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                            TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new IndexedPropertyTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        indexed = new Indexed();
+        root = new Root();
+        context = Ognl.createDefaultContext(root);
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public IndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult,
-                               Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testGetValues() throws Exception {
+        Object actual = Ognl.getValue("getValues", context, indexed);
+        assertEquals(indexed.getValues(), actual);
     }
 
-    public IndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void testValues() throws Exception {
+        Object actual = Ognl.getValue("[\"values\"]", context, indexed);
+        assertEquals(indexed.getValues(), actual);
     }
 
-    public IndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testValuesIndex0() throws Exception {
+        Object actual = Ognl.getValue("[0]", context, indexed.getValues());
+        assertEquals(indexed.getValues()[0], actual);
+    }
+
+    @Test
+    void testGetValuesIndex0() throws Exception {
+        Object actual = Ognl.getValue("getValues()[0]", context, indexed);
+        assertEquals(indexed.getValues()[0], actual);
+    }
+
+    @Test
+    void testValuesIndex0Direct() throws Exception {
+        Object actual = Ognl.getValue("values[0]", context, indexed);
+        assertEquals(indexed.getValues(0), actual);
+    }
+
+    @Test
+    void testValuesCaret() throws Exception {
+        Object actual = Ognl.getValue("values[^]", context, indexed);
+        assertEquals(indexed.getValues(0), actual);
+    }
+
+    @Test
+    void testValuesPipe() throws Exception {
+        Object actual = Ognl.getValue("values[|]", context, indexed);
+        assertEquals(indexed.getValues(1), actual);
+    }
+
+    @Test
+    void testValuesDollar() throws Exception {
+        Object actual = Ognl.getValue("values[$]", context, indexed);
+        assertEquals(indexed.getValues(2), actual);
+    }
+
+    @Test
+    void testSetValuesIndex1() throws Exception {
+        Ognl.setValue("values[1]", context, indexed, "xxxx" + "xxx");
+        Object actual = Ognl.getValue("values[1]", context, indexed);
+        assertEquals("xxxxxxx", actual);
+    }
+
+    @Test
+    void testSetValuesIndex2() throws Exception {
+        Ognl.getValue("setValues(2, \"xxxx\")", context, indexed);
+        Object actual = Ognl.getValue("values[2]", context, indexed);
+        assertEquals("xxxx", actual);
+    }
+
+    @Test
+    void testGetTitle() throws Exception {
+        Object actual = Ognl.getValue("getTitle(list.size)", context, indexed);
+        assertEquals("Title count 3", actual);
+    }
+
+    @Test
+    void testSourceTotal() throws Exception {
+        Object actual = Ognl.getValue("source.total", context, indexed);
+        assertEquals(1, actual);
+    }
+
+    @Test
+    void testIndexerLine() throws Exception {
+        Object actual = Ognl.getValue("indexer.line[index]", context, root);
+        assertEquals("line:1", actual);
+    }
+
+    @Test
+    void testListLongValue() throws Exception {
+        Object actual = Ognl.getValue("list[2].longValue()", context, indexed);
+        assertEquals(3L, actual);
+    }
+
+    @Test
+    void testMapValueId() throws Exception {
+        Object actual = Ognl.getValue("map.value.id", context, root);
+        assertEquals(1L, actual);
+    }
+
+    @Test
+    void testPropertyHoodak() throws Exception {
+        Ognl.setValue("property['hoodak']", context, indexed, "random string");
+        Object actual = Ognl.getValue("property['hoodak']", context, indexed);
+        assertEquals("random string", actual);
     }
 }

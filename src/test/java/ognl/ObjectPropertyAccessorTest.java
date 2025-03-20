@@ -15,25 +15,28 @@
  */
 package ognl;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.beans.IntrospectionException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Future;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 /**
  * Tests various methods / functionality of {@link ObjectPropertyAccessor}.
  */
-public class TestObjectPropertyAccessor extends TestCase {
-    private Map context;
+class ObjectPropertyAccessorTest {
+    private OgnlContext context;
     private ObjectPropertyAccessor propertyAccessor;
 
-    public void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    void setUp() throws Exception {
         context = Ognl.createDefaultContext(null, new ExcludedObjectMemberAccess(false));
         propertyAccessor = new ObjectPropertyAccessor();
     }
@@ -47,41 +50,48 @@ public class TestObjectPropertyAccessor extends TestCase {
         private String name = "name";
         private String age = "18";
 
+        @SuppressWarnings("unused")
         public void setGender(String gender) {
             this.gender = gender;
         }
 
+        @SuppressWarnings("unused")
         private void setEmail(String email) {
             this.email = email;
         }
 
+        @SuppressWarnings("unused")
         private void setName(String email) {
             this.email = email;
         }
 
+        @SuppressWarnings("unused")
         public void setname(String name) {
             this.name = name;
         }
 
+        @SuppressWarnings("unused")
         private void setAge(String age) {
             this.age = age;
         }
 
+        @SuppressWarnings("unused")
         public void setage(String age) {
             this.age = age;
         }
     }
 
     public static class KafkaFetcher {
-        private final List<Future<?>> completedFutures = new ArrayList<>();
+        private final List<Future<?>> completedFutures = Collections.emptyList();
 
+        @SuppressWarnings("unused")
         public boolean hasCompletedFutures() {
             return !completedFutures.isEmpty();
         }
     }
 
-    public void testGetPossibleProperty() throws OgnlException {
-        OgnlContext context = (OgnlContext) this.context;
+    @Test
+    void testGetPossibleProperty() throws OgnlException {
         KafkaFetcher fetcher = new KafkaFetcher();
         assertEquals(Boolean.FALSE, propertyAccessor.getPossibleProperty(context, fetcher, "completedFutures"));
         OgnlContext defaultContext = Ognl.createDefaultContext(null, new ExcludedObjectMemberAccess(true));
@@ -90,8 +100,8 @@ public class TestObjectPropertyAccessor extends TestCase {
                 fetcher, "completedFutures"));
     }
 
-    public void testSetPossibleProperty() throws OgnlException, IntrospectionException {
-        OgnlContext context = (OgnlContext) this.context;
+    @Test
+    void testSetPossibleProperty() throws OgnlException {
         SimplePublicClass simplePublic = new SimplePublicClass();
 
         // 1. when set method is accessible and set method
@@ -103,8 +113,12 @@ public class TestObjectPropertyAccessor extends TestCase {
         assertEquals("admin@admin.com", simplePublic.email);
 
         // 3. when set method is NOT accessible, field is NOT accessible, fallback to write method (write method is accessible)
-        assertEquals("setName", OgnlRuntime.getSetMethod(context, SimplePublicClass.class, "name").getName());
-        assertEquals("setname", OgnlRuntime.getWriteMethod(SimplePublicClass.class, "name", null).getName());
+        Method setMethod = OgnlRuntime.getSetMethod(context, SimplePublicClass.class, "name");
+        assertNotNull(setMethod);
+        assertEquals("setName", setMethod.getName());
+        Method writeMethod = OgnlRuntime.getWriteMethod(SimplePublicClass.class, "name", null);
+        assertNotNull(writeMethod);
+        assertEquals("setname", writeMethod.getName());
         assertNotSame(OgnlRuntime.NotFound, propertyAccessor.setPossibleProperty(context, simplePublic, "name", "new name"));
         assertEquals("new name", simplePublic.name);
 
@@ -112,9 +126,12 @@ public class TestObjectPropertyAccessor extends TestCase {
         Method ageWriteMethod = OgnlRuntime.getWriteMethod(SimplePublicClass.class, "age", null);
         ((ExcludedObjectMemberAccess) context.getMemberAccess()).exclude(ageWriteMethod);
 
+        assertNotNull(ageWriteMethod);
         assertEquals("setage", ageWriteMethod.getName());
         assertFalse(context.getMemberAccess().isAccessible(context, simplePublic, ageWriteMethod, "age"));
-        assertEquals("setAge", OgnlRuntime.getSetMethod(context, SimplePublicClass.class, "age").getName());
+        setMethod = OgnlRuntime.getSetMethod(context, SimplePublicClass.class, "age");
+        assertNotNull(setMethod);
+        assertEquals("setAge", setMethod.getName());
         assertEquals(OgnlRuntime.NotFound, propertyAccessor.setPossibleProperty(context, simplePublic, "age", "99"));
         assertEquals("18", simplePublic.age);
     }

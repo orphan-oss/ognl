@@ -18,88 +18,68 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
 import ognl.DefaultMemberAccess;
+import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class PrivateAccessorTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static Root ROOT = new Root();
+class PrivateAccessorTest {
 
-    private static Object[][] TESTS = {
-            // Using private get/set methods
-            {ROOT, "getPrivateAccessorIntValue()", new Integer(67)},
-            {ROOT, "privateAccessorIntValue", new Integer(67)},
-            {ROOT, "privateAccessorIntValue", new Integer(67), new Integer(100)},
-            {ROOT, "privateAccessorIntValue2", new Integer(67)},
-            {ROOT, "privateAccessorIntValue2", new Integer(67), new Integer(100)},
-            {ROOT, "privateAccessorIntValue3", new Integer(67)},
-            {ROOT, "privateAccessorIntValue3", new Integer(67), new Integer(100)},
-            {ROOT, "privateAccessorBooleanValue", Boolean.TRUE},
-            {ROOT, "privateAccessorBooleanValue", Boolean.TRUE, Boolean.FALSE},
-    };
+    private Root root;
+    private OgnlContext context;
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new PrivateAccessorTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new PrivateAccessorTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                            TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new PrivateAccessorTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        root = new Root();
+        context = Ognl.createDefaultContext(root, new DefaultMemberAccess(true));
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public PrivateAccessorTest() {
-        super();
+    @Test
+    void testPrivateAccessorIntValue() throws Exception {
+        Object actual = Ognl.getValue("getPrivateAccessorIntValue()", context, root);
+        assertEquals(67, actual);
+
+        actual = Ognl.getValue("privateAccessorIntValue", context, root);
+        assertEquals(67, actual);
+
+        Ognl.setValue("privateAccessorIntValue", context, root, 100);
+        actual = Ognl.getValue("privateAccessorIntValue", context, root);
+        assertEquals(100, actual);
     }
 
-    public PrivateAccessorTest(String name) {
-        super(name);
+    @Test
+    void testPrivateAccessorIntValue2() throws Exception {
+        Object actual = Ognl.getValue("privateAccessorIntValue2", context, root);
+        assertEquals(67, actual);
+
+        Ognl.setValue("privateAccessorIntValue2", context, root, 100);
+        actual = Ognl.getValue("privateAccessorIntValue2", context, root);
+        assertEquals(100, actual);
     }
 
-    public PrivateAccessorTest(String name, Object root, String expressionString, Object expectedResult,
-                               Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testPrivateAccessorIntValue3() throws Exception {
+        Object actual = Ognl.getValue("privateAccessorIntValue3", context, root);
+        assertEquals(67, actual);
+
+        Ognl.setValue("privateAccessorIntValue3", context, root, 100);
+
+        actual = Ognl.getValue("privateAccessorIntValue3", context, root);
+        assertEquals(100, actual);
     }
 
-    public PrivateAccessorTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
+    @Test
+    void testPrivateAccessorBooleanValue() throws Exception {
+        Object actual = Ognl.getValue("privateAccessorBooleanValue", context, root);
+        assertEquals(true, actual);
 
-    public PrivateAccessorTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
-    }
+        Ognl.setValue("privateAccessorBooleanValue", context, root, false);
 
-    /*
-     * =================================================================== Overridden methods
-     * ===================================================================
-     */
-    public void setUp() {
-        super.setUp();
-        _context = new OgnlContext(null, null, new DefaultMemberAccess(true));
-        _compileExpressions = false;
+        actual = Ognl.getValue("privateAccessorBooleanValue", context, root);
+        assertEquals(false, actual);
     }
 }

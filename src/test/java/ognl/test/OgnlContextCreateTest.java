@@ -21,26 +21,26 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.test.objects.Simple;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class OgnlContextCreateTest {
+class OgnlContextCreateTest {
 
     @Test
-    public void createContext() throws OgnlException {
+    void createContext() throws OgnlException {
         OgnlContext context = Ognl.createDefaultContext(null).withValues(prepareValues());
 
         assertEquals("test100", Ognl.getValue("#test", context, new Simple()));
     }
 
     @Test
-    public void createContextWithRoot() throws OgnlException {
+    void createContextWithRoot() throws OgnlException {
         Simple root = new Simple();
 
         OgnlContext context = Ognl.createDefaultContext(root, prepareValues());
@@ -49,7 +49,7 @@ public class OgnlContextCreateTest {
     }
 
     @Test
-    public void createContextWithNullRoot() throws OgnlException {
+    void createContextWithNullRoot() throws OgnlException {
         Simple root = new Simple();
 
         OgnlContext context = Ognl.createDefaultContext(null, prepareValues());
@@ -58,7 +58,7 @@ public class OgnlContextCreateTest {
     }
 
     @Test
-    public void createContextWithClassResolver() throws OgnlException {
+    void createContextWithClassResolver() throws OgnlException {
         Simple root = new Simple();
 
         OgnlContext context = Ognl.createDefaultContext(root, new MyClassResolver());
@@ -67,7 +67,7 @@ public class OgnlContextCreateTest {
     }
 
     @Test
-    public void addContextWithClassResolver() throws OgnlException {
+    void addContextWithClassResolver() throws OgnlException {
         Simple root = new Simple();
         OgnlContext oldContext = Ognl.createDefaultContext(root, new MyClassResolver());
 
@@ -77,7 +77,7 @@ public class OgnlContextCreateTest {
     }
 
     @Test
-    public void createContextWithNullRootAndClassResolver() throws OgnlException {
+    void createContextWithNullRootAndClassResolver() throws OgnlException {
         Simple root = new Simple();
 
         OgnlContext context = Ognl.createDefaultContext(null, new MyClassResolver());
@@ -86,7 +86,7 @@ public class OgnlContextCreateTest {
     }
 
     @Test
-    public void addContextWithNullRootAndClassResolver() throws OgnlException {
+    void addContextWithNullRootAndClassResolver() throws OgnlException {
         Simple root = new Simple();
         OgnlContext oldContext = Ognl.createDefaultContext(null, new MyClassResolver());
 
@@ -96,7 +96,7 @@ public class OgnlContextCreateTest {
     }
 
     @Test
-    public void createContextWithClassResolverAndTypeConverter() throws OgnlException {
+    void createContextWithClassResolverAndTypeConverter() throws OgnlException {
         Simple root = new Simple();
         OgnlContext context = Ognl.createDefaultContext(root, new MyClassResolver(), new MyTypeConverter());
 
@@ -107,7 +107,7 @@ public class OgnlContextCreateTest {
     }
 
     @Test
-    public void addContextWithClassResolverAndTypeConverter() throws OgnlException {
+    void addContextWithClassResolverAndTypeConverter() throws OgnlException {
         Simple root = new Simple();
         OgnlContext oldContext = Ognl.createDefaultContext(root, new MyClassResolver(), new MyTypeConverter());
 
@@ -120,7 +120,7 @@ public class OgnlContextCreateTest {
     }
 
     @Test
-    public void addContextWithClassResolverAndNoTypeConverter() throws OgnlException {
+    void addContextWithClassResolverAndNoTypeConverter() throws OgnlException {
         Simple root = new Simple();
         OgnlContext oldContext = Ognl.createDefaultContext(root, null, new MyTypeConverter());
 
@@ -133,7 +133,7 @@ public class OgnlContextCreateTest {
     }
 
     @Test
-    public void addContextWithNoClassResolverAndNoTypeConverter() throws OgnlException {
+    void addContextWithNoClassResolverAndNoTypeConverter() throws OgnlException {
         Simple root = new Simple();
         OgnlContext oldContext = Ognl.createDefaultContext(root);
 
@@ -146,7 +146,7 @@ public class OgnlContextCreateTest {
     }
 
     @Test
-    public void createContextWithNullRootAndClassResolverAndTypeConverter() throws OgnlException {
+    void createContextWithNullRootAndClassResolverAndTypeConverter() throws OgnlException {
         Simple root = new Simple();
         OgnlContext context = Ognl.createDefaultContext(null, new MyClassResolver(), new MyTypeConverter());
 
@@ -157,7 +157,7 @@ public class OgnlContextCreateTest {
     }
 
     @Test
-    public void addContextWithNullRootAndClassResolverAndTypeConverter() throws OgnlException {
+    void addContextWithNullRootAndClassResolverAndTypeConverter() throws OgnlException {
         Simple root = new Simple();
         OgnlContext oldContext = Ognl.createDefaultContext(null, new MyClassResolver(), new MyTypeConverter());
 

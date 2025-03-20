@@ -18,75 +18,88 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class PrimitiveArrayTest extends OgnlTestCase {
-    private static Root ROOT = new Root();
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-    private static Object[][] TESTS = {
-            // Primitive array creation
-            {ROOT, "new boolean[5]", new boolean[5]},
-            {ROOT, "new boolean[] { true, false }", new boolean[]{true, false}},
-            {ROOT, "new boolean[] { 0, 1, 5.5 }", new boolean[]{false, true, true}},
-            {ROOT, "new char[] { 'a', 'b' }", new char[]{'a', 'b'}},
-            {ROOT, "new char[] { 10, 11 }", new char[]{(char) 10, (char) 11}},
-            {ROOT, "new byte[] { 1, 2 }", new byte[]{1, 2}},
-            {ROOT, "new short[] { 1, 2 }", new short[]{1, 2}},
-            {ROOT, "new int[six]", new int[ROOT.six]},
-            {ROOT, "new int[#root.six]", new int[ROOT.six]},
-            {ROOT, "new int[6]", new int[6]},
-            {ROOT, "new int[] { 1, 2 }", new int[]{1, 2}},
-            {ROOT, "new long[] { 1, 2 }", new long[]{1, 2}},
-            {ROOT, "new float[] { 1, 2 }", new float[]{1, 2}},
-            {ROOT, "new double[] { 1, 2 }", new double[]{1, 2}},
+class PrimitiveArrayTest {
 
-    };
+    private Root root;
+    private OgnlContext context;
 
-    /*===================================================================
-         Public static methods
-       ===================================================================*/
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new PrimitiveArrayTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new PrimitiveArrayTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new PrimitiveArrayTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        root = new Root();
+        context = Ognl.createDefaultContext(root);
     }
 
-    /*===================================================================
-         Constructors
-       ===================================================================*/
-    public PrimitiveArrayTest() {
-        super();
+    @Test
+    void testBooleanArrayCreation() throws Exception {
+        boolean[] actual = (boolean[]) Ognl.getValue("new boolean[5]", context, root);
+        assertArrayEquals(new boolean[5], actual);
+
+        actual = (boolean[]) Ognl.getValue("new boolean[] { true, false }", context, root);
+        assertArrayEquals(new boolean[]{true, false}, actual);
+
+        actual = (boolean[]) Ognl.getValue("new boolean[] { 0, 1, 5.5 }", context, root);
+        assertArrayEquals(new boolean[]{false, true, true}, actual);
     }
 
-    public PrimitiveArrayTest(String name) {
-        super(name);
+    @Test
+    void testCharArrayCreation() throws Exception {
+        char[] actual = (char[]) Ognl.getValue("new char[] { 'a', 'b' }", context, root);
+        assertArrayEquals(new char[]{'a', 'b'}, actual);
+
+        actual = (char[]) Ognl.getValue("new char[] { 10, 11 }", context, root);
+        assertArrayEquals(new char[]{(char) 10, (char) 11}, actual);
     }
 
-    public PrimitiveArrayTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testByteArrayCreation() throws Exception {
+        byte[] actual = (byte[]) Ognl.getValue("new byte[] { 1, 2 }", context, root);
+        assertArrayEquals(new byte[]{1, 2}, actual);
     }
 
-    public PrimitiveArrayTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void testShortArrayCreation() throws Exception {
+        short[] actual = (short[]) Ognl.getValue("new short[] { 1, 2 }", context, root);
+        assertArrayEquals(new short[]{1, 2}, actual);
     }
 
-    public PrimitiveArrayTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testIntArrayCreation() throws Exception {
+        int[] actual = (int[]) Ognl.getValue("new int[six]", context, root);
+        assertArrayEquals(new int[root.six], actual);
+
+        actual = (int[]) Ognl.getValue("new int[#root.six]", context, root);
+        assertArrayEquals(new int[root.six], actual);
+
+        actual = (int[]) Ognl.getValue("new int[6]", context, root);
+        assertArrayEquals(new int[6], actual);
+
+        actual = (int[]) Ognl.getValue("new int[] { 1, 2 }", context, root);
+        assertArrayEquals(new int[]{1, 2}, actual);
+    }
+
+    @Test
+    void testLongArrayCreation() throws Exception {
+        long[] actual = (long[]) Ognl.getValue("new long[] { 1, 2 }", context, root);
+        assertArrayEquals(new long[]{1, 2}, actual);
+    }
+
+    @Test
+    void testFloatArrayCreation() throws Exception {
+        float[] actual = (float[]) Ognl.getValue("new float[] { 1, 2 }", context, root);
+        assertArrayEquals(new float[]{1, 2}, actual);
+    }
+
+    @Test
+    void testDoubleArrayCreation() throws Exception {
+        double[] actual = (double[]) Ognl.getValue("new double[] { 1, 2 }", context, root);
+        assertArrayEquals(new double[]{1, 2}, actual);
     }
 }

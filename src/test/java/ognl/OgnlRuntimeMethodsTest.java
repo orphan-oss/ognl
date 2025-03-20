@@ -35,8 +35,8 @@ import ognl.test.objects.OtherEnum;
 import ognl.test.objects.Root;
 import ognl.test.objects.SetterReturns;
 import ognl.test.objects.SubclassSyntheticObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
@@ -46,29 +46,30 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static ognl.test.OgnlTestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests various methods / functionality of {@link OgnlRuntime}.
  */
-public class TestOgnlRuntime {
+class OgnlRuntimeMethodsTest {
 
     private OgnlContext context;
 
-    @Before
-    public void setUp() throws Exception {
-        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+    @BeforeEach
+    void setUp() {
+        context = Ognl.createDefaultContext(null);
     }
 
     @Test
-    public void test_Get_Super_Or_Interface_Class() {
+    void test_Get_Super_Or_Interface_Class() {
         ListSource list = new ListSourceImpl();
 
         Method m = OgnlRuntime.getReadMethod(list.getClass(), "total");
@@ -78,7 +79,7 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Get_Private_Class() {
+    void test_Get_Private_Class() {
         List<String> list = Arrays.asList("hello", "world");
 
         Method m = OgnlRuntime.getReadMethod(list.getClass(), "iterator");
@@ -88,7 +89,7 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Complicated_Inheritance() {
+    void test_Complicated_Inheritance() {
         IForm form = new FormImpl();
 
         Method m = OgnlRuntime.getWriteMethod(form.getClass(), "clientId");
@@ -98,7 +99,7 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Get_Read_Method() {
+    void test_Get_Read_Method() {
         Method m = OgnlRuntime.getReadMethod(Bean2.class, "pageBreakAfter");
         assertNotNull(m);
 
@@ -106,7 +107,7 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Get_Read_Field() {
+    void test_Get_Read_Field() {
         Method m = OgnlRuntime.getReadMethod(Bean2.class, "code");
         assertNull(m);
 
@@ -135,7 +136,7 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Get_Read_Method_Multiple() {
+    void test_Get_Read_Method_Multiple() {
         Method m = OgnlRuntime.getReadMethod(TestGetters.class, "disabled");
         assertNotNull(m);
 
@@ -143,7 +144,7 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Get_Read_Method_Multiple_Boolean_Getters() {
+    void test_Get_Read_Method_Multiple_Boolean_Getters() {
         Method m = OgnlRuntime.getReadMethod(TestGetters.class, "available");
         assertNotNull(m);
 
@@ -156,7 +157,7 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Find_Method_Mixed_Boolean_Getters() {
+    void test_Find_Method_Mixed_Boolean_Getters() {
         Method m = OgnlRuntime.getReadMethod(GetterMethods.class, "allowDisplay");
         assertNotNull(m);
 
@@ -164,49 +165,39 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Get_Appropriate_Method()
-            throws Exception {
+    void test_Get_Appropriate_Method() throws Exception {
         ListSource list = new ListSourceImpl();
-        OgnlContext context = this.context;
 
         Object ret = OgnlRuntime.callMethod(context, list, "addValue", new String[]{null});
 
-        assert ret != null;
+        assertNotNull(ret);
     }
 
     @Test
-    public void test_Call_Static_Method_Invalid_Class() {
-
+    void test_Call_Static_Method_Invalid_Class() {
         try {
-
-            OgnlContext context = this.context;
             OgnlRuntime.callStaticMethod(context, "made.up.Name", "foo", null);
 
             fail("ClassNotFoundException should have been thrown by previous reference to <made.up.Name> class.");
         } catch (Exception et) {
-
-            assertTrue(et instanceof MethodFailedException);
+            assertInstanceOf(MethodFailedException.class, et);
             assertTrue(et.getMessage().contains("made.up.Name"));
         }
     }
 
     @Test
-    public void test_Setter_Returns()
-            throws Exception {
-        OgnlContext context = this.context;
+    void test_Setter_Returns() throws Exception {
         SetterReturns root = new SetterReturns();
 
         Method m = OgnlRuntime.getWriteMethod(root.getClass(), "value");
         assertNotNull(m);
 
         Ognl.setValue("value", context, root, "12__");
-        assertEquals(Ognl.getValue("value", context, root), "12__");
+        assertEquals("12__", Ognl.getValue("value", context, root));
     }
 
     @Test
-    public void test_Call_Method_VarArgs()
-            throws Exception {
-        OgnlContext context = this.context;
+    void test_Call_Method_VarArgs() throws Exception {
         GenericService service = new GenericServiceImpl();
 
         GameGenericObject argument = new GameGenericObject();
@@ -218,15 +209,14 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Class_Cache_Inspector()
-            throws Exception {
+    void test_Class_Cache_Inspector() throws Exception {
         OgnlRuntime.clearCache();
         OgnlRuntime.clearAdditionalCache();  // Testing no exception only.
         assertEquals(0, OgnlRuntime.cache.propertyDescriptorCache.getSize());
         assertEquals(0, OgnlRuntime.cache.genericMethodParameterTypesCache.getSize());
 
         Root root = new Root();
-        OgnlContext context = this.context;
+
         Node expr = Ognl.compileExpression(context, root, "property.bean3.value != null");
 
         assertTrue((Boolean) expr.getAccessor().get(context, root));
@@ -250,16 +240,13 @@ public class TestOgnlRuntime {
     }
 
     static class TestCacheInspector implements ClassCacheInspector {
-
         public boolean shouldCache(Class<?> type) {
             return type != null && type != Root.class;
         }
     }
 
     @Test
-    public void test_Set_Generic_Parameter_Types() {
-        OgnlContext context = this.context;
-
+    void test_Set_Generic_Parameter_Types() {
         Method m = OgnlRuntime.getSetMethod(context, GenericCracker.class, "param");
         assertNotNull(m);
 
@@ -269,8 +256,7 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Get_Generic_Parameter_Types() {
-
+    void test_Get_Generic_Parameter_Types() {
         Method m = OgnlRuntime.getGetMethod(GenericCracker.class, "param");
         assertNotNull(m);
 
@@ -278,9 +264,7 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Find_Parameter_Types() {
-        OgnlContext context = this.context;
-
+    void test_Find_Parameter_Types() {
         Method m = OgnlRuntime.getSetMethod(context, GameGeneric.class, "ids");
         assertNotNull(m);
 
@@ -290,9 +274,7 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Find_Parameter_Types_Superclass() {
-        OgnlContext context = this.context;
-
+    void test_Find_Parameter_Types_Superclass() {
         Method m = OgnlRuntime.getSetMethod(context, BaseGeneric.class, "ids");
         assertNotNull(m);
 
@@ -302,7 +284,7 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Get_Declared_Methods_With_Synthetic_Methods() {
+    void test_Get_Declared_Methods_With_Synthetic_Methods() {
         List<Method> result = OgnlRuntime.getDeclaredMethods(SubclassSyntheticObject.class, "list", false);
 
         // synthetic method would be "public volatile java.util.List ognl.test.objects.SubclassSyntheticObject.getList()",
@@ -312,68 +294,61 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void test_Get_Property_Descriptors_With_Synthetic_Methods()
-            throws Exception {
+    void test_Get_Property_Descriptors_With_Synthetic_Methods() throws Exception {
         PropertyDescriptor pd = OgnlRuntime.getPropertyDescriptor(SubclassSyntheticObject.class, "list");
 
-        assert pd != null;
-        assert OgnlRuntime.isMethodCallable(pd.getReadMethod());
+        assertNotNull(pd);
+        assertTrue(OgnlRuntime.isMethodCallable(pd.getReadMethod()));
     }
 
-    private static class GenericParent<T> {
+    public static class GenericParent<T> {
         @SuppressWarnings("unused")
-        public void save(T entity) {
+        void save(T entity) {
         }
     }
 
-    private static class StringChild extends GenericParent<String> {
-
+    public static class StringChild extends GenericParent<String> {
     }
 
-    private static class LongChild extends GenericParent<Long> {
-
+    public static class LongChild extends GenericParent<Long> {
     }
 
     /**
      * Tests OGNL parameter discovery.
      */
     @Test
-    public void testOGNLParameterDiscovery() throws NoSuchMethodException {
-        Method saveMethod = GenericParent.class.getMethod("save", Object.class);
-        System.out.println(saveMethod);
+    void testOGNLParameterDiscovery() throws NoSuchMethodException {
+        Method saveMethod = GenericParent.class.getDeclaredMethod("save", Object.class);
 
         Class<?>[] longClass = OgnlRuntime.findParameterTypes(LongChild.class, saveMethod);
-        assertNotSame(longClass[0], String.class);
-        assertSame(longClass[0], Long.class);
+        assertNotSame(String.class, longClass[0]);
+        assertSame(Long.class, longClass[0]);
 
         Class<?>[] stringClass = OgnlRuntime.findParameterTypes(StringChild.class, saveMethod);
-        assertNotSame("The cached parameter types from previous calls are used", stringClass[0], Long.class);
-        assertSame(stringClass[0], String.class);
+        assertNotSame(Long.class, stringClass[0], "The cached parameter types from previous calls are used");
+        assertSame(String.class, stringClass[0]);
     }
 
     @Test
-    public void testBangOperator() throws Exception {
+    void testBangOperator() throws Exception {
         Object value = Ognl.getValue("!'false'", context, new Object());
         assertEquals(Boolean.TRUE, value);
     }
 
     @Test
-    public void testGetStaticField() throws Exception {
-        OgnlContext context = this.context;
+    void testGetStaticField() throws Exception {
         Object obj = OgnlRuntime.getStaticField(context, "ognl.test.objects.Root", "SIZE_STRING");
         assertEquals(Root.SIZE_STRING, obj);
     }
 
     @Test
-    public void testGetStaticFieldEnum() throws Exception {
-        OgnlContext context = this.context;
+    void testGetStaticFieldEnum() throws Exception {
         Object obj = OgnlRuntime.getStaticField(context, "ognl.test.objects.OtherEnum", "ONE");
         assertEquals(OtherEnum.ONE, obj);
     }
 
     @Test
-    public void testGetStaticFieldEnumStatic() throws Exception {
-        OgnlContext context = this.context;
+    void testGetStaticFieldEnumStatic() throws Exception {
         Object obj = OgnlRuntime.getStaticField(context, "ognl.test.objects.OtherEnum", "STATIC_STRING");
         assertEquals(OtherEnum.STATIC_STRING, obj);
     }
@@ -385,13 +360,13 @@ public class TestOgnlRuntime {
      * choice in that scenario actually worked when invoked, but produced the unwanted syserr output.
      */
     @Test
-    public void testAbstractConcreteMethodScoringNoSysErr() throws Exception {
+    void testAbstractConcreteMethodScoringNoSysErr() throws Exception {
         OgnlContext context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
         ObjectMethodAccessor methodAccessor = new ObjectMethodAccessor();
         ConcreteTestClass concreteTestClass = new ConcreteTestClass();
         Object result = methodAccessor.callMethod(context, concreteTestClass, "testMethod", new Object[]{"Test", 1});
         // The "Two methods with same score(0) ..." error output should no longer be seen with the above call.
-        assertEquals("Result not concatenation of parameters ?", "Test" + 1, result);
+        assertEquals("Test" + 1, result, "Result not concatenation of parameters ?");
     }
 
     /**
@@ -438,7 +413,7 @@ public class TestOgnlRuntime {
      * Note: Only bridge methods should qualify, non-bridge synthetic methods should not.
      */
     @Test
-    public void testSyntheticBridgeReadMethod() {
+    void testSyntheticBridgeReadMethod() {
         assertNotNull(OgnlRuntime.getReadMethod(PublicChild.class, "name"));
     }
 
@@ -448,7 +423,7 @@ public class TestOgnlRuntime {
      * Note: Only bridge methods should qualify, non-bridge synthetic methods should not.
      */
     @Test
-    public void testSyntheticBridgeWriteMethod() {
+    void testSyntheticBridgeWriteMethod() {
         assertNotNull(OgnlRuntime.getWriteMethod(PublicChild.class, "name", new Class[]{String.class}));
     }
 
@@ -482,34 +457,34 @@ public class TestOgnlRuntime {
      * Test that normal non-synthetic methods are considered callable by both isMethodCallable() and isMethodCallable_BridgeOrNonSynthetic().
      */
     @Test
-    public void testConfirmStandardMethodCallability() {
+    void testConfirmStandardMethodCallability() {
         Method method = null;
         try {
             method = SimplePublicClass.class.getDeclaredMethod("getName", (Class<?>[]) null);
         } catch (NoSuchMethodException nsme) {
             fail("SimplePublicClass.getName() method retrieval by reflection failed (NoSuchMethodException) ?");
         }
-        assertNotNull("getName() method retrieval failed ?", method);
-        assertFalse("SimplePublicClass.getName() is a synthetic or bridge method ?", method.isBridge() || method.isSynthetic());
-        assertTrue("SimplePublicClass.getName() is not considered callable by isMethodCallable() ?", OgnlRuntime.isMethodCallable(method));
-        assertTrue("SimplePublicClass.getName() is not considered callable by isMethodCallable_BridgeOrNonSynthetic() ?", OgnlRuntime.isMethodCallable_BridgeOrNonSynthetic(method));
+        assertNotNull(method, "getName() method retrieval failed ?");
+        assertFalse(method.isBridge() || method.isSynthetic(), "SimplePublicClass.getName() is a synthetic or bridge method ?");
+        assertTrue(OgnlRuntime.isMethodCallable(method), "SimplePublicClass.getName() is not considered callable by isMethodCallable() ?");
+        assertTrue(OgnlRuntime.isMethodCallable_BridgeOrNonSynthetic(method), "SimplePublicClass.getName() is not considered callable by isMethodCallable_BridgeOrNonSynthetic() ?");
     }
 
     /**
      * Test that bridge methods ARE considered callable by isMethodCallable_BridgeOrNonSynthetic() ONLY, and NOT by isMethodCallable().
      */
     @Test
-    public void testConfirmBridgeMethodCallability() {
+    void testConfirmBridgeMethodCallability() {
         Method method = null;
         try {
             method = PublicChild.class.getDeclaredMethod("getName", (Class<?>[]) null);
         } catch (NoSuchMethodException nsme) {
             fail("PublicChild.getName() method retrieval by reflection failed (NoSuchMethodException) ?");
         }
-        assertNotNull("getName() method retrieval failed ?", method);
-        assertTrue("PublicChild.getName() is not a bridge method ?", method.isBridge());
-        assertFalse("PublicChild.getName() is considered callable by isMethodCallable() ?", OgnlRuntime.isMethodCallable(method));
-        assertTrue("PublicChild.getName() is not considered callable by isMethodCallable_BridgeOrNonSynthetic() ?", OgnlRuntime.isMethodCallable_BridgeOrNonSynthetic(method));
+        assertNotNull(method, "getName() method retrieval failed ?");
+        assertTrue(method.isBridge(), "PublicChild.getName() is not a bridge method ?");
+        assertFalse(OgnlRuntime.isMethodCallable(method), "PublicChild.getName() is considered callable by isMethodCallable() ?");
+        assertTrue(OgnlRuntime.isMethodCallable_BridgeOrNonSynthetic(method), "PublicChild.getName() is not considered callable by isMethodCallable_BridgeOrNonSynthetic() ?");
 
         try {
             Class<?>[] argumentTypes = {String.class};
@@ -517,19 +492,19 @@ public class TestOgnlRuntime {
         } catch (NoSuchMethodException nsme) {
             fail("PublicChild.setName() method retrieval by reflection failed (NoSuchMethodException) ?");
         }
-        assertNotNull("setName() method retrieval failed ?", method);
-        assertTrue("PublicChild.setName() is not a bridge method ?", method.isBridge());
-        assertFalse("PublicChild.setName() is considered callable by isMethodCallable() ?", OgnlRuntime.isMethodCallable(method));
-        assertTrue("PublicChild.setName() is not considered callable by isMethodCallable_BridgeOrNonSynthetic() ?", OgnlRuntime.isMethodCallable_BridgeOrNonSynthetic(method));
+        assertNotNull(method, "setName() method retrieval failed ?");
+        assertTrue(method.isBridge(), "PublicChild.setName() is not a bridge method ?");
+        assertFalse(OgnlRuntime.isMethodCallable(method), "PublicChild.setName() is considered callable by isMethodCallable() ?");
+        assertTrue(OgnlRuntime.isMethodCallable_BridgeOrNonSynthetic(method), "PublicChild.setName() is not considered callable by isMethodCallable_BridgeOrNonSynthetic() ?");
     }
 
     /**
      * Test that no synthetic method is created.
      */
     @Test
-    public void testConfirmNoSyntheticMethod() throws Exception {
+    void testConfirmNoSyntheticMethod() throws Exception {
         Method[] methods = SimpleNestingClass.NestedClass.class.getDeclaredMethods();
-        assertNotNull("Nested class has no methods ?", methods);
+        assertNotNull(methods, "Nested class has no methods ?");
         // This assertion varies if called with coverage tools, as they inject synthetic methods.
         // assertEquals("Nested class has no methods ?", 0, methods.length);
 
@@ -552,8 +527,8 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void testSetFieldValueWhenCheckAccess() throws OgnlException, NoSuchFieldException {
-        OgnlContext context = (OgnlContext) this.context;
+    void testSetFieldValueWhenCheckAccess() throws OgnlException, NoSuchFieldException {
+
         SimpleFieldClass simpleField = new SimpleFieldClass();
 
         // verify that the static & final field is NOT accessible and bypass set field value
@@ -577,9 +552,9 @@ public class TestOgnlRuntime {
     }
 
     @Test
-    public void testSetFieldValueWhenNotCheckAccess() throws OgnlException, NoSuchFieldException {
+    void testSetFieldValueWhenNotCheckAccess() throws OgnlException, NoSuchFieldException {
         ExcludedObjectMemberAccess memberAccess = new ExcludedObjectMemberAccess(false);
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null, memberAccess);
+        OgnlContext context = Ognl.createDefaultContext(null, memberAccess);
         SimpleFieldClass simpleField = new SimpleFieldClass();
 
         // verify that the static & final field is NOT accessible and bypass set field value

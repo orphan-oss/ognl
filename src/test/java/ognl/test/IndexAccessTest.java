@@ -18,82 +18,141 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
 import ognl.MethodFailedException;
 import ognl.NoSuchPropertyException;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.IndexedSetObject;
 import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class IndexAccessTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-    private static Root ROOT = new Root();
-    private static IndexedSetObject INDEXED_SET = new IndexedSetObject();
+class IndexAccessTest {
 
-    private static Object[][] TESTS = {
-            {ROOT, "list[index]", ROOT.getList().get(ROOT.getIndex())},
-            {ROOT, "list[objectIndex]", ROOT.getList().get(ROOT.getObjectIndex().intValue())},
-            {ROOT, "array[objectIndex]", ROOT.getArray()[ROOT.getObjectIndex().intValue()]},
-            {ROOT, "array[getObjectIndex()]", ROOT.getArray()[ROOT.getObjectIndex().intValue()]},
-            {ROOT, "array[genericIndex]", ROOT.getArray()[((Integer) ROOT.getGenericIndex()).intValue()]},
-            {ROOT, "booleanArray[self.objectIndex]", Boolean.FALSE},
-            {ROOT, "booleanArray[getObjectIndex()]", Boolean.FALSE},
-            {ROOT, "booleanArray[nullIndex]", NoSuchPropertyException.class},
-            {ROOT, "list[size() - 1]", MethodFailedException.class},
-            {ROOT, "(index == (array.length - 3)) ? 'toggle toggleSelected' : 'toggle'", "toggle toggleSelected"},
-            {ROOT, "\"return toggleDisplay('excdisplay\"+index+\"', this)\"", "return toggleDisplay('excdisplay1', this)"},
-            {ROOT, "map[mapKey].split('=')[0]", "StringStuff"},
-            {ROOT, "booleanValues[index1][index2]", Boolean.FALSE},
-            {ROOT, "tab.searchCriteria[index1].displayName", "Woodland creatures"},
-            {ROOT, "tab.searchCriteriaSelections[index1][index2]", Boolean.TRUE},
-            {ROOT, "tab.searchCriteriaSelections[index1][index2]", Boolean.TRUE, Boolean.FALSE, Boolean.FALSE},
-            {ROOT, "map['bar'].value", 100, 50, 50},
-            {INDEXED_SET, "thing[\"x\"].val", 1, 2, 2}
-    };
+    private Root root;
+    private IndexedSetObject indexedSet;
+    private OgnlContext context;
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 5) {
-                result.addTest(new IndexAccessTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2],
-                        TESTS[i][3], TESTS[i][4]));
-            } else {
-                result.addTest(new IndexAccessTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1], TESTS[i][2]));
-            }
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        root = new Root();
+        indexedSet = new IndexedSetObject();
+        context = Ognl.createDefaultContext(root);
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public IndexAccessTest() {
-        super();
+    @Test
+    void testListIndex() throws Exception {
+        Object actual = Ognl.getValue("list[index]", context, root);
+        assertEquals(root.getList().get(root.getIndex()), actual);
     }
 
-    public IndexAccessTest(String name) {
-        super(name);
+    @Test
+    void testListObjectIndex() throws Exception {
+        Object actual = Ognl.getValue("list[objectIndex]", context, root);
+        assertEquals(root.getList().get(root.getObjectIndex()), actual);
     }
 
-    public IndexAccessTest(String name, Object root, String expressionString, Object expectedResult,
-                           Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testArrayObjectIndex() throws Exception {
+        Object actual = Ognl.getValue("array[objectIndex]", context, root);
+        assertEquals(root.getArray()[root.getObjectIndex()], actual);
     }
 
-    public IndexAccessTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void testArrayGetObjectIndex() throws Exception {
+        Object actual = Ognl.getValue("array[getObjectIndex()]", context, root);
+        assertEquals(root.getArray()[root.getObjectIndex()], actual);
     }
 
-    public IndexAccessTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testArrayGenericIndex() throws Exception {
+        Object actual = Ognl.getValue("array[genericIndex]", context, root);
+        assertEquals(root.getArray()[(Integer) root.getGenericIndex()], actual);
     }
 
-    public void setUp() {
-        super.setUp();
+    @Test
+    void testBooleanArraySelfObjectIndex() throws Exception {
+        Object actual = Ognl.getValue("booleanArray[self.objectIndex]", context, root);
+        assertEquals(Boolean.FALSE, actual);
+    }
+
+    @Test
+    void testBooleanArrayGetObjectIndex() throws Exception {
+        Object actual = Ognl.getValue("booleanArray[getObjectIndex()]", context, root);
+        assertEquals(Boolean.FALSE, actual);
+    }
+
+    @Test
+    void testBooleanArrayNullIndex() {
+        assertThrows(NoSuchPropertyException.class,
+                () -> Ognl.getValue("booleanArray[nullIndex]", context, root),
+                "nullIndex");
+    }
+
+    @Test
+    void testListSizeMinusOne() {
+        assertThrows(MethodFailedException.class,
+                () -> Ognl.getValue("list[size() - 1]", context, root),
+                "size()");
+    }
+
+    @Test
+    void testToggleToggleSelected() throws Exception {
+        Object actual = Ognl.getValue("(index == (array.length - 3)) ? 'toggle toggleSelected' : 'toggle'", context, root);
+        assertEquals("toggle toggleSelected", actual);
+    }
+
+    @Test
+    void testToggleDisplay() throws Exception {
+        Object actual = Ognl.getValue("\"return toggleDisplay('excdisplay\"+index+\"', this)\"", context, root);
+        assertEquals("return toggleDisplay('excdisplay1', this)", actual);
+    }
+
+    @Test
+    void testMapMapKeySplit() throws Exception {
+        Object actual = Ognl.getValue("map[mapKey].split('=')[0]", context, root);
+        assertEquals("StringStuff", actual);
+    }
+
+    @Test
+    void testBooleanValuesIndex1Index2() throws Exception {
+        Object actual = Ognl.getValue("booleanValues[index1][index2]", context, root);
+        assertEquals(Boolean.FALSE, actual);
+    }
+
+    @Test
+    void testTabSearchCriteriaDisplayName() throws Exception {
+        Object actual = Ognl.getValue("tab.searchCriteria[index1].displayName", context, root);
+        assertEquals("Woodland creatures", actual);
+    }
+
+    @Test
+    void testTabSearchCriteriaSelections() throws Exception {
+        Object actual = Ognl.getValue("tab.searchCriteriaSelections[index1][index2]", context, root);
+        assertEquals(Boolean.TRUE, actual);
+    }
+
+    @Test
+    void testTabSearchCriteriaSelectionsSetValue() throws Exception {
+        Ognl.setValue("tab.searchCriteriaSelections[index1][index2]", context, root, Boolean.FALSE);
+        Object actual = Ognl.getValue("tab.searchCriteriaSelections[index1][index2]", context, root);
+        assertEquals(Boolean.FALSE, actual);
+    }
+
+    @Test
+    void testMapBarValue() throws Exception {
+        Ognl.setValue("map['bar'].value", context, root, 50);
+        Object actual = Ognl.getValue("map['bar'].value", context, root);
+        assertEquals(50, actual);
+    }
+
+    @Test
+    void testIndexedSetThingXVal() throws Exception {
+        Ognl.setValue("thing[\"x\"].val", context, indexedSet, 2);
+        Object actual = Ognl.getValue("thing[\"x\"].val", context, indexedSet);
+        assertEquals(2, actual);
     }
 }

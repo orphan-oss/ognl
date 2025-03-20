@@ -1,39 +1,50 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.BaseGeneric;
 import ognl.test.objects.GameGeneric;
 import ognl.test.objects.GameGenericObject;
-import ognl.test.objects.GenericRoot;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-/**
- * Tests java >= 1.5 generics support in ognl.
- */
-public class GenericsTest extends OgnlTestCase {
-    static GenericRoot ROOT = new GenericRoot();
-    static BaseGeneric<GameGenericObject, Long> GENERIC = new GameGeneric();
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-    static Object[][] TESTS = {
-            /* { ROOT, "cracker.param", null, new Integer(2), new Integer(2)}, */
-            {GENERIC, "ids", null, new Long[]{1l, 101l}, new Long[]{1l, 101l}},
-            /* { GENERIC, "ids", new Long[] {1l, 101l}, new String[] {"2", "34"}, new Long[]{2l, 34l}}, */
-    };
+class GenericsTest {
 
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
+    private BaseGeneric<GameGenericObject, Long> generic;
+    private OgnlContext context;
 
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 5) {
-                result.addTest(new GenericsTest((String) TESTS[i][1] + " (" + TESTS[i][2] + ")", TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-            }
-        }
-
-        return result;
+    @BeforeEach
+    void setUp() {
+        generic = new GameGeneric();
+        context = Ognl.createDefaultContext(generic);
     }
 
-    public GenericsTest(String name, Object root, String expressionString,
-                        Object expectedResult, Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testIds() throws Exception {
+        Long[] expected = new Long[]{1L, 101L};
+        Ognl.setValue("ids", context, generic, expected);
+        Long[] actual = (Long[]) Ognl.getValue("ids", context, generic);
+
+        assertArrayEquals(expected, actual);
     }
 }

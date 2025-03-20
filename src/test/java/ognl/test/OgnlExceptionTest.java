@@ -18,29 +18,32 @@
  */
 package ognl.test;
 
-import ognl.DefaultMemberAccess;
-import ognl.Ognl;
-import ognl.OgnlContext;
-import ognl.SimpleNode;
+import ognl.OgnlException;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-class ASTSequenceTest {
+/**
+ * Tests {@link OgnlException}.
+ */
+class OgnlExceptionTest {
 
     @Test
-    void isSequence() throws Exception {
-        OgnlContext context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
-
-        SimpleNode node = (SimpleNode) Ognl.parseExpression("#name");
-        assertFalse(node.isSequence(context));
-
-        node = (SimpleNode) Ognl.parseExpression("#name = 'boo', System.out.println(#name)");
-        assertTrue(node.isSequence(context));
-
-        node = (SimpleNode) Ognl.parseExpression("#name['foo'] = 'bar'");
-        assertFalse(node.isSequence(context));
+    void test_Throwable_Reason() {
+        try {
+            throwException();
+        } catch (OgnlException e) {
+            assertInstanceOf(NumberFormatException.class, e.getReason());
+            assertEquals("Unable to parse input string.", e.getMessage());
+        }
     }
 
+    void throwException() throws OgnlException {
+        try {
+            Integer.parseInt("45ac");
+        } catch (NumberFormatException et) {
+            throw new OgnlException("Unable to parse input string.", et);
+        }
+    }
 }

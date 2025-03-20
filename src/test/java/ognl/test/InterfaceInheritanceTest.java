@@ -18,7 +18,8 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.OgnlRuntime;
 import ognl.test.objects.Bean1;
 import ognl.test.objects.BeanProvider;
@@ -26,106 +27,165 @@ import ognl.test.objects.BeanProviderAccessor;
 import ognl.test.objects.EvenOdd;
 import ognl.test.objects.ListSourceImpl;
 import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class InterfaceInheritanceTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-    private static Root ROOT = new Root();
+class InterfaceInheritanceTest {
 
-    static {
-        ROOT.getBeans().setBean("testBean", new Bean1());
-        ROOT.getBeans().setBean("evenOdd", new EvenOdd());
+    private Root root;
+    private OgnlContext context;
 
-        List list = new ListSourceImpl();
+    @BeforeEach
+    void setUp() {
+        root = new Root();
+        root.getBeans().setBean("testBean", new Bean1());
+        root.getBeans().setBean("evenOdd", new EvenOdd());
+
+        List<Object> list = new ListSourceImpl();
         list.add("test1");
 
-        ROOT.getMap().put("customList", list);
-    }
+        root.getMap().put("customList", list);
 
-    private static Object[][] TESTS = {
-            {ROOT, "myMap", ROOT.getMyMap()},
-            {ROOT, "myMap.test", ROOT},
-            {ROOT.getMyMap(), "list", ROOT.getList()},
-            {ROOT, "myMap.array[0]", new Integer(ROOT.getArray()[0])},
-            {ROOT, "myMap.list[1]", ROOT.getList().get(1)},
-            {ROOT, "myMap[^]", new Integer(99)},
-            {ROOT, "myMap[$]", null},
-            {ROOT.getMyMap(), "array[$]", new Integer(ROOT.getArray()[ROOT.getArray().length - 1])},
-            {ROOT, "[\"myMap\"]", ROOT.getMyMap()},
-            {ROOT, "myMap[null]", null},
-            {ROOT, "myMap[#x = null]", null},
-            {ROOT, "myMap.(null,test)", ROOT},
-            {ROOT, "myMap[null] = 25", new Integer(25)},
-            {ROOT, "myMap[null]", new Integer(25), new Integer(50), new Integer(50)},
-            {ROOT, "beans.testBean", ROOT.getBeans().getBean("testBean")},
-            {ROOT, "beans.evenOdd.next", "even"},
-            {ROOT, "map.comp.form.clientId", "form1"},
-            {ROOT, "map.comp.getCount(genericIndex)", Integer.valueOf(0)},
-            {ROOT, "map.customList.total", Integer.valueOf(1)},
-            {ROOT, "myTest.theMap['key']", "value"},
-            {ROOT, "contentProvider.hasChildren(property)", Boolean.TRUE},
-            {ROOT, "objectIndex instanceof java.lang.Object", Boolean.TRUE}
-    };
-
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new InterfaceInheritanceTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new InterfaceInheritanceTest((String) TESTS[i][1], TESTS[i][0],
-                            (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new InterfaceInheritanceTest((String) TESTS[i][1], TESTS[i][0],
-                                (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public InterfaceInheritanceTest() {
-        super();
-    }
-
-    public InterfaceInheritanceTest(String name) {
-        super(name);
-    }
-
-    public InterfaceInheritanceTest(String name, Object root, String expressionString, Object expectedResult,
-                                    Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
-    }
-
-    public InterfaceInheritanceTest(String name, Object root, String expressionString, Object expectedResult,
-                                    Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public InterfaceInheritanceTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
-    }
-
-    public void setUp() {
-        super.setUp();
+        context = Ognl.createDefaultContext(root);
 
         OgnlRuntime.setPropertyAccessor(BeanProvider.class, new BeanProviderAccessor());
+    }
+
+    @Test
+    void testMyMap() throws Exception {
+        Object actual = Ognl.getValue("myMap", context, root);
+        assertEquals(root.getMyMap(), actual);
+    }
+
+    @Test
+    void testMyMapTest() throws Exception {
+        Object actual = Ognl.getValue("myMap.test", context, root);
+        assertEquals(root, actual);
+    }
+
+    @Test
+    void testMyMapList() throws Exception {
+        Object actual = Ognl.getValue("list", context, root.getMyMap());
+        assertEquals(root.getList(), actual);
+    }
+
+    @Test
+    void testMyMapArray0() throws Exception {
+        Object actual = Ognl.getValue("myMap.array[0]", context, root);
+        assertEquals(root.getArray()[0], actual);
+    }
+
+    @Test
+    void testMyMapList1() throws Exception {
+        Object actual = Ognl.getValue("myMap.list[1]", context, root);
+        assertEquals(root.getList().get(1), actual);
+    }
+
+    @Test
+    void testMyMapCaret() throws Exception {
+        Object actual = Ognl.getValue("myMap[^]", context, root);
+        assertEquals(99, actual);
+    }
+
+    @Test
+    void testMyMapDollar() throws Exception {
+        Object actual = Ognl.getValue("myMap[$]", context, root);
+        assertNull(actual);
+    }
+
+    @Test
+    void testMyMapArrayDollar() throws Exception {
+        Object actual = Ognl.getValue("array[$]", context, root.getMyMap());
+        assertEquals(root.getArray()[root.getArray().length - 1], actual);
+    }
+
+    @Test
+    void testMyMapString() throws Exception {
+        Object actual = Ognl.getValue("[\"myMap\"]", context, root);
+        assertEquals(root.getMyMap(), actual);
+    }
+
+    @Test
+    void testMyMapNull() throws Exception {
+        Object actual = Ognl.getValue("myMap[null]", context, root);
+        assertNull(actual);
+    }
+
+    @Test
+    void testMyMapXNull() throws Exception {
+        Object actual = Ognl.getValue("myMap[#x = null]", context, root);
+        assertNull(actual);
+    }
+
+    @Test
+    void testMyMapNullTest() throws Exception {
+        Object actual = Ognl.getValue("myMap.(null,test)", context, root);
+        assertEquals(root, actual);
+    }
+
+    @Test
+    void testMyMapNull25() throws Exception {
+        Object actual = Ognl.getValue("myMap[null] = 25", context, root);
+        assertEquals(25, actual);
+    }
+
+    @Test
+    void testMyMapNull50() throws Exception {
+        Ognl.setValue("myMap[null]", context, root, 50);
+        Object actual = Ognl.getValue("myMap[null]", context, root);
+        assertEquals(50, actual);
+    }
+
+    @Test
+    void testBeansTestBean() throws Exception {
+        Object actual = Ognl.getValue("beans.testBean", context, root);
+        assertEquals(root.getBeans().getBean("testBean"), actual);
+    }
+
+    @Test
+    void testBeansEvenOddNext() throws Exception {
+        Object actual = Ognl.getValue("beans.evenOdd.next", context, root);
+        assertEquals("even", actual);
+    }
+
+    @Test
+    void testMapCompFormClientId() throws Exception {
+        Object actual = Ognl.getValue("map.comp.form.clientId", context, root);
+        assertEquals("form1", actual);
+    }
+
+    @Test
+    void testMapCompGetCount() throws Exception {
+        Object actual = Ognl.getValue("map.comp.getCount(genericIndex)", context, root);
+        assertEquals(0, actual);
+    }
+
+    @Test
+    void testMapCustomListTotal() throws Exception {
+        Object actual = Ognl.getValue("map.customList.total", context, root);
+        assertEquals(1, actual);
+    }
+
+    @Test
+    void testMyTestTheMapKey() throws Exception {
+        Object actual = Ognl.getValue("myTest.theMap['key']", context, root);
+        assertEquals("value", actual);
+    }
+
+    @Test
+    void testContentProviderHasChildren() throws Exception {
+        Object actual = Ognl.getValue("contentProvider.hasChildren(property)", context, root);
+        assertEquals(Boolean.TRUE, actual);
+    }
+
+    @Test
+    void testObjectIndexInstanceOf() throws Exception {
+        Object actual = Ognl.getValue("objectIndex instanceof java.lang.Object", context, root);
+        assertEquals(Boolean.TRUE, actual);
     }
 }
