@@ -15,55 +15,69 @@
  */
 package ognl.test;
 
-import junit.framework.TestCase;
 import ognl.Ognl;
-import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.test.objects.Simple;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class VarArgsMethodTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-    private static final Simple ROOT = new Simple();
+class VarArgsMethodTest {
 
-    public void testNullVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("isNullVarArgs()", ROOT);
+    private Simple root;
 
-        assertTrue(value instanceof String);
+    @BeforeEach
+    void setUp() {
+        root = new Simple();
+    }
+
+    @Test
+    void testNullVarArgs() throws OgnlException {
+        Object value = Ognl.getValue("isNullVarArgs()", root);
+
+        assertInstanceOf(String.class, value);
         assertEquals("null", value);
     }
 
-    public void testVarArgsWithSingleArg() throws Exception {
-        Object value = Ognl.getValue("isStringVarArgs(new String())", ROOT);
+    @Test
+    void testVarArgsWithSingleArg() throws Exception {
+        Object value = Ognl.getValue("isStringVarArgs(new String())", root);
 
-        assertTrue(value instanceof String);
+        assertInstanceOf(String.class, value);
         assertEquals("args", value);
     }
 
-    public void testVarArgsWithMultipleArgs() throws Exception {
-        Object value = Ognl.getValue("isStringVarArgs(new String(), new String())", ROOT);
+    @Test
+    void testVarArgsWithMultipleArgs() throws Exception {
+        Object value = Ognl.getValue("isStringVarArgs(new String(), new String())", root);
 
-        assertTrue(value instanceof String);
+        assertInstanceOf(String.class, value);
         assertEquals("args", value);
     }
 
-    public void testNestedNullVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("get().request()", ROOT);
+    @Test
+    void testNestedNullVarArgs() throws OgnlException {
+        Object value = Ognl.getValue("get().request()", root);
 
-        assertTrue(value instanceof String);
+        assertInstanceOf(String.class, value);
         assertEquals("null", value);
     }
 
-    public void testNestedSingleVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("get().request(new String())", ROOT);
+    @Test
+    void testNestedSingleVarArgs() throws OgnlException {
+        Object value = Ognl.getValue("get().request(new String())", root);
 
-        assertTrue(value instanceof String);
+        assertInstanceOf(String.class, value);
         assertEquals("args", value);
     }
 
-    public void testNestedMultipleVarArgs() throws OgnlException {
-        Object value = Ognl.getValue("get().request(new String(), new String())", ROOT);
+    @Test
+    void testNestedMultipleVarArgs() throws OgnlException {
+        Object value = Ognl.getValue("get().request(new String(), new String())", root);
 
-        assertTrue(value instanceof String);
+        assertInstanceOf(String.class, value);
         assertEquals("args", value);
     }
 

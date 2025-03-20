@@ -28,16 +28,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class Root extends Object {
+public class Root {
+
     public static final String SIZE_STRING = "size";
     public static final int STATIC_INT = 23;
 
     private int[] array = {1, 2, 3, 4};
-    private Map map = new HashMap(23);
-    private MyMap myMap = new MyMapImpl();
-    private List list = Arrays.asList(new Object[]{null, this, array});
-    private List settableList = new ArrayList(Arrays.asList(new Object[]{"foo", "bar", "baz"}));
-    private int index = 1;
+    private final Map<Object, Object> map = new HashMap<>(23);
+    private final MyMap myMap = new MyMapImpl();
+    private final List<Object> list = Arrays.asList(null, this, array);
+    private final List<Object> settableList = new ArrayList<>(Arrays.asList("foo", "bar", "baz"));
+    private final int index = 1;
     private int intValue = 0;
     private String stringValue;
     private int yetAnotherIntValue = 46;
@@ -50,26 +51,26 @@ public class Root extends Object {
     public int six = 6;
     private boolean _disabled;
     private Locale _selected = Locale.getDefault();
-    private List<List<Boolean>> _booleanValues = new ArrayList<List<Boolean>>();
+    private final List<List<Boolean>> _booleanValues = new ArrayList<>();
 
-    private boolean[] _booleanArray = {true, false, true, true};
-    private List _list;
-    private int verbosity = 87;
-    private BeanProvider _beanProvider = new BeanProviderImpl();
+    private final boolean[] _booleanArray = {true, false, true, true};
+    private List<Object> _list;
+    private final int verbosity = 87;
+    private final BeanProvider _beanProvider = new BeanProviderImpl();
     private boolean _render;
     private Boolean _readOnly = Boolean.FALSE;
-    private Integer _objIndex = new Integer(1);
-    private Object _genericObjIndex = new Integer(2);
-    private Date _date = new Date();
+    private final Integer _objIndex = 1;
+    private final Object _genericObjIndex = 2;
+    private final Date _date = new Date();
     private boolean _openWindow = false;
 
-    private ITreeContentProvider _contentProvider = new TreeContentProvider();
-    private Indexed _indexed = new Indexed();
+    private final ITreeContentProvider _contentProvider = new TreeContentProvider();
+    private final Indexed _indexed = new Indexed();
     private SearchTab _tab = new SearchTab();
 
     /*===================================================================
-		Public static methods
-	  ===================================================================*/
+        Public static methods
+    ===================================================================*/
     public static int getStaticInt() {
         return STATIC_INT;
     }
@@ -78,21 +79,15 @@ public class Root extends Object {
         Constructors
       ===================================================================*/
     public Root() {
-        super();
-    }
-
-    /*===================================================================
-		Private methods
-	  ===================================================================*/ {
         map.put("test", this);
         map.put("array", array);
         map.put("list", list);
-        map.put("size", new Integer(5000));
-        map.put(DynamicSubscript.first, new Integer(99));
+        map.put("size", 5000);
+        map.put(DynamicSubscript.first, 99);
         map.put("baz", array);
         map.put("value", new Bean2());
         map.put("bar", new Bean3());
-        map.put(new Long(82), "StringStuff=someValue");
+        map.put(82L, "StringStuff=someValue");
 
         IFormComponent comp = new FormComponentImpl();
         comp.setClientId("formComponent");
@@ -198,7 +193,7 @@ public class Root extends Object {
         return new Messages(map);
     }
 
-    public Map getMap() {
+    public Map<Object, Object> getMap() {
         return map;
     }
 
@@ -351,7 +346,7 @@ public class Root extends Object {
     }
 
     public Long getTheLong() {
-        return new Long(4);
+        return 4L;
     }
 
     public boolean isSorted() {
@@ -387,18 +382,18 @@ public class Root extends Object {
     }
 
     public Long getMapKey() {
-        return new Long(82);
+        return 82L;
     }
 
     public Object getArrayValue() {
-        return new Object[]{new Integer("2"), new Integer("2")};
+        return new Object[]{Integer.valueOf("2"), Integer.valueOf("2")};
     }
 
-    public List getResult() {
-        List list = new ArrayList();
-        list.add(new Object[]{new Integer("2"), new Integer("2")});
-        list.add(new Object[]{new Integer("2"), new Integer("2")});
-        list.add(new Object[]{new Integer("2"), new Integer("2")});
+    public List<Object> getResult() {
+        List<Object> list = new ArrayList<>();
+        list.add(new Object[]{Integer.valueOf("2"), Integer.valueOf("2")});
+        list.add(new Object[]{Integer.valueOf("2"), Integer.valueOf("2")});
+        list.add(new Object[]{Integer.valueOf("2"), Integer.valueOf("2")});
 
         return list;
     }

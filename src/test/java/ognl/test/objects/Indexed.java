@@ -27,15 +27,15 @@ import java.util.Map;
 public class Indexed extends BaseIndexed {
     private String[] _values = new String[]{"foo", "bar", "baz"};
 
-    private List _list = new ArrayList();
-    private ListSource _source = new ListSourceImpl();
+    private final List<Integer> _list = new ArrayList<>();
+    private final ListSource _source = new ListSourceImpl();
 
     private Map _props = new HashMap();
 
     public Indexed() {
-        _list.add(new Integer(1));
-        _list.add(new Integer(2));
-        _list.add(new Integer(3));
+        _list.add(1);
+        _list.add(2);
+        _list.add(3);
 
         _source.addValue(new Bean2());
     }
@@ -69,7 +69,7 @@ public class Indexed extends BaseIndexed {
         }
     }
 
-    public Collection getList() {
+    public Collection<Integer> getList() {
         return _list;
     }
 

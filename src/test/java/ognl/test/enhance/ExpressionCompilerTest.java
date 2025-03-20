@@ -3,7 +3,6 @@
  */
 package ognl.test.enhance;
 
-import junit.framework.TestCase;
 import ognl.DefaultMemberAccess;
 import ognl.ExpressionSyntaxException;
 import ognl.Node;
@@ -19,132 +18,148 @@ import ognl.test.objects.Inherited;
 import ognl.test.objects.Root;
 import ognl.test.objects.TestInherited1;
 import ognl.test.objects.TestInherited2;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests functionality of {@link ExpressionCompiler}.
  */
-public class TestExpressionCompiler extends TestCase {
-    OgnlExpressionCompiler _compiler;
-    OgnlContext _context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+public class ExpressionCompilerTest {
 
-    public void setUp() {
-        _compiler = new ExpressionCompiler();
+    private OgnlExpressionCompiler compiler;
+    private OgnlContext context;
+
+    @BeforeEach
+    void setUp() {
+        context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+        compiler = new ExpressionCompiler();
     }
 
-    public void test_Get_Property_Access()
+    @Test
+    void test_Get_Property_Access()
             throws Throwable {
         Node expr = (Node) Ognl.parseExpression("bean2");
         Bean1 root = new Bean1();
 
-        _compiler.compileExpression(_context, expr, root);
+        compiler.compileExpression(context, expr, root);
 
-        assertNotNull(expr.getAccessor().get(_context, root));
+        assertNotNull(expr.getAccessor().get(context, root));
     }
 
-    public void test_Get_Indexed_Property()
+    @Test
+    void test_Get_Indexed_Property()
             throws Throwable {
         Node expr = (Node) Ognl.parseExpression("bean2.bean3.indexedValue[25]");
         Bean1 root = new Bean1();
 
-        assertNull(Ognl.getValue(expr, _context, root));
+        assertNull(Ognl.getValue(expr, context, root));
 
-        _compiler.compileExpression(_context, expr, root);
+        compiler.compileExpression(context, expr, root);
 
-        assertNull(expr.getAccessor().get(_context, root));
+        assertNull(expr.getAccessor().get(context, root));
     }
 
-    public void test_Set_Indexed_Property()
+    @Test
+    void test_Set_Indexed_Property()
             throws Throwable {
         Node expr = (Node) Ognl.parseExpression("bean2.bean3.indexedValue[25]");
         Bean1 root = new Bean1();
 
-        assertNull(Ognl.getValue(expr, _context, root));
+        assertNull(Ognl.getValue(expr, context, root));
 
-        _compiler.compileExpression(_context, expr, root);
+        compiler.compileExpression(context, expr, root);
 
-        expr.getAccessor().set(_context, root, "test string");
+        expr.getAccessor().set(context, root, "test string");
 
-        assertEquals("test string", expr.getAccessor().get(_context, root));
+        assertEquals("test string", expr.getAccessor().get(context, root));
     }
 
-    public void test_Expression()
+    @Test
+    void test_Expression()
             throws Throwable {
         Node expr = (Node) Ognl.parseExpression("bean2.bean3.value <= 24");
         Bean1 root = new Bean1();
 
-        assertEquals(Boolean.FALSE, Ognl.getValue(expr, _context, root));
+        assertEquals(Boolean.FALSE, Ognl.getValue(expr, context, root));
 
-        _compiler.compileExpression(_context, expr, root);
+        compiler.compileExpression(context, expr, root);
 
-        assertEquals(Boolean.FALSE, expr.getAccessor().get(_context, root));
+        assertEquals(Boolean.FALSE, expr.getAccessor().get(context, root));
     }
 
-    public void test_Get_Context_Property()
+    @Test
+    void test_Get_Context_Property()
             throws Throwable {
-        _context.put("key", "foo");
+        context.put("key", "foo");
         Node expr = (Node) Ognl.parseExpression("bean2.bean3.map[#key]");
         Bean1 root = new Bean1();
 
-        assertEquals("bar", Ognl.getValue(expr, _context, root));
+        assertEquals("bar", Ognl.getValue(expr, context, root));
 
-        _compiler.compileExpression(_context, expr, root);
+        compiler.compileExpression(context, expr, root);
 
-        assertEquals("bar", expr.getAccessor().get(_context, root));
+        assertEquals("bar", expr.getAccessor().get(context, root));
 
-        _context.put("key", "bar");
+        context.put("key", "bar");
 
-        assertEquals("baz", Ognl.getValue(expr, _context, root));
-        assertEquals("baz", expr.getAccessor().get(_context, root));
+        assertEquals("baz", Ognl.getValue(expr, context, root));
+        assertEquals("baz", expr.getAccessor().get(context, root));
     }
 
-    public void test_Set_Context_Property()
+    @Test
+    void test_Set_Context_Property()
             throws Throwable {
-        _context.put("key", "foo");
+        context.put("key", "foo");
         Node expr = (Node) Ognl.parseExpression("bean2.bean3.map[#key]");
         Bean1 root = new Bean1();
 
-        _compiler.compileExpression(_context, expr, root);
+        compiler.compileExpression(context, expr, root);
 
-        assertEquals("bar", expr.getAccessor().get(_context, root));
+        assertEquals("bar", expr.getAccessor().get(context, root));
 
-        _context.put("key", "bar");
-        assertEquals("baz", expr.getAccessor().get(_context, root));
+        context.put("key", "bar");
+        assertEquals("baz", expr.getAccessor().get(context, root));
 
-        expr.getAccessor().set(_context, root, "bam");
-        assertEquals("bam", expr.getAccessor().get(_context, root));
+        expr.getAccessor().set(context, root, "bam");
+        assertEquals("bam", expr.getAccessor().get(context, root));
     }
 
-    public void test_Property_Index()
-            throws Throwable {
+    @Test
+    void test_Property_Index() throws Throwable {
         Root root = new Root();
-        Node expr = (Node) Ognl.compileExpression(_context, root, "{index + 1}");
+        Node expr = Ognl.compileExpression(context, root, "{index + 1}");
 
-        Object ret = expr.getAccessor().get(_context, root);
+        Object ret = expr.getAccessor().get(context, root);
 
-        assertTrue(Collection.class.isInstance(ret));
+        assertInstanceOf(Collection.class, ret);
     }
 
-    public void test_Root_Expression_Inheritance()
+    @Test
+    void test_Root_Expression_Inheritance()
             throws Throwable {
         Inherited obj1 = new TestInherited1();
         Inherited obj2 = new TestInherited2();
 
-        Node expr = (Node) Ognl.compileExpression(_context, obj1, "myString");
+        Node expr = Ognl.compileExpression(context, obj1, "myString");
 
-        assertEquals(expr.getAccessor().get(_context, obj1), "inherited1");
-        assertEquals(expr.getAccessor().get(_context, obj2), "inherited2");
+        assertEquals("inherited1", expr.getAccessor().get(context, obj1));
+        assertEquals("inherited2", expr.getAccessor().get(context, obj2));
     }
 
-    public void test_Create_Empty_Collection()
-            throws Throwable {
-        Node expr = (Node) Ognl.compileExpression(_context, null, "{}");
+    @Test
+    void test_Create_Empty_Collection() throws Throwable {
+        Node expr = Ognl.compileExpression(context, null, "{}");
 
-        Object ret = expr.getAccessor().get(_context, null);
+        Object ret = expr.getAccessor().get(context, null);
 
         assertNotNull(ret);
         assertTrue(Collection.class.isAssignableFrom(ret.getClass()));
@@ -154,13 +169,10 @@ public class TestExpressionCompiler extends TestCase {
         return "key";
     }
 
-    public void test_Indexed_Property()
-            throws Throwable {
-        Map map = new HashMap();
-        map.put("key", "value");
-
-        Node expression = Ognl.compileExpression(_context, this, "key");
-        assertEquals("key", expression.getAccessor().get(_context, this));
+    @Test
+    void test_Indexed_Property() throws Throwable {
+        Node expression = Ognl.compileExpression(context, this, "key");
+        assertEquals("key", expression.getAccessor().get(context, this));
     }
 
     IndexedMapObject mapObject = new IndexedMapObject("propertyValue");
@@ -169,44 +181,43 @@ public class TestExpressionCompiler extends TestCase {
         return mapObject;
     }
 
+    @SuppressWarnings("unused")
     public String getPropertyKey() {
         return "property";
     }
 
-    public void test_Indexed_Map_Property()
-            throws Throwable {
+    @Test
+    void test_Indexed_Map_Property() throws Throwable {
         assertEquals("propertyValue", Ognl.getValue("object[propertyKey]", this));
 
-        _context.clear();
-        Node expression = Ognl.compileExpression(_context, this, "object[#this.propertyKey]");
-        assertEquals("propertyValue", expression.getAccessor().get(_context, this));
+        context.clear();
+        Node expression = Ognl.compileExpression(context, this, "object[#this.propertyKey]");
+        assertEquals("propertyValue", expression.getAccessor().get(context, this));
 
-        _context.clear();
-        expression = Ognl.compileExpression(_context, this, "object[propertyKey]");
-        assertEquals("propertyValue", expression.getAccessor().get(_context, this));
+        context.clear();
+        expression = Ognl.compileExpression(context, this, "object[propertyKey]");
+        assertEquals("propertyValue", expression.getAccessor().get(context, this));
     }
 
-    public void test_Set_Generic_Property() throws Exception {
-        _context.clear();
-
+    @Test
+    void test_Set_Generic_Property() throws Exception {
         GenericRoot root = new GenericRoot();
 
-        Node node = Ognl.compileExpression(_context, root, "cracker.param");
-        assertEquals(null, node.getAccessor().get(_context, root));
+        Node node = Ognl.compileExpression(context, root, "cracker.param");
+        assertNull(node.getAccessor().get(context, root));
 
-        node.getAccessor().set(_context, root, new Integer(0));
-        assertEquals(new Integer(0), node.getAccessor().get(_context, root));
+        node.getAccessor().set(context, root, 0);
+        assertEquals(0, node.getAccessor().get(context, root));
 
-        node.getAccessor().set(_context, root, new Integer(12));
-        assertEquals(new Integer(12), node.getAccessor().get(_context, root));
+        node.getAccessor().set(context, root, 12);
+        assertEquals(12, node.getAccessor().get(context, root));
     }
 
     /**
      * Test ApplyExpressionMaxLength() mechanism for OGNL expression parsing.
-     *
-     * @throws Exception
      */
-    public void test_ApplyExpressionMaxLength() throws Exception {
+    @Test
+    void test_ApplyExpressionMaxLength() {
         final String shortFakeExpression = new String(new char[10]).replace('\0', 'S');
         final String mediumFakeExpression = new String(new char[100]).replace('\0', 'S');
         final String longFakeExpression = new String(new char[1000]).replace('\0', 'S');
@@ -345,10 +356,10 @@ public class TestExpressionCompiler extends TestCase {
 
             try {
                 Ognl.parseExpression(veryLongFakeExpression);
-                fail("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
+                fail("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") succeeded unexpectedly after limit set below its length ?");
             } catch (OgnlException oex) {
                 if (oex.getCause() instanceof SecurityException) {
-                    // Expected result
+                    assertInstanceOf(SecurityException.class, oex.getCause());
                 } else {
                     fail("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
                 }
@@ -376,7 +387,7 @@ public class TestExpressionCompiler extends TestCase {
                 fail("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
             } catch (OgnlException oex) {
                 if (oex.getCause() instanceof SecurityException) {
-                    // Expected result
+                    assertInstanceOf(SecurityException.class, oex.getCause());
                 } else {
                     fail("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
                 }
@@ -389,7 +400,7 @@ public class TestExpressionCompiler extends TestCase {
                 fail("Parse of longFakeExpression (" + longFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
             } catch (OgnlException oex) {
                 if (oex.getCause() instanceof SecurityException) {
-                    // Expected result
+                    assertInstanceOf(SecurityException.class, oex.getCause());
                 } else {
                     fail("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
                 }
@@ -402,7 +413,7 @@ public class TestExpressionCompiler extends TestCase {
                 fail("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
             } catch (OgnlException oex) {
                 if (oex.getCause() instanceof SecurityException) {
-                    // Expected result
+                    assertInstanceOf(SecurityException.class, oex.getCause());
                 } else {
                     fail("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
                 }
@@ -424,7 +435,7 @@ public class TestExpressionCompiler extends TestCase {
                 fail("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
             } catch (OgnlException oex) {
                 if (oex.getCause() instanceof SecurityException) {
-                    // Expected result
+                    assertInstanceOf(SecurityException.class, oex.getCause());
                 } else {
                     fail("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
                 }
@@ -437,7 +448,7 @@ public class TestExpressionCompiler extends TestCase {
                 fail("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
             } catch (OgnlException oex) {
                 if (oex.getCause() instanceof SecurityException) {
-                    // Expected result
+                    assertInstanceOf(SecurityException.class, oex.getCause());
                 } else {
                     fail("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
                 }
@@ -450,7 +461,7 @@ public class TestExpressionCompiler extends TestCase {
                 fail("Parse of longFakeExpression (" + longFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
             } catch (OgnlException oex) {
                 if (oex.getCause() instanceof SecurityException) {
-                    // Expected result
+                    assertInstanceOf(SecurityException.class, oex.getCause());
                 } else {
                     fail("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
                 }
@@ -463,7 +474,7 @@ public class TestExpressionCompiler extends TestCase {
                 fail("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
             } catch (OgnlException oex) {
                 if (oex.getCause() instanceof SecurityException) {
-                    // Expected result
+                    assertInstanceOf(SecurityException.class, oex.getCause());
                 } else {
                     fail("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
                 }
@@ -493,7 +504,7 @@ public class TestExpressionCompiler extends TestCase {
                 fail("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
             } catch (OgnlException oex) {
                 if (oex.getCause() instanceof SecurityException) {
-                    // Expected result
+                    assertInstanceOf(SecurityException.class, oex.getCause());
                 } else {
                     fail("Parse of shortFakeExpression (" + shortFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
                 }
@@ -506,7 +517,7 @@ public class TestExpressionCompiler extends TestCase {
                 fail("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
             } catch (OgnlException oex) {
                 if (oex.getCause() instanceof SecurityException) {
-                    // Expected result
+                    assertInstanceOf(SecurityException.class, oex.getCause());
                 } else {
                     fail("Parse of mediumFakeExpression (" + mediumFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
                 }
@@ -519,7 +530,7 @@ public class TestExpressionCompiler extends TestCase {
                 fail("Parse of longFakeExpression (" + longFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
             } catch (OgnlException oex) {
                 if (oex.getCause() instanceof SecurityException) {
-                    // Expected result
+                    assertInstanceOf(SecurityException.class, oex.getCause());
                 } else {
                     fail("Parse of longFakeExpression (" + longFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
                 }
@@ -532,7 +543,7 @@ public class TestExpressionCompiler extends TestCase {
                 fail("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") succeded unexpectedly after limit set below its length ?");
             } catch (OgnlException oex) {
                 if (oex.getCause() instanceof SecurityException) {
-                    // Expected result
+                    assertInstanceOf(SecurityException.class, oex.getCause());
                 } else {
                     fail("Parse of veryLongFakeExpression (" + veryLongFakeExpression.length() + ") failed unexpectedly after limit set below its length - Error: " + oex);
                 }
@@ -543,16 +554,16 @@ public class TestExpressionCompiler extends TestCase {
             try {
                 Ognl.applyExpressionMaxLength(null);  // Reset to default state before leaving test.
             } catch (Exception ex) {
-            } // Do not care for cleanup
+                // ignore, do not care for cleanup
+            }
         }
     }
 
     /**
      * Test freezing and thawing of maximum expression length mechanism for OGNL expression parsing.
-     *
-     * @throws Exception
      */
-    public void test_FreezeThawExpressionMaxLength() throws Exception {
+    @Test
+    void test_FreezeThawExpressionMaxLength() {
         try {
             // ---------------------------------------------------------------------
             // Test initial default state.  Can change maximum length to valid values without any issues
@@ -623,7 +634,7 @@ public class TestExpressionCompiler extends TestCase {
             }
 
             // ---------------------------------------------------------------------
-            // Test repetative thawing
+            // Test repetitive thawing
             try {
                 Ognl.thawExpressionMaxLength();
                 Ognl.thawExpressionMaxLength();
@@ -634,11 +645,13 @@ public class TestExpressionCompiler extends TestCase {
             try {
                 Ognl.thawExpressionMaxLength();  // Reset to default state before leaving test.
             } catch (Exception ex) {
-            } // Do not care for cleanup
+                // ignore, do not care for cleanup
+            }
             try {
                 Ognl.applyExpressionMaxLength(null);  // Reset to default state before leaving test.
             } catch (Exception ex) {
-            } // Do not care for cleanup
+                // ignore, do not care for cleanup
+            }
         }
     }
 

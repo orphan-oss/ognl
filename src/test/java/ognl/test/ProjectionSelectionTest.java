@@ -18,64 +18,51 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
 import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.List;
 
-public class ProjectionSelectionTest extends OgnlTestCase {
-    private static Root ROOT = new Root();
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static Object[][] TESTS = {
-            // Projection, selection
-            {ROOT, "array.{class}",
-                    Arrays.asList(new Class[]{Integer.class, Integer.class, Integer.class, Integer.class})},
-            {ROOT, "map.array.{? #this > 2 }", Arrays.asList(new Integer[]{new Integer(3), new Integer(4)})},
-            {ROOT, "map.array.{^ #this > 2 }", Arrays.asList(new Integer[]{new Integer(3)})},
-            {ROOT, "map.array.{$ #this > 2 }", Arrays.asList(new Integer[]{new Integer(4)})},
-            {ROOT, "map.array[*].{?true} instanceof java.util.Collection", Boolean.TRUE},
-            {ROOT, "#fact=1, 30H.{? #fact = #fact * (#this+1), false }, #fact",
-                    new BigInteger("265252859812191058636308480000000")},
-    };
+class ProjectionSelectionTest {
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
+    private Root root;
 
-        for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new ProjectionSelectionTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                    TESTS[i][2]));
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        root = new Root();
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public ProjectionSelectionTest() {
-        super();
+    @Test
+    void testProjectionClass() throws Exception {
+        Object actual = Ognl.getValue("array.{class}", root);
+        List<Class<Integer>> expected = Arrays.asList(Integer.class, Integer.class, Integer.class, Integer.class);
+        assertEquals(expected, actual);
     }
 
-    public ProjectionSelectionTest(String name) {
-        super(name);
+    @Test
+    void testSelection() throws Exception {
+        Object actual = Ognl.getValue("map.array.{? #this > 2 }", root);
+        assertEquals(Arrays.asList(3, 4), actual);
+
+        actual = Ognl.getValue("map.array.{^ #this > 2 }", root);
+        assertEquals(List.of(3), actual);
+
+        actual = Ognl.getValue("map.array.{$ #this > 2 }", root);
+        assertEquals(List.of(4), actual);
+
+        actual = Ognl.getValue("map.array[*].{?true} instanceof java.util.Collection", root);
+        assertEquals(Boolean.TRUE, actual);
     }
 
-    public ProjectionSelectionTest(String name, Object root, String expressionString, Object expectedResult,
-                                   Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
-    }
-
-    public ProjectionSelectionTest(String name, Object root, String expressionString, Object expectedResult,
-                                   Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public ProjectionSelectionTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testFactorial() throws Exception {
+        Object actual = Ognl.getValue("#fact=1, 30H.{? #fact = #fact * (#this+1), false }, #fact", root);
+        assertEquals(new BigInteger("265252859812191058636308480000000"), actual);
     }
 }

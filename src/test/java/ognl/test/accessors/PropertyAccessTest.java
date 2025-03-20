@@ -18,7 +18,6 @@
  */
 package ognl.test.accessors;
 
-import junit.framework.TestCase;
 import ognl.DefaultMemberAccess;
 import ognl.Ognl;
 import ognl.OgnlContext;
@@ -28,10 +27,20 @@ import ognl.test.objects.BeanProvider;
 import ognl.test.objects.BeanProviderAccessor;
 import ognl.test.objects.EvenOdd;
 import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class PropertyAccessTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    public void testPropertyAccess() throws OgnlException {
+class PropertyAccessTest {
+
+    @BeforeEach
+    void setUp() {
+        OgnlRuntime.setPropertyAccessor(BeanProvider.class, new BeanProviderAccessor());
+    }
+
+    @Test
+    void testPropertyAccess() throws OgnlException {
         //  given
         OgnlContext context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
 
@@ -43,10 +52,6 @@ public class PropertyAccessTest extends TestCase {
 
         // then
         assertEquals("even", result);
-    }
-
-    public void setUp() {
-        OgnlRuntime.setPropertyAccessor(BeanProvider.class, new BeanProviderAccessor());
     }
 
 }

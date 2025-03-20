@@ -1,31 +1,44 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package ognl.test;
 
-import junit.framework.TestCase;
-import ognl.DefaultMemberAccess;
 import ognl.Node;
 import ognl.Ognl;
 import ognl.OgnlContext;
+import org.junit.jupiter.api.Test;
 
-import java.util.Map;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests being able to set property on object with interface that doesn't define
- * setter.   See OGNL-115.
+ * Tests being able to set property on object with interface that doesn't define setter.
+ * See OGNL-115.
  */
-public class PropertySetterTest extends TestCase {
+class PropertySetterTest {
 
-    private Map map;
-    private TestObject testObject = new TestObject("propertyValue");
-    private String propertyKey = "property";
+    private final TestObject testObject = new TestObject("propertyValue");
 
     public interface TestInterface {
-        public String getProperty();
+        String getProperty();
     }
 
-    public class TestObject implements TestInterface {
-
+    public static class TestObject implements TestInterface {
         private String property;
-        private Integer integerProperty = 1;
 
         public TestObject(String property) {
             this.property = property;
@@ -40,13 +53,8 @@ public class PropertySetterTest extends TestCase {
         }
 
         public Integer getIntegerProperty() {
-            return integerProperty;
+            return 1;
         }
-    }
-
-
-    public Map getMap() {
-        return map;
     }
 
     public String getKey() {
@@ -62,13 +70,15 @@ public class PropertySetterTest extends TestCase {
     }
 
     public String getPropertyKey() {
-        return propertyKey;
+        return "property";
     }
 
+    @Test
     public void testEnhancedOgnl() throws Exception {
-        OgnlContext context = (OgnlContext) Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
-        Node expression = Ognl.compileExpression(context, this, "interfaceObject.property");
+        OgnlContext context = Ognl.createDefaultContext(null);
+        Node expression = Ognl.compileExpression(context, null, "interfaceObject.property");
         Ognl.setValue(expression, context, this, "hello");
+
         assertEquals("hello", getObject().getProperty());
 
         // Fails if an interface is defined, but succeeds if not
@@ -76,6 +86,7 @@ public class PropertySetterTest extends TestCase {
 
         expression = Ognl.compileExpression(context, this.getObject(), "property");
         Ognl.setValue(expression, context, this.getObject(), "hello");
+
         assertEquals("hello", getObject().getProperty());
     }
 }

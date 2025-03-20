@@ -18,57 +18,40 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
 import ognl.Ognl;
+import ognl.OgnlContext;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class SimpleNavigationChainTreeTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    private static Object[][] TESTS = {
-            {"name", Boolean.TRUE},
-            {"name[i]", Boolean.FALSE},
-            {"name + foo", Boolean.FALSE},
-            {"name.foo", Boolean.TRUE}
-    };
+class SimpleNavigationChainTreeTest {
 
-    /*===================================================================
-         Public static methods
-       ===================================================================*/
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
+    private OgnlContext context;
 
-        for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new SimpleNavigationChainTreeTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", null, (String) TESTS[i][0], TESTS[i][1]));
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        context = Ognl.createDefaultContext(null);
     }
 
-    /*===================================================================
-         Constructors
-       ===================================================================*/
-    public SimpleNavigationChainTreeTest() {
-        super();
+    @Test
+    void testName() throws Exception {
+        assertTrue(Ognl.isSimpleNavigationChain(Ognl.parseExpression("name"), context));
     }
 
-    public SimpleNavigationChainTreeTest(String name) {
-        super(name);
+    @Test
+    void testNameWithIndex() throws Exception {
+        assertFalse(Ognl.isSimpleNavigationChain(Ognl.parseExpression("name[i]"), context));
     }
 
-    public SimpleNavigationChainTreeTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testNameWithAddition() throws Exception {
+        assertFalse(Ognl.isSimpleNavigationChain(Ognl.parseExpression("name + foo"), context));
     }
 
-    public SimpleNavigationChainTreeTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public SimpleNavigationChainTreeTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
-    }
-
-    /*===================================================================
-         Overridden methods
-       ===================================================================*/
-    protected void runTest() throws Exception {
-        assertTrue(Ognl.isSimpleNavigationChain(getExpression(), _context) == ((Boolean) getExpectedResult()).booleanValue());
+    @Test
+    void testNameWithProperty() throws Exception {
+        assertTrue(Ognl.isSimpleNavigationChain(Ognl.parseExpression("name.foo"), context));
     }
 }

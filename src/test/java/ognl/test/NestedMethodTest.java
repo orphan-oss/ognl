@@ -18,70 +18,34 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.Component;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class NestedMethodTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static Component COMPONENT = new Component();
+class NestedMethodTest {
 
-    private static Object[][] TESTS = {
-            // Expression in a method call argument
-            {COMPONENT, "toDisplay.pictureUrl", COMPONENT.getToDisplay().getPictureUrl()},
-            {COMPONENT, "page.createRelativeAsset(toDisplay.pictureUrl)",
-                    COMPONENT.getPage().createRelativeAsset(COMPONENT.getToDisplay().getPictureUrl())},
-    };
+    private Component component;
+    private OgnlContext context;
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new NestedMethodTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new NestedMethodTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                            TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new NestedMethodTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                                TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        component = new Component();
+        context = Ognl.createDefaultContext(component);
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public NestedMethodTest() {
-        super();
+    @Test
+    void testToDisplayPictureUrl() throws Exception {
+        Object actual = Ognl.getValue("toDisplay.pictureUrl", context, component);
+        assertEquals(component.getToDisplay().getPictureUrl(), actual);
     }
 
-    public NestedMethodTest(String name) {
-        super(name);
-    }
-
-    public NestedMethodTest(String name, Object root, String expressionString, Object expectedResult, Object setValue,
-                            Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
-    }
-
-    public NestedMethodTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public NestedMethodTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testPageCreateRelativeAsset() throws Exception {
+        Object actual = Ognl.getValue("page.createRelativeAsset(toDisplay.pictureUrl)", context, component);
+        assertEquals(component.getPage().createRelativeAsset(component.getToDisplay().getPictureUrl()), actual);
     }
 }

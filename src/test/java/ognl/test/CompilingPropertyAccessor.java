@@ -41,6 +41,7 @@ import java.util.Map;
  * Implementation of PropertyAccessor that uses Javassist to compile a property accessor
  * specifically tailored to the property.
  */
+@Deprecated(since = "3.5.0", forRemoval = true)
 public class CompilingPropertyAccessor extends ObjectPropertyAccessor {
 
     private static final NameFactory NAME_FACTORY = new NameFactory("ognl.PropertyAccessor", "v");

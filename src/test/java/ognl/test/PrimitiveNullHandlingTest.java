@@ -18,85 +18,60 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.Simple;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class PrimitiveNullHandlingTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static Simple SIMPLE = new Simple();
+class PrimitiveNullHandlingTest {
 
-    static {
-        SIMPLE.setFloatValue(10.56f);
-        SIMPLE.setIntValue(34);
+    private Simple simple;
+    private OgnlContext context;
+
+    @BeforeEach
+    void setUp() {
+        simple = new Simple();
+        simple.setFloatValue(10.56f);
+        simple.setIntValue(34);
+        context = Ognl.createDefaultContext(simple);
     }
 
-    private static Object[][] TESTS = {
-            // Primitive null handling
-            {SIMPLE, "floatValue", new Float(10.56f), null, new Float(0f)}, // set float to
-            // null, should
-            // yield 0.0f
-            {SIMPLE, "intValue", new Integer(34), null, new Integer(0)},// set int to null,
-            // should yield 0
-            {SIMPLE, "booleanValue", Boolean.FALSE, Boolean.TRUE, Boolean.TRUE},// set boolean
-            // to TRUE,
-            // should yield
-            // true
-            {SIMPLE, "booleanValue", Boolean.TRUE, null, Boolean.FALSE}, // set boolean to null,
-            // should yield false
+    @Test
+    void testFloatValue() throws Exception {
+        Object actual = Ognl.getValue("floatValue", context, simple);
+        assertEquals(10.56f, actual);
 
-    };
+        Ognl.setValue("floatValue", context, simple, null);
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new PrimitiveNullHandlingTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new PrimitiveNullHandlingTest((String) TESTS[i][1], TESTS[i][0],
-                            (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new PrimitiveNullHandlingTest((String) TESTS[i][1], TESTS[i][0],
-                                (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+        actual = Ognl.getValue("floatValue", context, simple);
+        assertEquals(0f, actual);
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public PrimitiveNullHandlingTest() {
-        super();
+    @Test
+    void testIntValue() throws Exception {
+        Object actual = Ognl.getValue("intValue", context, simple);
+        assertEquals(34, actual);
+
+        Ognl.setValue("intValue", context, simple, null);
+
+        actual = Ognl.getValue("intValue", context, simple);
+        assertEquals(0, actual);
     }
 
-    public PrimitiveNullHandlingTest(String name) {
-        super(name);
-    }
+    @Test
+    void testBooleanValue() throws Exception {
+        Object actual = Ognl.getValue("booleanValue", context, simple);
+        assertEquals(false, actual);
 
-    public PrimitiveNullHandlingTest(String name, Object root, String expressionString, Object expectedResult,
-                                     Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
-    }
+        Ognl.setValue("booleanValue", context, simple, true);
+        actual = Ognl.getValue("booleanValue", context, simple);
+        assertEquals(true, actual);
 
-    public PrimitiveNullHandlingTest(String name, Object root, String expressionString, Object expectedResult,
-                                     Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
-    }
-
-    public PrimitiveNullHandlingTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+        Ognl.setValue("booleanValue", context, simple, null);
+        actual = Ognl.getValue("booleanValue", context, simple);
+        assertEquals(false, actual);
     }
 }

@@ -18,80 +18,90 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.DefaultMemberAccess;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class NullStringCatenationTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+class NullStringCatenationTest {
+
+    /**
+     * It's used in test
+     */
     public static final String MESSAGE = "blarney";
 
-    private static Root ROOT = new Root();
+    private Root root;
+    private OgnlContext context;
 
-    private static Object[][] TESTS = {
-            // Null string catenation
-            {ROOT, "\"bar\" + null", "barnull"}, // Catenate null to a string
-            {ROOT, "\"bar\" + nullObject", "barnull"}, // Catenate null to a string
-            {ROOT, "20.56 + nullObject", NullPointerException.class}, // Catenate null to a number
-            {ROOT, "(true ? 'tabHeader' : '') + (false ? 'tabHeader' : '')", "tabHeader"},
-            {ROOT, "theInt == 0 ? '5%' : theInt + '%'", "6%"},
-            {ROOT, "'width:' + width + ';'", "width:238px;"},
-            {ROOT, "theLong + '_' + index", "4_1"},
-            {ROOT, "'javascript:' + @ognl.test.NullStringCatenationTest@MESSAGE", "javascript:blarney"},
-            {ROOT, "printDelivery ? '' : 'javascript:deliverySelected(' + property.carrier + ',' + currentDeliveryId + ')'", ""},
-            {ROOT, "bean2.id + '_' + theInt", "1_6"}
-    };
-
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
-
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new NullStringCatenationTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new NullStringCatenationTest((String) TESTS[i][1], TESTS[i][0],
-                            (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new NullStringCatenationTest((String) TESTS[i][1], TESTS[i][0],
-                                (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        root = new Root();
+        context = Ognl.createDefaultContext(root, new DefaultMemberAccess(true));
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public NullStringCatenationTest() {
-        super();
+    @Test
+    void testCatenateNullToString() throws Exception {
+        Object actual = Ognl.getValue("\"bar\" + null", context, root);
+        assertEquals("barnull", actual);
     }
 
-    public NullStringCatenationTest(String name) {
-        super(name);
+    @Test
+    void testCatenateNullObjectToString() throws Exception {
+        Object actual = Ognl.getValue("\"bar\" + nullObject", context, root);
+        assertEquals("barnull", actual);
     }
 
-    public NullStringCatenationTest(String name, Object root, String expressionString, Object expectedResult,
-                                    Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testCatenateNullObjectToNumber() {
+        assertThrows(NullPointerException.class,
+                () -> Ognl.getValue("20.56 + nullObject", context, root),
+                "nullObject");
     }
 
-    public NullStringCatenationTest(String name, Object root, String expressionString, Object expectedResult,
-                                    Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void testConditionalCatenation() throws Exception {
+        Object actual = Ognl.getValue("(true ? 'tabHeader' : '') + (false ? 'tabHeader' : '')", context, root);
+        assertEquals("tabHeader", actual);
     }
 
-    public NullStringCatenationTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testConditionalCatenationWithInt() throws Exception {
+        Object actual = Ognl.getValue("theInt == 0 ? '5%' : theInt + '%'", context, root);
+        assertEquals("6%", actual);
+    }
+
+    @Test
+    void testCatenateWidth() throws Exception {
+        Object actual = Ognl.getValue("'width:' + width + ';'", context, root);
+        assertEquals("width:238px;", actual);
+    }
+
+    @Test
+    void testCatenateLongAndIndex() throws Exception {
+        Object actual = Ognl.getValue("theLong + '_' + index", context, root);
+        assertEquals("4_1", actual);
+    }
+
+    @Test
+    void testCatenateWithStaticField() throws Exception {
+        Object actual = Ognl.getValue("'javascript:' + @ognl.test.NullStringCatenationTest@MESSAGE", context, root);
+        assertEquals("javascript:blarney", actual);
+    }
+
+    @Test
+    void testConditionalCatenationWithMethodCall() throws Exception {
+        Object actual = Ognl.getValue("printDelivery ? '' : 'javascript:deliverySelected(' + property.carrier + ',' + currentDeliveryId + ')'", context, root);
+        assertEquals("", actual);
+    }
+
+    @Test
+    void testCatenateBeanIdAndInt() throws Exception {
+        Object actual = Ognl.getValue("bean2.id + '_' + theInt", context, root);
+        assertEquals("1_6", actual);
     }
 }

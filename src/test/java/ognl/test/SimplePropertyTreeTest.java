@@ -18,60 +18,60 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
 import ognl.Ognl;
+import ognl.OgnlContext;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class SimplePropertyTreeTest extends OgnlTestCase {
-    private static Object[][] TESTS = {
-            {"name", Boolean.TRUE},
-            {"foo", Boolean.TRUE},
-            {"name[i]", Boolean.FALSE},
-            {"name + foo", Boolean.FALSE},
-            {"name.foo", Boolean.FALSE},
-            {"name.foo.bar", Boolean.FALSE},
-            {"name.{? foo }", Boolean.FALSE},
-            {"name.( foo )", Boolean.FALSE}
-    };
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    /*===================================================================
-         Public static methods
-       ===================================================================*/
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
+class SimplePropertyTreeTest {
 
-        for (int i = 0; i < TESTS.length; i++) {
-            result.addTest(new SimplePropertyTreeTest((String) TESTS[i][0] + " (" + TESTS[i][1] + ")", null, (String) TESTS[i][0], TESTS[i][1]));
-        }
-        return result;
+    private OgnlContext context;
+
+    @BeforeEach
+    void setUp() {
+        context = Ognl.createDefaultContext(null);
     }
 
-    /*===================================================================
-         Constructors
-       ===================================================================*/
-    public SimplePropertyTreeTest() {
-        super();
+    @Test
+    void testName() throws Exception {
+        assertTrue(Ognl.isSimpleProperty(Ognl.parseExpression("name"), context));
     }
 
-    public SimplePropertyTreeTest(String name) {
-        super(name);
+    @Test
+    void testFoo() throws Exception {
+        assertTrue(Ognl.isSimpleProperty(Ognl.parseExpression("foo"), context));
     }
 
-    public SimplePropertyTreeTest(String name, Object root, String expressionString, Object expectedResult, Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testNameWithIndex() throws Exception {
+        assertFalse(Ognl.isSimpleProperty(Ognl.parseExpression("name[i]"), context));
     }
 
-    public SimplePropertyTreeTest(String name, Object root, String expressionString, Object expectedResult, Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void testNameWithAddition() throws Exception {
+        assertFalse(Ognl.isSimpleProperty(Ognl.parseExpression("name + foo"), context));
     }
 
-    public SimplePropertyTreeTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testNameWithProperty() throws Exception {
+        assertFalse(Ognl.isSimpleProperty(Ognl.parseExpression("name.foo"), context));
     }
 
-    /*===================================================================
-         Overridden methods
-       ===================================================================*/
-    protected void runTest() throws Exception {
-        assertTrue(Ognl.isSimpleProperty(getExpression(), _context) == ((Boolean) getExpectedResult()).booleanValue());
+    @Test
+    void testNameWithPropertyChain() throws Exception {
+        assertFalse(Ognl.isSimpleProperty(Ognl.parseExpression("name.foo.bar"), context));
+    }
+
+    @Test
+    void testNameWithFilter() throws Exception {
+        assertFalse(Ognl.isSimpleProperty(Ognl.parseExpression("name.{? foo }"), context));
+    }
+
+    @Test
+    void testNameWithProjection() throws Exception {
+        assertFalse(Ognl.isSimpleProperty(Ognl.parseExpression("name.( foo )"), context));
     }
 }

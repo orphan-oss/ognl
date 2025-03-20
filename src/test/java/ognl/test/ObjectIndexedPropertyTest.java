@@ -18,92 +18,76 @@
  */
 package ognl.test;
 
-import junit.framework.TestSuite;
+import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.test.objects.Bean1;
 import ognl.test.objects.ObjectIndexed;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ObjectIndexedPropertyTest extends OgnlTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-    private static ObjectIndexed OBJECT_INDEXED = new ObjectIndexed();
-    private static Bean1 root = new Bean1();
-    private static Object[][] TESTS = {
-            // Arbitrary indexed properties
-            {OBJECT_INDEXED, "attributes[\"bar\"]", "baz"}, // get non-indexed property through
-            // attributes Map
-            {OBJECT_INDEXED, "attribute[\"foo\"]", "bar"}, // get indexed property
-            {OBJECT_INDEXED, "attribute[\"bar\"]", "baz", "newValue", "newValue"}, // set
-            // indexed
-            // property
-            {OBJECT_INDEXED, "attribute[\"bar\"]", "newValue"},// get indexed property back to
-            // confirm
-            {OBJECT_INDEXED, "attributes[\"bar\"]", "newValue"}, // get property back through Map
-            // to confirm
-            {OBJECT_INDEXED, "attribute[\"other\"].attribute[\"bar\"]", "baz"}, // get indexed
-            // property from
-            // indexed, then
-            // through other
-            {OBJECT_INDEXED, "attribute[\"other\"].attributes[\"bar\"]", "baz"}, // get property
-            // back through
-            // Map to
-            // confirm
-            {OBJECT_INDEXED, "attribute[$]", OgnlException.class}, // illegal DynamicSubscript
-            // access to object indexed
-            // property
-            {root, "bean2.bean3.indexedValue[25]", null}
-    };
+class ObjectIndexedPropertyTest {
 
-    /*
-     * =================================================================== Public static methods
-     * ===================================================================
-     */
-    public static TestSuite suite() {
-        TestSuite result = new TestSuite();
+    private ObjectIndexed objectIndexed;
+    private OgnlContext context;
 
-        for (int i = 0; i < TESTS.length; i++) {
-            if (TESTS[i].length == 3) {
-                result.addTest(new ObjectIndexedPropertyTest((String) TESTS[i][1], TESTS[i][0], (String) TESTS[i][1],
-                        TESTS[i][2]));
-            } else {
-                if (TESTS[i].length == 4) {
-                    result.addTest(new ObjectIndexedPropertyTest((String) TESTS[i][1], TESTS[i][0],
-                            (String) TESTS[i][1], TESTS[i][2], TESTS[i][3]));
-                } else {
-                    if (TESTS[i].length == 5) {
-                        result.addTest(new ObjectIndexedPropertyTest((String) TESTS[i][1], TESTS[i][0],
-                                (String) TESTS[i][1], TESTS[i][2], TESTS[i][3], TESTS[i][4]));
-                    } else {
-                        throw new RuntimeException("don't understand TEST format");
-                    }
-                }
-            }
-        }
-        return result;
+    @BeforeEach
+    void setUp() {
+        objectIndexed = new ObjectIndexed();
+        context = Ognl.createDefaultContext(objectIndexed);
     }
 
-    /*
-     * =================================================================== Constructors
-     * ===================================================================
-     */
-    public ObjectIndexedPropertyTest() {
-        super();
+    @Test
+    void testGetNonIndexedPropertyThroughAttributesMap() throws OgnlException {
+        Object actual = Ognl.getValue("attributes[\"bar\"]", context, objectIndexed);
+        assertEquals("baz", actual);
     }
 
-    public ObjectIndexedPropertyTest(String name) {
-        super(name);
+    @Test
+    void testGetIndexedProperty() throws OgnlException {
+        Object actual = Ognl.getValue("attribute[\"foo\"]", context, objectIndexed);
+        assertEquals("bar", actual);
     }
 
-    public ObjectIndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult,
-                                     Object setValue, Object expectedAfterSetResult) {
-        super(name, root, expressionString, expectedResult, setValue, expectedAfterSetResult);
+    @Test
+    void testSetIndexedProperty() throws OgnlException {
+        Ognl.setValue("attribute[\"bar\"]", context, objectIndexed, "newValue");
+        Object actual = Ognl.getValue("attribute[\"bar\"]", context, objectIndexed);
+        assertEquals("newValue", actual);
     }
 
-    public ObjectIndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult,
-                                     Object setValue) {
-        super(name, root, expressionString, expectedResult, setValue);
+    @Test
+    void testGetPropertyBackThroughMapToConfirm() throws OgnlException {
+        Ognl.setValue("attribute[\"bar\"]", context, objectIndexed, "newValue");
+        Object actual = Ognl.getValue("attributes[\"bar\"]", context, objectIndexed);
+        assertEquals("newValue", actual);
     }
 
-    public ObjectIndexedPropertyTest(String name, Object root, String expressionString, Object expectedResult) {
-        super(name, root, expressionString, expectedResult);
+    @Test
+    void testGetIndexedPropertyFromIndexedThenThroughOther() throws OgnlException {
+        Object actual = Ognl.getValue("attribute[\"other\"].attribute[\"bar\"]", context, objectIndexed);
+        assertEquals("baz", actual);
+    }
+
+    @Test
+    void testGetPropertyBackThroughMapToConfirmFromIndexed() throws OgnlException {
+        Object actual = Ognl.getValue("attribute[\"other\"].attributes[\"bar\"]", context, objectIndexed);
+        assertEquals("baz", actual);
+    }
+
+    @Test
+    void testIllegalDynamicSubscriptAccessToObjectIndexedProperty() {
+        assertThrows(OgnlException.class, () -> Ognl.getValue("attribute[$]", context, objectIndexed));
+    }
+
+    @Test
+    void testBeanIndexedValue() throws OgnlException {
+        Bean1 root = new Bean1();
+        Object actual = Ognl.getValue("bean2.bean3.indexedValue[25]", context, root);
+        assertNull(actual);
     }
 }

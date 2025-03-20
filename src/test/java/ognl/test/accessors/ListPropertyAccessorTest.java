@@ -1,6 +1,5 @@
 package ognl.test.accessors;
 
-import junit.framework.TestCase;
 import ognl.DefaultMemberAccess;
 import ognl.ListPropertyAccessor;
 import ognl.Ognl;
@@ -9,22 +8,28 @@ import ognl.enhance.ExpressionCompiler;
 import ognl.test.objects.ListSource;
 import ognl.test.objects.ListSourceImpl;
 import ognl.test.objects.Root;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Tests functionality of various built-in object accessors.
  */
-public class ListPropertyAccessorTest extends TestCase {
+class ListPropertyAccessorTest {
 
     private OgnlContext context;
 
-    public void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    void setUp() {
         context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
     }
 
-    public void test_Get_Source_String_Number_Index() {
+    @Test
+    void test_Get_Source_String_Number_Index() {
         ListPropertyAccessor pa = new ListPropertyAccessor();
 
         Root root = new Root();
@@ -41,7 +46,8 @@ public class ListPropertyAccessorTest extends TestCase {
         assertNull(context.getPreviousAccessor());
     }
 
-    public void test_Get_Source_Object_Number_Index() {
+    @Test
+    void test_Get_Source_Object_Number_Index() {
         ListPropertyAccessor pa = new ListPropertyAccessor();
 
         Root root = new Root();
@@ -58,7 +64,8 @@ public class ListPropertyAccessorTest extends TestCase {
         assertNull(context.getPreviousAccessor());
     }
 
-    public void test_List_To_Object_Property_Accessor_Read() {
+    @Test
+    void test_List_To_Object_Property_Accessor_Read() {
         ListPropertyAccessor pa = new ListPropertyAccessor();
 
         ListSource list = new ListSourceImpl();

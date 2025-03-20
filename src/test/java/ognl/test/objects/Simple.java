@@ -18,12 +18,11 @@
  */
 package ognl.test.objects;
 
-import ognl.test.OgnlTestCase;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Simple {
 
@@ -191,10 +190,8 @@ public class Simple {
     public boolean equals(Object other) {
         boolean result = false;
 
-        if (other instanceof Simple) {
-            Simple os = (Simple) other;
-
-            result = OgnlTestCase.isEqual(os.getStringValue(), getStringValue()) && (os.getIntValue() == getIntValue());
+        if (other instanceof Simple os) {
+            result = Objects.equals(os.getStringValue(), getStringValue()) && (os.getIntValue() == getIntValue());
         }
         return result;
     }
