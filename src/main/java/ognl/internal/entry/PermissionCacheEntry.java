@@ -21,6 +21,7 @@ package ognl.internal.entry;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
+@Deprecated(since = "3.4.6", forRemoval = true)
 public class PermissionCacheEntry implements CacheEntry {
 
     public final Method method;

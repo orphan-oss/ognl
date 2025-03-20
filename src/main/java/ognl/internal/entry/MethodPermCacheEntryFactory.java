@@ -23,6 +23,7 @@ import ognl.internal.CacheException;
 
 import java.lang.reflect.Method;
 
+@Deprecated(since = "3.4.6", forRemoval = true)
 public class MethodPermCacheEntryFactory implements CacheEntryFactory<Method, Boolean> {
 
     private SecurityManager securityManager;
