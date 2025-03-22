@@ -1983,7 +1983,7 @@ MORE:
     < CHAR_LITERAL: "'">
         {
             if (stringBuffer.length() == 1) {
-                literalValue = new Character( charValue );
+                literalValue = charValue;
             } else {
                 literalValue = new String( stringBuffer );
             }
@@ -2003,7 +2003,7 @@ MORE:
 <WithinBackCharLiteral> TOKEN:
 {
     < BACK_CHAR_LITERAL: "`">
-        { literalValue = new Character( charValue ); }: DEFAULT
+        { literalValue = charValue; }: DEFAULT
 }
 
 <WithinStringLiteral> MORE:

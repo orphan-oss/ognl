@@ -47,11 +47,11 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -175,14 +175,10 @@ class OgnlRuntimeMethodsTest {
 
     @Test
     void test_Call_Static_Method_Invalid_Class() {
-        try {
-            OgnlRuntime.callStaticMethod(context, "made.up.Name", "foo", null);
+        Exception exception = assertThrows(MethodFailedException.class,
+                () -> OgnlRuntime.callStaticMethod(context, "made.up.Name", "foo", null));
 
-            fail("ClassNotFoundException should have been thrown by previous reference to <made.up.Name> class.");
-        } catch (Exception et) {
-            assertInstanceOf(MethodFailedException.class, et);
-            assertTrue(et.getMessage().contains("made.up.Name"));
-        }
+        assertTrue(exception.getMessage().contains("made.up.Name"));
     }
 
     @Test
@@ -444,7 +440,6 @@ class OgnlRuntimeMethodsTest {
     public static class SimpleNestingClass {
         static class NestedClass {
             // do not use "final"
-            @SuppressWarnings("final")
             private String name = "nested name contents";
         }
 
@@ -505,8 +500,6 @@ class OgnlRuntimeMethodsTest {
     void testConfirmNoSyntheticMethod() throws Exception {
         Method[] methods = SimpleNestingClass.NestedClass.class.getDeclaredMethods();
         assertNotNull(methods, "Nested class has no methods ?");
-        // This assertion varies if called with coverage tools, as they inject synthetic methods.
-        // assertEquals("Nested class has no methods ?", 0, methods.length);
 
         Field field = SimpleNestingClass.NestedClass.class.getDeclaredField("name");
         field.setAccessible(true);

@@ -36,7 +36,7 @@ class ObjectPropertyAccessorTest {
     private ObjectPropertyAccessor propertyAccessor;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         context = Ognl.createDefaultContext(null, new ExcludedObjectMemberAccess(false));
         propertyAccessor = new ObjectPropertyAccessor();
     }
