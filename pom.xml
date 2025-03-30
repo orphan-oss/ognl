@@ -10,7 +10,7 @@
     <groupId>ognl</groupId>
     <artifactId>ognl</artifactId>
     <packaging>jar</packaging>
-    <version>3.4.7-SNAPSHOT</version>
+    <version>3.4.7</version>
     <name>OGNL - Object Graph Navigation Library</name>
     <description>OGNL - Object Graph Navigation Library</description>
 
@@ -45,7 +45,7 @@
         <connection>scm:git:git@github.com:orphan-oss/ognl.git</connection>
         <url>git@github.com:orphan-oss/ognl.git</url>
         <developerConnection>scm:git:git@github.com:orphan-oss/ognl.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>OGNL_3_4_7</tag>
     </scm>
 
     <issueManagement>
