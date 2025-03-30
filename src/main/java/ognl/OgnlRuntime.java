@@ -526,7 +526,9 @@ public class OgnlRuntime {
      * Check if the detected Major Java Version is 9 or higher (JDK 9+).
      *
      * @return Return true if the Detected Major Java version is 9 or higher, otherwise false.
+     * @deprecated since 3.4.6, forRemoval = true
      */
+    @Deprecated
     public static boolean isJdk9Plus() {
         return _jdk9Plus;
     }
@@ -772,7 +774,9 @@ public class OgnlRuntime {
      *
      * @param method the Method whose Permission is being requested.
      * @return the Permission for method named "invoke.&lt;declaring-class&gt;.&lt;method-name&gt;".
+     * @deprecated since 3.4.6, forRemoval = true
      */
+    @Deprecated
     public static Permission getPermission(Method method) throws CacheException {
         PermissionCacheEntry key = new PermissionCacheEntry(method);
         return cache.getInvokePermission(key);
