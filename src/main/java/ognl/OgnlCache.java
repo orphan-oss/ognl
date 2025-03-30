@@ -182,6 +182,10 @@ public class OgnlCache {
         return propertyDescriptorCache.get(clazz);
     }
 
+    /**
+     * @deprecated since 3.4.6, forRemoval = true
+     */
+    @Deprecated
     public Permission getInvokePermission(PermissionCacheEntry permissionCacheEntry) throws CacheException {
         return invokePermissionCache.get(permissionCacheEntry);
     }
@@ -229,6 +233,10 @@ public class OgnlCache {
         return genericMethodParameterTypesCache.get(key);
     }
 
+    /**
+     * @deprecated since 3.4.6, forRemoval = true
+     */
+    @Deprecated
     public boolean getMethodPerm(Method method) throws CacheException {
         return methodPermCache.get(method);
     }
@@ -273,6 +281,10 @@ public class OgnlCache {
         nullHandlers.put(clazz, handler);
     }
 
+    /**
+     * @deprecated since 3.4.6, forRemoval = true
+     */
+    @Deprecated
     public void setSecurityManager(SecurityManager securityManager) {
         methodPermCacheEntryFactory.setSecurityManager(securityManager);
     }

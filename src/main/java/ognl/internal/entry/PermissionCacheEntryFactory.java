@@ -23,6 +23,10 @@ import ognl.internal.CacheException;
 
 import java.security.Permission;
 
+/**
+ * @deprecated since 3.4.6, forRemoval = true
+ */
+@Deprecated
 public class PermissionCacheEntryFactory implements CacheEntryFactory<PermissionCacheEntry, Permission> {
 
     public Permission create(PermissionCacheEntry key) throws CacheException {
