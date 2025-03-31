@@ -74,7 +74,7 @@ public class JJTOgnlParserState {
 
 
     public void openNodeScope(Node n) {
-        marks.add(new Integer(mk));
+        marks.add(mk);
         mk = sp;
         n.jjtOpen();
     }

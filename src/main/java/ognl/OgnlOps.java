@@ -317,27 +317,27 @@ public abstract class OgnlOps implements NumericTypes {
     }
 
     public static Object toArray(char value, Class<?> toType) {
-        return toArray(new Character(value), toType);
+        return toArray((Character) value, toType);
     }
 
     public static Object toArray(byte value, Class<?> toType) {
-        return toArray(new Byte(value), toType);
+        return toArray((Byte) value, toType);
     }
 
     public static Object toArray(int value, Class<?> toType) {
-        return toArray(new Integer(value), toType);
+        return toArray((Integer) value, toType);
     }
 
     public static Object toArray(long value, Class<?> toType) {
-        return toArray(new Long(value), toType);
+        return toArray((Long) value, toType);
     }
 
     public static Object toArray(float value, Class<?> toType) {
-        return toArray(new Float(value), toType);
+        return toArray((Float) value, toType);
     }
 
     public static Object toArray(double value, Class<?> toType) {
-        return toArray(new Double(value), toType);
+        return toArray((Double) value, toType);
     }
 
     public static Object toArray(boolean value, Class<?> toType) {
@@ -345,27 +345,27 @@ public abstract class OgnlOps implements NumericTypes {
     }
 
     public static Object convertValue(char value, Class<?> toType) {
-        return convertValue(new Character(value), toType);
+        return convertValue((Character) value, toType);
     }
 
     public static Object convertValue(byte value, Class<?> toType) {
-        return convertValue(new Byte(value), toType);
+        return convertValue((Byte) value, toType);
     }
 
     public static Object convertValue(int value, Class<?> toType) {
-        return convertValue(new Integer(value), toType);
+        return convertValue((Integer) value, toType);
     }
 
     public static Object convertValue(long value, Class<?> toType) {
-        return convertValue(new Long(value), toType);
+        return convertValue((Long) value, toType);
     }
 
     public static Object convertValue(float value, Class<?> toType) {
-        return convertValue(new Float(value), toType);
+        return convertValue((Float) value, toType);
     }
 
     public static Object convertValue(double value, Class<?> toType) {
-        return convertValue(new Double(value), toType);
+        return convertValue((Double) value, toType);
     }
 
     public static Object convertValue(boolean value, Class<?> toType) {
@@ -373,27 +373,27 @@ public abstract class OgnlOps implements NumericTypes {
     }
 
     public static Object convertValue(char value, Class<?> toType, boolean preventNull) {
-        return convertValue(new Character(value), toType, preventNull);
+        return convertValue((Character) value, toType, preventNull);
     }
 
     public static Object convertValue(byte value, Class<?> toType, boolean preventNull) {
-        return convertValue(new Byte(value), toType, preventNull);
+        return convertValue((Byte) value, toType, preventNull);
     }
 
     public static Object convertValue(int value, Class<?> toType, boolean preventNull) {
-        return convertValue(new Integer(value), toType, preventNull);
+        return convertValue((Integer) value, toType, preventNull);
     }
 
     public static Object convertValue(long value, Class<?> toType, boolean preventNull) {
-        return convertValue(new Long(value), toType, preventNull);
+        return convertValue((Long) value, toType, preventNull);
     }
 
     public static Object convertValue(float value, Class<?> toType, boolean preventNull) {
-        return convertValue(new Float(value), toType, preventNull);
+        return convertValue((Float) value, toType, preventNull);
     }
 
     public static Object convertValue(double value, Class<?> toType, boolean preventNull) {
-        return convertValue(new Double(value), toType, preventNull);
+        return convertValue((Double) value, toType, preventNull);
     }
 
     public static Object convertValue(boolean value, Class<?> toType, boolean preventNull) {
@@ -401,27 +401,27 @@ public abstract class OgnlOps implements NumericTypes {
     }
 
     public static Object toArray(char value, Class<?> toType, boolean preventNull) {
-        return toArray(new Character(value), toType, preventNull);
+        return toArray((Character) value, toType, preventNull);
     }
 
     public static Object toArray(byte value, Class<?> toType, boolean preventNull) {
-        return toArray(new Byte(value), toType, preventNull);
+        return toArray((Byte) value, toType, preventNull);
     }
 
     public static Object toArray(int value, Class<?> toType, boolean preventNull) {
-        return toArray(new Integer(value), toType, preventNull);
+        return toArray((Integer) value, toType, preventNull);
     }
 
     public static Object toArray(long value, Class<?> toType, boolean preventNull) {
-        return toArray(new Long(value), toType, preventNull);
+        return toArray((Long) value, toType, preventNull);
     }
 
     public static Object toArray(float value, Class<?> toType, boolean preventNull) {
-        return toArray(new Float(value), toType, preventNull);
+        return toArray((Float) value, toType, preventNull);
     }
 
     public static Object toArray(double value, Class<?> toType, boolean preventNull) {
-        return toArray(new Double(value), toType, preventNull);
+        return toArray((Double) value, toType, preventNull);
     }
 
     public static Object toArray(boolean value, Class<?> toType, boolean preventNull) {
@@ -500,8 +500,7 @@ public abstract class OgnlOps implements NumericTypes {
 
                     result = stringValue(value).toCharArray();
                 } else if (toType.getComponentType() == Object.class) {
-                    if (value instanceof Collection) {
-                        Collection<?> vc = (Collection<?>) value;
+                    if (value instanceof Collection<?> vc) {
                         return vc.toArray(new Object[0]);
                     } else
                         return new Object[]{value};
@@ -773,84 +772,58 @@ public abstract class OgnlOps implements NumericTypes {
 
     public static Object subtract(Object v1, Object v2) {
         int type = getNumericType(v1, v2);
-        switch (type) {
-            case BIGINT:
-                return bigIntValue(v1).subtract(bigIntValue(v2));
-            case BIGDEC:
-                return bigDecValue(v1).subtract(bigDecValue(v2));
-            case FLOAT:
-            case DOUBLE:
-                return newReal(type, doubleValue(v1) - doubleValue(v2));
-            default:
-                return newInteger(type, longValue(v1) - longValue(v2));
-        }
+        return switch (type) {
+            case BIGINT -> bigIntValue(v1).subtract(bigIntValue(v2));
+            case BIGDEC -> bigDecValue(v1).subtract(bigDecValue(v2));
+            case FLOAT, DOUBLE -> newReal(type, doubleValue(v1) - doubleValue(v2));
+            default -> newInteger(type, longValue(v1) - longValue(v2));
+        };
     }
 
     public static Object multiply(Object v1, Object v2) {
         int type = getNumericType(v1, v2);
-        switch (type) {
-            case BIGINT:
-                return bigIntValue(v1).multiply(bigIntValue(v2));
-            case BIGDEC:
-                return bigDecValue(v1).multiply(bigDecValue(v2));
-            case FLOAT:
-            case DOUBLE:
-                return newReal(type, doubleValue(v1) * doubleValue(v2));
-            default:
-                return newInteger(type, longValue(v1) * longValue(v2));
-        }
+        return switch (type) {
+            case BIGINT -> bigIntValue(v1).multiply(bigIntValue(v2));
+            case BIGDEC -> bigDecValue(v1).multiply(bigDecValue(v2));
+            case FLOAT, DOUBLE -> newReal(type, doubleValue(v1) * doubleValue(v2));
+            default -> newInteger(type, longValue(v1) * longValue(v2));
+        };
     }
 
     public static Object divide(Object v1, Object v2) {
         int type = getNumericType(v1, v2);
-        switch (type) {
-            case BIGINT:
-                return bigIntValue(v1).divide(bigIntValue(v2));
-            case BIGDEC:
-                return bigDecValue(v1).divide(bigDecValue(v2), RoundingMode.HALF_EVEN);
-            case FLOAT:
-            case DOUBLE:
-                return newReal(type, doubleValue(v1) / doubleValue(v2));
-            default:
-                return newInteger(type, longValue(v1) / longValue(v2));
-        }
+        return switch (type) {
+            case BIGINT -> bigIntValue(v1).divide(bigIntValue(v2));
+            case BIGDEC -> bigDecValue(v1).divide(bigDecValue(v2), RoundingMode.HALF_EVEN);
+            case FLOAT, DOUBLE -> newReal(type, doubleValue(v1) / doubleValue(v2));
+            default -> newInteger(type, longValue(v1) / longValue(v2));
+        };
     }
 
     public static Object remainder(Object v1, Object v2) {
         int type = getNumericType(v1, v2);
-        switch (type) {
-            case BIGDEC:
-            case BIGINT:
-                return bigIntValue(v1).remainder(bigIntValue(v2));
-            default:
-                return newInteger(type, longValue(v1) % longValue(v2));
-        }
+        return switch (type) {
+            case BIGDEC, BIGINT -> bigIntValue(v1).remainder(bigIntValue(v2));
+            default -> newInteger(type, longValue(v1) % longValue(v2));
+        };
     }
 
     public static Object negate(Object value) {
         int type = getNumericType(value);
-        switch (type) {
-            case BIGINT:
-                return bigIntValue(value).negate();
-            case BIGDEC:
-                return bigDecValue(value).negate();
-            case FLOAT:
-            case DOUBLE:
-                return newReal(type, -doubleValue(value));
-            default:
-                return newInteger(type, -longValue(value));
-        }
+        return switch (type) {
+            case BIGINT -> bigIntValue(value).negate();
+            case BIGDEC -> bigDecValue(value).negate();
+            case FLOAT, DOUBLE -> newReal(type, -doubleValue(value));
+            default -> newInteger(type, -longValue(value));
+        };
     }
 
     public static Object bitNegate(Object value) {
         int type = getNumericType(value);
-        switch (type) {
-            case BIGDEC:
-            case BIGINT:
-                return bigIntValue(value).not();
-            default:
-                return newInteger(type, ~longValue(value));
-        }
+        return switch (type) {
+            case BIGDEC, BIGINT -> bigIntValue(value).not();
+            default -> newInteger(type, ~longValue(value));
+        };
     }
 
     public static String getEscapeString(String value) {
@@ -934,7 +907,7 @@ public abstract class OgnlOps implements NumericTypes {
             return (RuntimeException) t;
 
         if (t instanceof OgnlException)
-            throw new UnsupportedCompilationException("Error evluating expression: " + t.getMessage(), t);
+            throw new UnsupportedCompilationException("Error evaluating expression: " + t.getMessage(), t);
 
         return new RuntimeException(t);
     }

@@ -23,7 +23,6 @@ import ognl.enhance.OgnlExpressionCompiler;
 import ognl.internal.CacheException;
 import ognl.internal.entry.DeclaredMethodCacheEntry;
 import ognl.internal.entry.GenericMethodParameterTypeCacheEntry;
-import ognl.internal.entry.PermissionCacheEntry;
 
 import java.beans.BeanInfo;
 import java.beans.IndexedPropertyDescriptor;
@@ -41,7 +40,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
-import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -430,16 +428,6 @@ public class OgnlRuntime {
         return _majorJavaVersion;
     }
 
-    /**
-     * Check if the detected Major Java Version is 9 or higher (JDK 9+).
-     *
-     * @return Return true if the Detected Major Java version is 9 or higher, otherwise false.
-     */
-    @Deprecated(since = "3.5.0", forRemoval = true)
-    public static boolean isJdk9Plus() {
-        return _jdk9Plus;
-    }
-
     public static String getNumericValueGetter(Class<?> type) {
         return numericValues.get(type);
     }
@@ -652,22 +640,10 @@ public class OgnlRuntime {
         return cache.getParameterTypes(constructor);
     }
 
-    /**
-     * Permission will be named "invoke.&lt;declaring-class&gt;.&lt;method-name&gt;".
-     *
-     * @param method the Method whose Permission is being requested.
-     * @return the Permission for method named "invoke.&lt;declaring-class&gt;.&lt;method-name&gt;".
-     */
-    public static Permission getPermission(Method method) throws CacheException {
-        PermissionCacheEntry key = new PermissionCacheEntry(method);
-        return cache.getInvokePermission(key);
-    }
-
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException {
         boolean syncInvoke;
         Boolean methodAccessCacheValue;
-        Boolean methodPermCacheValue;
 
         if (_useStricterInvocation) {
             final Class<?> methodDeclaringClass = method.getDeclaringClass();  // Note: synchronized(method) call below will already NPE, so no null check.
@@ -697,11 +673,12 @@ public class OgnlRuntime {
             methodAccessCacheValue = _methodAccessCache.get(method);
             if (methodAccessCacheValue == null) {
                 if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-                    if (!(method.isAccessible())) {
-                        methodAccessCacheValue = Boolean.TRUE;
+                    var obj = Modifier.isStatic(method.getModifiers()) ? null : target;
+                    if (method.canAccess(obj)) {
+                        methodAccessCacheValue = Boolean.FALSE;
                         _methodAccessCache.put(method, methodAccessCacheValue);
                     } else {
-                        methodAccessCacheValue = Boolean.FALSE;
+                        methodAccessCacheValue = Boolean.TRUE;
                         _methodAccessCache.put(method, methodAccessCacheValue);
                     }
                 } else {
@@ -711,7 +688,7 @@ public class OgnlRuntime {
             }
             syncInvoke = Boolean.TRUE.equals(methodAccessCacheValue);
 
-            _methodPermCache.computeIfAbsent(method, k -> Boolean.TRUE);
+            _methodPermCache.putIfAbsent(method, Boolean.TRUE);
         }
 
         Object result;
