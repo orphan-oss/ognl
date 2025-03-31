@@ -28,9 +28,9 @@ import java.util.List;
  * Implementation of PropertyAccessor that uses numbers and dynamic subscripts as properties to
  * index into Lists.
  */
-public class ListPropertyAccessor extends ObjectPropertyAccessor implements PropertyAccessor {
+public class ListPropertyAccessor<C extends OgnlContext<C>> extends ObjectPropertyAccessor<C> implements PropertyAccessor<C> {
 
-    public Object getProperty(OgnlContext context, Object target, Object name) throws OgnlException {
+    public Object getProperty(C context, Object target, Object name) throws OgnlException {
         List<?> list = (List<?>) target;
 
         if (name instanceof String) {
@@ -73,7 +73,7 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
         throw new NoSuchPropertyException(target, name);
     }
 
-    public void setProperty(OgnlContext context, Object target, Object name, Object value)
+    public void setProperty(C context, Object target, Object name, Object value)
             throws OgnlException {
         if (name instanceof String && !((String) name).contains("$")) {
             super.setProperty(context, target, name, value);
@@ -111,7 +111,7 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
         throw new NoSuchPropertyException(target, name);
     }
 
-    public Class<?> getPropertyClass(OgnlContext context, Object target, Object index) {
+    public Class<?> getPropertyClass(C context, Object target, Object index) {
         if (index instanceof String) {
             String indexStr = (String) index;
             String key = (indexStr.indexOf('"') >= 0 ? indexStr.replaceAll("\"", "") : indexStr);
@@ -136,7 +136,7 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
         return null;
     }
 
-    public String getSourceAccessor(OgnlContext context, Object target, Object index) {
+    public String getSourceAccessor(C context, Object target, Object index) {
         String indexStr = index.toString();
         if (indexStr.indexOf('"') >= 0)
             indexStr = indexStr.replaceAll("\"", "");
@@ -195,7 +195,7 @@ public class ListPropertyAccessor extends ObjectPropertyAccessor implements Prop
         return ".get(" + indexStr + ")";
     }
 
-    public String getSourceSetter(OgnlContext context, Object target, Object index) {
+    public String getSourceSetter(C context, Object target, Object index) {
         String indexStr = index.toString();
         if (indexStr.indexOf('"') >= 0)
             indexStr = indexStr.replaceAll("\"", "");

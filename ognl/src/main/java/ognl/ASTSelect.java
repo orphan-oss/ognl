@@ -20,13 +20,15 @@ package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-public class ASTSelect extends SimpleNode {
+public class ASTSelect<C extends OgnlContext<C>> extends SimpleNode<C> {
 
-    private static final long serialVersionUID = 7036346554394321967L;
+    @Serial
+    private static final long serialVersionUID = 5968173710894672384L;
 
     public ASTSelect(int id) {
         super(id);
@@ -36,9 +38,8 @@ public class ASTSelect extends SimpleNode {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
-            throws OgnlException {
-        Node expr = children[0];
+    protected Object getValueBody(C context, Object source) throws OgnlException {
+        Node<C> expr = children[0];
         List<Object> answer = new ArrayList<>();
 
         ElementsAccessor elementsAccessor = OgnlRuntime.getElementsAccessor(OgnlRuntime.getTargetClass(source));
@@ -57,11 +58,11 @@ public class ASTSelect extends SimpleNode {
         return "{? " + children[0] + " }";
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         throw new UnsupportedCompilationException("Eval expressions not supported as native java yet.");
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         throw new UnsupportedCompilationException("Eval expressions not supported as native java yet.");
     }
 }

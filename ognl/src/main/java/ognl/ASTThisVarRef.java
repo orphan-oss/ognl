@@ -20,9 +20,12 @@ package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
-public class ASTThisVarRef extends ASTVarRef {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 5225752191165475979L;
+public class ASTThisVarRef<C extends OgnlContext<C>> extends ASTVarRef<C> {
+
+    @Serial
+    private static final long serialVersionUID = -398279289206640857L;
 
     public ASTThisVarRef(int id) {
         super(id);
@@ -32,11 +35,11 @@ public class ASTThisVarRef extends ASTVarRef {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         return context.getCurrentObject();
     }
 
-    protected void setValueBody(OgnlContext context, Object target, Object value) throws OgnlException {
+    protected void setValueBody(C context, Object target, Object value) throws OgnlException {
         context.setCurrentObject(value);
     }
 
@@ -44,11 +47,11 @@ public class ASTThisVarRef extends ASTVarRef {
         return "#this";
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         throw new UnsupportedCompilationException("Unable to compile this references.");
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         throw new UnsupportedCompilationException("Unable to compile this references.");
     }
 }

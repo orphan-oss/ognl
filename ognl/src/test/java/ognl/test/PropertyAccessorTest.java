@@ -29,13 +29,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class PropertyAccessorTest {
+class PropertyAccessorTest<C extends OgnlContext<C>> {
 
-    private OgnlContext context;
+    private C context;
 
     @BeforeEach
     void setUp() {
-        this.context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+        this.context = Ognl.createDefaultContext(null, new DefaultMemberAccess<C>(false));
         OgnlRuntime.setPropertyAccessor(Parent.class, new ChildPropertyAccessor());
     }
 
@@ -73,22 +73,22 @@ class PropertyAccessorTest {
         }
     }
 
-    public static class ChildPropertyAccessor implements PropertyAccessor {
-        public void setProperty(OgnlContext context, Object target, Object name, Object value) throws OgnlException {
+    public static class ChildPropertyAccessor<C extends OgnlContext<C>> implements PropertyAccessor<C> {
+        public void setProperty(C context, Object target, Object name, Object value) throws OgnlException {
         }
 
-        public Object getProperty(OgnlContext context, Object target, Object name) throws OgnlException {
+        public Object getProperty(C context, Object target, Object name) throws OgnlException {
             if (target instanceof Parent && "child".equals(name)) {
                 return OgnlRuntime.getProperty(context, ((Parent) target).getChild(), "name");
             }
             return null;
         }
 
-        public String getSourceAccessor(OgnlContext context, Object target, Object index) {
+        public String getSourceAccessor(C context, Object target, Object index) {
             return index.toString();
         }
 
-        public String getSourceSetter(OgnlContext context, Object target, Object index) {
+        public String getSourceSetter(C context, Object target, Object index) {
             return index.toString();
         }
     }

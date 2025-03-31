@@ -58,7 +58,7 @@ import java.util.Set;
  * Responsible for managing/providing functionality related to compiling generated java source
  * expressions via bytecode enhancements for a given ognl expression.
  */
-public class ExpressionCompiler implements OgnlExpressionCompiler {
+public class ExpressionCompiler<C extends OgnlContext<C>> implements OgnlExpressionCompiler<C> {
 
     /**
      * Key used to store any java source string casting statements in the {@link OgnlContext} during
@@ -69,7 +69,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     /**
      * {@link ClassLoader} instances.
      */
-    protected Map<ClassResolver, EnhancedClassLoader> loaders = new HashMap<>();
+    protected Map<ClassResolver<C>, EnhancedClassLoader> loaders = new HashMap<>();
 
     /**
      * Javassist class definition pool.
@@ -93,7 +93,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      * @param context The current execution context.
      * @param cast    The java source string to store in to the context.
      */
-    public static void addCastString(OgnlContext context, String cast) {
+    public static <C extends OgnlContext<C>> void addCastString(C context, String cast) {
         String value = (String) context.get(PRE_CAST);
 
         if (value != null)
@@ -134,7 +134,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      * @return Either an empty string or a root path java source string compatible with javassist compilations
      * from the root object up to the specified {@link Node}.
      */
-    public static String getRootExpression(Node expression, Object root, OgnlContext context) {
+    public static <C extends OgnlContext<C>> String getRootExpression(Node<C> expression, Object root, C context) {
         String rootExpr = "";
 
         if (!shouldCast(expression))
@@ -156,10 +156,10 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             if (castClass.isArray() || expression instanceof ASTRootVarRef) {
                 rootExpr = "((" + getCastString(castClass) + ")$2)";
 
-                if (expression instanceof ASTProperty && !((ASTProperty) expression).isIndexedAccess()) {
+                if (expression instanceof ASTProperty && !((ASTProperty<C>) expression).isIndexedAccess()) {
                     rootExpr += ".";
                 }
-            } else if ((expression instanceof ASTProperty && ((ASTProperty) expression).isIndexedAccess()) || expression instanceof ASTChain) {
+            } else if ((expression instanceof ASTProperty && ((ASTProperty<C>) expression).isIndexedAccess()) || expression instanceof ASTChain) {
                 rootExpr = "((" + getCastString(castClass) + ")$2)";
             } else {
                 rootExpr = "((" + getCastString(castClass) + ")$2).";
@@ -176,9 +176,9 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      * @param expression The node to check against.
      * @return Yes if the node type should be cast - false otherwise.
      */
-    public static boolean shouldCast(Node expression) {
+    public static <C extends OgnlContext<C>> boolean shouldCast(Node<C> expression) {
         if (expression instanceof ASTChain) {
-            Node child = expression.jjtGetChild(0);
+            Node<C> child = expression.jjtGetChild(0);
             if (child instanceof ASTConst
                     || child instanceof ASTStaticMethod
                     || child instanceof ASTStaticField
@@ -189,7 +189,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         return !(expression instanceof ASTConst);
     }
 
-    public String castExpression(OgnlContext context, Node expression, String body) {
+    public String castExpression(C context, Node<C> expression, String body) {
         // ok - so this looks really f-ed up ...and it is ..eh if you can do it better I'm all for it :)
 
         if (context.getCurrentAccessor() == null
@@ -199,7 +199,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
                 && context.getCurrentObject() != null
                 && context.getCurrentType().isAssignableFrom(context.getCurrentObject().getClass())
                 && context.getCurrentAccessor().isAssignableFrom(context.getPreviousType()))
-                || body == null || body.trim().length() < 1
+                || body == null || body.trim().isEmpty()
                 || (context.getCurrentType() != null && context.getCurrentType().isArray()
                 && (context.getPreviousType() == null || context.getPreviousType() != Object.class))
                 || expression instanceof ASTOr
@@ -367,7 +367,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         return clazz;
     }
 
-    public Class<?> getRootExpressionClass(Node rootNode, OgnlContext context) {
+    public Class<?> getRootExpressionClass(Node<C> rootNode, C context) {
         if (context.getRoot() == null) {
             return null;
         }
@@ -381,7 +381,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         return ret;
     }
 
-    public void compileExpression(OgnlContext context, Node expression, Object root) throws Exception {
+    public void compileExpression(C context, Node<C> expression, Object root) throws Exception {
         if (expression.getAccessor() != null) {
             return;
         }
@@ -439,7 +439,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
             Class<?> clazz = instantiateClass(pool, newClass);
             newClass.detach();
 
-            expression.setAccessor((ExpressionAccessor) clazz.newInstance());
+            expression.setAccessor((ExpressionAccessor<C>) clazz.getDeclaredConstructor().newInstance());
 
             // need to set expression on node if the field was just defined.
             if (nodeMember != null) {
@@ -469,7 +469,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
     }
 
 
-    protected String generateGetter(OgnlContext context, CtClass newClass, ClassPool pool, CtMethod valueGetter, Node expression, Object root) throws Exception {
+    protected String generateGetter(C context, CtClass newClass, ClassPool pool, CtMethod valueGetter, Node<C> expression, Object root) throws Exception {
         String pre = "";
         String post = "";
         String body;
@@ -538,7 +538,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         return body;
     }
 
-    public String createLocalReference(OgnlContext context, String expression, Class<?> type) {
+    public String createLocalReference(C context, String expression, Class<?> type) {
         String referenceName = "ref" + context.incrementLocalReferenceCounter();
         context.addLocalReference(referenceName, new OgnlLocalReference(referenceName, expression, type));
 
@@ -549,9 +549,9 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         return castString + referenceName + "($$)";
     }
 
-    private void createLocalReferences(OgnlContext context, ClassPool pool, CtClass clazz, CtClass[] params) throws CannotCompileException, NotFoundException {
+    private void createLocalReferences(C context, ClassPool pool, CtClass clazz, CtClass[] params) throws CannotCompileException, NotFoundException {
         Map<String, LocalReference> referenceMap = context.getLocalReferences();
-        if (referenceMap == null || referenceMap.size() < 1) {
+        if (referenceMap == null || referenceMap.isEmpty()) {
             return;
         }
 
@@ -579,7 +579,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         }
     }
 
-    protected String generateSetter(OgnlContext context, CtClass newClass, ClassPool pool, CtMethod valueSetter, Node expression, Object root) throws Exception {
+    protected String generateSetter(C context, CtClass newClass, ClassPool pool, CtMethod valueSetter, Node<C> expression, Object root) throws Exception {
         if (expression instanceof ExpressionNode || expression instanceof ASTConst) {
             throw new UnsupportedCompilationException("Can't compile expression/constant setters.");
         }
@@ -592,7 +592,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
         String setterCode = expression.toSetSourceString(context, root);
         String castExpression = (String) context.get(PRE_CAST);
 
-        if (setterCode == null || setterCode.trim().length() < 1)
+        if (setterCode == null || setterCode.trim().isEmpty())
             throw new UnsupportedCompilationException("Can't compile null setter body.");
 
         if (root == null)
@@ -669,14 +669,14 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      * @param context The current execution context.
      * @return The created {@link ClassLoader} instance.
      */
-    protected EnhancedClassLoader getClassLoader(OgnlContext context) {
+    protected EnhancedClassLoader getClassLoader(C context) {
         EnhancedClassLoader ret = loaders.get(context.getClassResolver());
 
         if (ret != null) {
             return ret;
         }
 
-        ClassLoader classLoader = new ContextClassLoader(OgnlContext.class.getClassLoader(), context);
+        ClassLoader classLoader = new ContextClassLoader<>(OgnlContext.class.getClassLoader(), context);
 
         ret = new EnhancedClassLoader(classLoader);
         loaders.put(context.getClassResolver(), ret);
@@ -704,7 +704,7 @@ public class ExpressionCompiler implements OgnlExpressionCompiler {
      * @param loader  The {@link ClassLoader} instance to use - as returned by {@link #getClassLoader(OgnlContext)}.
      * @return The existing or new {@link ClassPool} instance.
      */
-    protected ClassPool getClassPool(OgnlContext context, EnhancedClassLoader loader) {
+    protected ClassPool getClassPool(C context, EnhancedClassLoader loader) {
         if (classPool != null) {
             return classPool;
         }

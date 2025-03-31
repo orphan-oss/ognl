@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTBitOr extends NumericExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -7692570501162791771L;
+public class ASTBitOr<C extends OgnlContext<C>> extends NumericExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = -1596881192315259748L;
 
     public ASTBitOr(int id) {
         super(id);
@@ -34,7 +37,7 @@ public class ASTBitOr extends NumericExpression {
         flattenTree();
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object result = children[0].getValue(context, source);
         for (int i = 1; i < children.length; ++i)
             result = OgnlOps.binaryOr(result, children[i].getValue(context, source));

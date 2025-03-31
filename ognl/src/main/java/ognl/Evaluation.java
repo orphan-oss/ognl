@@ -24,18 +24,18 @@ package ognl;
  * value.  It refers to child evaluations that occur as
  * a result of the nodes' evaluation.
  */
-public class Evaluation {
+public class Evaluation<C extends OgnlContext<C>> {
 
-    private SimpleNode node;
+    private SimpleNode<C> node;
     private Object source;
     private boolean setOperation;
     private Object result;
     private Throwable exception;
-    private Evaluation parent;
-    private Evaluation next;
-    private Evaluation previous;
-    private Evaluation firstChild;
-    private Evaluation lastChild;
+    private Evaluation<C> parent;
+    private Evaluation<C> next;
+    private Evaluation<C> previous;
+    private Evaluation<C> firstChild;
+    private Evaluation<C> lastChild;
 
     /**
      * Constructs a new "get" <code>Evaluation</code> from the node and source given.
@@ -43,7 +43,7 @@ public class Evaluation {
      * @param node   a SimpleNode for this Evaluation.
      * @param source a source Object for this Evaluation.
      */
-    public Evaluation(SimpleNode node, Object source) {
+    public Evaluation(SimpleNode<C> node, Object source) {
         super();
         this.node = node;
         this.source = source;
@@ -58,7 +58,7 @@ public class Evaluation {
      * @param source       a source Object for this Evaluation.
      * @param setOperation true to identify this Evaluation as a set operation, false to identify it as a get operation.
      */
-    public Evaluation(SimpleNode node, Object source, boolean setOperation) {
+    public Evaluation(SimpleNode<C> node, Object source, boolean setOperation) {
         this(node, source);
         this.setOperation = setOperation;
     }
@@ -68,7 +68,7 @@ public class Evaluation {
      *
      * @return the SimpleNode for this Evaluation.
      */
-    public SimpleNode getNode() {
+    public SimpleNode<C> getNode() {
         return node;
     }
 
@@ -80,7 +80,7 @@ public class Evaluation {
      *
      * @param value the SimpleNode to set for this Evaluation.
      */
-    public void setNode(SimpleNode value) {
+    public void setNode(SimpleNode<C> value) {
         node = value;
     }
 
@@ -170,7 +170,7 @@ public class Evaluation {
      *
      * @return the parent Evaluation of the current Evaluation, or null if no parent exists.
      */
-    public Evaluation getParent() {
+    public Evaluation<C> getParent() {
         return parent;
     }
 
@@ -180,7 +180,7 @@ public class Evaluation {
      *
      * @return the next sibling Evaluation of the current Evaluation, or null if this is the last Evaluation in a chain.
      */
-    public Evaluation getNext() {
+    public Evaluation<C> getNext() {
         return next;
     }
 
@@ -190,7 +190,7 @@ public class Evaluation {
      *
      * @return the previous sibling Evaluation of the current Evaluation, or null if this is the first Evaluation in a chain.
      */
-    public Evaluation getPrevious() {
+    public Evaluation<C> getPrevious() {
         return previous;
     }
 
@@ -200,7 +200,7 @@ public class Evaluation {
      *
      * @return the first child Evaluation of the current Evaluation, or null if no children exist.
      */
-    public Evaluation getFirstChild() {
+    public Evaluation<C> getFirstChild() {
         return firstChild;
     }
 
@@ -210,7 +210,7 @@ public class Evaluation {
      *
      * @return the last child Evaluation of the current Evaluation, or null if no children exist.
      */
-    public Evaluation getLastChild() {
+    public Evaluation<C> getLastChild() {
         return lastChild;
     }
 
@@ -220,7 +220,7 @@ public class Evaluation {
      *
      * @return the first descendant Evaluation (first Evaluation executed in the tree).
      */
-    public Evaluation getFirstDescendant() {
+    public Evaluation<C> getFirstDescendant() {
         if (firstChild != null) {
             return firstChild.getFirstDescendant();
         }
@@ -233,7 +233,7 @@ public class Evaluation {
      *
      * @return the last descendant Evaluation (most recent Evaluation executed in the tree).
      */
-    public Evaluation getLastDescendant() {
+    public Evaluation<C> getLastDescendant() {
         if (lastChild != null) {
             return lastChild.getLastDescendant();
         }
@@ -249,7 +249,7 @@ public class Evaluation {
      *
      * @param child an Evaluation to add as a child to the current Evaluation.
      */
-    public void addChild(Evaluation child) {
+    public void addChild(Evaluation<C> child) {
         if (firstChild == null) {
             firstChild = lastChild = child;
         } else {
@@ -273,7 +273,7 @@ public class Evaluation {
      * @param source       a source Object for this Evaluation.
      * @param setOperation true to identify this Evaluation as a set operation, false to identify it as a get operation.
      */
-    public void init(SimpleNode node, Object source, boolean setOperation) {
+    public void init(SimpleNode<C> node, Object source, boolean setOperation) {
         this.node = node;
         this.source = source;
         this.setOperation = setOperation;
@@ -318,7 +318,7 @@ public class Evaluation {
             stringResult = new StringBuilder(depth + "<" + node.getClass().getName() + ": [" + (setOperation ? "set" : "get") + "] source = " + ss + ", result = " + result + " [" + rs + "]>");
         }
         if (showChildren) {
-            Evaluation child = firstChild;
+            Evaluation<C> child = firstChild;
 
             stringResult.append("\n");
             while (child != null) {

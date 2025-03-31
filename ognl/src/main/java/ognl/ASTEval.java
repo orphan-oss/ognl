@@ -20,9 +20,12 @@ package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
-public class ASTEval extends SimpleNode {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 3686472873318541923L;
+public class ASTEval<C extends OgnlContext<C>> extends SimpleNode<C> {
+
+    @Serial
+    private static final long serialVersionUID = 1664536168007480363L;
 
     public ASTEval(int id) {
         super(id);
@@ -32,13 +35,13 @@ public class ASTEval extends SimpleNode {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
+    protected Object getValueBody(C context, Object source)
             throws OgnlException {
         Object result, expr = children[0].getValue(context, source), previousRoot = context.getRoot();
-        Node node;
 
         source = children[1].getValue(context, source);
-        node = (expr instanceof Node) ? (Node) expr : (Node) Ognl.parseExpression(expr.toString());
+        @SuppressWarnings("unchecked")
+        Node<C> node = (expr instanceof Node) ? (Node<C>) expr : (Node<C>) Ognl.parseExpression(expr.toString());
         try {
             context.setRoot(source);
             result = node.getValue(context, source);
@@ -48,13 +51,13 @@ public class ASTEval extends SimpleNode {
         return result;
     }
 
-    protected void setValueBody(OgnlContext context, Object target, Object value)
+    protected void setValueBody(C context, Object target, Object value)
             throws OgnlException {
         Object expr = children[0].getValue(context, target), previousRoot = context.getRoot();
-        Node node;
 
         target = children[1].getValue(context, target);
-        node = (expr instanceof Node) ? (Node) expr : (Node) Ognl.parseExpression(expr.toString());
+        @SuppressWarnings("unchecked")
+        Node<C> node = (expr instanceof Node) ? (Node<C>) expr : (Node<C>) Ognl.parseExpression(expr.toString());
         try {
             context.setRoot(target);
             node.setValue(context, target, value);
@@ -64,7 +67,7 @@ public class ASTEval extends SimpleNode {
     }
 
     @Override
-    public boolean isEvalChain(OgnlContext context) throws OgnlException {
+    public boolean isEvalChain(C context) throws OgnlException {
         return true;
     }
 
@@ -72,11 +75,11 @@ public class ASTEval extends SimpleNode {
         return "(" + children[0] + ")(" + children[1] + ")";
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         throw new UnsupportedCompilationException("Eval expressions not supported as native java yet.");
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         throw new UnsupportedCompilationException("Map expressions not supported as native java yet.");
     }
 }

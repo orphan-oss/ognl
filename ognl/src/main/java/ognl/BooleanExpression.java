@@ -20,12 +20,15 @@ package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
+import java.io.Serial;
+
 /**
  * Base class for boolean expressions.
  */
-public abstract class BooleanExpression extends ExpressionNode implements NodeType {
+public abstract class BooleanExpression<C extends OgnlContext<C>> extends ExpressionNode<C> implements NodeType {
 
-    private static final long serialVersionUID = 8933433183011657435L;
+    @Serial
+    private static final long serialVersionUID = -2717192375855680355L;
 
     protected Class<?> getterClass;
 
@@ -45,7 +48,7 @@ public abstract class BooleanExpression extends ExpressionNode implements NodeTy
         return null;
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         try {
             Object value = getValueBody(context, target);
 

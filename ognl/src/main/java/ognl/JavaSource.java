@@ -26,7 +26,7 @@ import ognl.enhance.ExpressionAccessor;
  *
  * @author jkuhnert
  */
-public interface JavaSource {
+public interface JavaSource<C extends OgnlContext<C>> {
 
     /**
      * Expected to return a java source representation of itself such that
@@ -37,7 +37,7 @@ public interface JavaSource {
      * @param target  the Object from which to retrieve the get source string.
      * @return Literal java string representation of an object get.
      */
-    String toGetSourceString(OgnlContext context, Object target);
+    String toGetSourceString(C context, Object target);
 
     /**
      * Expected to return a java source representation of itself such that
@@ -48,5 +48,5 @@ public interface JavaSource {
      * @param target  the Object from which to retrieve the set source string.
      * @return Literal java string representation of an object set.
      */
-    String toSetSourceString(OgnlContext context, Object target);
+    String toSetSourceString(C context, Object target);
 }

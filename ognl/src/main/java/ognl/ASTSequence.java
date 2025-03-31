@@ -21,9 +21,12 @@ package ognl;
 import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OrderedReturn;
 
-public class ASTSequence extends SimpleNode implements NodeType, OrderedReturn {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 7862664419715024875L;
+public class ASTSequence<C extends OgnlContext<C>> extends SimpleNode<C> implements NodeType, OrderedReturn {
+
+    @Serial
+    private static final long serialVersionUID = -6645566648865448882L;
 
     private Class<?> getterClass;
     private String lastExpression;
@@ -41,15 +44,15 @@ public class ASTSequence extends SimpleNode implements NodeType, OrderedReturn {
         flattenTree();
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object result = null;
-        for (Node child : children) {
+        for (Node<C> child : children) {
             result = child.getValue(context, source);
         }
         return result; // The result is just the last one we saw.
     }
 
-    protected void setValueBody(OgnlContext context, Object target, Object value) throws OgnlException {
+    protected void setValueBody(C context, Object target, Object value) throws OgnlException {
         int last = children.length - 1;
         for (int i = 0; i < last; ++i) {
             children[i].getValue(context, target);
@@ -85,11 +88,11 @@ public class ASTSequence extends SimpleNode implements NodeType, OrderedReturn {
         return result.toString();
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         return "";
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         String result = "";
 
         NodeType _lastType = null;
@@ -134,7 +137,7 @@ public class ASTSequence extends SimpleNode implements NodeType, OrderedReturn {
         return result;
     }
 
-    public boolean isSequence(OgnlContext context) {
+    public boolean isSequence(C context) {
         return true;
     }
 

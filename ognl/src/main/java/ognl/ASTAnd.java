@@ -21,9 +21,12 @@ package ognl;
 import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.UnsupportedCompilationException;
 
-public class ASTAnd extends BooleanExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 6696870754345362407L;
+public class ASTAnd<C extends OgnlContext<C>> extends BooleanExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = 2405276998785752132L;
 
     public ASTAnd(int id) {
         super(id);
@@ -37,7 +40,7 @@ public class ASTAnd extends BooleanExpression {
         flattenTree();
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
+    protected Object getValueBody(C context, Object source)
             throws OgnlException {
         Object result = null;
         int last = children.length - 1;
@@ -51,7 +54,7 @@ public class ASTAnd extends BooleanExpression {
         return result;
     }
 
-    protected void setValueBody(OgnlContext context, Object target, Object value)
+    protected void setValueBody(C context, Object target, Object value)
             throws OgnlException {
         int last = children.length - 1;
 
@@ -73,7 +76,7 @@ public class ASTAnd extends BooleanExpression {
         return null;
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         if (children.length != 2)
             throw new UnsupportedCompilationException("Can only compile boolean expressions with two children.");
 
@@ -116,7 +119,7 @@ public class ASTAnd extends BooleanExpression {
         return result;
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         if (children.length != 2)
             throw new UnsupportedCompilationException("Can only compile boolean expressions with two children.");
 

@@ -30,11 +30,11 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class OgnlContextCreateTest {
+class OgnlContextCreateTest<C extends OgnlContext<C>> {
 
     @Test
     void createContext() throws OgnlException {
-        OgnlContext context = Ognl.createDefaultContext(null).withValues(prepareValues());
+        C context = Ognl.<C>createDefaultContext(null).withValues(prepareValues());
 
         assertEquals("test100", Ognl.getValue("#test", context, new Simple()));
     }
@@ -43,7 +43,7 @@ class OgnlContextCreateTest {
     void createContextWithRoot() throws OgnlException {
         Simple root = new Simple();
 
-        OgnlContext context = Ognl.createDefaultContext(root, prepareValues());
+        C context = Ognl.createDefaultContext(root, prepareValues());
 
         assertEquals("test100", Ognl.getValue("#test", context, root));
     }
@@ -52,7 +52,7 @@ class OgnlContextCreateTest {
     void createContextWithNullRoot() throws OgnlException {
         Simple root = new Simple();
 
-        OgnlContext context = Ognl.createDefaultContext(null, prepareValues());
+        C context = Ognl.createDefaultContext(null, prepareValues());
 
         assertEquals("test100", Ognl.getValue("#test", context, root));
     }
@@ -135,9 +135,9 @@ class OgnlContextCreateTest {
     @Test
     void addContextWithNoClassResolverAndNoTypeConverter() throws OgnlException {
         Simple root = new Simple();
-        OgnlContext oldContext = Ognl.createDefaultContext(root);
+        C oldContext = Ognl.createDefaultContext(root);
 
-        OgnlContext context = Ognl.addDefaultContext(null, new MyClassResolver(), new MyTypeConverter(), oldContext);
+        C context = Ognl.addDefaultContext(null, new MyClassResolver<>(), new MyTypeConverter<>(), oldContext);
 
         Simple actual = (Simple) Ognl.getValue("@ognl.test.MyClass@getValue()", context, root, Simple.class);
 
@@ -175,10 +175,9 @@ class OgnlContextCreateTest {
         return values;
     }
 
-    private static class MyClassResolver extends DefaultClassResolver {
+    private static class MyClassResolver<C extends OgnlContext<C>> extends DefaultClassResolver<C> {
         @Override
-        @SuppressWarnings("unchecked")
-        public <T> Class<T> classForName(String className, OgnlContext context) throws ClassNotFoundException {
+        public <T> Class<T> classForName(String className, C context) throws ClassNotFoundException {
             if (className.equals("ognl.test.MyClass")) {
                 return (Class<T>) MyClass.class;
             }
@@ -192,9 +191,9 @@ class OgnlContextCreateTest {
         }
     }
 
-    private class MyTypeConverter extends DefaultTypeConverter {
+    private static class MyTypeConverter<C extends OgnlContext<C>> extends DefaultTypeConverter<C> {
         @Override
-        public Object convertValue(OgnlContext context, Object value, Class<?> toType) {
+        public Object convertValue(C context, Object value, Class<?> toType) {
             if (toType == Simple.class) {
                 return new Simple(new Object[]{value});
             }

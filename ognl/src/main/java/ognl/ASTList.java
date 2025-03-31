@@ -21,13 +21,15 @@ package ognl;
 import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.UnsupportedCompilationException;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ASTList extends SimpleNode implements NodeType {
+public class ASTList<C extends OgnlContext<C>> extends SimpleNode<C> implements NodeType {
 
-    private static final long serialVersionUID = 5819304155523588899L;
+    @Serial
+    private static final long serialVersionUID = 6663713724275707392L;
 
     public ASTList(int id) {
         super(id);
@@ -37,7 +39,7 @@ public class ASTList extends SimpleNode implements NodeType {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
+    protected Object getValueBody(C context, Object source)
             throws OgnlException {
         List<Object> answer = new ArrayList<>(jjtGetNumChildren());
         for (int i = 0; i < jjtGetNumChildren(); ++i) {
@@ -66,9 +68,9 @@ public class ASTList extends SimpleNode implements NodeType {
         return result + " }";
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         StringBuilder result = new StringBuilder();
-        boolean array = parent instanceof ASTCtor && ((ASTCtor) parent).isArray();
+        boolean array = parent instanceof ASTCtor && ((ASTCtor<C>) parent).isArray();
 
         context.setCurrentType(List.class);
         context.setCurrentAccessor(List.class);
@@ -167,7 +169,7 @@ public class ASTList extends SimpleNode implements NodeType {
         return result.toString();
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         throw new UnsupportedCompilationException("Can't generate setter for ASTList.");
     }
 }

@@ -20,12 +20,15 @@ package ognl;
 
 import ognl.enhance.ExpressionCompiler;
 
+import java.io.Serial;
+
 /**
  * Base class for numeric expressions.
  */
-public abstract class NumericExpression extends ExpressionNode implements NodeType {
+public abstract class NumericExpression<C extends OgnlContext<C>> extends ExpressionNode<C> implements NodeType {
 
-    private static final long serialVersionUID = 411246929049244018L;
+    @Serial
+    private static final long serialVersionUID = 2899128497573777569L;
 
     protected Class<?> getterClass;
 
@@ -48,7 +51,7 @@ public abstract class NumericExpression extends ExpressionNode implements NodeTy
         return null;
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         Object value;
         StringBuilder result = new StringBuilder();
 
@@ -74,7 +77,7 @@ public abstract class NumericExpression extends ExpressionNode implements NodeTy
         return result.toString();
     }
 
-    public String coerceToNumeric(String source, OgnlContext context, Node child) {
+    public String coerceToNumeric(String source, C context, Node<C> child) {
         String ret = source;
         Object value = context.getCurrentObject();
 

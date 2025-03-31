@@ -144,8 +144,8 @@ public abstract class Ognl {
      * still possible at some as yet indertermined point in the future.
      * @throws Exception If a compilation error occurs.
      */
-    public static Node compileExpression(OgnlContext context, Object root, String expression) throws Exception {
-        Node expr = (Node) Ognl.parseExpression(expression);
+    public static <C extends OgnlContext<C>> Node<C> compileExpression(C context, Object root, String expression) throws Exception {
+        Node<C> expr = (Node<C>) Ognl.parseExpression(expression);
 
         OgnlRuntime.compileExpression(context, expr, root);
 
@@ -159,10 +159,10 @@ public abstract class Ognl {
      * @return a new {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static OgnlContext createDefaultContext(Object root) {
-        MemberAccess memberAccess = new AbstractMemberAccess() {
+    public static <C extends OgnlContext<C>> C createDefaultContext(Object root) {
+        MemberAccess<C> memberAccess = new AbstractMemberAccess<>() {
             @Override
-            public boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName) {
+            public boolean isAccessible(C context, Object target, Member member, String propertyName) {
                 int modifiers = member.getModifiers();
                 return Modifier.isPublic(modifiers);
             }
@@ -177,8 +177,10 @@ public abstract class Ognl {
      * @return a new {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static OgnlContext createDefaultContext(Object root, Map<String, Object> values) {
-        return createDefaultContext(root).withValues(values);
+    public static <C extends OgnlContext<C>> C createDefaultContext(Object root, Map<String, Object> values) {
+        C context = createDefaultContext(root);
+        context.setValues(values);
+        return context;
     }
 
     /**
@@ -189,10 +191,10 @@ public abstract class Ognl {
      * @return a new OgnlContext with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static OgnlContext createDefaultContext(Object root, ClassResolver classResolver) {
-        MemberAccess memberAccess = new AbstractMemberAccess() {
+    public static <C extends OgnlContext<C>> C createDefaultContext(Object root, ClassResolver<C> classResolver) {
+        MemberAccess<C> memberAccess = new AbstractMemberAccess<>() {
             @Override
-            public boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName) {
+            public boolean isAccessible(C context, Object target, Member member, String propertyName) {
                 int modifiers = member.getModifiers();
                 return Modifier.isPublic(modifiers);
             }
@@ -209,10 +211,10 @@ public abstract class Ognl {
      * @return a new {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static OgnlContext createDefaultContext(Object root, ClassResolver classResolver, TypeConverter converter) {
-        MemberAccess memberAccess = new AbstractMemberAccess() {
+    public static <C extends OgnlContext<C>> C createDefaultContext(Object root, ClassResolver<C> classResolver, TypeConverter<C> converter) {
+        MemberAccess<C> memberAccess = new AbstractMemberAccess<>() {
             @Override
-            public boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName) {
+            public boolean isAccessible(C context, Object target, Member member, String propertyName) {
                 int modifiers = member.getModifiers();
                 return Modifier.isPublic(modifiers);
             }
@@ -231,7 +233,7 @@ public abstract class Ognl {
      * @return a new {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static OgnlContext createDefaultContext(Object root, MemberAccess memberAccess, ClassResolver classResolver, TypeConverter converter) {
+    public static <C extends OgnlContext<C>> C createDefaultContext(Object root, MemberAccess<C> memberAccess, ClassResolver<C> classResolver, TypeConverter<C> converter) {
         return addDefaultContext(root, memberAccess, classResolver, converter, null);
     }
 
@@ -244,7 +246,7 @@ public abstract class Ognl {
      * @return a new {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static OgnlContext createDefaultContext(Object root, MemberAccess memberAccess) {
+    public static <C extends OgnlContext<C>> C createDefaultContext(Object root, MemberAccess<C> memberAccess) {
         return addDefaultContext(root, memberAccess, null, null, null);
     }
 
@@ -257,7 +259,7 @@ public abstract class Ognl {
      * @return {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static OgnlContext addDefaultContext(Object root, OgnlContext context) {
+    public static <C extends OgnlContext<C>> C addDefaultContext(Object root, C context) {
         return addDefaultContext(root, context.getMemberAccess(), context.getClassResolver(), context.getTypeConverter(), context);
     }
 
@@ -271,7 +273,7 @@ public abstract class Ognl {
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static OgnlContext addDefaultContext(Object root, ClassResolver classResolver, OgnlContext context) {
+    public static <C extends OgnlContext<C>> C addDefaultContext(Object root, ClassResolver<C> classResolver, C context) {
         return addDefaultContext(root, context.getMemberAccess(), classResolver, context.getTypeConverter(), context);
     }
 
@@ -286,7 +288,7 @@ public abstract class Ognl {
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static OgnlContext addDefaultContext(Object root, ClassResolver classResolver, TypeConverter converter, OgnlContext context) {
+    public static <C extends OgnlContext<C>> C addDefaultContext(Object root, ClassResolver<C> classResolver, TypeConverter<C> converter, C context) {
         return addDefaultContext(root, context.getMemberAccess(), classResolver, converter, context);
     }
 
@@ -303,13 +305,13 @@ public abstract class Ognl {
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static OgnlContext addDefaultContext(Object root, MemberAccess memberAccess, ClassResolver classResolver, TypeConverter converter, OgnlContext initialContext) {
-        OgnlContext result = new OgnlContext(memberAccess, classResolver, converter, initialContext);
+    public static <C extends OgnlContext<C>> C addDefaultContext(Object root, MemberAccess<C> memberAccess, ClassResolver<C> classResolver, TypeConverter<C> converter, C initialContext) {
+        OgnlContext<C> result = new OgnlContext<>(memberAccess, classResolver, converter, initialContext);
         
         // Preserve the original root context when it exists and has user-defined variables,
         // but allow setting a new root in normal cases (e.g., initial context creation)
         if (initialContext != null && initialContext.getRoot() != null &&
-            initialContext.size() > 0 && root != initialContext.getRoot()) {
+                initialContext.size() > 0 && root != initialContext.getRoot()) {
             // Only preserve the original root if the context has user variables and
             // the new root is different (indicating nested evaluation like list processing)
             result.setRoot(initialContext.getRoot());
@@ -317,11 +319,11 @@ public abstract class Ognl {
             // Default behavior: set the new root
             result.setRoot(root);
         }
-        
+
         if (initialContext != null) {
             result.putAll(initialContext);
         }
-        return result;
+        return (C) result;
     }
 
     /**
@@ -330,7 +332,7 @@ public abstract class Ognl {
      * @param context The context to get the converter from.
      * @return The converter - or null if none found.
      */
-    public static TypeConverter getTypeConverter(OgnlContext context) {
+    public static <C extends OgnlContext<C>> TypeConverter<C> getTypeConverter(C context) {
         if (context != null) {
             return context.getTypeConverter();
         }
@@ -344,7 +346,7 @@ public abstract class Ognl {
      * @param context The context to store the root object in.
      * @param root    The root object.
      */
-    public static void setRoot(OgnlContext context, Object root) {
+    public static <C extends OgnlContext<C>> void setRoot(C context, Object root) {
         context.setRoot(root);
     }
 
@@ -354,7 +356,7 @@ public abstract class Ognl {
      * @param context The context to get the root object from.
      * @return The root object - or null if none found.
      */
-    public static Object getRoot(OgnlContext context) {
+    public static <C extends OgnlContext<C>> Object getRoot(C context) {
         return context.getRoot();
     }
 
@@ -364,7 +366,7 @@ public abstract class Ognl {
      * @param context The context to get the evaluation from.
      * @return The {@link Evaluation} - or null if none was found.
      */
-    public static Evaluation getLastEvaluation(OgnlContext context) {
+    public static <C extends OgnlContext<C>> Evaluation<C> getLastEvaluation(C context) {
         return context.getLastEvaluation();
     }
 
@@ -381,7 +383,7 @@ public abstract class Ognl {
      * @throws InappropriateExpressionException if the expression can't be used in this context
      * @throws OgnlException                    if there is a pathological environmental problem
      */
-    public static Object getValue(Object tree, OgnlContext context, Object root) throws OgnlException {
+    public static <C extends OgnlContext<C>> Object getValue(Object tree, C context, Object root) throws OgnlException {
         return getValue(tree, context, root, null);
     }
 
@@ -399,9 +401,9 @@ public abstract class Ognl {
      * @throws InappropriateExpressionException if the expression can't be used in this context
      * @throws OgnlException                    if there is a pathological environmental problem
      */
-    public static Object getValue(Object tree, OgnlContext context, Object root, Class<?> resultType) throws OgnlException {
+    public static <C extends OgnlContext<C>> Object getValue(Object tree, C context, Object root, Class<?> resultType) throws OgnlException {
         Object result;
-        OgnlContext ognlContext = addDefaultContext(root, context);
+        C ognlContext = addDefaultContext(root, context);
 
         Node node = (Node) tree;
 
@@ -426,7 +428,7 @@ public abstract class Ognl {
      * @param root       The object to retrieve the expression value from.
      * @return The value.
      */
-    public static Object getValue(ExpressionAccessor expression, OgnlContext context, Object root) {
+    public static <C extends OgnlContext<C>> Object getValue(ExpressionAccessor<C> expression, C context, Object root) {
         return expression.get(context, root);
     }
 
@@ -440,7 +442,7 @@ public abstract class Ognl {
      * @param resultType The desired object type that the return value should be converted to using the {@link #getTypeConverter(OgnlContext)} }.
      * @return The value.
      */
-    public static Object getValue(ExpressionAccessor expression, OgnlContext context, Object root, Class<?> resultType) {
+    public static <C extends OgnlContext<C>> Object getValue(ExpressionAccessor<C> expression, C context, Object root, Class<?> resultType) {
         return getTypeConverter(context).convertValue(context, root, null, null, expression.get(context, root), resultType);
     }
 
@@ -459,7 +461,7 @@ public abstract class Ognl {
      * @see #parseExpression(String)
      * @see #getValue(Object, Object)
      */
-    public static Object getValue(String expression, OgnlContext context, Object root) throws OgnlException {
+    public static <C extends OgnlContext<C>> Object getValue(String expression, C context, Object root) throws OgnlException {
         return getValue(expression, context, root, null);
     }
 
@@ -479,7 +481,7 @@ public abstract class Ognl {
      * @see #parseExpression(String)
      * @see #getValue(Object, Object)
      */
-    public static Object getValue(String expression, OgnlContext context, Object root, Class<?> resultType) throws OgnlException {
+    public static <C extends OgnlContext<C>> Object getValue(String expression, C context, Object root, Class<?> resultType) throws OgnlException {
         return getValue(parseExpression(expression), context, root, resultType);
     }
 
@@ -511,8 +513,9 @@ public abstract class Ognl {
      * @throws InappropriateExpressionException if the expression can't be used in this context
      * @throws OgnlException                    if there is a pathological environmental problem
      */
-    public static Object getValue(Object tree, Object root, Class<?> resultType) throws OgnlException {
-        return getValue(tree, createDefaultContext(root), root, resultType);
+    @SuppressWarnings("unchecked")
+    public static <C extends OgnlContext<C>> Object getValue(Object tree, Object root, Class<?> resultType) throws OgnlException {
+        return getValue(tree, (C) createDefaultContext(root), root, resultType);
     }
 
     /**
@@ -567,8 +570,9 @@ public abstract class Ognl {
      * @throws InappropriateExpressionException if the expression can't be used in this context
      * @throws OgnlException                    if there is a pathological environmental problem
      */
-    public static void setValue(Object tree, OgnlContext context, Object root, Object value) throws OgnlException {
-        Node n = (Node) tree;
+    @SuppressWarnings("unchecked")
+    public static <C extends OgnlContext<C>> void setValue(Object tree, C context, Object root, Object value) throws OgnlException {
+        Node<C> n = (Node<C>) tree;
 
         if (n.getAccessor() != null) {
             n.getAccessor().set(context, root, value);
@@ -587,8 +591,7 @@ public abstract class Ognl {
      * @param root       The object to set the expression value on.
      * @param value      The value to set.
      */
-    public static void setValue(ExpressionAccessor expression, OgnlContext context,
-                                Object root, Object value) {
+    public static <C extends OgnlContext<C>> void setValue(ExpressionAccessor<C> expression, C context, Object root, Object value) {
         expression.set(context, root, value);
     }
 
@@ -605,7 +608,7 @@ public abstract class Ognl {
      * @throws InappropriateExpressionException if the expression can't be used in this context
      * @throws OgnlException                    if there is a pathological environmental problem
      */
-    public static void setValue(String expression, OgnlContext context, Object root, Object value) throws OgnlException {
+    public static <C extends OgnlContext<C>> void setValue(String expression, C context, Object root, Object value) throws OgnlException {
         setValue(parseExpression(expression), context, root, value);
     }
 
@@ -621,9 +624,10 @@ public abstract class Ognl {
      * @throws InappropriateExpressionException if the expression can't be used in this context
      * @throws OgnlException                    if there is a pathological environmental problem
      */
-    public static void setValue(Object tree, Object root, Object value)
+    @SuppressWarnings("unchecked")
+    public static <C extends OgnlContext<C>> void setValue(Object tree, Object root, Object value)
             throws OgnlException {
-        setValue(tree, createDefaultContext(root), root, value);
+        setValue(tree, (C) createDefaultContext(root), root, value);
     }
 
     /**
@@ -655,8 +659,8 @@ public abstract class Ognl {
      * @return True if the node is a constant - false otherwise.
      * @throws OgnlException If an error occurs checking the expression.
      */
-    public static boolean isConstant(Object tree, OgnlContext context) throws OgnlException {
-        return ((SimpleNode) tree).isConstant(addDefaultContext(null, context));
+    public static <C extends OgnlContext<C>> boolean isConstant(Object tree, C context) throws OgnlException {
+        return ((SimpleNode<C>) tree).isConstant(addDefaultContext(null, context));
     }
 
     /**
@@ -667,7 +671,7 @@ public abstract class Ognl {
      * @return True if the node is a constant - false otherwise.
      * @throws OgnlException If an error occurs checking the expression.
      */
-    public static boolean isConstant(String expression, OgnlContext context) throws OgnlException {
+    public static <C extends OgnlContext<C>> boolean isConstant(String expression, C context) throws OgnlException {
         return isConstant(parseExpression(expression), context);
     }
 
@@ -679,8 +683,9 @@ public abstract class Ognl {
      * @return True if the node represents a constant expression - false otherwise.
      * @throws OgnlException If an exception occurs.
      */
-    public static boolean isConstant(Object tree) throws OgnlException {
-        return isConstant(tree, createDefaultContext(null));
+    @SuppressWarnings("unchecked")
+    public static <C extends OgnlContext<C>> boolean isConstant(Object tree) throws OgnlException {
+        return isConstant(tree, (C) createDefaultContext(null));
     }
 
     /**
@@ -691,40 +696,41 @@ public abstract class Ognl {
      * @return True if the expression represents a constant - false otherwise.
      * @throws OgnlException If an exception occurs.
      */
-    public static boolean isConstant(String expression) throws OgnlException {
-        return isConstant(parseExpression(expression), createDefaultContext(null));
+    @SuppressWarnings("unchecked")
+    public static <C extends OgnlContext<C>> boolean isConstant(String expression) throws OgnlException {
+        return isConstant(parseExpression(expression), (C) createDefaultContext(null));
     }
 
-    public static boolean isSimpleProperty(Object tree, OgnlContext context) throws OgnlException {
-        return ((SimpleNode) tree).isSimpleProperty(addDefaultContext(null, context));
+    public static <C extends OgnlContext<C>> boolean isSimpleProperty(Object tree, C context) throws OgnlException {
+        return ((SimpleNode<C>) tree).isSimpleProperty(addDefaultContext(null, context));
     }
 
-    public static boolean isSimpleProperty(String expression, OgnlContext context) throws OgnlException {
+    public static <C extends OgnlContext<C>> boolean isSimpleProperty(String expression, C context) throws OgnlException {
         return isSimpleProperty(parseExpression(expression), context);
     }
 
-    public static boolean isSimpleProperty(Object tree) throws OgnlException {
-        return isSimpleProperty(tree, createDefaultContext(null));
+    public static <C extends OgnlContext<C>> boolean isSimpleProperty(Object tree) throws OgnlException {
+        return isSimpleProperty(tree, (C) createDefaultContext(null));
     }
 
-    public static boolean isSimpleProperty(String expression) throws OgnlException {
-        return isSimpleProperty(parseExpression(expression), createDefaultContext(null));
+    public static <C extends OgnlContext<C>> boolean isSimpleProperty(String expression) throws OgnlException {
+        return isSimpleProperty(parseExpression(expression), (C) createDefaultContext(null));
     }
 
-    public static boolean isSimpleNavigationChain(Object tree, OgnlContext context) throws OgnlException {
-        return ((SimpleNode) tree).isSimpleNavigationChain(context);
+    public static <C extends OgnlContext<C>> boolean isSimpleNavigationChain(Object tree, C context) throws OgnlException {
+        return ((SimpleNode<C>) tree).isSimpleNavigationChain(context);
     }
 
-    public static boolean isSimpleNavigationChain(String expression, OgnlContext context) throws OgnlException {
+    public static <C extends OgnlContext<C>> boolean isSimpleNavigationChain(String expression, C context) throws OgnlException {
         return isSimpleNavigationChain(parseExpression(expression), context);
     }
 
-    public static boolean isSimpleNavigationChain(Object tree) throws OgnlException {
-        return isSimpleNavigationChain(tree, createDefaultContext(null));
+    public static <C extends OgnlContext<C>> boolean isSimpleNavigationChain(Object tree) throws OgnlException {
+        return isSimpleNavigationChain(tree, (C) createDefaultContext(null));
     }
 
-    public static boolean isSimpleNavigationChain(String expression) throws OgnlException {
-        return isSimpleNavigationChain(parseExpression(expression), createDefaultContext(null));
+    public static <C extends OgnlContext<C>> boolean isSimpleNavigationChain(String expression) throws OgnlException {
+        return isSimpleNavigationChain(parseExpression(expression), (C) createDefaultContext(null));
     }
 
     /**
