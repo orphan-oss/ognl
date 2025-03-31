@@ -22,12 +22,14 @@ import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OrderedReturn;
 import ognl.enhance.UnsupportedCompilationException;
 
+import java.io.Serial;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
+public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implements OrderedReturn, NodeType {
 
-    private static final long serialVersionUID = -6108508556131109533L;
+    @Serial
+    private static final long serialVersionUID = 312574881386865796L;
 
     private String methodName;
     private String lastExpression;
@@ -60,7 +62,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
         return methodName;
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object[] args = new Object[jjtGetNumChildren()];
 
         Object result, root = context.getRoot();
@@ -113,11 +115,10 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
         return result.toString();
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
-        /*  System.out.println("methodName is " + _methodName + " for target " + target + " target class: " + (target != null ? target.getClass() : null)
-  + " current type: " + context.getCurrentType());*/
-        if (target == null)
+    public String toGetSourceString(C context, Object target) {
+        if (target == null) {
             throw new UnsupportedCompilationException("Target object is null.");
+        }
 
         String post = "";
         StringBuilder result;
@@ -138,7 +139,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
                     context.setCurrentAccessor(OgnlRuntime.getCompiler().getSuperOrInterfaceClass(m, m.getDeclaringClass()));
 
                     coreExpression = toSetSourceString(context, target);
-                    if (coreExpression == null || coreExpression.length() < 1)
+                    if (coreExpression == null || coreExpression.isEmpty())
                         throw new UnsupportedCompilationException("can't find suitable getter method");
 
                     coreExpression += ";";
@@ -182,7 +183,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
                     Object value = children[i].getValue(context, context.getRoot());
                     String parmString = children[i].toGetSourceString(context, context.getRoot());
 
-                    if (parmString == null || parmString.trim().length() < 1)
+                    if (parmString == null || parmString.trim().isEmpty())
                         parmString = "null";
 
                     // to undo type setting of constants when used as method parameters
@@ -273,11 +274,10 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
         return result.toString();
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
-        /*System.out.println("current type: " + context.getCurrentType() + " target:" + target + " " + context.getCurrentObject()
-                           + " last child? " + lastChild(context));*/
-        Method m = OgnlRuntime.getWriteMethod(context.getCurrentType() != null ?
-                        context.getCurrentType() : target.getClass(),
+    public String toSetSourceString(C context, Object target) {
+        Method m = OgnlRuntime.getWriteMethod(context.getCurrentType() != null
+                        ? context.getCurrentType()
+                        : target.getClass(),
                 methodName, getChildrenClasses(context, children));
         if (m == null) {
             throw new UnsupportedCompilationException("Unable to determine setter method generation for " + methodName);
@@ -301,9 +301,6 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
         }
 
         try {
-            /* if (lastChild(context) && m.getParameterTypes().length > 0 && _children.length <= 0)
-                throw new UnsupportedCompilationException("Unable to determine setter method generation for " + m); */
-
             if ((children != null) && (children.length > 0)) {
                 Class<?>[] parms = m.getParameterTypes();
                 String prevCast = (String) context.remove(ExpressionCompiler.PRE_CAST);
@@ -326,7 +323,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
                     if (context.getCurrentType() == Void.TYPE || context.getCurrentType() == void.class)
                         throw new UnsupportedCompilationException("Method argument can't be a void type.");
 
-                    if (parmString == null || parmString.trim().length() < 1) {
+                    if (parmString == null || parmString.trim().isEmpty()) {
                         if (children[i] instanceof ASTProperty || children[i] instanceof ASTMethod
                                 || children[i] instanceof ASTStaticMethod || children[i] instanceof ASTChain)
                             throw new UnsupportedCompilationException("ASTMethod setter child returned null from a sub property expression.");
@@ -416,7 +413,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
         return result + ")" + post;
     }
 
-    private static Class<?> getClassMatchingAllChildren(OgnlContext context, Node[] _children) {
+    private Class<?> getClassMatchingAllChildren(C context, Node<C>[] _children) {
         Class<?>[] cc = getChildrenClasses(context, _children);
         Class<?> componentType = null;
         for (Class<?> ic : cc) {
@@ -453,24 +450,25 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
         return componentType;
     }
 
-    private static Class<?>[] getChildrenClasses(OgnlContext context, Node[] _children) {
-        if (_children == null)
+    private Class<?>[] getChildrenClasses(C context, Node<C>[] _children) {
+        if (_children == null) {
             return null;
+        }
         Class<?>[] argumentClasses = new Class[_children.length];
         for (int i = 0; i < _children.length; i++) {
-            Node child = _children[i];
+            Node<C> child = _children[i];
             if (child instanceof ASTList) {    // special handling for ASTList - it creates a List
                 argumentClasses[i] = List.class;
             } else if (child instanceof NodeType) {
                 argumentClasses[i] = ((NodeType) child).getGetterClass();
             } else if (child instanceof ASTCtor) {
                 try {
-                    argumentClasses[i] = ((ASTCtor) child).getCreatedClass(context);
+                    argumentClasses[i] = ((ASTCtor<C>) child).getCreatedClass(context);
                 } catch (ClassNotFoundException nfe) {
                     throw OgnlOps.castToRuntime(nfe);
                 }
             } else if (child instanceof ASTTest) {
-                argumentClasses[i] = getClassMatchingAllChildren(context, ((ASTTest) child).children);
+                argumentClasses[i] = getClassMatchingAllChildren(context, ((ASTTest<C>) child).children);
             } else {
                 throw new UnsupportedOperationException("Don't know how to handle child: " + child);
             }
@@ -479,7 +477,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
     }
 
     @Override
-    public boolean isSimpleMethod(OgnlContext context) {
+    public boolean isSimpleMethod(C context) {
         return true;
     }
 }
