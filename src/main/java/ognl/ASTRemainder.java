@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTRemainder extends NumericExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -7872347798983239086L;
+public class ASTRemainder<C extends OgnlContext<C>> extends NumericExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = -3811328375555237590L;
 
     public ASTRemainder(int id) {
         super(id);
@@ -30,7 +33,7 @@ public class ASTRemainder extends NumericExpression {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object v1 = children[0].getValue(context, source);
         Object v2 = children[1].getValue(context, source);
         return OgnlOps.remainder(v1, v2);

@@ -20,12 +20,14 @@ package ognl;
 
 import ognl.enhance.ExpressionCompiler;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class ASTAdd extends NumericExpression {
+public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
 
-    private static final long serialVersionUID = -7027437312703768232L;
+    @Serial
+    private static final long serialVersionUID = 6299295217841613060L;
 
     public ASTAdd(int id) {
         super(id);
@@ -39,7 +41,7 @@ public class ASTAdd extends NumericExpression {
         flattenTree();
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object result = children[0].getValue(context, source);
 
         for (int i = 1; i < children.length; ++i)
@@ -99,7 +101,7 @@ public class ASTAdd extends NumericExpression {
         return true;
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         try {
             StringBuilder result = new StringBuilder();
             NodeType lastType = null;
@@ -112,7 +114,7 @@ public class ASTAdd extends NumericExpression {
 
                 Object cast = context.get(ExpressionCompiler.PRE_CAST);
 
-                for (Node child : children) {
+                for (Node<C> child : children) {
                     child.toGetSourceString(context, target);
 
                     if (child instanceof NodeType
