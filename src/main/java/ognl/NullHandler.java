@@ -23,7 +23,7 @@ package ognl;
  * Object has the opportunity to substitute an object for the
  * null and continue.
  */
-public interface NullHandler {
+public interface NullHandler<C extends OgnlContext<C>> {
     /**
      * Method called on target returned null.
      *
@@ -33,7 +33,7 @@ public interface NullHandler {
      * @param args       the arguments to the method that was called.
      * @return the result Object containing the state of the method call that returned null.
      */
-    Object nullMethodResult(OgnlContext context, Object target, String methodName, Object[] args);
+    Object nullMethodResult(C context, Object target, String methodName, Object[] args);
 
     /**
      * Property in target evaluated to null.  Property can be a constant
@@ -44,6 +44,6 @@ public interface NullHandler {
      * @param property the property whose value evaluated to null.
      * @return the result Object containing the state of the property that evaluated to null.
      */
-    Object nullPropertyValue(OgnlContext context, Object target, Object property);
+    Object nullPropertyValue(C context, Object target, Object property);
 }
 

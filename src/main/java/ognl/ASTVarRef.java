@@ -21,9 +21,12 @@ package ognl;
 import ognl.enhance.OrderedReturn;
 import ognl.enhance.UnsupportedCompilationException;
 
-public class ASTVarRef extends SimpleNode implements NodeType, OrderedReturn {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -4497407745162564648L;
+public class ASTVarRef<C extends OgnlContext<C>> extends SimpleNode<C> implements NodeType, OrderedReturn {
+
+    @Serial
+    private static final long serialVersionUID = -3144828856498560444L;
 
     private String name;
 
@@ -43,13 +46,11 @@ public class ASTVarRef extends SimpleNode implements NodeType, OrderedReturn {
         this.name = name;
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
-            throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         return context.get(name);
     }
 
-    protected void setValueBody(OgnlContext context, Object target, Object value)
-            throws OgnlException {
+    protected void setValueBody(C context, Object target, Object value) throws OgnlException {
         context.put(name, value);
     }
 
@@ -73,7 +74,7 @@ public class ASTVarRef extends SimpleNode implements NodeType, OrderedReturn {
         return "#" + name;
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         Object value = context.get(name);
 
         if (value != null) {
@@ -106,7 +107,7 @@ public class ASTVarRef extends SimpleNode implements NodeType, OrderedReturn {
         return pre + "$1.get(\"" + name + "\")" + post;
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         return toGetSourceString(context, target);
     }
 }
