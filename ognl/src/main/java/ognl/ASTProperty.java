@@ -97,7 +97,8 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
         Object result = OgnlRuntime.getProperty(context, source, property);
 
         if (result == null) {
-            result = OgnlRuntime.getNullHandler(OgnlRuntime.getTargetClass(source)).nullPropertyValue(context, source, property);
+            NullHandler<C> nullHandler = OgnlRuntime.getNullHandler(OgnlRuntime.getTargetClass(source));
+            result = nullHandler.nullPropertyValue(context, source, property);
         }
 
         return result;

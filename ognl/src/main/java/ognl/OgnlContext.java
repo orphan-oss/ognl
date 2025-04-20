@@ -27,7 +27,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * This class defines the execution context for an OGNL expression
@@ -59,9 +61,9 @@ public class OgnlContext<C extends OgnlContext<C>> implements Map<String, Object
 
     protected final Map<String, Object> internalContext;
 
+    private final MemberAccess<C> memberAccess;
     private final ClassResolver<C> classResolver;
     private final TypeConverter<C> typeConverter;
-    private final MemberAccess<C> memberAccess;
 
     static {
 
@@ -98,10 +100,23 @@ public class OgnlContext<C extends OgnlContext<C>> implements Map<String, Object
      * @param classResolver the ClassResolver for a new OgnlContext.
      * @param typeConverter the TypeConverter for a new OgnlContext.
      * @param memberAccess  the MemberAccess for a new OgnlContext.  <span class="strong">Must be non-null</span>.
+     * @deprecated use {@link OgnlContext(MemberAccess, ClassResolver, TypeConverter)} instead
      */
+    @Deprecated(forRemoval = true)
     public OgnlContext(ClassResolver<C> classResolver, TypeConverter<C> typeConverter, MemberAccess<C> memberAccess) {
-        // No 'values' map has been specified, so we create one of the default size: 23 entries
         this(memberAccess, classResolver, typeConverter, null);
+    }
+
+    public OgnlContext(MemberAccess<C> memberAccess, ClassResolver<C> classResolver, TypeConverter<C> typeConverter) {
+        this(memberAccess, classResolver, typeConverter, null);
+    }
+
+    public OgnlContext(MemberAccess<C> memberAccess, ClassResolver<C> classResolver) {
+        this(memberAccess, classResolver, null, null);
+    }
+
+    public OgnlContext(MemberAccess<C> memberAccess) {
+        this(memberAccess, null, null, null);
     }
 
     /**
@@ -113,27 +128,20 @@ public class OgnlContext<C extends OgnlContext<C>> implements Map<String, Object
      * @param typeConverter  the TypeConverter for a new OgnlContext.
      * @param initialContext the initial context of values to provide for a new OgnlContext.
      */
-    public OgnlContext(MemberAccess<C> memberAccess, ClassResolver<C> classResolver, TypeConverter<C> typeConverter, C initialContext) {
-        if (classResolver != null) {
-            this.classResolver = classResolver;
-        } else {
-            this.classResolver = new DefaultClassResolver<>();
-        }
-        if (typeConverter != null) {
-            this.typeConverter = typeConverter;
-        } else {
-            this.typeConverter = new DefaultTypeConverter<>();
-        }
+    public OgnlContext(MemberAccess<C> memberAccess, ClassResolver<C> classResolver, TypeConverter<C> typeConverter, Map<String, Object> initialContext) {
         if (memberAccess != null) {
             this.memberAccess = memberAccess;
         } else {
             throw new IllegalArgumentException("MemberAccess implementation must be provided - null not permitted!");
         }
 
-        this.internalContext = new HashMap<>(23);  // No 'values' map has been specified, so we create one of the default size: 23 entries
+        this.classResolver = Objects.requireNonNullElseGet(classResolver, DefaultClassResolver::new);
+        this.typeConverter = Objects.requireNonNullElseGet(typeConverter, DefaultTypeConverter::new);
 
-        if (initialContext != null) {
-            this.setValues(initialContext.internalContext);
+        if (initialContext == null) {
+            this.internalContext = new HashMap<>(23);
+        } else {
+            this.internalContext = new HashMap<>(initialContext);
         }
     }
 
@@ -180,15 +188,12 @@ public class OgnlContext<C extends OgnlContext<C>> implements Map<String, Object
         return memberAccess;
     }
 
+    /**
+     * @deprecated use {@link #withRoot(Object)} instead
+     */
+    @Deprecated(forRemoval = true)
     public void setRoot(Object value) {
-        root = value;
-        accessorStack.clear();
-        typeStack.clear();
-        currentObject = value;
-
-        if (currentObject != null) {
-            setCurrentType(currentObject.getClass());
-        }
+        this.withRoot(value);
     }
 
     public Object getRoot() {
@@ -648,4 +653,82 @@ public class OgnlContext<C extends OgnlContext<C>> implements Map<String, Object
         return internalContext.hashCode();
     }
 
+    public C withRoot(Object value) {
+        root = value;
+        accessorStack.clear();
+        typeStack.clear();
+        currentObject = value;
+
+        if (currentObject != null) {
+            setCurrentType(currentObject.getClass());
+        }
+
+        return (C) this;
+    }
+
+    public static class Builder<C extends OgnlContext<C>> {
+        private final Function<Builder<C>, C> provider;
+
+        private Object root;
+        private MemberAccess<C> memberAccess;
+        private ClassResolver<C> classResolver;
+        private TypeConverter<C> typeConverter;
+        private Map<String, Object> initialContext;
+
+        public Builder(Function<Builder<C>, C> provider) {
+            this.provider = provider;
+        }
+
+        public Builder<C> withMemberAccess(MemberAccess<C> memberAccess) {
+            if (memberAccess == null) {
+                throw new IllegalArgumentException("MemberAccess is required");
+            }
+            this.memberAccess = memberAccess;
+            return this;
+        }
+
+        public Builder<C> withClassResolver(ClassResolver<C> classResolver) {
+            this.classResolver = classResolver;
+            return this;
+        }
+
+        public Builder<C> withTypeConverter(TypeConverter<C> converter) {
+            this.typeConverter = converter;
+            return this;
+        }
+
+        public Builder<C> withRoot(Object value) {
+            root = value;
+            return this;
+        }
+
+        public Builder<C> withInitialContext(Map<String, Object> initialContext) {
+            this.initialContext = initialContext;
+            return this;
+        }
+
+        public MemberAccess<C> getMemberAccess() {
+            return memberAccess;
+        }
+
+        public ClassResolver<C> getClassResolver() {
+            return classResolver;
+        }
+
+        public TypeConverter<C> getTypeConverter() {
+            return typeConverter;
+        }
+
+        public Map<String, Object> getInitialContext() {
+            return initialContext;
+        }
+
+        public Object getRoot() {
+            return root;
+        }
+
+        public C build() {
+            return provider.apply(this);
+        }
+    }
 }

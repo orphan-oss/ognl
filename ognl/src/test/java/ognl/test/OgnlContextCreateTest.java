@@ -71,7 +71,7 @@ class OgnlContextCreateTest<C extends OgnlContext<C>> {
         Simple root = new Simple();
         OgnlContext oldContext = Ognl.createDefaultContext(root, new MyClassResolver());
 
-        OgnlContext context = Ognl.addDefaultContext(root, oldContext);
+        OgnlContext context = Ognl.addDefaultContext(root, oldContext.getMemberAccess(), oldContext.getClassResolver(), oldContext.getTypeConverter());
 
         assertEquals("static", Ognl.getValue("@ognl.test.MyClass@getValue()", context, root));
     }
@@ -90,7 +90,7 @@ class OgnlContextCreateTest<C extends OgnlContext<C>> {
         Simple root = new Simple();
         OgnlContext oldContext = Ognl.createDefaultContext(null, new MyClassResolver());
 
-        OgnlContext context = Ognl.addDefaultContext(null, oldContext);
+        OgnlContext context = Ognl.addDefaultContext(null, oldContext.getMemberAccess(), oldContext.getClassResolver(), oldContext.getTypeConverter());
 
         assertEquals("static", Ognl.getValue("@ognl.test.MyClass@getValue()", context, root));
     }
@@ -111,7 +111,7 @@ class OgnlContextCreateTest<C extends OgnlContext<C>> {
         Simple root = new Simple();
         OgnlContext oldContext = Ognl.createDefaultContext(root, new MyClassResolver(), new MyTypeConverter());
 
-        OgnlContext context = Ognl.addDefaultContext(null, oldContext);
+        OgnlContext context = Ognl.addDefaultContext(null, oldContext.getMemberAccess(), oldContext.getClassResolver(), oldContext.getTypeConverter());
 
         Simple actual = (Simple) Ognl.getValue("@ognl.test.MyClass@getValue()", context, root, Simple.class);
 
@@ -124,7 +124,7 @@ class OgnlContextCreateTest<C extends OgnlContext<C>> {
         Simple root = new Simple();
         OgnlContext oldContext = Ognl.createDefaultContext(root, null, new MyTypeConverter());
 
-        OgnlContext context = Ognl.addDefaultContext(null, new MyClassResolver(), oldContext);
+        OgnlContext context = Ognl.addDefaultContext(null, oldContext.getMemberAccess(),  new MyClassResolver(), oldContext.getTypeConverter());
 
         Simple actual = (Simple) Ognl.getValue("@ognl.test.MyClass@getValue()", context, root, Simple.class);
 
@@ -161,7 +161,7 @@ class OgnlContextCreateTest<C extends OgnlContext<C>> {
         Simple root = new Simple();
         OgnlContext oldContext = Ognl.createDefaultContext(null, new MyClassResolver(), new MyTypeConverter());
 
-        OgnlContext context = Ognl.addDefaultContext(null, oldContext);
+        OgnlContext context = Ognl.addDefaultContext(null, oldContext.getMemberAccess(),  new MyClassResolver(), oldContext.getTypeConverter(), oldContext);
 
         Simple actual = (Simple) Ognl.getValue("@ognl.test.MyClass@getValue()", context, root, Simple.class);
 
