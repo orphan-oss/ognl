@@ -25,6 +25,8 @@ import java.io.StringReader;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * This class provides static methods for parsing and interpreting OGNL expressions.
@@ -258,9 +260,18 @@ public abstract class Ognl {
      * @param context the context to which OGNL context will be added.
      * @return {@link OgnlContext} with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
+     * @deprecated use ono of {{addDefaultContext()}} which accepts {@link MemberAccess}
      */
+    @Deprecated(forRemoval = true)
     public static <C extends OgnlContext<C>> C addDefaultContext(Object root, C context) {
-        return addDefaultContext(root, context.getMemberAccess(), context.getClassResolver(), context.getTypeConverter(), context);
+        MemberAccess<C> memberAccess = new AbstractMemberAccess<>() {
+            @Override
+            public boolean isAccessible(C context, Object target, Member member, String propertyName) {
+                int modifiers = member.getModifiers();
+                return Modifier.isPublic(modifiers);
+            }
+        };
+        return addDefaultContext(root, memberAccess, null, null, context);
     }
 
     /**
@@ -272,9 +283,18 @@ public abstract class Ognl {
      * @param context       The context to which OGNL context will be added.
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
+     * @deprecated use ono of {{addDefaultContext()}} which accepts {@link MemberAccess}
      */
+    @Deprecated(forRemoval = true)
     public static <C extends OgnlContext<C>> C addDefaultContext(Object root, ClassResolver<C> classResolver, C context) {
-        return addDefaultContext(root, context.getMemberAccess(), classResolver, context.getTypeConverter(), context);
+        MemberAccess<C> memberAccess = new AbstractMemberAccess<>() {
+            @Override
+            public boolean isAccessible(C context, Object target, Member member, String propertyName) {
+                int modifiers = member.getModifiers();
+                return Modifier.isPublic(modifiers);
+            }
+        };
+        return addDefaultContext(root, memberAccess, classResolver, null, context);
     }
 
     /**
@@ -287,9 +307,22 @@ public abstract class Ognl {
      * @param context       The context to which OGNL context will be added.
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
+     * @deprecated use ono of {{addDefaultContext()}} which accepts {@link MemberAccess}
      */
+    @Deprecated(forRemoval = true)
     public static <C extends OgnlContext<C>> C addDefaultContext(Object root, ClassResolver<C> classResolver, TypeConverter<C> converter, C context) {
-        return addDefaultContext(root, context.getMemberAccess(), classResolver, converter, context);
+        MemberAccess<C> memberAccess = new AbstractMemberAccess<>() {
+            @Override
+            public boolean isAccessible(C context, Object target, Member member, String propertyName) {
+                int modifiers = member.getModifiers();
+                return Modifier.isPublic(modifiers);
+            }
+        };
+        return addDefaultContext(root, memberAccess, classResolver, converter, context);
+    }
+
+    public static <C extends OgnlContext<C>> C addDefaultContext(Object root, MemberAccess<C> memberAccess, ClassResolver<C> classResolver, TypeConverter<C> converter) {
+        return addDefaultContext(root, memberAccess, classResolver, converter, null);
     }
 
     /**
@@ -305,25 +338,31 @@ public abstract class Ognl {
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
-    public static <C extends OgnlContext<C>> C addDefaultContext(Object root, MemberAccess<C> memberAccess, ClassResolver<C> classResolver, TypeConverter<C> converter, C initialContext) {
-        OgnlContext<C> result = new OgnlContext<>(memberAccess, classResolver, converter, initialContext);
-        
-        // Preserve the original root context when it exists and has user-defined variables,
-        // but allow setting a new root in normal cases (e.g., initial context creation)
-        if (initialContext != null && initialContext.getRoot() != null &&
-                initialContext.size() > 0 && root != initialContext.getRoot()) {
-            // Only preserve the original root if the context has user variables and
-            // the new root is different (indicating nested evaluation like list processing)
-            result.setRoot(initialContext.getRoot());
-        } else {
-            // Default behavior: set the new root
-            result.setRoot(root);
-        }
+    public static <C extends OgnlContext<C>> C addDefaultContext(Object root, MemberAccess<C> memberAccess, ClassResolver<C> classResolver, TypeConverter<C> converter, Map<String, Object> initialContext) {
+        return getBuilderProvider(memberAccess)
+                .withMemberAccess(memberAccess)
+                .withClassResolver(classResolver)
+                .withTypeConverter(converter)
+                .withInitialContext(initialContext)
+                .withRoot(root)
+                .build();
+    }
 
-        if (initialContext != null) {
-            result.putAll(initialContext);
-        }
-        return (C) result;
+    private static final AtomicReference<OgnlContext.Builder<?>> builderProvider = new AtomicReference<>();
+
+    public static <C extends OgnlContext<C>> OgnlContext.Builder<C> getBuilderProvider(MemberAccess<C> memberAccess) {
+        @SuppressWarnings("unchecked")
+        OgnlContext.Builder<C> builder = (OgnlContext.Builder<C>) Ognl.builderProvider.get();
+
+        return Objects.requireNonNullElseGet(builder, () ->
+                new OgnlContext.Builder<>(b -> {
+                    OgnlContext<C> context = new OgnlContext<>(memberAccess, b.getClassResolver(), b.getTypeConverter(), b.getInitialContext());
+                    return context.withRoot(b.getRoot());
+                }));
+    }
+
+    public static <C extends OgnlContext<C>> void withBuilderProvider(OgnlContext.Builder<C> provider) {
+        Ognl.builderProvider.set(provider);
     }
 
     /**
@@ -347,7 +386,7 @@ public abstract class Ognl {
      * @param root    The root object.
      */
     public static <C extends OgnlContext<C>> void setRoot(C context, Object root) {
-        context.setRoot(root);
+        context.withRoot(root);
     }
 
     /**
@@ -403,9 +442,9 @@ public abstract class Ognl {
      */
     public static <C extends OgnlContext<C>> Object getValue(Object tree, C context, Object root, Class<?> resultType) throws OgnlException {
         Object result;
-        C ognlContext = addDefaultContext(root, context);
+        C ognlContext = context.withRoot(root);
 
-        Node node = (Node) tree;
+        Node<C> node = (Node) tree;
 
         if (node.getAccessor() != null) {
             result = node.getAccessor().get(ognlContext, root);

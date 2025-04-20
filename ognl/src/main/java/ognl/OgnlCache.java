@@ -170,7 +170,7 @@ public class OgnlCache {
         return propertyDescriptorCache.get(clazz);
     }
 
-    public MethodAccessor getMethodAccessor(Class<?> clazz) throws OgnlException {
+    public <C extends OgnlContext<C>> MethodAccessor<C> getMethodAccessor(Class<?> clazz) throws OgnlException {
         MethodAccessor methodAccessor = ClassCacheHandler.getHandler(clazz, methodAccessors);
         if (methodAccessor != null) {
             return methodAccessor;
@@ -186,8 +186,8 @@ public class OgnlCache {
         propertyAccessors.put(clazz, accessor);
     }
 
-    public PropertyAccessor getPropertyAccessor(Class<?> clazz) throws OgnlException {
-        PropertyAccessor propertyAccessor = ClassCacheHandler.getHandler(clazz, propertyAccessors);
+    public <C extends OgnlContext<C>> PropertyAccessor<C> getPropertyAccessor(Class<?> clazz) throws OgnlException {
+        PropertyAccessor<C> propertyAccessor = ClassCacheHandler.getHandler(clazz, propertyAccessors);
         if (propertyAccessor != null) {
             return propertyAccessor;
         }
@@ -242,8 +242,8 @@ public class OgnlCache {
         elementsAccessors.put(clazz, accessor);
     }
 
-    public NullHandler getNullHandler(Class<?> clazz) throws OgnlException {
-        NullHandler answer = ClassCacheHandler.getHandler(clazz, nullHandlers);
+    public <C extends OgnlContext<C>> NullHandler<C> getNullHandler(Class<?> clazz) throws OgnlException {
+        NullHandler<C> answer = ClassCacheHandler.getHandler(clazz, nullHandlers);
         if (answer != null) {
             return answer;
         }
