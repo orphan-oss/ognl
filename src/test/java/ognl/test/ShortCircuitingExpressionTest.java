@@ -116,7 +116,7 @@ class ShortCircuitingExpressionTest<C extends OgnlContext<C>> {
         Object root = new Object();
 
         C oldCtx = Ognl.createDefaultContext(root);
-        C ctx = Ognl.addDefaultContext(root, new MyClassResolver<>(), oldCtx);
+        C ctx = Ognl.addDefaultContext(root, oldCtx.getMemberAccess(), new MyClassResolver<>(), oldCtx.getTypeConverter(), oldCtx);
 
         try {
             Ognl.getValue("@ognl.test.TestClass@getName()", oldCtx, root);

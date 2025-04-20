@@ -106,12 +106,12 @@ public interface Node<C extends OgnlContext<C>> extends JavaSource<C> {
      *
      * @return The accessor for this node, or null if none has been compiled for it.
      */
-    ExpressionAccessor getAccessor();
+    ExpressionAccessor<C> getAccessor();
 
     /**
      * Sets a new compiled accessor for this node expression.
      *
      * @param accessor The compiled representation of this node.
      */
-    void setAccessor(ExpressionAccessor accessor);
+    void setAccessor(ExpressionAccessor<C> accessor);
 }
