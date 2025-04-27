@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTSubtract extends NumericExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -6236738073110752982L;
+public class ASTSubtract<C extends OgnlContext<C>> extends NumericExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = -7677636672357878823L;
 
     public ASTSubtract(int id) {
         super(id);
@@ -30,7 +33,7 @@ public class ASTSubtract extends NumericExpression {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object v1 = children[0].getValue(context, source);
         Object v2 = children[1].getValue(context, source);
         return OgnlOps.subtract(v1, v2);

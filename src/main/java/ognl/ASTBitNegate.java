@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTBitNegate extends NumericExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 1889283641910348148L;
+public class ASTBitNegate<C extends OgnlContext<C>> extends NumericExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = -5446238923267167955L;
 
     public ASTBitNegate(int id) {
         super(id);
@@ -30,7 +33,7 @@ public class ASTBitNegate extends NumericExpression {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         return OgnlOps.bitNegate(children[0].getValue(context, source));
     }
 
@@ -38,7 +41,7 @@ public class ASTBitNegate extends NumericExpression {
         return "~" + children[0];
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         String source = children[0].toGetSourceString(context, target);
 
         if (!(children[0] instanceof ASTBitNegate)) {
