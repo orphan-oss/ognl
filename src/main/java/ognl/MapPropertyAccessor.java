@@ -26,10 +26,9 @@ import java.util.Set;
  * Implementation of PropertyAccessor that sets and gets properties by storing and looking up values
  * in Maps.
  */
-public class MapPropertyAccessor implements PropertyAccessor {
+public class MapPropertyAccessor<C extends OgnlContext<C>> implements PropertyAccessor<C> {
 
-    public Object getProperty(OgnlContext context, Object target, Object name)
-            throws OgnlException {
+    public Object getProperty(C context, Object target, Object name) throws OgnlException {
         Object result;
         Map<?, ?> map = (Map<?, ?>) target;
         Node currentNode = context.getCurrentNode().jjtGetParent();
@@ -70,12 +69,12 @@ public class MapPropertyAccessor implements PropertyAccessor {
         return result;
     }
 
-    public void setProperty(OgnlContext context, Object target, Object name, Object value) throws OgnlException {
+    public void setProperty(C context, Object target, Object name, Object value) throws OgnlException {
         Map<Object, Object> map = (Map<Object, Object>) target;
         map.put(name, value);
     }
 
-    public String getSourceAccessor(OgnlContext context, Object target, Object index) {
+    public String getSourceAccessor(C context, Object target, Object index) {
         Node currentNode = context.getCurrentNode().jjtGetParent();
         boolean indexedAccess = false;
 
@@ -116,7 +115,7 @@ public class MapPropertyAccessor implements PropertyAccessor {
         return ".get(" + indexStr + ")";
     }
 
-    public String getSourceSetter(OgnlContext context, Object target, Object index) {
+    public String getSourceSetter(C context, Object target, Object index) {
         context.setCurrentAccessor(Map.class);
         context.setCurrentType(Object.class);
 

@@ -25,19 +25,19 @@ import java.util.List;
  * Implementation of PropertyAccessor that uses reflection on the target object's class to find a
  * field or a pair of set/get methods with the given property name.
  */
-public class ObjectMethodAccessor implements MethodAccessor {
+public class ObjectMethodAccessor<C extends OgnlContext<C>> implements MethodAccessor<C> {
 
-    public Object callStaticMethod(OgnlContext context, Class<?> targetClass, String methodName, Object[] args) throws MethodFailedException {
+    public Object callStaticMethod(C context, Class<?> targetClass, String methodName, Object[] args) throws MethodFailedException {
         List<Method> methods = OgnlRuntime.getMethods(targetClass, methodName, true);
 
         return OgnlRuntime.callAppropriateMethod(context, targetClass, null, methodName, null, methods, args);
     }
 
-    public Object callMethod(OgnlContext context, Object target, String methodName, Object[] args) throws MethodFailedException {
+    public Object callMethod(C context, Object target, String methodName, Object[] args) throws MethodFailedException {
         Class<?> targetClass = (target == null) ? null : target.getClass();
         List<Method> methods = OgnlRuntime.getMethods(targetClass, methodName, false);
 
-        if ((methods == null) || (methods.size() == 0)) {
+        if ((methods == null) || (methods.isEmpty())) {
             methods = OgnlRuntime.getMethods(targetClass, methodName, true);
         }
 

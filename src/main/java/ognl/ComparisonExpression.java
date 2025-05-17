@@ -20,12 +20,15 @@ package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
+import java.io.Serial;
+
 /**
  * Base class for types that compare values.
  */
-public abstract class ComparisonExpression extends BooleanExpression {
+public abstract class ComparisonExpression<C extends OgnlContext<C>> extends BooleanExpression<C> {
 
-    private static final long serialVersionUID = -687171907698242382L;
+    @Serial
+    private static final long serialVersionUID = -4420582351064321780L;
 
     public ComparisonExpression(int id) {
         super(id);
@@ -37,7 +40,7 @@ public abstract class ComparisonExpression extends BooleanExpression {
 
     public abstract String getComparisonFunction();
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         if (target == null)
             throw new UnsupportedCompilationException("Current target is null, can't compile.");
 
@@ -53,11 +56,8 @@ public abstract class ComparisonExpression extends BooleanExpression {
                 getterClass = Boolean.TYPE;
 
             // iterate over children to make numeric type detection work properly
-
             OgnlRuntime.getChildSource(context, target, children[0]);
             OgnlRuntime.getChildSource(context, target, children[1]);
-
-//            System.out.println("comparison expression currentType: " + context.getCurrentType() + " previousType: " + context.getPreviousType());
 
             boolean conversion = OgnlRuntime.shouldConvertNumericTypes(context);
 
