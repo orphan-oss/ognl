@@ -49,16 +49,12 @@ jobs:
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
-          server-id: ossrh
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
       - name: Build with Maven on Java ${{ matrix.java }}
         run: ./mvnw -B package -DskipTests=true
       - name: Test with Maven on Java ${{ matrix.java }}
         run: ./mvnw -B verify
+      - name: Prepare settings
+        run: echo "${{ secrets.MAVEN_SETTINGS }}" > ~/.m2/settings-ognl.xml
       - name: Deploy SNAPSHOT
         if: matrix.java == '17' && github.ref == 'refs/heads/main'
-        env:
-          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
-        run: ./mvnw -B -DskipTests=true deploy
+        run: ./mvnw -B -DskipTests=true deploy -s ~/.m2/settings-ognl.xml
