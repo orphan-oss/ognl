@@ -78,6 +78,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.14.0</version>
                     <executions>
                         <execution>
                             <id>compile-tests</id>
@@ -106,6 +107,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.4.2</version>
                     <configuration>
                         <archive>
                             <compress>true</compress>
@@ -119,6 +121,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
+                    <version>3.3.1</version>
                     <configuration>
                         <archive>
                             <compress>true</compress>
@@ -150,6 +153,43 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>javacc-maven-plugin</artifactId>
+                    <version>3.1.1</version>
+                    <executions>
+                        <execution>
+                            <id>ognl-jjtree</id>
+                            <phase>generate-sources</phase>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/generated-sources/java</outputDirectory>
+                                <lookAhead>1</lookAhead>
+                                <isStatic>false</isStatic>
+                                <javaUnicodeEscape>true</javaUnicodeEscape>
+                                <unicodeInput>true</unicodeInput>
+                                <!-- Uncomment if AST files needs to be generated
+                                <nodePackage>*.jtree</nodePackage>
+                                 -->
+                                <!-- Uncomment if visitor default implementation needs to be generated
+                                <visitor>true</visitor>
+                                -->
+                            </configuration>
+                            <goals>
+                                <!-- change goal to jtree-javacc to generate AST too -->
+                                <goal>javacc</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>0.7.0</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <publishingServerId>central</publishingServerId>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -176,39 +216,10 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>javacc-maven-plugin</artifactId>
-                <version>3.1.1</version>
-                <executions>
-                    <execution>
-                        <id>ognl-jjtree</id>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/generated-sources/java</outputDirectory>
-                            <lookAhead>1</lookAhead>
-                            <isStatic>false</isStatic>
-                            <javaUnicodeEscape>true</javaUnicodeEscape>
-                            <unicodeInput>true</unicodeInput>
-                            <!-- Uncomment if AST files needs to be generated
-                            <nodePackage>*.jtree</nodePackage>
-                             -->
-                            <!-- Uncomment if visitor default implementation needs to be generated
-                            <visitor>true</visitor>
-                            -->
-                        </configuration>
-                        <goals>
-                            <!-- change goal to jtree-javacc to generate AST too -->
-                            <goal>javacc</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.7.0</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <publishingServerId>central</publishingServerId>
-                </configuration>
             </plugin>
         </plugins>
 
