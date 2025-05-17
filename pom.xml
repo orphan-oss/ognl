@@ -1,12 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.sonatype.buildsupport</groupId>
-        <artifactId>buildsupport</artifactId>
-        <version>55</version>
-    </parent>
-
     <groupId>ognl</groupId>
     <artifactId>ognl</artifactId>
     <packaging>jar</packaging>
@@ -19,12 +13,6 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
-        <public.serverId>ossrh</public.serverId>
-        <public.nexusUrl>https://oss.sonatype.org</public.nexusUrl>
-        <public-release.serverId>ossrh</public-release.serverId>
-        <public-release.url>https://oss.sonatype.org/service/local/staging/deploy/maven2</public-release.url>
-        <public-snapshot.serverId>ossrh</public-snapshot.serverId>
-        <public-snapshot.url>https://oss.sonatype.org/content/repositories/snapshots</public-snapshot.url>
         <junit.version>5.12.2</junit.version>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
     </properties>
@@ -162,7 +150,6 @@
                         </execution>
                     </executions>
                 </plugin>
-
             </plugins>
         </pluginManagement>
         <plugins>
@@ -213,6 +200,15 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                </configuration>
             </plugin>
         </plugins>
 
