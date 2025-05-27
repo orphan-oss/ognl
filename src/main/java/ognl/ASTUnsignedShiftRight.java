@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTUnsignedShiftRight extends NumericExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 7787910329305946213L;
+public class ASTUnsignedShiftRight<C extends OgnlContext<C>> extends NumericExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = -5612682130687347598L;
 
     public ASTUnsignedShiftRight(int id) {
         super(id);
@@ -30,7 +33,7 @@ public class ASTUnsignedShiftRight extends NumericExpression {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object v1 = children[0].getValue(context, source);
         Object v2 = children[1].getValue(context, source);
         return OgnlOps.unsignedShiftRight(v1, v2);
@@ -40,7 +43,7 @@ public class ASTUnsignedShiftRight extends NumericExpression {
         return ">>>";
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         String result;
 
         try {

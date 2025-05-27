@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTShiftLeft extends NumericExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 7590620928636478693L;
+public class ASTShiftLeft<C extends OgnlContext<C>> extends NumericExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = 736476424938506175L;
 
     public ASTShiftLeft(int id) {
         super(id);
@@ -30,7 +33,7 @@ public class ASTShiftLeft extends NumericExpression {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object v1 = children[0].getValue(context, source);
         Object v2 = children[1].getValue(context, source);
         return OgnlOps.shiftLeft(v1, v2);
