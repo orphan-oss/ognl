@@ -19,6 +19,7 @@
 package ognl.test;
 
 import ognl.Ognl;
+import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.OgnlRuntime;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class Java8Test {
+class Java8Test<C extends OgnlContext<C>> {
 
     @Test
     void testDefaultMethodOnClass() {
@@ -60,7 +61,7 @@ class Java8Test {
     @Test
     void testAccessingDefaultMethod() throws OgnlException {
         ClassWithDefaults root = new ClassWithDefaults();
-        Object value = Ognl.getValue("name", Ognl.createDefaultContext(root), root);
+        Object value = Ognl.getValue("name", Ognl.<C>createDefaultContext(root), root);
 
         assertEquals("name", value);
     }

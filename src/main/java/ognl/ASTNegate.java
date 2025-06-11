@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTNegate extends NumericExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -541105956940549394L;
+public class ASTNegate<C extends OgnlContext<C>> extends NumericExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = 4709735174162170536L;
 
     public ASTNegate(int id) {
         super(id);
@@ -30,7 +33,7 @@ public class ASTNegate extends NumericExpression {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         return OgnlOps.negate(children[0].getValue(context, source));
     }
 
@@ -38,7 +41,7 @@ public class ASTNegate extends NumericExpression {
         return "-" + children[0];
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         String source = children[0].toGetSourceString(context, target);
 
         if (!(children[0] instanceof ASTNegate)) {
@@ -49,9 +52,9 @@ public class ASTNegate extends NumericExpression {
     }
 
     @Override
-    public boolean isOperation(OgnlContext context) throws OgnlException {
+    public boolean isOperation(C context) throws OgnlException {
         if (children.length == 1) {
-            SimpleNode child = (SimpleNode) children[0];
+            SimpleNode<C> child = (SimpleNode<C>) children[0];
             return child.isOperation(context) || !child.isConstant(context);
         }
         return super.isOperation(context);
