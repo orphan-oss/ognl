@@ -20,25 +20,30 @@ package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
-/**
- * Base class for boolean expressions.
- */
-public abstract class BooleanExpression extends ExpressionNode implements NodeType {
+public class ASTNotIn extends SimpleNode implements NodeType {
 
-    private static final long serialVersionUID = 8933433183011657435L;
+    private static final long serialVersionUID = -7179506923293705885L;
 
-    protected Class<?> getterClass;
-
-    public BooleanExpression(int id) {
+    public ASTNotIn(int id) {
         super(id);
     }
 
-    public BooleanExpression(OgnlParser p, int id) {
+    public ASTNotIn(OgnlParser p, int id) {
         super(p, id);
     }
 
+    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+        Object v1 = children[0].getValue(context, source);
+        Object v2 = children[1].getValue(context, source);
+        return OgnlOps.in(v1, v2) ? Boolean.FALSE : Boolean.TRUE;
+    }
+
+    public String toString() {
+        return children[0] + " not in " + children[1];
+    }
+
     public Class<?> getGetterClass() {
-        return getterClass;
+        return Boolean.TYPE;
     }
 
     public Class<?> getSetterClass() {
@@ -47,30 +52,14 @@ public abstract class BooleanExpression extends ExpressionNode implements NodeTy
 
     public String toGetSourceString(OgnlContext context, Object target) {
         try {
-            Object value = getValueBody(context, target);
-
-            if (value != null && Boolean.class.isAssignableFrom(value.getClass())) {
-                getterClass = Boolean.TYPE;
-            } else if (value != null) {
-                getterClass = value.getClass();
-            } else {
-                getterClass = Boolean.TYPE;
-            }
-
-            String ret = super.toGetSourceString(context, target);
-
-            if ("(false)".equals(ret)) {
-                return "false";
-            } else if ("(true)".equals(ret)) {
-                return "true";
-            }
-
-            return ret;
-
+            String result = "(! ognl.OgnlOps.in( ($w) ";
+            result += OgnlRuntime.getChildSource(context, target, children[0]) + ", ($w) " + OgnlRuntime.getChildSource(context, target, children[1]);
+            result += ") )";
+            context.setCurrentType(Boolean.TYPE);
+            return result;
         } catch (NullPointerException e) {
             // expected to happen in some instances
-            e.printStackTrace();
-            throw new UnsupportedCompilationException("evaluation resulted in null expression.");
+            throw new UnsupportedCompilationException("Evaluation resulted in null expression.", e);
         } catch (Throwable t) {
             throw OgnlOps.castToRuntime(t);
         }
