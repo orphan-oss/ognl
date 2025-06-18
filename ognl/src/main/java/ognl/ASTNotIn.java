@@ -59,8 +59,7 @@ public class ASTNotIn extends SimpleNode implements NodeType {
             return result;
         } catch (NullPointerException e) {
             // expected to happen in some instances
-            e.printStackTrace();
-            throw new UnsupportedCompilationException("evaluation resulted in null expression.");
+            throw new UnsupportedCompilationException("Evaluation resulted in null expression.", e);
         } catch (Throwable t) {
             throw OgnlOps.castToRuntime(t);
         }
