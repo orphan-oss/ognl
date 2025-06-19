@@ -102,7 +102,10 @@
                                 <phase>verify</phase>
                                 <configuration>
                                     <executable>java</executable>
-                                    <commandlineArgs>-jar target/${benchmarks.finalName}.jar</commandlineArgs>
+                                    <arguments>
+                                        <argument>-jar</argument>
+                                        <argument>${project.build.directory}/${benchmarks.finalName}.jar</argument>
+                                    </arguments>
                                 </configuration>
                             </execution>
                         </executions>

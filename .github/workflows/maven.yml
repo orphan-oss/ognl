@@ -54,7 +54,11 @@ jobs:
       - name: Test with Maven on Java ${{ matrix.java }}
         run: ./mvnw -B verify
       - name: Run benchamrks with Maven on Java ${{ matrix.java }}
-        run: ./mvnw -B verify -Pbenchmarks -DskipTests
+        env:
+          OPTIONS: publishSummary
+        run: |
+          echo '### Benchmarks summary Java ${{ matrix.java }}! 🚀' >> $GITHUB_STEP_SUMMARY
+          ./mvnw -B verify -Pbenchmarks -DskipTests
       - name: Upload JMH results
         uses: actions/upload-artifact@v4
         with:
