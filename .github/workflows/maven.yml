@@ -50,9 +50,16 @@ jobs:
           distribution: temurin
           java-version: ${{ matrix.java }}
       - name: Build with Maven on Java ${{ matrix.java }}
-        run: ./mvnw -B package -DskipTests=true
+        run: ./mvnw -B package -DskipTests
       - name: Test with Maven on Java ${{ matrix.java }}
         run: ./mvnw -B verify
+      - name: Run benchamrks with Maven on Java ${{ matrix.java }}
+        run: ./mvnw -B verify -Pbenchmarks -DskipTests
+      - name: Upload JMH results
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmh-results-java-${{ matrix.java }}
+          path: benchmarks/target/ognl-runtime-benchmark-results.json
       - name: Prepare settings
         run: echo "${{ secrets.MAVEN_SETTINGS }}" > ~/.m2/settings-ognl.xml
       - name: Deploy SNAPSHOT
