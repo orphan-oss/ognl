@@ -16,10 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package ognl.benchmarks;
-
-import ognl.MemberAccess;
-import ognl.OgnlContext;
+package ognl;
 
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;

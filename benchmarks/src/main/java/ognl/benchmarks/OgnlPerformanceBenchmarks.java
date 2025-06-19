@@ -1,20 +1,22 @@
 package ognl.benchmarks;
 
+import ognl.DefaultMemberAccess;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.SimpleNode;
-import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.RunnerException;
-import org.openjdk.jmh.runner.options.Options;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
-import org.openjdk.jmh.results.RunResult;
-import org.openjdk.jmh.results.format.ResultFormatType;
 
-import java.io.File;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +30,7 @@ import java.util.concurrent.TimeUnit;
         "--add-opens=java.base/java.util=ALL-UNNAMED"
 })
 @Warmup(iterations = 3, time = 1)
-@Measurement(iterations = 5, time = 1)
+@Measurement(iterations = 5, time = 1, batchSize = 2)
 public class OgnlPerformanceBenchmarks {
 
     private OgnlContext context;

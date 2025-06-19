@@ -62,7 +62,9 @@ public class OgnlRuntimePerformanceBenchmarks {
         }
 
         for (final Future<Class<?>[]> future : futures) {
-            blackhole.consume(future.get());
+            Class<?>[] classes = future.get();
+            assert expected == classes;
+            blackhole.consume(classes);
         }
 
         executor.shutdown();

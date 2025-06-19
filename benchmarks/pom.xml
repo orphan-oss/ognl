@@ -15,9 +15,8 @@
     <description>JMH-based performance benchmarks for OGNL</description>
 
     <properties>
-        <jmh.version>1.37</jmh.version>
-        <junit.version>5.10.2</junit.version>
-        <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <benchmarks.finalName>benchmarks</benchmarks.finalName>
     </properties>
 
     <dependencies>
@@ -27,19 +26,20 @@
             <artifactId>ognl</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <!-- JMH Dependencies -->
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
-            <version>${jmh.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
-            <version>${jmh.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -63,7 +63,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven-shade-plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -71,11 +70,11 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>benchmarks</finalName>
+                            <finalName>${benchmarks.finalName}</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>ognl.benchmarks.RunBenchmarks</mainClass>
+                                    <mainClass>ognl.Run</mainClass>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
@@ -85,4 +84,31 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>benchmarks</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>exec</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>verify</phase>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <commandlineArgs>-jar target/${benchmarks.finalName}.jar</commandlineArgs>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
