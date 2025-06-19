@@ -54,17 +54,20 @@ jobs:
       - name: Test with Maven on Java ${{ matrix.java }}
         run: ./mvnw -B verify
       - name: Run benchamrks with Maven on Java ${{ matrix.java }}
+        if: matrix.java == '17'
         env:
           OPTIONS: publishSummary
         run: |
           echo '### Benchmarks summary Java ${{ matrix.java }}! 🚀' >> $GITHUB_STEP_SUMMARY
           ./mvnw -B verify -Pbenchmarks -DskipTests
       - name: Upload JMH results
+        if: matrix.java == '17'
         uses: actions/upload-artifact@v4
         with:
           name: jmh-results-java-${{ matrix.java }}
           path: benchmarks/target/ognl-runtime-benchmark-results.json
       - name: Prepare settings
+        if: matrix.java == '17' && github.ref == 'refs/heads/main'
         run: echo "${{ secrets.MAVEN_SETTINGS }}" > ~/.m2/settings-ognl.xml
       - name: Deploy SNAPSHOT
         if: matrix.java == '17' && github.ref == 'refs/heads/main'
