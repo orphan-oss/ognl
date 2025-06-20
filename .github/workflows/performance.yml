@@ -13,14 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Java CI
+name: JMH Benchmarks
 
 on:
-  pull_request:
+  workflow_dispatch:
   push:
     branches:
       - main
-      - ognl-3-3-x
 
 permissions: read-all
 
@@ -31,9 +30,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [ '17', '21' ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -44,18 +40,21 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: ${{ matrix.java }}
-      - name: Build with Maven on Java ${{ matrix.java }}
+          java-version: 17
+      - name: Build with Maven
         run: ./mvnw -B package -DskipTests
-      - name: Test with Maven on Java ${{ matrix.java }}
-        run: ./mvnw -B verify
-      - name: Prepare settings
-        if: matrix.java == '17' && github.ref == 'refs/heads/main'
-        run: echo "${{ secrets.MAVEN_SETTINGS }}" > ~/.m2/settings-ognl.xml
-      - name: Deploy SNAPSHOT
-        if: matrix.java == '17' && github.ref == 'refs/heads/main'
-        run: ./mvnw -B -DskipTests=true deploy -s ~/.m2/settings-ognl.xml
+      - name: Run benchmarks with Maven
+        env:
+          OPTIONS: publishSummary
+        run: |
+          echo '### Benchmarks summary 🚀' >> $GITHUB_STEP_SUMMARY
+          ./mvnw -B verify -Pbenchmarks -DskipTests
+      - name: Upload JMH results
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmh-results
+          path: benchmarks/target/ognl-runtime-benchmark-results.json
