@@ -29,6 +29,7 @@
         <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
         <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
         <exec-maven-plugin.version>3.4.1</exec-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
     </properties>
 
     <inceptionYear>2025</inceptionYear>
@@ -160,6 +161,11 @@
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>${exec-maven-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco-maven-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -194,7 +200,6 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.13</version>
                         <executions>
                             <execution>
                                 <id>prepare-agent</id>
