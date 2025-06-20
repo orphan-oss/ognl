@@ -7,15 +7,22 @@
     <packaging>pom</packaging>
     <version>3.5.0-SNAPSHOT</version>
     <name>OGNL Parent</name>
-    <description>OGNL - Object Graph Navigation Library</description>
+    <description>OGNL - Parent module of Object Graph Navigation Library</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.organization>orphan-oss</sonar.organization>
+        <sonar.projectKey>orphan-oss_ognl</sonar.projectKey>
+
         <javassist.version>3.30.2-GA</javassist.version>
         <junit.version>5.13.1</junit.version>
+        <jmh.version>1.37</jmh.version>
+        <jackson-databind.version>2.18.3</jackson-databind.version>
+
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
@@ -24,6 +31,10 @@
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
         <javacc-maven-plugin.version>3.1.1</javacc-maven-plugin.version>
         <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
+        <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
+        <exec-maven-plugin.version>3.4.1</exec-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+        <sonar-maven-plugin.version>5.1.0.4751</sonar-maven-plugin.version>
     </properties>
 
     <inceptionYear>2025</inceptionYear>
@@ -78,11 +89,28 @@
                 <artifactId>junit-jupiter-params</artifactId>
                 <version>${junit.version}</version>
             </dependency>
+            <!-- JMH Dependencies -->
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-core</artifactId>
+                <version>${jmh.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-generator-annprocess</artifactId>
+                <version>${jmh.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson-databind.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <modules>
         <module>ognl</module>
+        <module>benchmarks</module>
     </modules>
 
     <build>
@@ -128,6 +156,26 @@
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>${maven-deploy-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>${maven-shade-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>${exec-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${sonar-maven-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -152,17 +200,15 @@
     <profiles>
         <profile>
             <id>coverage</id>
-            <properties>
-                <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-                <sonar.organization>orphan-oss</sonar.organization>
-                <sonar.projectKey>orphan-oss_ognl</sonar.projectKey>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.13</version>
                         <executions>
                             <execution>
                                 <id>prepare-agent</id>
