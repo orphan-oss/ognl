@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class OgnlContextTest {
 
     private static OgnlContext createOgnlContext() {
-        return new OgnlContext(null, null, new DefaultMemberAccess(false));
+        return new OgnlContext(new DefaultMemberAccess(false), null, null);
     }
 
     @Test
@@ -198,7 +198,7 @@ class OgnlContextTest {
     @Test
     void memberAccessIsRequired() {
         try {
-            new OgnlContext(null, null, null);
+            new OgnlContext((MemberAccess) null, null, null);
         } catch (Exception e) {
             assertInstanceOf(IllegalArgumentException.class, e);
             assertEquals("MemberAccess implementation must be provided - null not permitted!", e.getMessage());
@@ -208,7 +208,7 @@ class OgnlContextTest {
     @Test
     void defaultClassResolverAndTypeConverter() {
         // given & when
-        OgnlContext context = new OgnlContext(null, null, new DefaultMemberAccess(false));
+        OgnlContext context = new OgnlContext(new DefaultMemberAccess(false), null, null);
 
         // then
         assertTrue(context.getValues().isEmpty());

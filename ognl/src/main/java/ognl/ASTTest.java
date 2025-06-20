@@ -20,9 +20,12 @@ package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
-public class ASTTest extends ExpressionNode {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -6924826770978283631L;
+public class ASTTest<C extends OgnlContext<C>> extends ExpressionNode<C> {
+
+    @Serial
+    private static final long serialVersionUID = -5027899942735313771L;
 
     public ASTTest(int id) {
         super(id);
@@ -32,13 +35,13 @@ public class ASTTest extends ExpressionNode {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object test = children[0].getValue(context, source);
         int branch = OgnlOps.booleanValue(test) ? 1 : 2;
         return children[branch].getValue(context, source);
     }
 
-    protected void setValueBody(OgnlContext context, Object target, Object value) throws OgnlException {
+    protected void setValueBody(C context, Object target, Object value) throws OgnlException {
         Object test = children[0].getValue(context, target);
         int branch = OgnlOps.booleanValue(test) ? 1 : 2;
         children[branch].setValue(context, target, value);
@@ -48,7 +51,7 @@ public class ASTTest extends ExpressionNode {
         return (index == 1) ? "?" : ":";
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         if (target == null)
             throw new UnsupportedCompilationException("evaluation resulted in null expression.");
 
