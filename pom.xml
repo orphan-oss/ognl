@@ -32,7 +32,7 @@
         <javacc-maven-plugin.version>3.1.1</javacc-maven-plugin.version>
         <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
         <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
-        <exec-maven-plugin.version>3.4.1</exec-maven-plugin.version>
+        <exec-maven-plugin.version>3.5.1</exec-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>5.1.0.4751</sonar-maven-plugin.version>
     </properties>
