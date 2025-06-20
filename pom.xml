@@ -14,6 +14,10 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.organization>orphan-oss</sonar.organization>
+        <sonar.projectKey>orphan-oss_ognl</sonar.projectKey>
+
         <javassist.version>3.30.2-GA</javassist.version>
         <junit.version>5.13.1</junit.version>
         <jmh.version>1.37</jmh.version>
