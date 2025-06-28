@@ -21,9 +21,12 @@ package ognl;
 import ognl.enhance.OrderedReturn;
 import ognl.enhance.UnsupportedCompilationException;
 
-public class ASTAssign extends SimpleNode {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -2036484456563256284L;
+public class ASTAssign<C extends OgnlContext<C>> extends SimpleNode<C> {
+
+    @Serial
+    private static final long serialVersionUID = -5122854469359392542L;
 
     public ASTAssign(int id) {
         super(id);
@@ -33,7 +36,7 @@ public class ASTAssign extends SimpleNode {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object result = children[1].getValue(context, source);
         children[0].setValue(context, source, result);
         return result;
@@ -43,7 +46,7 @@ public class ASTAssign extends SimpleNode {
         return children[0] + " = " + children[1];
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         String result = "";
 
         String first = children[0].toGetSourceString(context, target);
@@ -79,11 +82,7 @@ public class ASTAssign extends SimpleNode {
         if (OrderedReturn.class.isAssignableFrom(children[0].getClass())
                 && ((OrderedReturn) children[0]).getCoreExpression() != null) {
             context.setCurrentType(Object.class);
-
             result = first + second + ")";
-
-            // System.out.println("building ordered ret from child[0] with result of:" + result);
-
             result = OgnlRuntime.getCompiler().createLocalReference(context,
                     "ognl.OgnlOps.returnValue(($w)" + result + ", ($w)" + ((OrderedReturn) children[0]).getLastExpression() + ")",
                     Object.class);
@@ -92,7 +91,7 @@ public class ASTAssign extends SimpleNode {
         return result;
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         String result = "";
 
         result += children[0].toSetSourceString(context, target);
@@ -123,7 +122,7 @@ public class ASTAssign extends SimpleNode {
     }
 
     @Override
-    public boolean isOperation(OgnlContext context) {
+    public boolean isOperation(C context) {
         return true;
     }
 }

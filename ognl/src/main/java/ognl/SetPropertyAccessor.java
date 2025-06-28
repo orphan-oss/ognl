@@ -24,9 +24,9 @@ import java.util.Set;
  * Implementation of PropertyAccessor that uses numbers and dynamic subscripts as
  * properties to index into Lists.
  */
-public class SetPropertyAccessor extends ObjectPropertyAccessor implements PropertyAccessor {
+public class SetPropertyAccessor<C extends OgnlContext<C>> extends ObjectPropertyAccessor<C> implements PropertyAccessor<C> {
 
-    public Object getProperty(OgnlContext context, Object target, Object name) throws OgnlException {
+    public Object getProperty(C context, Object target, Object name) throws OgnlException {
         Set<?> set = (Set<?>) target;
 
         if (name instanceof String) {

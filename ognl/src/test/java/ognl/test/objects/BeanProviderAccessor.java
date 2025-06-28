@@ -14,8 +14,8 @@ import ognl.enhance.UnsupportedCompilationException;
 /**
  * Implementation of provider that works with {@link BeanProvider} instances.
  */
-public class BeanProviderAccessor extends ObjectPropertyAccessor implements PropertyAccessor {
-    public Object getProperty(OgnlContext context, Object target, Object name) throws OgnlException {
+public class BeanProviderAccessor<C extends OgnlContext<C>> extends ObjectPropertyAccessor<C> implements PropertyAccessor<C> {
+    public Object getProperty(C context, Object target, Object name) throws OgnlException {
         BeanProvider provider = (BeanProvider) target;
         String beanName = (String) name;
 
@@ -26,14 +26,14 @@ public class BeanProviderAccessor extends ObjectPropertyAccessor implements Prop
      * Returns true if the name matches a bean provided by the provider.
      * Otherwise invokes the super implementation.
      **/
-    public boolean hasGetProperty(OgnlContext context, Object target, Object oname) throws OgnlException {
+    public boolean hasGetProperty(C context, Object target, Object oname) throws OgnlException {
         BeanProvider provider = (BeanProvider) target;
         String beanName = ((String) oname).replaceAll("\"", "");
 
         return provider.getBean(beanName) != null;
     }
 
-    public String getSourceAccessor(OgnlContext context, Object target, Object name) {
+    public String getSourceAccessor(C context, Object target, Object name) {
         BeanProvider provider = (BeanProvider) target;
         String beanName = ((String) name).replaceAll("\"", "");
 
@@ -50,7 +50,7 @@ public class BeanProviderAccessor extends ObjectPropertyAccessor implements Prop
         return super.getSourceAccessor(context, target, name);
     }
 
-    public String getSourceSetter(OgnlContext context, Object target, Object name) {
+    public String getSourceSetter(C context, Object target, Object name) {
         throw new UnsupportedCompilationException("Can't set beans on BeanProvider.");
     }
 }

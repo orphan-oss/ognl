@@ -20,13 +20,15 @@ package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-public class ASTProject extends SimpleNode {
+public class ASTProject<C extends OgnlContext<C>> extends SimpleNode<C> {
 
-    private static final long serialVersionUID = 2768334664377467301L;
+    @Serial
+    private static final long serialVersionUID = -1429427100657574682L;
 
     public ASTProject(int id) {
         super(id);
@@ -36,9 +38,9 @@ public class ASTProject extends SimpleNode {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
+    protected Object getValueBody(C context, Object source)
             throws OgnlException {
-        Node expr = children[0];
+        Node<C> expr = children[0];
         List<Object> answer = new ArrayList<>();
 
         ElementsAccessor elementsAccessor = OgnlRuntime.getElementsAccessor(OgnlRuntime.getTargetClass(source));
@@ -54,11 +56,11 @@ public class ASTProject extends SimpleNode {
         return "{ " + children[0] + " }";
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         throw new UnsupportedCompilationException("Projection expressions not supported as native java yet.");
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         throw new UnsupportedCompilationException("Projection expressions not supported as native java yet.");
     }
 }

@@ -21,19 +21,19 @@ package ognl;
 import java.lang.reflect.Member;
 
 /**
- * Default type conversion.  Converts among numeric types and also strings.
+ * Default type conversion. Converts among numeric types and also strings.
  */
-public class DefaultTypeConverter implements TypeConverter {
+public class DefaultTypeConverter<C extends OgnlContext<C>> implements TypeConverter<C> {
 
     public DefaultTypeConverter() {
         super();
     }
 
-    public Object convertValue(OgnlContext context, Object value, Class<?> toType) {
+    public Object convertValue(C context, Object value, Class<?> toType) {
         return OgnlOps.convertValue(value, toType);
     }
 
-    public Object convertValue(OgnlContext context, Object target, Member member, String propertyName, Object value, Class<?> toType) {
+    public Object convertValue(C context, Object target, Member member, String propertyName, Object value, Class<?> toType) {
         return convertValue(context, value, toType);
     }
 
