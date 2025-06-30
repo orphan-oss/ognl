@@ -24,7 +24,10 @@ public class ClassCacheHandler {
     }
 
     public static <T> T getHandler(Class<?> forClass, ClassCache<T> handlers) throws CacheException {
-        T answer;
+        T answer = handlers.get(forClass);
+        if (answer != null) {
+            return answer;
+        }
 
         synchronized (handlers) {
             answer = handlers.get(forClass);
