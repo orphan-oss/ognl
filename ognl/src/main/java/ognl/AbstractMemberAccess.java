@@ -23,13 +23,13 @@ import java.lang.reflect.Member;
 /**
  * Used as a based class
  */
-abstract public class AbstractMemberAccess implements MemberAccess {
+abstract public class AbstractMemberAccess<C extends OgnlContext<C>> implements MemberAccess<C> {
 
-    public Object setup(OgnlContext context, Object target, Member member, String propertyName) {
+    public Object setup(C context, Object target, Member member, String propertyName) {
         return null;
     }
 
-    public void restore(OgnlContext context, Object target, Member member, String propertyName, Object state) {
+    public void restore(C context, Object target, Member member, String propertyName, Object state) {
     }
 
 }

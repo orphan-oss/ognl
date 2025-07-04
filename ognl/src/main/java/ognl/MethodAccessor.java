@@ -23,7 +23,7 @@ package ognl;
  * Methods are broken up into static and instance methods for convenience.
  * indexes into the target object, which must be an array.
  */
-public interface MethodAccessor {
+public interface MethodAccessor<C extends OgnlContext<C>> {
     /**
      * Calls the static method named with the arguments given on the class given.
      *
@@ -34,7 +34,7 @@ public interface MethodAccessor {
      * @return result of calling the method
      * @throws MethodFailedException if there is an error calling the method
      */
-    Object callStaticMethod(OgnlContext context, Class<?> targetClass, String methodName, Object[] args) throws MethodFailedException;
+    Object callStaticMethod(C context, Class<?> targetClass, String methodName, Object[] args) throws MethodFailedException;
 
     /**
      * Calls the method named with the arguments given.
@@ -46,5 +46,5 @@ public interface MethodAccessor {
      * @return result of calling the method
      * @throws MethodFailedException if there is an error calling the method
      */
-    Object callMethod(OgnlContext context, Object target, String methodName, Object[] args) throws MethodFailedException;
+    Object callMethod(C context, Object target, String methodName, Object[] args) throws MethodFailedException;
 }

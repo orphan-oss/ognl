@@ -20,9 +20,12 @@ package ognl;
 
 import ognl.enhance.ExpressionCompiler;
 
-public abstract class ExpressionNode extends SimpleNode {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 4880029588563407661L;
+public abstract class ExpressionNode<C extends OgnlContext<C>> extends SimpleNode<C> {
+
+    @Serial
+    private static final long serialVersionUID = -5621154197602861123L;
 
     public ExpressionNode(int i) {
         super(i);
@@ -35,18 +38,18 @@ public abstract class ExpressionNode extends SimpleNode {
     /**
      * Returns true iff this node is constant without respect to the children.
      */
-    public boolean isNodeConstant(OgnlContext context) throws OgnlException {
+    public boolean isNodeConstant(C context) throws OgnlException {
         return false;
     }
 
-    public boolean isConstant(OgnlContext context) throws OgnlException {
+    public boolean isConstant(C context) throws OgnlException {
         boolean result = isNodeConstant(context);
 
         if ((children != null) && (children.length > 0)) {
             result = true;
             for (int i = 0; result && (i < children.length); ++i) {
                 if (children[i] instanceof SimpleNode) {
-                    result = ((SimpleNode) children[i]).isConstant(context);
+                    result = ((SimpleNode<C>) children[i]).isConstant(context);
                 } else {
                     result = false;
                 }
@@ -76,7 +79,7 @@ public abstract class ExpressionNode extends SimpleNode {
         return result.toString();
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         StringBuilder result = new StringBuilder((parent == null || NumericExpression.class.isAssignableFrom(parent.getClass())) ? "" : "(");
 
         if ((children != null) && (children.length > 0)) {
@@ -117,7 +120,7 @@ public abstract class ExpressionNode extends SimpleNode {
         return result.toString();
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         StringBuilder result = new StringBuilder((parent == null) ? "" : "(");
 
         if ((children != null) && (children.length > 0)) {
@@ -137,7 +140,7 @@ public abstract class ExpressionNode extends SimpleNode {
     }
 
     @Override
-    public boolean isOperation(OgnlContext context) throws OgnlException {
+    public boolean isOperation(C context) throws OgnlException {
         return true;
     }
 }
