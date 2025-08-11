@@ -23,7 +23,7 @@ import java.lang.reflect.Member;
 /**
  * Interface for accessing the type conversion facilities within a context.
  */
-public interface TypeConverter {
+public interface TypeConverter<C extends OgnlContext<C>> {
     /**
      * Converts the given value to a given type.  The OGNL context, target, member and
      * name of property being set are given.  This method should be able to handle
@@ -38,6 +38,6 @@ public interface TypeConverter {
      * @return Converted value of type toType or TypeConverter.NoConversionPossible to indicate that the
      * conversion was not possible.
      */
-    Object convertValue(OgnlContext context, Object target, Member member, String propertyName, Object value, Class<?> toType);
+    Object convertValue(C context, Object target, Member member, String propertyName, Object value, Class<?> toType);
 }
 

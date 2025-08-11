@@ -27,12 +27,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * This class defines the execution context for an OGNL expression
  */
-public class OgnlContext implements Map<String, Object> {
+public class OgnlContext<C extends OgnlContext<C>> implements Map<String, Object> {
 
     private static final String ROOT_CONTEXT_KEY = "root";
     private static final String THIS_CONTEXT_KEY = "this";
@@ -49,19 +51,19 @@ public class OgnlContext implements Map<String, Object> {
 
     private Object root;
     private Object currentObject;
-    private Node currentNode;
+    private Node<C> currentNode;
     private boolean traceEvaluations = DEFAULT_TRACE_EVALUATIONS;
-    private Evaluation rootEvaluation;
-    private Evaluation currentEvaluation;
-    private Evaluation lastEvaluation;
+    private Evaluation<C> rootEvaluation;
+    private Evaluation<C> currentEvaluation;
+    private Evaluation<C> lastEvaluation;
     private boolean keepLastEvaluation = DEFAULT_KEEP_LAST_EVALUATION;
     private boolean ignoreReadMethods = DEFAULT_IGNORE_READ_METHODS;
 
-    private final Map<String, Object> internalContext;
+    protected final Map<String, Object> internalContext;
 
-    private final ClassResolver classResolver;
-    private final TypeConverter typeConverter;
-    private final MemberAccess memberAccess;
+    private final MemberAccess<C> memberAccess;
+    private final ClassResolver<C> classResolver;
+    private final TypeConverter<C> typeConverter;
 
     static {
 
@@ -98,10 +100,23 @@ public class OgnlContext implements Map<String, Object> {
      * @param classResolver the ClassResolver for a new OgnlContext.
      * @param typeConverter the TypeConverter for a new OgnlContext.
      * @param memberAccess  the MemberAccess for a new OgnlContext.  <span class="strong">Must be non-null</span>.
+     * @deprecated use {@link OgnlContext(MemberAccess, ClassResolver, TypeConverter)} instead
      */
-    public OgnlContext(ClassResolver classResolver, TypeConverter typeConverter, MemberAccess memberAccess) {
-        // No 'values' map has been specified, so we create one of the default size: 23 entries
+    @Deprecated(forRemoval = true)
+    public OgnlContext(ClassResolver<C> classResolver, TypeConverter<C> typeConverter, MemberAccess<C> memberAccess) {
         this(memberAccess, classResolver, typeConverter, null);
+    }
+
+    public OgnlContext(MemberAccess<C> memberAccess, ClassResolver<C> classResolver, TypeConverter<C> typeConverter) {
+        this(memberAccess, classResolver, typeConverter, null);
+    }
+
+    public OgnlContext(MemberAccess<C> memberAccess, ClassResolver<C> classResolver) {
+        this(memberAccess, classResolver, null, null);
+    }
+
+    public OgnlContext(MemberAccess<C> memberAccess) {
+        this(memberAccess, null, null, null);
     }
 
     /**
@@ -113,27 +128,20 @@ public class OgnlContext implements Map<String, Object> {
      * @param typeConverter  the TypeConverter for a new OgnlContext.
      * @param initialContext the initial context of values to provide for a new OgnlContext.
      */
-    public OgnlContext(MemberAccess memberAccess, ClassResolver classResolver, TypeConverter typeConverter, OgnlContext initialContext) {
-        if (classResolver != null) {
-            this.classResolver = classResolver;
-        } else {
-            this.classResolver = new DefaultClassResolver();
-        }
-        if (typeConverter != null) {
-            this.typeConverter = typeConverter;
-        } else {
-            this.typeConverter = new DefaultTypeConverter();
-        }
+    public OgnlContext(MemberAccess<C> memberAccess, ClassResolver<C> classResolver, TypeConverter<C> typeConverter, Map<String, Object> initialContext) {
         if (memberAccess != null) {
             this.memberAccess = memberAccess;
         } else {
             throw new IllegalArgumentException("MemberAccess implementation must be provided - null not permitted!");
         }
 
-        this.internalContext = new HashMap<>(23);  // No 'values' map has been specified, so we create one of the default size: 23 entries
+        this.classResolver = Objects.requireNonNullElseGet(classResolver, DefaultClassResolver::new);
+        this.typeConverter = Objects.requireNonNullElseGet(typeConverter, DefaultTypeConverter::new);
 
-        if (initialContext != null) {
-            this.setValues(initialContext.internalContext);
+        if (initialContext == null) {
+            this.internalContext = new HashMap<>(23);
+        } else {
+            this.internalContext = new HashMap<>(initialContext);
         }
     }
 
@@ -153,9 +161,10 @@ public class OgnlContext implements Map<String, Object> {
      * @param values a Map of values
      * @return the current instance of {@link OgnlContext}
      */
-    public OgnlContext withValues(Map<String, Object> values) {
+    @SuppressWarnings("unchecked")
+    public C withValues(Map<String, Object> values) {
         this.setValues(values);
-        return this;
+        return (C) this;
     }
 
     /**
@@ -167,27 +176,24 @@ public class OgnlContext implements Map<String, Object> {
         return internalContext;
     }
 
-    public ClassResolver getClassResolver() {
+    public ClassResolver<C> getClassResolver() {
         return classResolver;
     }
 
-    public TypeConverter getTypeConverter() {
+    public TypeConverter<C> getTypeConverter() {
         return typeConverter;
     }
 
-    public MemberAccess getMemberAccess() {
+    public MemberAccess<C> getMemberAccess() {
         return memberAccess;
     }
 
+    /**
+     * @deprecated use {@link #withRoot(Object)} instead
+     */
+    @Deprecated(forRemoval = true)
     public void setRoot(Object value) {
-        root = value;
-        accessorStack.clear();
-        typeStack.clear();
-        currentObject = value;
-
-        if (currentObject != null) {
-            setCurrentType(currentObject.getClass());
-        }
+        this.withRoot(value);
     }
 
     public Object getRoot() {
@@ -210,11 +216,11 @@ public class OgnlContext implements Map<String, Object> {
         traceEvaluations = value;
     }
 
-    public Evaluation getLastEvaluation() {
+    public Evaluation<C> getLastEvaluation() {
         return lastEvaluation;
     }
 
-    public void setLastEvaluation(Evaluation value) {
+    public void setLastEvaluation(Evaluation<C> value) {
         lastEvaluation = value;
     }
 
@@ -348,11 +354,11 @@ public class OgnlContext implements Map<String, Object> {
         return typeStack.get(0);
     }
 
-    public void setCurrentNode(Node value) {
+    public void setCurrentNode(Node<C> value) {
         currentNode = value;
     }
 
-    public Node getCurrentNode() {
+    public Node<C> getCurrentNode() {
         return currentNode;
     }
 
@@ -362,11 +368,11 @@ public class OgnlContext implements Map<String, Object> {
      *
      * @return the current Evaluation from the top of the stack (being evaluated).
      */
-    public Evaluation getCurrentEvaluation() {
+    public Evaluation<C> getCurrentEvaluation() {
         return currentEvaluation;
     }
 
-    public void setCurrentEvaluation(Evaluation value) {
+    public void setCurrentEvaluation(Evaluation<C> value) {
         currentEvaluation = value;
     }
 
@@ -376,11 +382,11 @@ public class OgnlContext implements Map<String, Object> {
      *
      * @return the root Evaluation from the stack (the root expression node).
      */
-    public Evaluation getRootEvaluation() {
+    public Evaluation<C> getRootEvaluation() {
         return rootEvaluation;
     }
 
-    public void setRootEvaluation(Evaluation value) {
+    public void setRootEvaluation(Evaluation<C> value) {
         rootEvaluation = value;
     }
 
@@ -392,8 +398,8 @@ public class OgnlContext implements Map<String, Object> {
      * @param relativeIndex the relative index for the Evaluation to retrieve from the stack (with 0 being the current Evaluation).  relativeIndex should be &lt;= 0.
      * @return the Evaluation at relativeIndex, or null if relativeIndex is &gt; 0.
      */
-    public Evaluation getEvaluation(int relativeIndex) {
-        Evaluation result = null;
+    public Evaluation<C> getEvaluation(int relativeIndex) {
+        Evaluation<C> result = null;
 
         if (relativeIndex <= 0) {
             result = currentEvaluation;
@@ -410,7 +416,7 @@ public class OgnlContext implements Map<String, Object> {
      *
      * @param value the Evaluation to push onto the stack.
      */
-    public void pushEvaluation(Evaluation value) {
+    public void pushEvaluation(Evaluation<C> value) {
         if (currentEvaluation != null) {
             currentEvaluation.addChild(value);
         } else {
@@ -425,8 +431,8 @@ public class OgnlContext implements Map<String, Object> {
      *
      * @return the Evaluation popped from the top of the stack.
      */
-    public Evaluation popEvaluation() {
-        Evaluation result;
+    public Evaluation<C> popEvaluation() {
+        Evaluation<C> result;
 
         result = currentEvaluation;
         setCurrentEvaluation(result.getParent());
@@ -532,7 +538,7 @@ public class OgnlContext implements Map<String, Object> {
                     break;
                 case OgnlContext.LAST_EVALUATION_CONTEXT_KEY:
                     result = getLastEvaluation();
-                    lastEvaluation = (Evaluation) value;
+                    lastEvaluation = (Evaluation<C>) value;
                     break;
                 case OgnlContext.KEEP_LAST_EVALUATION_CONTEXT_KEY:
                     result = isKeepLastEvaluation() ? Boolean.TRUE : Boolean.FALSE;
@@ -637,7 +643,8 @@ public class OgnlContext implements Map<String, Object> {
         if (!(other instanceof OgnlContext)) {
             return false;
         }
-        OgnlContext otherContext = (OgnlContext) other;
+        @SuppressWarnings("rawtypes")
+        OgnlContext<?> otherContext = (OgnlContext) other;
         return internalContext.equals(otherContext.internalContext);
     }
 
@@ -646,4 +653,82 @@ public class OgnlContext implements Map<String, Object> {
         return internalContext.hashCode();
     }
 
+    public C withRoot(Object value) {
+        root = value;
+        accessorStack.clear();
+        typeStack.clear();
+        currentObject = value;
+
+        if (currentObject != null) {
+            setCurrentType(currentObject.getClass());
+        }
+
+        return (C) this;
+    }
+
+    public static class Builder<C extends OgnlContext<C>> {
+        private final Function<Builder<C>, C> provider;
+
+        private Object root;
+        private MemberAccess<C> memberAccess;
+        private ClassResolver<C> classResolver;
+        private TypeConverter<C> typeConverter;
+        private Map<String, Object> initialContext;
+
+        public Builder(Function<Builder<C>, C> provider) {
+            this.provider = provider;
+        }
+
+        public Builder<C> withMemberAccess(MemberAccess<C> memberAccess) {
+            if (memberAccess == null) {
+                throw new IllegalArgumentException("MemberAccess is required");
+            }
+            this.memberAccess = memberAccess;
+            return this;
+        }
+
+        public Builder<C> withClassResolver(ClassResolver<C> classResolver) {
+            this.classResolver = classResolver;
+            return this;
+        }
+
+        public Builder<C> withTypeConverter(TypeConverter<C> converter) {
+            this.typeConverter = converter;
+            return this;
+        }
+
+        public Builder<C> withRoot(Object value) {
+            root = value;
+            return this;
+        }
+
+        public Builder<C> withInitialContext(Map<String, Object> initialContext) {
+            this.initialContext = initialContext;
+            return this;
+        }
+
+        public MemberAccess<C> getMemberAccess() {
+            return memberAccess;
+        }
+
+        public ClassResolver<C> getClassResolver() {
+            return classResolver;
+        }
+
+        public TypeConverter<C> getTypeConverter() {
+            return typeConverter;
+        }
+
+        public Map<String, Object> getInitialContext() {
+            return initialContext;
+        }
+
+        public Object getRoot() {
+            return root;
+        }
+
+        public C build() {
+            return provider.apply(this);
+        }
+    }
 }

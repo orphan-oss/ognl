@@ -25,7 +25,7 @@ import java.lang.reflect.Member;
  * of objects.  The Java2 version of this method can allow access
  * to otherwise inaccessible members, such as private fields.
  */
-public interface MemberAccess {
+public interface MemberAccess<C extends OgnlContext<C>> {
     /**
      * Sets the member up for accessibility
      *
@@ -35,7 +35,7 @@ public interface MemberAccess {
      * @param propertyName the property upon which to perform the setup operation.
      * @return the Object representing the original accessibility state of the target prior to the setup operation.
      */
-    Object setup(OgnlContext context, Object target, Member member, String propertyName);
+    Object setup(C context, Object target, Member member, String propertyName);
 
     /**
      * Restores the member from the previous setup call.
@@ -46,7 +46,7 @@ public interface MemberAccess {
      * @param propertyName the property upon which to perform the setup operation.
      * @param state        the Object holding the state to restore (target state prior to the setup operation).
      */
-    void restore(OgnlContext context, Object target, Member member, String propertyName, Object state);
+    void restore(C context, Object target, Member member, String propertyName, Object state);
 
     /**
      * Returns true if the given member is accessible or can be made accessible
@@ -58,5 +58,5 @@ public interface MemberAccess {
      * @param propertyName the property to test accessibility for.
      * @return true if the target/member/propertyName is accessible in the context, false otherwise.
      */
-    boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName);
+    boolean isAccessible(C context, Object target, Member member, String propertyName);
 }

@@ -30,7 +30,7 @@ import java.lang.reflect.Modifier;
  * and package protected members.  This will apply to all classes
  * and members.
  */
-public class DefaultMemberAccess implements MemberAccess {
+public class DefaultMemberAccess<C extends OgnlContext<C>> implements MemberAccess<C> {
     /*
      * Assign an accessibility modification mechanism, based on Major Java Version.
      *   Note: Can be overridden using a Java option flag {@link OgnlRuntime#USE_PREJDK9_ACESS_HANDLER}.
@@ -80,7 +80,7 @@ public class DefaultMemberAccess implements MemberAccess {
         allowPackageProtectedAccess = value;
     }
 
-    public Object setup(OgnlContext context, Object target, Member member, String propertyName) {
+    public Object setup(C context, Object target, Member member, String propertyName) {
         Object result = null;
 
         if (isAccessible(context, target, member, propertyName)) {
@@ -94,7 +94,7 @@ public class DefaultMemberAccess implements MemberAccess {
         return result;
     }
 
-    public void restore(OgnlContext context, Object target, Member member, String propertyName, Object state) {
+    public void restore(C context, Object target, Member member, String propertyName, Object state) {
         if (state != null) {
             final AccessibleObject accessible = (AccessibleObject) member;
             final boolean stateboolean = ((Boolean) state).booleanValue();  // Using twice (avoid unboxing)
@@ -117,7 +117,7 @@ public class DefaultMemberAccess implements MemberAccess {
      * @param propertyName the property to test accessibility for (not used).
      * @return true if the member is accessible in the context, false otherwise.
      */
-    public boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName) {
+    public boolean isAccessible(C context, Object target, Member member, String propertyName) {
         int modifiers = member.getModifiers();
         boolean result = Modifier.isPublic(modifiers);
 

@@ -20,9 +20,12 @@ package ognl;
 
 import ognl.enhance.ExpressionCompiler;
 
-public class ASTRootVarRef extends ASTVarRef {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 5015348645898451815L;
+public class ASTRootVarRef<C extends OgnlContext<C>> extends ASTVarRef<C> {
+
+    @Serial
+    private static final long serialVersionUID = 6329715748764710773L;
 
     public ASTRootVarRef(int id) {
         super(id);
@@ -32,13 +35,11 @@ public class ASTRootVarRef extends ASTVarRef {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
-            throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         return context.getRoot();
     }
 
-    protected void setValueBody(OgnlContext context, Object target, Object value)
-            throws OgnlException {
+    protected void setValueBody(C context, Object target, Object value) throws OgnlException {
         context.setRoot(value);
     }
 
@@ -46,12 +47,12 @@ public class ASTRootVarRef extends ASTVarRef {
         return "#root";
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
-        if (target != null)
+    public String toGetSourceString(C context, Object target) {
+        if (target != null) {
             getterClass = target.getClass();
+        }
 
         if (getterClass != null) {
-
             context.setCurrentType(getterClass);
         }
 
@@ -61,7 +62,7 @@ public class ASTRootVarRef extends ASTVarRef {
             return ExpressionCompiler.getRootExpression(this, target, context);
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         if (parent == null || (getterClass != null && getterClass.isArray()))
             return "";
         else
