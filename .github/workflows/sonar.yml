@@ -34,7 +34,7 @@ jobs:
     if: ${{ !github.event.pull_request.base.repo.fork && !github.event.pull_request.head.repo.fork && github.actor != 'renovate[bot]' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Setup Java
