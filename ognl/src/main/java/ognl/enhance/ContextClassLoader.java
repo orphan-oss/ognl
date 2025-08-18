@@ -20,11 +20,11 @@ package ognl.enhance;
 
 import ognl.OgnlContext;
 
-public class ContextClassLoader extends ClassLoader {
+public class ContextClassLoader<C extends OgnlContext<C>> extends ClassLoader {
 
-    private final OgnlContext context;
+    private final C context;
 
-    public ContextClassLoader(ClassLoader parentClassLoader, OgnlContext context) {
+    public ContextClassLoader(ClassLoader parentClassLoader, C context) {
         super(parentClassLoader);
         this.context = context;
     }

@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
  * Implementation of PropertyAccessor that uses reflection on the target object's class to find a
  * field or a pair of set/get methods with the given property name.
  */
-public class ObjectPropertyAccessor implements PropertyAccessor {
+public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements PropertyAccessor<C> {
 
     /**
      * Returns OgnlRuntime.NotFound if the property does not exist.
@@ -40,7 +40,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
      * @return the current value of the given property in the given object.
      * @throws OgnlException if there is an error locating the property in the given object.
      */
-    public Object getPossibleProperty(OgnlContext context, Object target, String name) throws OgnlException {
+    public Object getPossibleProperty(C context, Object target, String name) throws OgnlException {
         Object result;
 
         try {
@@ -66,7 +66,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
      * @return the Object result of the property set operation.
      * @throws OgnlException if there is an error setting the property in the given object.
      */
-    public Object setPossibleProperty(OgnlContext context, Object target, String name, Object value)
+    public Object setPossibleProperty(C context, Object target, String name, Object value)
             throws OgnlException {
         Object result = null;
         try {
@@ -89,7 +89,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         return result;
     }
 
-    public boolean hasGetProperty(OgnlContext context, Object target, Object oname) throws OgnlException {
+    public boolean hasGetProperty(C context, Object target, Object oname) throws OgnlException {
         try {
             return OgnlRuntime.hasGetProperty(context, target, oname);
         } catch (IntrospectionException ex) {
@@ -97,7 +97,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         }
     }
 
-    public boolean hasSetProperty(OgnlContext context, Object target, Object oname) throws OgnlException {
+    public boolean hasSetProperty(C context, Object target, Object oname) throws OgnlException {
         try {
             return OgnlRuntime.hasSetProperty(context, target, oname);
         } catch (IntrospectionException ex) {
@@ -105,7 +105,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         }
     }
 
-    public Object getProperty(OgnlContext context, Object target, Object oname) throws OgnlException {
+    public Object getProperty(C context, Object target, Object oname) throws OgnlException {
         String name = oname.toString();
         Object result = getPossibleProperty(context, target, name);
 
@@ -116,7 +116,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         return result;
     }
 
-    public void setProperty(OgnlContext context, Object target, Object oname, Object value) throws OgnlException {
+    public void setProperty(C context, Object target, Object oname, Object value) throws OgnlException {
         String name = oname.toString();
         Object result = setPossibleProperty(context, target, name, value);
         if (result == OgnlRuntime.NotFound) {
@@ -124,7 +124,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         }
     }
 
-    public Class<?> getPropertyClass(OgnlContext context, Object target, Object index) {
+    public Class<?> getPropertyClass(C context, Object target, Object index) {
         try {
             Method m = OgnlRuntime.getReadMethod(target.getClass(), index.toString());
             if (m == null) {
@@ -146,7 +146,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         }
     }
 
-    public String getSourceAccessor(OgnlContext context, Object target, Object index) {
+    public String getSourceAccessor(C context, Object target, Object index) {
         try {
 
             String indexStr = index.toString();
@@ -186,7 +186,7 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
         }
     }
 
-    public String getSourceSetter(OgnlContext context, Object target, Object index) {
+    public String getSourceSetter(C context, Object target, Object index) {
         try {
 
             String indexStr = index.toString();

@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTInstanceof extends SimpleNode implements NodeType {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 4988707282372901939L;
+public class ASTInstanceof<C extends OgnlContext<C>> extends SimpleNode<C> implements NodeType {
+
+    @Serial
+    private static final long serialVersionUID = -3678795634846405975L;
 
     private String targetType;
 
@@ -36,7 +39,7 @@ public class ASTInstanceof extends SimpleNode implements NodeType {
         this.targetType = targetType;
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object value = children[0].getValue(context, source);
         return OgnlRuntime.isInstance(context, value, targetType) ? Boolean.TRUE : Boolean.FALSE;
     }
@@ -53,7 +56,7 @@ public class ASTInstanceof extends SimpleNode implements NodeType {
         return null;
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         try {
 
             String ret;
@@ -72,7 +75,7 @@ public class ASTInstanceof extends SimpleNode implements NodeType {
         }
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         return toGetSourceString(context, target);
     }
 }

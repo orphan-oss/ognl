@@ -35,9 +35,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class ShortCircuitingExpressionTest {
+class ShortCircuitingExpressionTest<C extends OgnlContext<C>> {
 
-    private OgnlContext context;
+    private C context;
 
     @ParameterizedTest
     @MethodSource("testValues")
@@ -47,7 +47,7 @@ class ShortCircuitingExpressionTest {
 
     @Test
     void shouldEvaluateNumber() throws Exception {
-        SimpleNode expression = (SimpleNode) Ognl.compileExpression(context, null, "(#x=99) && #x.doubleValue()");
+        SimpleNode<C> expression = (SimpleNode<C>) Ognl.compileExpression(context, null, "(#x=99) && #x.doubleValue()");
         assertEquals(99.0, Ognl.getValue(expression, context, (Object) null));
     }
 
@@ -89,7 +89,7 @@ class ShortCircuitingExpressionTest {
     void shouldCompare() throws OgnlException {
         Object root = new Params(new B[]{new B("a")});
 
-        OgnlContext ctx = Ognl.createDefaultContext(null);
+        C ctx = Ognl.createDefaultContext(null);
 
         Object val1 = Ognl.getValue("\"a\".equals(params[0].b)", ctx, root);
         Object val2 = Ognl.getValue("\"a\".equals(params[0].b)", root);
@@ -115,8 +115,8 @@ class ShortCircuitingExpressionTest {
     void shouldThrowExceptionWithWrongClassResolver() throws OgnlException {
         Object root = new Object();
 
-        OgnlContext oldCtx = Ognl.createDefaultContext(root);
-        OgnlContext ctx = Ognl.addDefaultContext(root, new MyClassResolver(), oldCtx);
+        C oldCtx = Ognl.createDefaultContext(root);
+        C ctx = Ognl.addDefaultContext(root, oldCtx.getMemberAccess(), new MyClassResolver<>(), oldCtx.getTypeConverter(), oldCtx);
 
         try {
             Ognl.getValue("@ognl.test.TestClass@getName()", oldCtx, root);
@@ -151,10 +151,10 @@ class ShortCircuitingExpressionTest {
         }
     }
 
-    private static class MyClassResolver extends DefaultClassResolver {
+    private static class MyClassResolver<C extends OgnlContext<C>> extends DefaultClassResolver<C> {
         @Override
         @SuppressWarnings("unchecked")
-        public <T> Class<T> classForName(String className, OgnlContext context) throws ClassNotFoundException {
+        public <T> Class<T> classForName(String className, C context) throws ClassNotFoundException {
             if (className.equals("ognl.test.TestClass")) {
                 return (Class<T>) TestClass.class;
             }

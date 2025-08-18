@@ -20,12 +20,14 @@ package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
+import java.io.Serial;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ASTMap extends SimpleNode {
+public class ASTMap<C extends OgnlContext<C>> extends SimpleNode<C> {
 
-    private static final long serialVersionUID = -849999202189860682L;
+    @Serial
+    private static final long serialVersionUID = -7919578192338088973L;
 
     private String className;
 
@@ -41,8 +43,7 @@ public class ASTMap extends SimpleNode {
         className = value;
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
-            throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Map<Object, Object> answer;
 
         if (className == null) {
@@ -56,8 +57,8 @@ public class ASTMap extends SimpleNode {
         }
 
         for (int i = 0; i < jjtGetNumChildren(); ++i) {
-            ASTKeyValue kv = (ASTKeyValue) children[i];
-            Node k = kv.getKey(), v = kv.getValue();
+            ASTKeyValue<C> kv = (ASTKeyValue<C>) children[i];
+            Node<C> k = kv.getKey(), v = kv.getValue();
 
             answer.put(k.getValue(context, source), (v == null) ? null : v.getValue(context, source));
         }
@@ -74,7 +75,7 @@ public class ASTMap extends SimpleNode {
 
         result.append("{ ");
         for (int i = 0; i < jjtGetNumChildren(); ++i) {
-            ASTKeyValue kv = (ASTKeyValue) children[i];
+            ASTKeyValue<C> kv = (ASTKeyValue<C>) children[i];
 
             if (i > 0) {
                 result.append(", ");
@@ -84,11 +85,11 @@ public class ASTMap extends SimpleNode {
         return result + " }";
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         throw new UnsupportedCompilationException("Map expressions not supported as native java yet.");
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         throw new UnsupportedCompilationException("Map expressions not supported as native java yet.");
     }
 }

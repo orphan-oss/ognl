@@ -20,9 +20,12 @@ package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
-public class ASTIn extends SimpleNode implements NodeType {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -6647839788080239625L;
+public class ASTIn<C extends OgnlContext<C>> extends SimpleNode<C> implements NodeType {
+
+    @Serial
+    private static final long serialVersionUID = 7578881819156316646L;
 
     public ASTIn(int id) {
         super(id);
@@ -32,7 +35,7 @@ public class ASTIn extends SimpleNode implements NodeType {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
+    protected Object getValueBody(C context, Object source)
             throws OgnlException {
         Object v1 = children[0].getValue(context, source);
         Object v2 = children[1].getValue(context, source);
@@ -52,7 +55,7 @@ public class ASTIn extends SimpleNode implements NodeType {
         return null;
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         try {
             String result = "ognl.OgnlOps.in( ($w) ";
 
@@ -71,7 +74,7 @@ public class ASTIn extends SimpleNode implements NodeType {
         }
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         throw new UnsupportedCompilationException("Map expressions not supported as native java yet.");
     }
 }
