@@ -30,7 +30,7 @@ public class ObjectElementsAccessor implements ElementsAccessor {
 
         final Object object = target;
 
-        return new Enumeration<Object>() {
+        return new Enumeration<>() {
             private boolean seen = false;
 
             public boolean hasMoreElements() {
