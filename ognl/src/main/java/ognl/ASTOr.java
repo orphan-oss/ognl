@@ -21,9 +21,12 @@ package ognl;
 import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.UnsupportedCompilationException;
 
-public class ASTOr extends BooleanExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -5221348144886054097L;
+public class ASTOr<C extends OgnlContext<C>> extends BooleanExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = 1218283928242795110L;
 
     public ASTOr(int id) {
         super(id);
@@ -37,7 +40,7 @@ public class ASTOr extends BooleanExpression {
         flattenTree();
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object result = null;
         int last = children.length - 1;
         for (int i = 0; i <= last; ++i) {
@@ -48,7 +51,7 @@ public class ASTOr extends BooleanExpression {
         return result;
     }
 
-    protected void setValueBody(OgnlContext context, Object target, Object value) throws OgnlException {
+    protected void setValueBody(C context, Object target, Object value) throws OgnlException {
         int last = children.length - 1;
         for (int i = 0; i < last; ++i) {
             Object v = children[i].getValue(context, target);
@@ -66,7 +69,7 @@ public class ASTOr extends BooleanExpression {
         return null;
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         if (children.length != 2)
             throw new UnsupportedCompilationException("Can only compile boolean expressions with two children.");
 
@@ -106,7 +109,7 @@ public class ASTOr extends BooleanExpression {
         return result;
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         if (children.length != 2)
             throw new UnsupportedCompilationException("Can only compile boolean expressions with two children.");
 

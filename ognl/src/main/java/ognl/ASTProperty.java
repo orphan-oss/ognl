@@ -23,12 +23,14 @@ import ognl.enhance.UnsupportedCompilationException;
 
 import java.beans.IndexedPropertyDescriptor;
 import java.beans.PropertyDescriptor;
+import java.io.Serial;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 
-public class ASTProperty extends SimpleNode implements NodeType {
+public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> implements NodeType {
 
-    private static final long serialVersionUID = -7755110504199540734L;
+    @Serial
+    private static final long serialVersionUID = -3670610950640379714L;
 
     private boolean indexedAccess = false;
     private Class<?> getterClass;
@@ -61,7 +63,7 @@ public class ASTProperty extends SimpleNode implements NodeType {
      * @return the int representing the indexed property type of source.
      * @throws OgnlException if source is not an indexed property.
      */
-    public int getIndexedPropertyType(OgnlContext context, Object source)
+    public int getIndexedPropertyType(C context, Object source)
             throws OgnlException {
         Class<?> type = context.getCurrentType();
         Class<?> prevType = context.getPreviousType();
@@ -84,31 +86,32 @@ public class ASTProperty extends SimpleNode implements NodeType {
         }
     }
 
-    public Object getProperty(OgnlContext context, Object source) throws OgnlException {
+    public Object getProperty(C context, Object source) throws OgnlException {
         return children[0].getValue(context, context.getRoot());
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
+    protected Object getValueBody(C context, Object source)
             throws OgnlException {
         Object property = getProperty(context, source);
 
         Object result = OgnlRuntime.getProperty(context, source, property);
 
         if (result == null) {
-            result = OgnlRuntime.getNullHandler(OgnlRuntime.getTargetClass(source)).nullPropertyValue(context, source, property);
+            NullHandler<C> nullHandler = OgnlRuntime.getNullHandler(OgnlRuntime.getTargetClass(source));
+            result = nullHandler.nullPropertyValue(context, source, property);
         }
 
         return result;
     }
 
-    protected void setValueBody(OgnlContext context, Object target, Object value)
+    protected void setValueBody(C context, Object target, Object value)
             throws OgnlException {
         OgnlRuntime.setProperty(context, target, getProperty(context, target), value);
     }
 
-    public boolean isNodeSimpleProperty(OgnlContext context)
+    public boolean isNodeSimpleProperty(C context)
             throws OgnlException {
-        return (children != null) && (children.length == 1) && ((SimpleNode) children[0]).isConstant(context);
+        return (children != null) && (children.length == 1) && ((SimpleNode<C>) children[0]).isConstant(context);
     }
 
     public Class<?> getGetterClass() {
@@ -125,12 +128,12 @@ public class ASTProperty extends SimpleNode implements NodeType {
         if (isIndexedAccess()) {
             result = "[" + children[0] + "]";
         } else {
-            result = ((ASTConst) children[0]).getValue().toString();
+            result = ((ASTConst<C>) children[0]).getValue().toString();
         }
         return result;
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         if (context.getCurrentObject() == null)
             throw new UnsupportedCompilationException("Current target is null.");
 
@@ -138,9 +141,6 @@ public class ASTProperty extends SimpleNode implements NodeType {
         Method m = null;
 
         try {
-            /* System.out.println("astproperty is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
-+ " target: " + target.getClass().getName() + " current object: " + context.getCurrentObject().getClass().getName());*/
-
             if (isIndexedAccess()) {
                 Object value = children[0].getValue(context, context.getRoot());
 
@@ -175,10 +175,7 @@ public class ASTProperty extends SimpleNode implements NodeType {
 
                     return "." + m.getName() + "(" + srcString + ")";
                 } else {
-                    PropertyAccessor p = OgnlRuntime.getPropertyAccessor(target.getClass());
-
-//                    System.out.println("child value : " + _children[0].getValue(context, context.getCurrentObject()) + " using propaccessor " + p.getClass().getName()
-//                        + " and srcString " + srcString + " on target: " +  target);
+                    PropertyAccessor<C> p = OgnlRuntime.getPropertyAccessor(target.getClass());
 
                     Object currObj = context.getCurrentObject();
                     Class<?> currType = context.getCurrentType();
@@ -203,7 +200,7 @@ public class ASTProperty extends SimpleNode implements NodeType {
                 }
             }
 
-            String name = ((ASTConst) children[0]).getValue().toString();
+            String name = ((ASTConst<C>) children[0]).getValue().toString();
 
             if (!Iterator.class.isAssignableFrom(context.getCurrentObject().getClass())
                     || (Iterator.class.isAssignableFrom(context.getCurrentObject().getClass()) && !name.contains("next"))) {
@@ -256,7 +253,7 @@ public class ASTProperty extends SimpleNode implements NodeType {
        + " current type " + context.getCurrentType() + " current accessor " + context.getCurrentAccessor()
    + " prev type " + context.getPreviousType() + " prev accessor " + context.getPreviousAccessor());*/
 
-                PropertyAccessor pa = OgnlRuntime.getPropertyAccessor(context.getCurrentObject().getClass());
+                PropertyAccessor<C> pa = OgnlRuntime.getPropertyAccessor(context.getCurrentObject().getClass());
 
                 if (context.getCurrentObject().getClass().isArray()) {
                     if (pd == null) {
@@ -326,15 +323,12 @@ public class ASTProperty extends SimpleNode implements NodeType {
         return null;
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         String result = "";
         Method m = null;
 
         if (context.getCurrentObject() == null)
             throw new UnsupportedCompilationException("Current target is null.");
-
-        /*System.out.println("astproperty(setter) is indexed? : " + isIndexedAccess() + " child: " + _children[0].getClass().getName()
-                           + " target: " + target.getClass().getName() + " children length: " + _children.length);*/
 
         try {
 
@@ -356,8 +350,6 @@ public class ASTProperty extends SimpleNode implements NodeType {
                 if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof String) {
                     srcString = "\"" + srcString + "\"";
                 }
-
-//                System.out.println("astproperty setter using indexed value " + value + " and srcString: " + srcString);
 
                 if (context.get("_indexedMethod") != null) {
                     m = (Method) context.remove("_indexedMethod");
@@ -387,7 +379,7 @@ public class ASTProperty extends SimpleNode implements NodeType {
                         return "." + m.getName() + "(" + srcString + ", $3)";
                     }
                 } else {
-                    PropertyAccessor p = OgnlRuntime.getPropertyAccessor(target.getClass());
+                    PropertyAccessor<C> p = OgnlRuntime.getPropertyAccessor(target.getClass());
 
                     Object currObj = context.getCurrentObject();
                     Class<?> currType = context.getCurrentType();
@@ -413,9 +405,7 @@ public class ASTProperty extends SimpleNode implements NodeType {
                 }
             }
 
-            String name = ((ASTConst) children[0]).getValue().toString();
-
-//            System.out.println(" astprop(setter) : trying to set " + name + " on object target " + context.getCurrentObject().getClass().getName());
+            String name = ((ASTConst<C>) children[0]).getValue().toString();
 
             if (!Iterator.class.isAssignableFrom(context.getCurrentObject().getClass())
                     || (Iterator.class.isAssignableFrom(context.getCurrentObject().getClass()) && !name.contains("next"))) {
@@ -448,13 +438,10 @@ public class ASTProperty extends SimpleNode implements NodeType {
             if (pd != null && this.getIndexedPropertyType(context, context.getCurrentObject()) > 0) {
                 // if an indexed method accessor need to use special property descriptors to find methods
 
-                if (pd instanceof IndexedPropertyDescriptor) {
-                    IndexedPropertyDescriptor ipd = (IndexedPropertyDescriptor) pd;
+                if (pd instanceof IndexedPropertyDescriptor ipd) {
                     m = lastChild(context) ? ipd.getIndexedWriteMethod() : ipd.getIndexedReadMethod();
                 } else {
-                    if (pd instanceof ObjectIndexedPropertyDescriptor) {
-                        ObjectIndexedPropertyDescriptor opd = (ObjectIndexedPropertyDescriptor) pd;
-
+                    if (pd instanceof ObjectIndexedPropertyDescriptor opd) {
                         m = lastChild(context) ? opd.getIndexedWriteMethod() : opd.getIndexedReadMethod();
                     } else {
                         throw new OgnlException("property '" + name + "' is not an indexed property");
@@ -476,10 +463,7 @@ public class ASTProperty extends SimpleNode implements NodeType {
                 }
 
             } else {
-                PropertyAccessor pa = OgnlRuntime.getPropertyAccessor(context.getCurrentObject().getClass());
-
-                /*System.out.println("astproperty trying to set " + name + " on object target: " + context.getCurrentObject().getClass().getName()
-                                   + " using propertyaccessor type: " + pa);*/
+                PropertyAccessor<C> pa = OgnlRuntime.getPropertyAccessor(context.getCurrentObject().getClass());
 
                 if (target != null)
                     setterClass = target.getClass();

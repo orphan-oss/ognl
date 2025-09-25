@@ -18,7 +18,7 @@
  */
 package ognl;
 
-public final class EvaluationPool {
+public final class EvaluationPool<C extends OgnlContext<C>> {
 
     /**
      * Returns an Evaluation that contains the node, source and whether it
@@ -29,7 +29,7 @@ public final class EvaluationPool {
      * @param source a source Object for an Evaluation to be created.
      * @return an Evaluation based on the parameters.
      */
-    public Evaluation create(SimpleNode node, Object source) {
+    public Evaluation<C> create(SimpleNode<C> node, Object source) {
         return create(node, source, false);
     }
 
@@ -42,8 +42,8 @@ public final class EvaluationPool {
      * @param setOperation true to identify the Evaluation to be created as a set operation, false to identify it as a get operation.
      * @return an Evaluation based on the parameters.
      */
-    public Evaluation create(SimpleNode node, Object source, boolean setOperation) {
+    public Evaluation<C> create(SimpleNode<C> node, Object source, boolean setOperation) {
         // synchronization is removed as we do not rely anymore on the in-house object pooling
-        return new Evaluation(node, source, setOperation);
+        return new Evaluation<>(node, source, setOperation);
     }
 }

@@ -28,7 +28,7 @@ import ognl.enhance.ExpressionAccessor;
  * machinery for constructing the parent and child relationships
  * between nodes.
  */
-public interface Node extends JavaSource {
+public interface Node<C extends OgnlContext<C>> extends JavaSource<C> {
 
     /**
      * This method is called after the node has been made the current
@@ -48,9 +48,9 @@ public interface Node extends JavaSource {
      *
      * @param n the Node to make the parent of this node.
      */
-    void jjtSetParent(Node n);
+    void jjtSetParent(Node<C> n);
 
-    Node jjtGetParent();
+    Node<C> jjtGetParent();
 
     /**
      * This method tells the node to add its argument to the node's
@@ -59,7 +59,7 @@ public interface Node extends JavaSource {
      * @param n the Node to add as a child of this node.
      * @param i the position at which to add the child node.
      */
-    void jjtAddChild(Node n, int i);
+    void jjtAddChild(Node<C> n, int i);
 
     /**
      * This method returns a child node.  The children are numbered
@@ -68,7 +68,7 @@ public interface Node extends JavaSource {
      * @param i the position from which to get the child node.
      * @return the child Node at position i.
      */
-    Node jjtGetChild(int i);
+    Node<C> jjtGetChild(int i);
 
     /**
      * Return the number of children the node has.
@@ -88,7 +88,7 @@ public interface Node extends JavaSource {
      * @return the value from the source (as appropriate within the provided context).
      * @throws OgnlException if the value get fails.
      */
-    Object getValue(OgnlContext context, Object source) throws OgnlException;
+    Object getValue(C context, Object source) throws OgnlException;
 
     /**
      * Sets the given value in the given target as appropriate for this node within the
@@ -99,19 +99,19 @@ public interface Node extends JavaSource {
      * @param value   the Object representing the value to apply to the target.
      * @throws OgnlException if the value set fails.
      */
-    void setValue(OgnlContext context, Object target, Object value) throws OgnlException;
+    void setValue(C context, Object target, Object value) throws OgnlException;
 
     /**
      * Gets the compiled bytecode enhanced expression accessor for getting/setting values.
      *
      * @return The accessor for this node, or null if none has been compiled for it.
      */
-    ExpressionAccessor getAccessor();
+    ExpressionAccessor<C> getAccessor();
 
     /**
      * Sets a new compiled accessor for this node expression.
      *
      * @param accessor The compiled representation of this node.
      */
-    void setAccessor(ExpressionAccessor accessor);
+    void setAccessor(ExpressionAccessor<C> accessor);
 }
