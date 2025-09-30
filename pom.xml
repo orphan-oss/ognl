@@ -25,7 +25,7 @@
         <public-release.url>https://oss.sonatype.org/service/local/staging/deploy/maven2</public-release.url>
         <public-snapshot.serverId>ossrh</public-snapshot.serverId>
         <public-snapshot.url>https://oss.sonatype.org/content/repositories/snapshots</public-snapshot.url>
-        <junit.version>5.13.4</junit.version>
+        <junit.version>5.14.0</junit.version>
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
     </properties>
 
