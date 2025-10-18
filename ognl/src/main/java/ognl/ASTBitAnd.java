@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTBitAnd extends NumericExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -1168821577717290445L;
+public class ASTBitAnd<C extends OgnlContext<C>> extends NumericExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = -2637835347939234142L;
 
     public ASTBitAnd(int id) {
         super(id);
@@ -34,7 +37,7 @@ public class ASTBitAnd extends NumericExpression {
         flattenTree();
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object result = children[0].getValue(context, source);
         for (int i = 1; i < children.length; ++i)
             result = OgnlOps.binaryAnd(result, children[i].getValue(context, source));
@@ -45,7 +48,7 @@ public class ASTBitAnd extends NumericExpression {
         return "&";
     }
 
-    public String coerceToNumeric(String source, OgnlContext context, Node child) {
+    public String coerceToNumeric(String source, C context, Node<C> child) {
         return "(long)" + super.coerceToNumeric(source, context, child);
     }
 }
