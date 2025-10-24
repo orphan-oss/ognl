@@ -54,7 +54,7 @@ jobs:
           echo '### Benchmarks summary 🚀' >> $GITHUB_STEP_SUMMARY
           ./mvnw -B verify -Pbenchmarks -DskipTests
       - name: Upload JMH results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: jmh-results
           path: benchmarks/target/ognl-runtime-benchmark-results.json
