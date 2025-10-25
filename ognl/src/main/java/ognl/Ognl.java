@@ -329,12 +329,12 @@ public abstract class Ognl {
      * Appends the standard naming context for evaluating an OGNL expression into the context given
      * so that cached maps can be used as a context.
      *
-     * @param root          the root of the object graph
-     * @param memberAccess  Definition for handling private/protected access.
-     * @param classResolver The class loading resolver that should be used to resolve class references.
-     * @param converter     The type converter to be used by default.
-     * @param initialContext       Default context to use, if not an {@link OgnlContext} will be dumped into
-     *                      a new {@link OgnlContext} object.
+     * @param root           the root of the object graph
+     * @param memberAccess   Definition for handling private/protected access.
+     * @param classResolver  The class loading resolver that should be used to resolve class references.
+     * @param converter      The type converter to be used by default.
+     * @param initialContext Default context to use, if not an {@link OgnlContext} will be dumped into
+     *                       a new {@link OgnlContext} object.
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
@@ -357,7 +357,27 @@ public abstract class Ognl {
         return Objects.requireNonNullElseGet(builder, () ->
                 new OgnlContext.Builder<>(b -> {
                     OgnlContext<C> context = new OgnlContext<>(memberAccess, b.getClassResolver(), b.getTypeConverter(), b.getInitialContext());
-                    return context.withRoot(b.getRoot());
+
+                    // Preserve the original root context when it exists and has user-defined variables,
+                    // but allow setting a new root in normal cases (e.g., initial context creation)
+                    Map<String, Object> initialContext = b.getInitialContext();
+                    Object newRoot = b.getRoot();
+
+                    // Check if initialContext is an OgnlContext to apply root preservation logic from PR #449
+                    if (initialContext instanceof OgnlContext) {
+                        @SuppressWarnings("unchecked")
+                        OgnlContext<C> ognlInitialContext = (OgnlContext<C>) initialContext;
+
+                        if (ognlInitialContext.getRoot() != null &&
+                                ognlInitialContext.size() > 0 && newRoot != ognlInitialContext.getRoot()) {
+                            // Only preserve the original root if the context has user variables and
+                            // the new root is different (indicating nested evaluation like list processing)
+                            return context.withRoot(ognlInitialContext.getRoot());
+                        }
+                    }
+
+                    // Default behavior: set the new root
+                    return context.withRoot(newRoot);
                 }));
     }
 
