@@ -305,7 +305,19 @@ public abstract class Ognl {
      */
     public static OgnlContext addDefaultContext(Object root, MemberAccess memberAccess, ClassResolver classResolver, TypeConverter converter, OgnlContext initialContext) {
         OgnlContext result = new OgnlContext(memberAccess, classResolver, converter, initialContext);
-        result.setRoot(root);
+        
+        // Preserve the original root context when it exists and has user-defined variables,
+        // but allow setting a new root in normal cases (e.g., initial context creation)
+        if (initialContext != null && initialContext.getRoot() != null &&
+            initialContext.size() > 0 && root != initialContext.getRoot()) {
+            // Only preserve the original root if the context has user variables and
+            // the new root is different (indicating nested evaluation like list processing)
+            result.setRoot(initialContext.getRoot());
+        } else {
+            // Default behavior: set the new root
+            result.setRoot(root);
+        }
+        
         if (initialContext != null) {
             result.putAll(initialContext);
         }
