@@ -8,3 +8,4 @@ build
 .mvn/wrapper/maven-wrapper.jar
 .DS_Store
 **/.DS_Store
+.claude/settings.local.json
