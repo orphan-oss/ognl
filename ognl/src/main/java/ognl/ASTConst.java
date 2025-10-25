@@ -20,12 +20,14 @@ package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class ASTConst extends SimpleNode implements NodeType {
+public class ASTConst<C extends OgnlContext<C>> extends SimpleNode<C> implements NodeType {
 
-    private static final long serialVersionUID = 6025967712275552286L;
+    @Serial
+    private static final long serialVersionUID = -2322429350041196376L;
 
     private Object value;
     private Class<?> getterClass;
@@ -51,12 +53,12 @@ public class ASTConst extends SimpleNode implements NodeType {
         return value;
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
+    protected Object getValueBody(C context, Object source)
             throws OgnlException {
         return this.value;
     }
 
-    public boolean isNodeConstant(OgnlContext context) throws OgnlException {
+    public boolean isNodeConstant(C context) throws OgnlException {
         return true;
     }
 
@@ -106,7 +108,7 @@ public class ASTConst extends SimpleNode implements NodeType {
         return result;
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         if (value == null && parent instanceof ExpressionNode) {
             context.setCurrentType(null);
             return "null";
@@ -161,7 +163,7 @@ public class ASTConst extends SimpleNode implements NodeType {
         return value.toString();
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         if (parent == null)
             throw new UnsupportedCompilationException("Can't modify constant values.");
 

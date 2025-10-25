@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTXor extends NumericExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 6774627095887209111L;
+public class ASTXor<C extends OgnlContext<C>> extends NumericExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = 5707892722708142594L;
 
     public ASTXor(int id) {
         super(id);
@@ -34,7 +37,7 @@ public class ASTXor extends NumericExpression {
         flattenTree();
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object result = children[0].getValue(context, source);
         for (int i = 1; i < children.length; ++i)
             result = OgnlOps.binaryXor(result, children[i].getValue(context, source));

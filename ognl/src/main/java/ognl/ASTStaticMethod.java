@@ -21,12 +21,14 @@ package ognl;
 import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.UnsupportedCompilationException;
 
+import java.io.Serial;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-public class ASTStaticMethod extends SimpleNode implements NodeType {
+public class ASTStaticMethod<C extends OgnlContext<C>> extends SimpleNode<C> implements NodeType {
 
-    private static final long serialVersionUID = -116222026971367049L;
+    @Serial
+    private static final long serialVersionUID = -242038874659625466L;
 
     private String className;
     private String methodName;
@@ -48,8 +50,7 @@ public class ASTStaticMethod extends SimpleNode implements NodeType {
         this.methodName = methodName;
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
-            throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object[] args = new Object[jjtGetNumChildren()];
         Object root = context.getRoot();
 
@@ -84,7 +85,7 @@ public class ASTStaticMethod extends SimpleNode implements NodeType {
         return result.toString();
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         StringBuilder result = new StringBuilder(className + "#" + methodName + "(");
 
         try {
@@ -113,7 +114,7 @@ public class ASTStaticMethod extends SimpleNode implements NodeType {
                     Object value = children[i].getValue(context, context.getRoot());
                     String parmString = children[i].toGetSourceString(context, context.getRoot());
 
-                    if (parmString == null || parmString.trim().length() < 1)
+                    if (parmString == null || parmString.trim().isEmpty())
                         parmString = "null";
 
                     // to undo type setting of constants when used as method parameters
@@ -198,7 +199,7 @@ public class ASTStaticMethod extends SimpleNode implements NodeType {
         return result.toString();
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         return toGetSourceString(context, target);
     }
 }

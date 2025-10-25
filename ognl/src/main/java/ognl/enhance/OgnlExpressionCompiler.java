@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 /**
  * Core interface implemented by expression compiler instances.
  */
-public interface OgnlExpressionCompiler {
+public interface OgnlExpressionCompiler<C extends OgnlContext<C>> {
 
     /**
      * Static constant used in conjunction with {@link OgnlContext} to store temporary references.
@@ -48,7 +48,7 @@ public interface OgnlExpressionCompiler {
      * @throws Exception If an error occurs compiling the expression and no strategy has been implemented to handle incremental
      *                   expression compilation for incomplete expression members.
      */
-    void compileExpression(OgnlContext context, Node expression, Object root)
+    void compileExpression(C context, Node<C> expression, Object root)
             throws Exception;
 
     /**
@@ -89,7 +89,7 @@ public interface OgnlExpressionCompiler {
      * @param context  The current execution context.
      * @return The root expression class type to cast to for this node.
      */
-    Class<?> getRootExpressionClass(Node rootNode, OgnlContext context);
+    Class<?> getRootExpressionClass(Node<C> rootNode, C context);
 
     /**
      * Used primarily by AST types like {@link ASTChain} where <code>foo.bar.id</code> type references
@@ -106,7 +106,7 @@ public interface OgnlExpressionCompiler {
      * @return The body string parameter plus any additional casting syntax needed to make the expression
      * resolvable.
      */
-    String castExpression(OgnlContext context, Node expression, String body);
+    String castExpression(C context, Node<C> expression, String body);
 
     /**
      * Method is used for expressions where multiple inner parameter method calls in generated java source strings
@@ -125,5 +125,5 @@ public interface OgnlExpressionCompiler {
      * @return The method name that will be used to reference the sub expression in place of the actual sub expression
      * itself.
      */
-    String createLocalReference(OgnlContext context, String expression, Class<?> type);
+    String createLocalReference(C context, String expression, Class<?> type);
 }

@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTMultiply extends NumericExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -6495848669307687043L;
+public class ASTMultiply<C extends OgnlContext<C>> extends NumericExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = -3802338162124095297L;
 
     public ASTMultiply(int id) {
         super(id);
@@ -34,7 +37,7 @@ public class ASTMultiply extends NumericExpression {
         flattenTree();
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object result = children[0].getValue(context, source);
         for (int i = 1; i < children.length; ++i)
             result = OgnlOps.multiply(result, children[i].getValue(context, source));

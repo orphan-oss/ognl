@@ -22,8 +22,8 @@ package ognl;
  * This interface defines an object that will resolve a class from a string
  * and a ognl context table.
  */
-public interface ClassResolver {
+public interface ClassResolver<C extends OgnlContext<C>> {
 
-    <T> Class<T> classForName(String className, OgnlContext context) throws ClassNotFoundException;
+    <T> Class<T> classForName(String className, C context) throws ClassNotFoundException;
 
 }

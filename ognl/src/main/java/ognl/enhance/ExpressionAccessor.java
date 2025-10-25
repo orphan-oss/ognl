@@ -26,7 +26,7 @@ import ognl.OgnlContext;
  * is achieved by taking an existing {@link Node} parsed expression and using bytecode
  * enhancements to do the same work using pure java vs the ognl interpreter.
  */
-public interface ExpressionAccessor {
+public interface ExpressionAccessor<C extends OgnlContext<C>> {
 
     /**
      * Gets the value represented by this expression path, if any.
@@ -35,7 +35,7 @@ public interface ExpressionAccessor {
      * @param target  The root object this expression is meant for.
      * @return The evaluated value, if any.
      */
-    Object get(OgnlContext context, Object target);
+    Object get(C context, Object target);
 
     /**
      * Sets the value represented by this expression path, if possible.
@@ -44,7 +44,7 @@ public interface ExpressionAccessor {
      * @param target  The root object this expression is meant for.
      * @param value   The new value to set if this expression references a settable property.
      */
-    void set(OgnlContext context, Object target, Object value);
+    void set(C context, Object target, Object value);
 
     /**
      * Used to set the original root expression node on instances where the compiled version
@@ -52,5 +52,5 @@ public interface ExpressionAccessor {
      *
      * @param expression The root expression node used to generate this accessor.
      */
-    void setExpression(Node expression);
+    void setExpression(Node<C> expression);
 }

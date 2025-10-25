@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * It also looks in the "java.lang" package if the class named does not give
  * a package specifier, allowing easier usage of these classes.
  */
-public class DefaultClassResolver implements ClassResolver {
+public class DefaultClassResolver<C extends OgnlContext<C>> implements ClassResolver<C> {
 
     private final ConcurrentHashMap<String, Class<?>> classes = new ConcurrentHashMap<>(101);
 
@@ -33,7 +33,7 @@ public class DefaultClassResolver implements ClassResolver {
         super();
     }
 
-    public <T> Class<T> classForName(String className, OgnlContext context) throws ClassNotFoundException {
+    public <T> Class<T> classForName(String className, C context) throws ClassNotFoundException {
         Class<?> result = classes.get(className);
         if (result != null) {
             return (Class<T>) result;

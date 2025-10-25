@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTDivide extends NumericExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 3154412889742069891L;
+public class ASTDivide<C extends OgnlContext<C>> extends NumericExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = 7924993880701535061L;
 
     public ASTDivide(int id) {
         super(id);
@@ -30,7 +33,7 @@ public class ASTDivide extends NumericExpression {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object v1 = children[0].getValue(context, source);
         Object v2 = children[1].getValue(context, source);
         return OgnlOps.divide(v1, v2);

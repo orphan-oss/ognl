@@ -20,13 +20,15 @@ package ognl;
 
 import ognl.enhance.ExpressionCompiler;
 
+import java.io.Serial;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
-public class ASTCtor extends SimpleNode {
+public class ASTCtor<C extends OgnlContext<C>> extends SimpleNode<C> {
 
-    private static final long serialVersionUID = -218799350410195779L;
+    @Serial
+    private static final long serialVersionUID = 1729160437205622304L;
 
     private String className;
     private boolean isArray;
@@ -46,7 +48,7 @@ public class ASTCtor extends SimpleNode {
         this.className = className;
     }
 
-    Class<?> getCreatedClass(OgnlContext context) throws ClassNotFoundException {
+    Class<?> getCreatedClass(C context) throws ClassNotFoundException {
         return OgnlRuntime.classForName(context, className);
     }
 
@@ -58,7 +60,7 @@ public class ASTCtor extends SimpleNode {
         return isArray;
     }
 
-    protected Object getValueBody(OgnlContext context, Object source)
+    protected Object getValueBody(C context, Object source)
             throws OgnlException {
         Object result, root = context.getRoot();
         int count = jjtGetNumChildren();
@@ -132,7 +134,7 @@ public class ASTCtor extends SimpleNode {
         return result.toString();
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         StringBuilder result = new StringBuilder("new " + className);
 
         Class<?> clazz;
@@ -287,7 +289,7 @@ public class ASTCtor extends SimpleNode {
         return result.toString();
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         return "";
     }
 }

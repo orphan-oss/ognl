@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTGreater extends ComparisonExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 3544928077296457477L;
+public class ASTGreater<C extends OgnlContext<C>> extends ComparisonExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = -8158173472092839867L;
 
     public ASTGreater(int id) {
         super(id);
@@ -30,7 +33,7 @@ public class ASTGreater extends ComparisonExpression {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object v1 = children[0].getValue(context, source);
         Object v2 = children[1].getValue(context, source);
 

@@ -22,11 +22,13 @@ import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OrderedReturn;
 import ognl.enhance.UnsupportedCompilationException;
 
+import java.io.Serial;
 import java.lang.reflect.Array;
 
-public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
+public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements NodeType, OrderedReturn {
 
-    private static final long serialVersionUID = 6689037266594707682L;
+    @Serial
+    private static final long serialVersionUID = -4684366534386585181L;
 
     private final boolean shortCircuit = Boolean.parseBoolean(System.getProperty("ognl.chain.short-circuit", "true"));
 
@@ -55,7 +57,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
         flattenTree();
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object result = source;
 
         // short-circuit the chain only in case if the root is null and this isn't IN operator
@@ -72,13 +74,10 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
             boolean handled = false;
 
             if (i < ilast) {
-                if (children[i] instanceof ASTProperty) {
-                    ASTProperty propertyNode = (ASTProperty) children[i];
+                if (children[i] instanceof ASTProperty<C> propertyNode) {
                     int indexType = propertyNode.getIndexedPropertyType(context, result);
 
-                    if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (children[i + 1] instanceof ASTProperty)) {
-                        ASTProperty indexNode = (ASTProperty) children[i + 1];
-
+                    if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (children[i + 1] instanceof ASTProperty<C> indexNode)) {
                         if (indexNode.isIndexedAccess()) {
                             Object index = indexNode.getProperty(context, result);
 
@@ -131,18 +130,15 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
         return result;
     }
 
-    protected void setValueBody(OgnlContext context, Object target, Object value)
+    protected void setValueBody(C context, Object target, Object value)
             throws OgnlException {
         boolean handled = false;
 
         for (int i = 0, ilast = children.length - 2; i <= ilast; ++i) {
-            if (children[i] instanceof ASTProperty) {
-                ASTProperty propertyNode = (ASTProperty) children[i];
+            if (children[i] instanceof ASTProperty<C> propertyNode) {
                 int indexType = propertyNode.getIndexedPropertyType(context, target);
 
-                if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (children[i + 1] instanceof ASTProperty)) {
-                    ASTProperty indexNode = (ASTProperty) children[i + 1];
-
+                if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (children[i + 1] instanceof ASTProperty<C> indexNode)) {
                     if (indexNode.isIndexedAccess()) {
                         Object index = indexNode.getProperty(context, target);
 
@@ -200,7 +196,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
         }
     }
 
-    public boolean isSimpleNavigationChain(OgnlContext context)
+    public boolean isSimpleNavigationChain(C context)
             throws OgnlException {
         boolean result = false;
 
@@ -208,7 +204,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
             result = true;
             for (int i = 0; result && (i < children.length); i++) {
                 if (children[i] instanceof SimpleNode) {
-                    result = ((SimpleNode) children[i]).isSimpleProperty(context);
+                    result = ((SimpleNode<C>) children[i]).isSimpleProperty(context);
                 } else {
                     result = false;
                 }
@@ -231,7 +227,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
         if ((children != null) && (children.length > 0)) {
             for (int i = 0; i < children.length; i++) {
                 if (i > 0) {
-                    if (!(children[i] instanceof ASTProperty) || !((ASTProperty) children[i]).isIndexedAccess()) {
+                    if (!(children[i] instanceof ASTProperty) || !((ASTProperty<C>) children[i]).isIndexedAccess()) {
                         result.append(".");
                     }
                 }
@@ -241,7 +237,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
         return result.toString();
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         String prevChain = (String) context.get("_currentChain");
 
         if (target != null) {
@@ -254,8 +250,8 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
         boolean ordered = false;
         boolean constructor = false;
         try {
-            if ((children != null) && (children.length > 0)) {
-                for (Node child : children) {
+            if (children != null) {
+                for (Node<C> child : children) {
                     String value = child.toGetSourceString(context, context.getCurrentObject());
 
                     if (child instanceof ASTCtor)
@@ -272,9 +268,8 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
                         value = OgnlRuntime.getCompiler().castExpression(context, child, value);
                     }
 
-                    if (child instanceof OrderedReturn && ((OrderedReturn) child).getLastExpression() != null) {
+                    if (child instanceof OrderedReturn or && or.getLastExpression() != null) {
                         ordered = true;
-                        OrderedReturn or = (OrderedReturn) child;
 
                         if (or.getCoreExpression() == null || or.getCoreExpression().trim().length() <= 0)
                             result = "";
@@ -317,7 +312,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
         return result;
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         String prevChain = (String) context.get("_currentChain");
         String prevChild = (String) context.get("_lastChild");
 
@@ -385,7 +380,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
     }
 
     @Override
-    public boolean isChain(OgnlContext context) {
+    public boolean isChain(C context) {
         return true;
     }
 }

@@ -35,7 +35,7 @@ package ognl;
  * example, ArrayPropertyAccessor treats Number names as indexes into the target object, which must
  * be an array.
  */
-public interface PropertyAccessor {
+public interface PropertyAccessor<C extends OgnlContext<C>> {
 
     /**
      * Extracts and returns the property of the given name from the given target object.
@@ -46,7 +46,7 @@ public interface PropertyAccessor {
      * @return the current value of the given property in the given object
      * @throws OgnlException if there is an error locating the property in the given object
      */
-    Object getProperty(OgnlContext context, Object target, Object name) throws OgnlException;
+    Object getProperty(C context, Object target, Object name) throws OgnlException;
 
     /**
      * Sets the value of the property of the given name in the given target object.
@@ -57,7 +57,7 @@ public interface PropertyAccessor {
      * @param value   the new value for the property.
      * @throws OgnlException if there is an error setting the property in the given object
      */
-    void setProperty(OgnlContext context, Object target, Object name, Object value) throws OgnlException;
+    void setProperty(C context, Object target, Object name, Object value) throws OgnlException;
 
     /**
      * Returns a java string representing the textual method that should be called to access a
@@ -68,7 +68,7 @@ public interface PropertyAccessor {
      * @param index   The index object that will be placed inside the string to access the value.
      * @return The source accessor method to call.
      */
-    String getSourceAccessor(OgnlContext context, Object target, Object index);
+    String getSourceAccessor(C context, Object target, Object index);
 
     /**
      * Returns a java string representing the textual method that should be called to set a
@@ -79,5 +79,5 @@ public interface PropertyAccessor {
      * @param index   The index object that will be placed inside the string to set the value.
      * @return The source setter method to call.
      */
-    String getSourceSetter(OgnlContext context, Object target, Object index);
+    String getSourceSetter(C context, Object target, Object index);
 }

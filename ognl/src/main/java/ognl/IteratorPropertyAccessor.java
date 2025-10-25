@@ -24,9 +24,9 @@ import java.util.Iterator;
  * Implementation of PropertyAccessor that provides "property" reference to
  * "next" and "hasNext".
  */
-public class IteratorPropertyAccessor extends ObjectPropertyAccessor implements PropertyAccessor {
+public class IteratorPropertyAccessor<C extends OgnlContext<C>> extends ObjectPropertyAccessor<C> implements PropertyAccessor<C> {
 
-    public Object getProperty(OgnlContext context, Object target, Object name) throws OgnlException {
+    public Object getProperty(C context, Object target, Object name) throws OgnlException {
         Object result;
         Iterator<?> iterator = (Iterator<?>) target;
 
@@ -46,7 +46,7 @@ public class IteratorPropertyAccessor extends ObjectPropertyAccessor implements 
         return result;
     }
 
-    public void setProperty(OgnlContext context, Object target, Object name, Object value) throws OgnlException {
+    public void setProperty(C context, Object target, Object name, Object value) throws OgnlException {
         throw new IllegalArgumentException("can't set property " + name + " on Iterator");
     }
 

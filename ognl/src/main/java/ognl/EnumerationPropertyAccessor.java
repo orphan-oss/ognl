@@ -25,9 +25,9 @@ import java.util.Enumeration;
  * "nextElement" (aliases to "next" also) and "hasMoreElements" (also aliased
  * to "hasNext").
  */
-public class EnumerationPropertyAccessor extends ObjectPropertyAccessor implements PropertyAccessor {
+public class EnumerationPropertyAccessor<C extends OgnlContext<C>> extends ObjectPropertyAccessor<C> implements PropertyAccessor<C> {
 
-    public Object getProperty(OgnlContext context, Object target, Object name) throws OgnlException {
+    public Object getProperty(C context, Object target, Object name) throws OgnlException {
         Object result;
         Enumeration<?> e = (Enumeration<?>) target;
 
@@ -47,7 +47,7 @@ public class EnumerationPropertyAccessor extends ObjectPropertyAccessor implemen
         return result;
     }
 
-    public void setProperty(OgnlContext context, Object target, Object name, Object value) throws OgnlException {
+    public void setProperty(C context, Object target, Object name, Object value) throws OgnlException {
         throw new IllegalArgumentException("can't set property " + name + " on Enumeration");
     }
 }

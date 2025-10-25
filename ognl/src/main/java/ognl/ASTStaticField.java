@@ -18,12 +18,14 @@
  */
 package ognl;
 
+import java.io.Serial;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-public class ASTStaticField extends SimpleNode implements NodeType {
+public class ASTStaticField<C extends OgnlContext<C>> extends SimpleNode<C> implements NodeType {
 
-    private static final long serialVersionUID = -6421261547066021884L;
+    @Serial
+    private static final long serialVersionUID = -6755053323607452367L;
 
     private String className;
     private String fieldName;
@@ -45,12 +47,11 @@ public class ASTStaticField extends SimpleNode implements NodeType {
         this.fieldName = fieldName;
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         return OgnlRuntime.getStaticField(context, className, fieldName);
     }
 
-    public boolean isNodeConstant(OgnlContext context)
-            throws OgnlException {
+    public boolean isNodeConstant(C context) throws OgnlException {
         boolean result = false;
         Exception reason = null;
 
@@ -87,7 +88,7 @@ public class ASTStaticField extends SimpleNode implements NodeType {
         return result;
     }
 
-    private Class<?> getFieldClass(OgnlContext context) throws OgnlException {
+    private Class<?> getFieldClass(C context) throws OgnlException {
         Exception reason;
         try {
             Class<?> c = OgnlRuntime.classForName(context, className);
@@ -124,7 +125,7 @@ public class ASTStaticField extends SimpleNode implements NodeType {
         return "@" + className + "@" + fieldName;
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         try {
             Object obj = OgnlRuntime.getStaticField(context, className, fieldName);
             context.setCurrentObject(obj);
@@ -136,7 +137,7 @@ public class ASTStaticField extends SimpleNode implements NodeType {
         return className + "." + fieldName;
     }
 
-    public String toSetSourceString(OgnlContext context, Object target) {
+    public String toSetSourceString(C context, Object target) {
         try {
             Object obj = OgnlRuntime.getStaticField(context, className, fieldName);
             context.setCurrentObject(obj);

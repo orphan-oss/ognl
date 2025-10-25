@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTNot extends BooleanExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = 6791997588178551336L;
+public class ASTNot<C extends OgnlContext<C>> extends BooleanExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = 1202881695483879532L;
 
     public ASTNot(int id) {
         super(id);
@@ -30,7 +33,7 @@ public class ASTNot extends BooleanExpression {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         return OgnlOps.booleanValue(children[0].getValue(context, source)) ? Boolean.FALSE : Boolean.TRUE;
     }
 
@@ -38,13 +41,14 @@ public class ASTNot extends BooleanExpression {
         return "!";
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         try {
 
             String srcString = super.toGetSourceString(context, target);
 
-            if (srcString == null || srcString.trim().length() < 1)
+            if (srcString == null || srcString.trim().isEmpty()) {
                 srcString = "null";
+            }
 
             context.setCurrentType(Boolean.TYPE);
 

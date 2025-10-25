@@ -22,12 +22,12 @@ package ognl;
  * Implementation of NullHandler that returns null in all cases,
  * so that NullPointerException will be thrown by the caller.
  */
-public class ObjectNullHandler implements NullHandler {
-    public Object nullMethodResult(OgnlContext context, Object target, String methodName, Object[] args) {
+public class ObjectNullHandler<C extends OgnlContext<C>> implements NullHandler<C> {
+    public Object nullMethodResult(C context, Object target, String methodName, Object[] args) {
         return null;
     }
 
-    public Object nullPropertyValue(OgnlContext context, Object target, Object property) {
+    public Object nullPropertyValue(C context, Object target, Object property) {
         return null;
     }
 }

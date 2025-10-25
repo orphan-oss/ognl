@@ -20,9 +20,12 @@ package ognl;
 
 import ognl.enhance.UnsupportedCompilationException;
 
-public class ASTNotIn extends SimpleNode implements NodeType {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -7179506923293705885L;
+public class ASTNotIn<C extends OgnlContext<C>> extends SimpleNode<C> implements NodeType {
+
+    @Serial
+    private static final long serialVersionUID = -1418121526223546492L;
 
     public ASTNotIn(int id) {
         super(id);
@@ -32,7 +35,7 @@ public class ASTNotIn extends SimpleNode implements NodeType {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object v1 = children[0].getValue(context, source);
         Object v2 = children[1].getValue(context, source);
         return OgnlOps.in(v1, v2) ? Boolean.FALSE : Boolean.TRUE;
@@ -50,7 +53,7 @@ public class ASTNotIn extends SimpleNode implements NodeType {
         return null;
     }
 
-    public String toGetSourceString(OgnlContext context, Object target) {
+    public String toGetSourceString(C context, Object target) {
         try {
             String result = "(! ognl.OgnlOps.in( ($w) ";
             result += OgnlRuntime.getChildSource(context, target, children[0]) + ", ($w) " + OgnlRuntime.getChildSource(context, target, children[1]);

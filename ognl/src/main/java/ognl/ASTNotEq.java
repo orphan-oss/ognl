@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTNotEq extends ComparisonExpression {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -8504319639438982233L;
+public class ASTNotEq<C extends OgnlContext<C>> extends ComparisonExpression<C> {
+
+    @Serial
+    private static final long serialVersionUID = -9161185502968425136L;
 
     public ASTNotEq(int id) {
         super(id);
@@ -30,7 +33,7 @@ public class ASTNotEq extends ComparisonExpression {
         super(p, id);
     }
 
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         Object v1 = children[0].getValue(context, source);
         Object v2 = children[1].getValue(context, source);
 

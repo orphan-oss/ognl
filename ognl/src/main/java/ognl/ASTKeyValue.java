@@ -18,9 +18,12 @@
  */
 package ognl;
 
-public class ASTKeyValue extends SimpleNode {
+import java.io.Serial;
 
-    private static final long serialVersionUID = -2039156077201845415L;
+public class ASTKeyValue<C extends OgnlContext<C>> extends SimpleNode<C> {
+
+    @Serial
+    private static final long serialVersionUID = 5035649093189318943L;
 
     public ASTKeyValue(int id) {
         super(id);
@@ -30,18 +33,18 @@ public class ASTKeyValue extends SimpleNode {
         super(p, id);
     }
 
-    protected Node getKey() {
+    protected Node<C> getKey() {
         return children[0];
     }
 
-    protected Node getValue() {
+    protected Node<C> getValue() {
         return (jjtGetNumChildren() > 1) ? children[1] : null;
     }
 
     /**
      * Returns null because this is a parser construct and does not evaluate
      */
-    protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
+    protected Object getValueBody(C context, Object source) throws OgnlException {
         return null;
     }
 

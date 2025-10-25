@@ -452,7 +452,7 @@ public class OgnlRuntime {
         return _compiler;
     }
 
-    public static void compileExpression(OgnlContext context, Node expression, Object root)
+    public static <C extends OgnlContext<C>> void compileExpression(C context, Node<C> expression, Object root)
             throws Exception {
         _compiler.compileExpression(context, expression, root);
     }
@@ -987,7 +987,7 @@ public class OgnlRuntime {
         return result;
     }
 
-    public static <T> Class<T> classForName(OgnlContext context, String className) throws ClassNotFoundException {
+    public static <C extends OgnlContext<C>> Class classForName(C context, String className) throws ClassNotFoundException {
         Class<?> result = primitiveTypes.get(className);
 
         if (result == null) {
@@ -996,16 +996,16 @@ public class OgnlRuntime {
             if ((context == null) || ((resolver = context.getClassResolver()) == null)) {
                 resolver = new DefaultClassResolver();
             }
-            result = resolver.<T>classForName(className, context);
+            result = resolver.classForName(className, context);
         }
 
         if (result == null)
             throw new ClassNotFoundException("Unable to resolve class: " + className);
 
-        return (Class<T>) result;
+        return result;
     }
 
-    public static boolean isInstance(OgnlContext context, Object value, String className)
+    public static <C extends OgnlContext<C>> boolean isInstance(C context, Object value, String className)
             throws OgnlException {
         try {
             Class<?> c = classForName(context, className);
@@ -1023,12 +1023,12 @@ public class OgnlRuntime {
         return numericDefaults.get(forClass);
     }
 
-    public static Object getConvertedType(OgnlContext context, Object target, Member member, String propertyName,
+    public static <C extends OgnlContext<C>> Object getConvertedType(C context, Object target, Member member, String propertyName,
                                           Object value, Class<?> type) {
         return context.getTypeConverter().convertValue(context, target, member, propertyName, value, type);
     }
 
-    public static boolean getConvertedTypes(OgnlContext context, Object target, Member member, String propertyName,
+    public static <C extends OgnlContext<C>> boolean getConvertedTypes(C context, Object target, Member member, String propertyName,
                                             Class<?>[] parameterTypes, Object[] args, Object[] newArgs) {
         boolean result = false;
 
@@ -1054,7 +1054,7 @@ public class OgnlRuntime {
         return result;
     }
 
-    public static Constructor<?> getConvertedConstructorAndArgs(OgnlContext context, Object target, List<Constructor<?>> constructors,
+    public static <C extends OgnlContext<C>> Constructor<?> getConvertedConstructorAndArgs(C context, Object target, List<Constructor<?>> constructors,
                                                                 Object[] args, Object[] newArgs) {
         Constructor<?> result = null;
         TypeConverter converter = context.getTypeConverter();
@@ -1088,7 +1088,7 @@ public class OgnlRuntime {
      * @param actualArgs   Converted arguments.
      * @return Best method match or null if none could be found.
      */
-    public static Method getAppropriateMethod(OgnlContext context, Object source, Object target, String propertyName,
+    public static <C extends OgnlContext<C>> Method getAppropriateMethod(C context, Object source, Object target, String propertyName,
                                               String methodName, List<Method> methods, Object[] args, Object[] actualArgs) {
         Method result = null;
 
@@ -1124,10 +1124,10 @@ public class OgnlRuntime {
         return result;
     }
 
-    public static Method getConvertedMethodAndArgs(OgnlContext context, Object target, String propertyName,
+    public static <C extends OgnlContext<C>> Method getConvertedMethodAndArgs(C context, Object target, String propertyName,
                                                    List<Method> methods, Object[] args, Object[] newArgs) {
         Method result = null;
-        TypeConverter converter = context.getTypeConverter();
+        TypeConverter<C> converter = context.getTypeConverter();
 
         if ((converter != null) && (methods != null)) {
             for (int i = 0, icount = methods.size(); (result == null) && (i < icount); i++) {
@@ -1270,7 +1270,7 @@ public class OgnlRuntime {
         return mm;
     }
 
-    public static Object callAppropriateMethod(OgnlContext context, Object source, Object target, String methodName,
+    public static <C extends OgnlContext<C>> Object callAppropriateMethod(C context, Object source, Object target, String methodName,
                                                String propertyName, List<Method> methods, Object[] args)
             throws MethodFailedException {
         Throwable reason;
@@ -1358,7 +1358,7 @@ public class OgnlRuntime {
         throw new MethodFailedException(source, methodName, reason);
     }
 
-    public static Object callStaticMethod(OgnlContext context, String className, String methodName, Object[] args)
+    public static <C extends OgnlContext<C>> Object callStaticMethod(C context, String className, String methodName, Object[] args)
             throws OgnlException {
         try {
             Class<?> targetClass = classForName(context, className);
@@ -1381,15 +1381,16 @@ public class OgnlRuntime {
      * @return Result of invoking method.
      * @throws OgnlException For lots of different reasons.
      */
-    public static Object callMethod(OgnlContext context, Object target, String methodName, Object[] args)
+    public static <C extends OgnlContext<C>> Object callMethod(C context, Object target, String methodName, Object[] args)
             throws OgnlException {
         if (target == null)
             throw new NullPointerException("target is null for method " + methodName);
 
-        return getMethodAccessor(target.getClass()).callMethod(context, target, methodName, args);
+        MethodAccessor<C> methodAccessor = getMethodAccessor(target.getClass());
+        return methodAccessor.callMethod(context, target, methodName, args);
     }
 
-    public static Object callConstructor(OgnlContext context, String className, Object[] args)
+    public static <C extends OgnlContext<C>> Object callConstructor(C context, String className, Object[] args)
             throws OgnlException {
         Throwable reason;
         Object[] actualArgs = args;
@@ -1443,7 +1444,7 @@ public class OgnlRuntime {
      * @throws IllegalAccessException if access not permitted.
      * @throws NoSuchMethodException  if no property accessor exists.
      */
-    public static Object getMethodValue(OgnlContext context, Object target, String propertyName, boolean checkAccessAndExistence)
+    public static <C extends OgnlContext<C>> Object getMethodValue(C context, Object target, String propertyName, boolean checkAccessAndExistence)
             throws OgnlException, IllegalAccessException, NoSuchMethodException {
         Object result = null;
         Method m = getGetMethod((target == null) ? null : target.getClass(), propertyName);
@@ -1479,7 +1480,7 @@ public class OgnlRuntime {
      * @return true if the operation succeeded, false otherwise.
      * @throws OgnlException for lots of different reasons.
      */
-    public static boolean setMethodValue(OgnlContext context, Object target, String propertyName, Object value, boolean checkAccessAndExistence) throws OgnlException {
+    public static <C extends OgnlContext<C>> boolean setMethodValue(C context, Object target, String propertyName, Object value, boolean checkAccessAndExistence) throws OgnlException {
         boolean result = true;
         Method m = getSetMethod(context, (target == null) ? null : target.getClass(), propertyName);
 
@@ -1578,7 +1579,7 @@ public class OgnlRuntime {
      * @return the result invoking field retrieval of propertyName for target.
      * @throws NoSuchFieldException if the field does not exist.
      */
-    public static Object getFieldValue(OgnlContext context, Object target, String propertyName,
+    public static <C extends OgnlContext<C>> Object getFieldValue(C context, Object target, String propertyName,
                                        boolean checkAccessAndExistence)
             throws NoSuchFieldException {
         Object result = null;
@@ -1618,7 +1619,7 @@ public class OgnlRuntime {
     /**
      * Don't use this method as it doesn't check member access rights via {@link MemberAccess} interface
      */
-    public static boolean setFieldValue(OgnlContext context, Object target, String propertyName, Object value,
+    public static <C extends OgnlContext<C>> boolean setFieldValue(C context, Object target, String propertyName, Object value,
                                         boolean checkAccessAndExistence)
             throws OgnlException {
         boolean result = false;
@@ -1647,15 +1648,15 @@ public class OgnlRuntime {
         return result;
     }
 
-    public static boolean isFieldAccessible(OgnlContext context, Object target, Class<?> inClass, String propertyName) {
+    public static <C extends OgnlContext<C>> boolean isFieldAccessible(C context, Object target, Class<?> inClass, String propertyName) {
         return isFieldAccessible(context, target, getField(inClass, propertyName), propertyName);
     }
 
-    public static boolean isFieldAccessible(OgnlContext context, Object target, Field field, String propertyName) {
+    public static <C extends OgnlContext<C>> boolean isFieldAccessible(C context, Object target, Field field, String propertyName) {
         return isAccessible(context, target, field, propertyName);
     }
 
-    public static boolean hasField(OgnlContext context, Object target, Class<?> inClass, String propertyName) {
+    public static <C extends OgnlContext<C>> boolean hasField(C context, Object target, Class<?> inClass, String propertyName) {
         Field f = getField(inClass, propertyName);
 
         return (f != null) && isFieldAccessible(context, target, f, propertyName);
@@ -1675,7 +1676,7 @@ public class OgnlRuntime {
      * @return The value of the (static) fieldName
      * @throws OgnlException for lots of different reasons.
      */
-    public static Object getStaticField(OgnlContext context, String className, String fieldName)
+    public static <C extends OgnlContext<C>> Object getStaticField(C context, String className, String fieldName)
             throws OgnlException {
         Exception reason;
         try {
@@ -1860,11 +1861,11 @@ public class OgnlRuntime {
         return result;
     }
 
-    public static boolean isMethodAccessible(OgnlContext context, Object target, Method method, String propertyName) {
+    public static <C extends OgnlContext<C>> boolean isMethodAccessible(C context, Object target, Method method, String propertyName) {
         return (method != null) && isAccessible(context, target, method, propertyName);
     }
 
-    public static boolean hasGetMethod(OgnlContext context, Object target, Class<?> targetClass, String propertyName) {
+    public static <C extends OgnlContext<C>> boolean hasGetMethod(C context, Object target, Class<?> targetClass, String propertyName) {
         return isMethodAccessible(context, target, getGetMethod(targetClass, propertyName), propertyName);
     }
 
@@ -1876,7 +1877,7 @@ public class OgnlRuntime {
      * @param propertyName the name of the property for which a "setter" is sought.
      * @return the Method representing a "setter" for propertyName of targetClass.
      */
-    public static Method getSetMethod(OgnlContext context, Class<?> targetClass, String propertyName) {
+    public static <C extends OgnlContext<C>> Method getSetMethod(C context, Class<?> targetClass, String propertyName) {
         // Cache is a map in two levels, so we provide two keys (see comments in ClassPropertyMethodCache below)
         Method method = cacheSetMethod.get(targetClass, propertyName);
         if (method == ClassPropertyMethodCache.NULL_REPLACEMENT) {
@@ -2022,16 +2023,16 @@ public class OgnlRuntime {
         cache.setMethodAccessor(clazz, accessor);
     }
 
-    public static MethodAccessor getMethodAccessor(Class<?> clazz)
+    public static <C extends OgnlContext<C>> MethodAccessor<C> getMethodAccessor(Class<?> clazz)
             throws OgnlException {
         return cache.getMethodAccessor(clazz);
     }
 
-    public static void setPropertyAccessor(Class<?> clazz, PropertyAccessor accessor) {
+    public static <C extends OgnlContext<C>> void setPropertyAccessor(Class<?> clazz, PropertyAccessor<C> accessor) {
         cache.setPropertyAccessor(clazz, accessor);
     }
 
-    public static PropertyAccessor getPropertyAccessor(Class<?> clazz)
+    public static <C extends OgnlContext<C>> PropertyAccessor<C> getPropertyAccessor(Class<?> clazz)
             throws OgnlException {
         return cache.getPropertyAccessor(clazz);
     }
@@ -2045,7 +2046,7 @@ public class OgnlRuntime {
         cache.setElementsAccessor(clazz, accessor);
     }
 
-    public static NullHandler getNullHandler(Class<?> clazz)
+    public static <C extends OgnlContext<C>> NullHandler<C> getNullHandler(Class<?> clazz)
             throws OgnlException {
         return cache.getNullHandler(clazz);
     }
@@ -2054,9 +2055,9 @@ public class OgnlRuntime {
         cache.setNullHandler(clazz, handler);
     }
 
-    public static Object getProperty(OgnlContext context, Object source, Object name)
+    public static <C extends OgnlContext<C>> Object getProperty(C context, Object source, Object name)
             throws OgnlException {
-        PropertyAccessor accessor;
+        PropertyAccessor<C> accessor;
 
         if (source == null) {
             throw new OgnlException("source is null for getProperty(null, \"" + name + "\")");
@@ -2068,9 +2069,9 @@ public class OgnlRuntime {
         return accessor.getProperty(context, source, name);
     }
 
-    public static void setProperty(OgnlContext context, Object target, Object name, Object value)
+    public static <C extends OgnlContext<C>> void setProperty(C context, Object target, Object name, Object value)
             throws OgnlException {
-        PropertyAccessor accessor;
+        PropertyAccessor<C> accessor;
 
         if (target == null) {
             throw new OgnlException("target is null for setProperty(null, \"" + name + "\", " + value + ")");
@@ -2114,7 +2115,7 @@ public class OgnlRuntime {
         return result;
     }
 
-    public static Object getIndexedProperty(OgnlContext context, Object source, String name, Object index)
+    public static <C extends OgnlContext<C>> Object getIndexedProperty(C context, Object source, String name, Object index)
             throws OgnlException {
         Object[] args = new Object[]{index};
 
@@ -2141,7 +2142,7 @@ public class OgnlRuntime {
         }
     }
 
-    public static void setIndexedProperty(OgnlContext context, Object source, String name, Object index, Object value) throws OgnlException {
+    public static <C extends OgnlContext<C>> void setIndexedProperty(C context, Object source, String name, Object index, Object value) throws OgnlException {
 
         Object[] args = new Object[]{index, value};
 
@@ -2168,7 +2169,7 @@ public class OgnlRuntime {
         }
     }
 
-    public static EvaluationPool getEvaluationPool() {
+    public static <C extends OgnlContext<C>> EvaluationPool<C> getEvaluationPool() {
         return _evaluationPool;
     }
 
@@ -2182,7 +2183,7 @@ public class OgnlRuntime {
         cache.setClassCacheInspector(inspector);
     }
 
-    public static Method getMethod(OgnlContext context, Class<?> target, String name, Node[] children, boolean includeStatic)
+    public static <C extends OgnlContext<C>> Method getMethod(C context, Class<?> target, String name, Node[] children, boolean includeStatic)
             throws Exception {
         Class<?>[] parms;
         if (children != null && children.length > 0) {
@@ -2483,7 +2484,7 @@ public class OgnlRuntime {
      * @param context The current context.
      * @return True, if the class types on the stack wouldn't be comparable in a pure numeric expression such as <code>o1 &gt;= o2</code>.
      */
-    public static boolean shouldConvertNumericTypes(OgnlContext context) {
+    public static <C extends OgnlContext<C>> boolean shouldConvertNumericTypes(C context) {
         if (context.getCurrentType() == null || context.getPreviousType() == null)
             return true;
 
@@ -2505,7 +2506,7 @@ public class OgnlRuntime {
      * @return The result of calling {@link JavaSource#toGetSourceString(OgnlContext, Object)} plus additional
      * enclosures of {@link OgnlOps#convertValue(Object, Class, boolean)} for conversions.
      */
-    public static String getChildSource(OgnlContext context, Object target, Node child) {
+    public static <C extends OgnlContext<C>> String getChildSource(C context, Object target, Node child) {
         String pre = (String) context.get("_currentChain");
         if (pre == null)
             pre = "";
@@ -2729,7 +2730,7 @@ public class OgnlRuntime {
      * @param propertyName the property to test accessibility for.
      * @return true if the target/member/propertyName is accessible in the context, false otherwise.
      */
-    private static boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName) {
+    private static <C extends OgnlContext<C>> boolean isAccessible(C context, Object target, Member member, String propertyName) {
         return context.getMemberAccess().isAccessible(context, target, member, propertyName);
     }
 }
