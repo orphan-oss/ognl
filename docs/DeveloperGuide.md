@@ -1,6 +1,7 @@
 ---
 author:
 - Drew Davidson
+- Łukasz Lenart
 title: OGNL Developer Guide
 ---
 
@@ -295,6 +296,209 @@ public interface NullHandler
 
 `NullHandler` implementors are registered with OGNL using the
 `OgnlRuntime.setNullHandler()` method.
+
+## Generic Context
+
+As of OGNL 3.5.0, the `OgnlContext` class and related interfaces support a self-referential generic type parameter. This feature enables type-safe custom context implementations while maintaining proper type information throughout the evaluation chain.
+
+### Overview
+
+The generic context feature introduces a type parameter `C extends OgnlContext<C>` to:
+- `OgnlContext<C>` - The main context class
+- `MemberAccess<C>` - Controls member accessibility
+- `ClassResolver<C>` - Resolves class names to classes
+- `TypeConverter<C>` - Converts between types
+- `Node<C>` - AST node interface
+- All related interfaces and implementations
+
+This allows developers to create custom context implementations that extend `OgnlContext` while preserving type safety throughout the OGNL evaluation process.
+
+### Basic Usage
+
+For most use cases, you don't need to specify the generic type explicitly. OGNL provides convenience methods that work with the default `OgnlContext`:
+
+```java
+// Create a default context
+OgnlContext context = Ognl.createDefaultContext(rootObject);
+
+// Evaluate an expression
+Object value = Ognl.getValue("property.name", context, rootObject);
+```
+
+### Creating Custom Context Implementations
+
+To create a type-safe custom context that extends `OgnlContext`:
+
+```java
+public class MyCustomContext extends OgnlContext<MyCustomContext> {
+
+    private String customProperty;
+
+    public MyCustomContext(MemberAccess<MyCustomContext> memberAccess) {
+        super(memberAccess);
+    }
+
+    public String getCustomProperty() {
+        return customProperty;
+    }
+
+    public void setCustomProperty(String value) {
+        this.customProperty = value;
+    }
+}
+```
+
+### Custom Resolvers and Converters
+
+The generic type parameter allows you to create custom implementations that have access to your custom context:
+
+```java
+public class MyClassResolver<C extends OgnlContext<C>> extends DefaultClassResolver<C> {
+    @Override
+    public <T> Class<T> classForName(String className, C context) throws ClassNotFoundException {
+        // Access custom context properties if needed
+        if (context instanceof MyCustomContext) {
+            MyCustomContext myContext = (MyCustomContext) context;
+            // Use custom context properties
+        }
+        return super.classForName(className, context);
+    }
+}
+
+public class MyTypeConverter<C extends OgnlContext<C>> extends DefaultTypeConverter<C> {
+    @Override
+    public Object convertValue(C context, Object value, Class<?> toType) {
+        // Custom type conversion logic with access to context
+        if (toType == MyCustomType.class && context instanceof MyCustomContext) {
+            // Use custom context for conversion
+        }
+        return super.convertValue(context, value, toType);
+    }
+}
+```
+
+### Using Custom Context with OGNL
+
+To use your custom context implementation:
+
+```java
+// Create custom implementations
+MyCustomContext context = new MyCustomContext(new DefaultMemberAccess());
+context.setCustomProperty("custom value");
+
+// Optionally set custom resolver and converter
+MyClassResolver<MyCustomContext> classResolver = new MyClassResolver<>();
+MyTypeConverter<MyCustomContext> typeConverter = new MyTypeConverter<>();
+
+// Create context with custom components
+MyCustomContext context = new MyCustomContext(
+    new DefaultMemberAccess(),
+    classResolver,
+    typeConverter
+);
+
+// Set the root object
+context.withRoot(rootObject);
+
+// Evaluate expressions
+Object value = Ognl.getValue(expression, context, rootObject);
+```
+
+### Using the Builder Pattern
+
+`OgnlContext` provides a builder pattern for creating contexts with custom implementations:
+
+```java
+// Create a builder with a provider function
+OgnlContext.Builder<MyCustomContext> builder = new OgnlContext.Builder<>(
+    b -> new MyCustomContext(
+        b.getMemberAccess(),
+        b.getClassResolver(),
+        b.getTypeConverter(),
+        b.getInitialContext()
+    )
+);
+
+// Configure the builder
+MyCustomContext context = builder
+    .withMemberAccess(new DefaultMemberAccess())
+    .withClassResolver(new MyClassResolver<>())
+    .withTypeConverter(new MyTypeConverter<>())
+    .withRoot(rootObject)
+    .withInitialContext(initialValues)
+    .build();
+```
+
+### Type Safety Benefits
+
+The generic context provides several type safety benefits:
+
+1. **Compile-time Type Checking**: Custom resolver and converter methods receive the correct context type
+2. **IDE Support**: Better code completion and refactoring support
+3. **Type Preservation**: The context type is preserved through the evaluation chain
+4. **No Casting Required**: When using custom contexts, type casts are minimized
+
+### Backward Compatibility
+
+The generic context feature is fully backward compatible. Existing code continues to work without modification:
+
+```java
+// All existing code continues to work
+OgnlContext context = Ognl.createDefaultContext(root);
+Object value = Ognl.getValue(expression, context, root);
+```
+
+When you don't specify a generic type, `OgnlContext<OgnlContext>` is used as the default, which maintains all existing behavior.
+
+### Example: Custom Security Context
+
+Here's a complete example implementing a custom context with enhanced security features:
+
+```java
+public class SecurityContext extends OgnlContext<SecurityContext> {
+
+    private final Set<String> allowedPackages;
+
+    public SecurityContext(MemberAccess<SecurityContext> memberAccess,
+                          Set<String> allowedPackages) {
+        super(memberAccess);
+        this.allowedPackages = allowedPackages;
+    }
+
+    public boolean isPackageAllowed(String packageName) {
+        return allowedPackages.contains(packageName);
+    }
+}
+
+public class SecurityClassResolver extends DefaultClassResolver<SecurityContext> {
+    @Override
+    public <T> Class<T> classForName(String className, SecurityContext context)
+            throws ClassNotFoundException {
+        // Extract package name
+        String packageName = className.substring(0, className.lastIndexOf('.'));
+
+        // Check if package is allowed
+        if (!context.isPackageAllowed(packageName)) {
+            throw new ClassNotFoundException(
+                "Access to package " + packageName + " is not allowed");
+        }
+
+        return super.classForName(className, context);
+    }
+}
+
+// Usage
+Set<String> allowedPackages = Set.of("com.myapp", "java.util");
+SecurityContext context = new SecurityContext(
+    new DefaultMemberAccess(),
+    allowedPackages
+);
+context.setClassResolver(new SecurityClassResolver());
+context.withRoot(rootObject);
+
+// Only classes from allowed packages can be accessed
+Object value = Ognl.getValue("@com.myapp.MyClass@getValue()", context, rootObject);
+```
 
 ## Other API features
 
