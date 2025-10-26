@@ -72,10 +72,6 @@ to ask or report an issue.
             }
         };
      ```
- - How to run OGNL in Google AppEngine?
-   - you need to tell OGNL to not do security manager permission checks, which will fail since GAE has a security manager 
-     and you don't have the ability to add the OGNL-specific permissions. Therefore, somewhere in your initialization code, 
-     add this `OgnlRuntime.setSecurityManager(null);`.
  - How to use the latest SNAPSHOT version?
    - Define OSS Sonatype repository in `~/.m2/settings.xml` as follows:
      ```xml
