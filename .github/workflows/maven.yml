@@ -20,7 +20,7 @@ on:
   push:
     branches:
       - main
-      - ognl-3-3-x
+      - ognl-3-4-x
 
 permissions: read-all
 
