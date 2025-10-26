@@ -193,7 +193,7 @@ public class OgnlRuntime {
             // Should not happen.  To debug, uncomment the next line.
             //throw new IllegalStateException("OgnlRuntime initialization missing setAccessible method", nsme);
         } catch (SecurityException se) {
-            // May be blocked by existing SecurityManager.  To debug, uncomment the next line.
+            // To debug, uncomment the next line.
             //throw new SecurityException("OgnlRuntime initialization cannot access setAccessible method", se);
         } finally {
             AO_SETACCESSIBLE_REF = setAccessibleMethod;
@@ -205,7 +205,7 @@ public class OgnlRuntime {
             // Should not happen.  To debug, uncomment the next line.
             //throw new IllegalStateException("OgnlRuntime initialization missing setAccessible method", nsme);
         } catch (SecurityException se) {
-            // May be blocked by existing SecurityManager.  To debug, uncomment the next line.
+            // To debug, uncomment the next line.
             //throw new SecurityException("OgnlRuntime initialization cannot access setAccessible method", se);
         } finally {
             AO_SETACCESSIBLE_ARR_REF = setAccessibleMethodArray;
@@ -217,7 +217,7 @@ public class OgnlRuntime {
             // Should not happen.  To debug, uncomment the next line.
             //throw new IllegalStateException("OgnlRuntime initialization missing exit method", nsme);
         } catch (SecurityException se) {
-            // May be blocked by existing SecurityManager.  To debug, uncomment the next line.
+            // To debug, uncomment the next line.
             //throw new SecurityException("OgnlRuntime initialization cannot access exit method", se);
         } finally {
             SYS_EXIT_REF = systemExitMethod;
@@ -229,7 +229,7 @@ public class OgnlRuntime {
             // May happen for JDK 1.5 and earlier.  To debug, uncomment the next line.
             //throw new IllegalStateException("OgnlRuntime initialization missing console method", nsme);
         } catch (SecurityException se) {
-            // May be blocked by existing SecurityManager.  To debug, uncomment the next line.
+            // To debug, uncomment the next line.
             //throw new SecurityException("OgnlRuntime initialization cannot access console method", se);
         } finally {
             SYS_CONSOLE_REF = systemConsoleMethod;
