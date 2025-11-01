@@ -25,7 +25,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -58,12 +57,17 @@ public class ChainTest {
     }
 
     @Test
-    public void shouldShortCircuitAccessingNullChild() throws OgnlException {
-        OgnlContext context = Ognl.createDefaultContext(null);
+    public void shouldShortCircuitAccessingNullChild() {
         Parent parent = new Parent(new Parent(null));
+        OgnlContext context = Ognl.createDefaultContext(parent);
         context.put("parent", parent);
 
-        assertNull(Ognl.getValue("#parent.child.child.name", context, parent));
+        try {
+            Ognl.getValue("#parent.child.child.name", context, parent);
+            fail("Expected OgnlException when accessing property on null");
+        } catch (OgnlException e) {
+            assertEquals("source is null for getProperty(null, \"name\")", e.getMessage());
+        }
     }
 
     @Test

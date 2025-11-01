@@ -28,8 +28,6 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
 
     private static final long serialVersionUID = 6689037266594707682L;
 
-    private final boolean shortCircuit = Boolean.parseBoolean(System.getProperty("ognl.chain.short-circuit", "true"));
-
     private Class<?> getterClass;
     private Class<?> setterClass;
     private String lastExpression;
@@ -58,17 +56,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
     protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
         Object result = source;
 
-        // short-circuit the chain only in case if the root is null and this isn't IN operator
-        if (shortCircuit && result == null && !(parent instanceof ASTIn)) {
-            return null;
-        }
-
         for (int i = 0, ilast = children.length - 1; i <= ilast; ++i) {
-            // short-circuit the chain only in case if the root is null and accessing property
-            if (shortCircuit && result == null && (children[i] instanceof ASTProperty)) {
-                return null;
-            }
-
             boolean handled = false;
 
             if (i < ilast) {
@@ -254,7 +242,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
         boolean ordered = false;
         boolean constructor = false;
         try {
-            if ((children != null) && (children.length > 0)) {
+            if (children != null) {
                 for (Node child : children) {
                     String value = child.toGetSourceString(context, context.getCurrentObject());
 

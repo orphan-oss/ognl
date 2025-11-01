@@ -304,30 +304,18 @@ public abstract class Ognl {
      * Appends the standard naming context for evaluating an OGNL expression into the context given
      * so that cached maps can be used as a context.
      *
-     * @param root          the root of the object graph
-     * @param memberAccess  Definition for handling private/protected access.
-     * @param classResolver The class loading resolver that should be used to resolve class references.
-     * @param converter     The type converter to be used by default.
-     * @param initialContext       Default context to use, if not an {@link OgnlContext} will be dumped into
-     *                      a new {@link OgnlContext} object.
+     * @param root           the root of the object graph
+     * @param memberAccess   Definition for handling private/protected access.
+     * @param classResolver  The class loading resolver that should be used to resolve class references.
+     * @param converter      The type converter to be used by default.
+     * @param initialContext Default context to use, if not an {@link OgnlContext} will be dumped into
+     *                       a new {@link OgnlContext} object.
      * @return Context Map with the keys <CODE>root</CODE> and <CODE>context</CODE> set
      * appropriately
      */
     public static OgnlContext addDefaultContext(Object root, MemberAccess memberAccess, ClassResolver classResolver, TypeConverter converter, OgnlContext initialContext) {
         OgnlContext result = new OgnlContext(memberAccess, classResolver, converter, initialContext);
-        
-        // Preserve the original root context when it exists and has user-defined variables,
-        // but allow setting a new root in normal cases (e.g., initial context creation)
-        if (initialContext != null && initialContext.getRoot() != null &&
-            initialContext.size() > 0 && root != initialContext.getRoot()) {
-            // Only preserve the original root if the context has user variables and
-            // the new root is different (indicating nested evaluation like list processing)
-            result.setRoot(initialContext.getRoot());
-        } else {
-            // Default behavior: set the new root
-            result.setRoot(root);
-        }
-        
+        result.setRoot(root);
         if (initialContext != null) {
             result.putAll(initialContext);
         }
@@ -411,18 +399,17 @@ public abstract class Ognl {
      */
     public static Object getValue(Object tree, OgnlContext context, Object root, Class<?> resultType) throws OgnlException {
         Object result;
-        OgnlContext ognlContext = addDefaultContext(root, context);
 
         Node node = (Node) tree;
 
         if (node.getAccessor() != null) {
-            result = node.getAccessor().get(ognlContext, root);
+            result = node.getAccessor().get(context, root);
         } else {
-            result = node.getValue(ognlContext, root);
+            result = node.getValue(context, root);
         }
 
         if (resultType != null) {
-            result = getTypeConverter(ognlContext).convertValue(ognlContext, root, null, null, result, resultType);
+            result = getTypeConverter(context).convertValue(context, root, null, null, result, resultType);
         }
         return result;
     }
