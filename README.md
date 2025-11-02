@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/ognl-logo-social.png" alt="OGNL" width="200"/>
+  <img src="docs/ognl-logo.svg" alt="OGNL" width="400"/>
 </p>
 
 # Object-Graph Navigation Language - OGNL
