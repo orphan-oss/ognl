@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Define colors -->
+  <defs>
+    <style>
+      .graphite { stroke: #4A5568; fill: none; }
+      .graphite-node { fill: #4A5568; }
+      .highlight { stroke: #FF6B35; fill: none; }
+      .highlight-node { fill: #FF6B35; }
+      .node-bg { fill: #FFFFFF; }
+    </style>
+  </defs>
+  
+  <!-- Background graph structure (graphite - inactive paths) -->
+  <g class="graphite" stroke-width="2" opacity="0.5">
+    <!-- Top row connections -->
+    <line x1="40" y1="50" x2="80" y2="50"/>
+    <line x1="80" y1="50" x2="120" y2="50"/>
+    <line x1="120" y1="50" x2="160" y2="50"/>
+    
+    <!-- Middle row connections -->
+    <line x1="40" y1="100" x2="80" y2="100"/>
+    <line x1="120" y1="100" x2="160" y2="100"/>
+    
+    <!-- Bottom row connections -->
+    <line x1="40" y1="150" x2="80" y2="150"/>
+    <line x1="80" y1="150" x2="120" y2="150"/>
+    <line x1="120" y1="150" x2="160" y2="150"/>
+    
+    <!-- Vertical connections -->
+    <line x1="40" y1="50" x2="40" y2="100"/>
+    <line x1="40" y1="100" x2="40" y2="150"/>
+    <line x1="80" y1="50" x2="80" y2="100"/>
+    <line x1="80" y1="100" x2="80" y2="150"/>
+    <line x1="120" y1="50" x2="120" y2="100"/>
+    <line x1="120" y1="100" x2="120" y2="150"/>
+    <line x1="160" y1="50" x2="160" y2="100"/>
+    <line x1="160" y1="100" x2="160" y2="150"/>
+    
+    <!-- Diagonal connections -->
+    <line x1="40" y1="100" x2="80" y2="50"/>
+    <line x1="120" y1="100" x2="160" y2="50"/>
+    <line x1="80" y1="100" x2="120" y2="150"/>
+  </g>
+  
+  <!-- Highlighted navigation path (orange) -->
+  <g class="highlight" stroke-width="4">
+    <line x1="40" y1="100" x2="80" y2="50"/>
+    <line x1="80" y1="50" x2="120" y2="50"/>
+    <line x1="120" y1="50" x2="160" y2="100"/>
+  </g>
+  
+  <!-- Background graph nodes (graphite - inactive) -->
+  <g opacity="0.5">
+    <circle cx="40" cy="50" r="10" class="node-bg" stroke="#4A5568" stroke-width="2"/>
+    <circle cx="40" cy="50" r="4" class="graphite-node"/>
+    
+    <circle cx="120" cy="100" r="10" class="node-bg" stroke="#4A5568" stroke-width="2"/>
+    <circle cx="120" cy="100" r="4" class="graphite-node"/>
+    
+    <circle cx="40" cy="150" r="10" class="node-bg" stroke="#4A5568" stroke-width="2"/>
+    <circle cx="40" cy="150" r="4" class="graphite-node"/>
+    
+    <circle cx="80" cy="150" r="10" class="node-bg" stroke="#4A5568" stroke-width="2"/>
+    <circle cx="80" cy="150" r="4" class="graphite-node"/>
+    
+    <circle cx="120" cy="150" r="10" class="node-bg" stroke="#4A5568" stroke-width="2"/>
+    <circle cx="120" cy="150" r="4" class="graphite-node"/>
+    
+    <circle cx="160" cy="150" r="10" class="node-bg" stroke="#4A5568" stroke-width="2"/>
+    <circle cx="160" cy="150" r="4" class="graphite-node"/>
+    
+    <circle cx="80" cy="100" r="10" class="node-bg" stroke="#4A5568" stroke-width="2"/>
+    <circle cx="80" cy="100" r="4" class="graphite-node"/>
+    
+    <circle cx="160" cy="50" r="10" class="node-bg" stroke="#4A5568" stroke-width="2"/>
+    <circle cx="160" cy="50" r="4" class="graphite-node"/>
+  </g>
+  
+  <!-- Highlighted path nodes (orange) -->
+  <g>
+    <!-- Start node -->
+    <circle cx="40" cy="100" r="12" class="node-bg" stroke="#FF6B35" stroke-width="3"/>
+    <circle cx="40" cy="100" r="6" class="highlight-node"/>
+    
+    <!-- Middle nodes on path -->
+    <circle cx="80" cy="50" r="12" class="node-bg" stroke="#FF6B35" stroke-width="3"/>
+    <circle cx="80" cy="50" r="6" class="highlight-node"/>
+    
+    <circle cx="120" cy="50" r="12" class="node-bg" stroke="#FF6B35" stroke-width="3"/>
+    <circle cx="120" cy="50" r="6" class="highlight-node"/>
+    
+    <!-- End node (slightly larger) -->
+    <circle cx="160" cy="100" r="14" class="node-bg" stroke="#FF6B35" stroke-width="3"/>
+    <circle cx="160" cy="100" r="7" class="highlight-node"/>
+  </g>
+  
+  <!-- Arrow indicator on the path -->
+  <g fill="#FF6B35">
+    <polygon points="155,95 165,100 155,105" opacity="0.8"/>
+  </g>
+</svg>
