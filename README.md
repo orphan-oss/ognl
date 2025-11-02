@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/ognl-logo-social.png" alt="OGNL" width="200"/>
+</p>
+
 # Object-Graph Navigation Language - OGNL
 
 [![Java CI](https://github.com/orphan-oss/ognl/actions/workflows/maven.yml/badge.svg)](https://github.com/orphan-oss/ognl/actions/workflows/maven.yml)
