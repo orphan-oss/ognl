@@ -462,18 +462,30 @@ public abstract class Ognl {
      */
     public static <C extends OgnlContext<C>> Object getValue(Object tree, C context, Object root, Class<?> resultType) throws OgnlException {
         Object result;
-        C ognlContext = context.withRoot(root);
+
+        // Preserve original root context during nested evaluations (Issue #472)
+        // Only update the context root if:
+        // 1. Context has no root yet (initial evaluation), OR
+        // 2. Root is the same as context root (not a nested call), OR
+        // 3. Context is empty (no user variables)
+        // This prevents nested evaluations (like lambda expressions in list operations)
+        // from overwriting the original root, making #root references inaccessible
+        boolean shouldUpdateRoot = context.getRoot() == null
+                || context.getRoot() == root
+                || context.size() == 0;
+
+        C evaluationContext = shouldUpdateRoot ? context.withRoot(root) : context;
 
         Node<C> node = (Node) tree;
 
         if (node.getAccessor() != null) {
-            result = node.getAccessor().get(ognlContext, root);
+            result = node.getAccessor().get(evaluationContext, root);
         } else {
-            result = node.getValue(ognlContext, root);
+            result = node.getValue(evaluationContext, root);
         }
 
         if (resultType != null) {
-            result = getTypeConverter(ognlContext).convertValue(ognlContext, root, null, null, result, resultType);
+            result = getTypeConverter(evaluationContext).convertValue(evaluationContext, root, null, null, result, resultType);
         }
         return result;
     }
