@@ -139,54 +139,54 @@ class NullSafeOperatorTest {
     // ========== Basic Property Access Tests ==========
 
     @Test
-    void testNullRootWithNullSafeOperator() throws Exception {
+    void nullRootWithNullSafeOperator() throws Exception {
         Object result = Ognl.getValue("name", context, null);
         assertNull(result, "Accessing property on null root should return null");
     }
 
     @Test
-    void testNullSafeOnNullRoot() throws Exception {
+    void nullSafeOnNullRoot() throws Exception {
         Object result = Ognl.getValue("#root?.name", context, null);
         assertNull(result, "Null-safe operator on null root should return null");
     }
 
     @Test
-    void testNullSafeOnNonNullObject() throws Exception {
+    void nullSafeOnNonNullObject() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
         Object result = Ognl.getValue("name", context, user);
         assertEquals("Alice", result);
     }
 
     @Test
-    void testNullSafeOnNullProperty() throws Exception {
+    void nullSafeOnNullProperty() throws Exception {
         User user = new User("Alice", null);
         Object result = Ognl.getValue("profile?.bio", context, user);
         assertNull(result, "Null-safe operator should return null when property is null");
     }
 
     @Test
-    void testNullSafeNestedChain() throws Exception {
+    void nullSafeNestedChain() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
         Object result = Ognl.getValue("profile?.address?.city", context, user);
         assertEquals("NYC", result);
     }
 
     @Test
-    void testNullSafeNestedChainWithNullIntermediate() throws Exception {
+    void nullSafeNestedChainWithNullIntermediate() throws Exception {
         User user = new User("Alice", new Profile("Bio", null));
         Object result = Ognl.getValue("profile?.address?.city", context, user);
         assertNull(result, "Null-safe chain should return null when intermediate value is null");
     }
 
     @Test
-    void testMixedSafeAndUnsafeChain() throws Exception {
+    void mixedSafeAndUnsafeChain() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
         Object result = Ognl.getValue("profile.address?.city", context, user);
         assertEquals("NYC", result);
     }
 
     @Test
-    void testMixedChainThrowsOnNullUnsafePart() {
+    void mixedChainThrowsOnNullUnsafePart() {
         User user = new User("Alice", null);
         assertThrows(Exception.class, () -> {
             Ognl.getValue("profile.address?.city", context, user);
@@ -194,14 +194,14 @@ class NullSafeOperatorTest {
     }
 
     @Test
-    void testMultipleNullSafeOperators() throws Exception {
+    void multipleNullSafeOperators() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
         Object result = Ognl.getValue("profile?.address?.city", context, user);
         assertEquals("NYC", result);
     }
 
     @Test
-    void testDeepNullSafeChain() throws Exception {
+    void deepNullSafeChain() throws Exception {
         User user = new User("Alice", null);
         Object result = Ognl.getValue("profile?.address?.city", context, user);
         assertNull(result, "Deep null-safe chain should return null at first null encounter");
@@ -210,48 +210,48 @@ class NullSafeOperatorTest {
     // ========== Method Call Tests ==========
 
     @Test
-    void testNullSafeMethodCallOnNull() throws Exception {
+    void nullSafeMethodCallOnNull() throws Exception {
         Object result = Ognl.getValue("#root?.toString()", context, null);
         assertNull(result, "Null-safe method call on null should return null");
     }
 
     @Test
-    void testNullSafeMethodCallOnNonNull() throws Exception {
+    void nullSafeMethodCallOnNonNull() throws Exception {
         User user = new User("Alice", null);
         Object result = Ognl.getValue("getName()", context, user);
         assertEquals("Alice", result);
     }
 
     @Test
-    void testNullSafeMethodChain() throws Exception {
+    void nullSafeMethodChain() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
         Object result = Ognl.getValue("getProfile()?.getAddress()?.getCity()", context, user);
         assertEquals("NYC", result);
     }
 
     @Test
-    void testNullSafeMethodChainWithNullIntermediate() throws Exception {
+    void nullSafeMethodChainWithNullIntermediate() throws Exception {
         User user = new User("Alice", new Profile("Bio", null));
         Object result = Ognl.getValue("getProfile()?.getAddress()?.getCity()", context, user);
         assertNull(result, "Null-safe method chain should return null when intermediate is null");
     }
 
     @Test
-    void testMixedPropertyAndMethodNullSafe() throws Exception {
+    void mixedPropertyAndMethodNullSafe() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
         Object result = Ognl.getValue("profile?.getAddress()?.city", context, user);
         assertEquals("NYC", result);
     }
 
     @Test
-    void testMethodWithArgumentsNullSafe() throws Exception {
+    void methodWithArgumentsNullSafe() throws Exception {
         String str = "hello";
         Object result = Ognl.getValue("substring(0, 2)", context, str);
         assertEquals("he", result);
     }
 
     @Test
-    void testNullSafeMethodWithArgumentsOnNull() throws Exception {
+    void nullSafeMethodWithArgumentsOnNull() throws Exception {
         Object result = Ognl.getValue("#root?.substring(0, 2)", context, null);
         assertNull(result, "Null-safe method with arguments on null should return null");
     }
@@ -259,14 +259,14 @@ class NullSafeOperatorTest {
     // ========== Variable Reference Tests ==========
 
     @Test
-    void testNullSafeWithVariableReference() throws Exception {
+    void nullSafeWithVariableReference() throws Exception {
         context.put("user", null);
         Object result = Ognl.getValue("#user?.name", context, new Object());
         assertNull(result, "Null-safe operator on null variable should return null");
     }
 
     @Test
-    void testNullSafeWithNonNullVariable() throws Exception {
+    void nullSafeWithNonNullVariable() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
         context.put("user", user);
         Object result = Ognl.getValue("#user?.name", context, new Object());
@@ -274,7 +274,7 @@ class NullSafeOperatorTest {
     }
 
     @Test
-    void testNullSafeWithNestedVariables() throws Exception {
+    void nullSafeWithNestedVariables() throws Exception {
         User user = new User("Alice", null);
         context.put("user", user);
         Object result = Ognl.getValue("#user?.profile?.bio", context, new Object());
@@ -284,7 +284,7 @@ class NullSafeOperatorTest {
     // ========== Collection Operation Tests ==========
 
     @Test
-    void testNullSafeProjectionOnNullList() throws Exception {
+    void nullSafeProjectionOnNullList() throws Exception {
         User user = new User("Alice", null);
         user.setTags(null);
         Object result = Ognl.getValue("tags?.{#this}", context, user);
@@ -292,7 +292,7 @@ class NullSafeOperatorTest {
     }
 
     @Test
-    void testNullSafeProjectionOnNonNullList() throws Exception {
+    void nullSafeProjectionOnNonNullList() throws Exception {
         User user = new User("Alice", null);
         user.setTags(Arrays.asList("tag1", "tag2", "tag3"));
         Object result = Ognl.getValue("tags.{#this}", context, user);
@@ -302,7 +302,7 @@ class NullSafeOperatorTest {
     }
 
     @Test
-    void testNullSafeSelectionOnNullList() throws Exception {
+    void nullSafeSelectionOnNullList() throws Exception {
         User user = new User("Alice", null);
         user.setTags(null);
         Object result = Ognl.getValue("tags?.{? #this != null}", context, user);
@@ -312,7 +312,7 @@ class NullSafeOperatorTest {
     // ========== Map Access Tests ==========
 
     @Test
-    void testNullSafeMapAccess() throws Exception {
+    void nullSafeMapAccess() throws Exception {
         Map<String, Object> root = new HashMap<>();
         root.put("user", null);
         Object result = Ognl.getValue("user?.name", context, root);
@@ -320,7 +320,7 @@ class NullSafeOperatorTest {
     }
 
     @Test
-    void testNullSafeMapAccessWithNonNullValue() throws Exception {
+    void nullSafeMapAccessWithNonNullValue() throws Exception {
         Map<String, Object> root = new HashMap<>();
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
         root.put("user", user);
@@ -329,7 +329,7 @@ class NullSafeOperatorTest {
     }
 
     @Test
-    void testNullSafeIndexedMapAccess() throws Exception {
+    void nullSafeIndexedMapAccess() throws Exception {
         Map<String, String> map = null;
         Map<String, Object> root = new HashMap<>();
         root.put("map", map);
@@ -340,21 +340,21 @@ class NullSafeOperatorTest {
     // ========== Combined Operator Tests ==========
 
     @Test
-    void testNullSafeWithNullCoalescing() throws Exception {
+    void nullSafeWithNullCoalescing() throws Exception {
         User user = new User("Alice", null);
         Object result = Ognl.getValue("profile?.bio ?: 'default'", context, user);
         assertEquals("default", result);
     }
 
     @Test
-    void testNullSafeWithConditional() throws Exception {
+    void nullSafeWithConditional() throws Exception {
         User user = new User("Alice", null);
         Object result = Ognl.getValue("profile?.bio != null ? 'yes' : 'no'", context, user);
         assertEquals("no", result);
     }
 
     @Test
-    void testNullSafeInAssignmentContext() throws Exception {
+    void nullSafeInAssignmentContext() throws Exception {
         User user = new User("Alice", null);
         context.put("result", null);
         Ognl.getValue("#result = profile?.bio", context, user);
@@ -362,7 +362,7 @@ class NullSafeOperatorTest {
     }
 
     @Test
-    void testNullSafeWithArithmetic() throws Exception {
+    void nullSafeWithArithmetic() throws Exception {
         Map<String, Object> root = new HashMap<>();
         root.put("value", null);
         Object result = Ognl.getValue("(value ?: 0) + 10", context, root);
@@ -372,27 +372,27 @@ class NullSafeOperatorTest {
     // ========== Edge Cases ==========
 
     @Test
-    void testConsecutiveNullSafeOperators() throws Exception {
+    void consecutiveNullSafeOperators() throws Exception {
         User user = new User("Alice", null);
         Object result = Ognl.getValue("profile?.?address?.?city", context, user);
         assertNull(result);
     }
 
     @Test
-    void testNullSafeOnLiterals() throws Exception {
+    void nullSafeOnLiterals() throws Exception {
         // Literals are never null, so this should work
         Object result = Ognl.getValue("'hello'.toString()", context, new Object());
         assertEquals("hello", result);
     }
 
     @Test
-    void testNullSafeOnStaticMethod() throws Exception {
+    void nullSafeOnStaticMethod() throws Exception {
         Object result = Ognl.getValue("@java.lang.Math@abs(-5)", context, new Object());
         assertEquals(5, result);
     }
 
     @Test
-    void testVeryDeepNullSafeChain() throws Exception {
+    void veryDeepNullSafeChain() throws Exception {
         // Test with 10 levels of null-safe navigation
         User user = new User("Alice", null);
         Object result = Ognl.getValue(
@@ -402,14 +402,14 @@ class NullSafeOperatorTest {
     }
 
     @Test
-    void testNullSafeWithThis() throws Exception {
+    void nullSafeWithThis() throws Exception {
         context.put("obj", null);
         Object result = Ognl.getValue("#obj?.toString()", context, new Object());
         assertNull(result);
     }
 
     @Test
-    void testNullSafeWithRoot() throws Exception {
+    void nullSafeWithRoot() throws Exception {
         Object result = Ognl.getValue("#root?.toString()", context, null);
         assertNull(result);
     }
@@ -418,7 +418,7 @@ class NullSafeOperatorTest {
 
     @ParameterizedTest
     @MethodSource("nullSafeTestCases")
-    void testNullSafeScenarios(String expression, Object root, Object expected) throws Exception {
+    void nullSafeScenarios(String expression, Object root, Object expected) throws Exception {
         Object result = Ognl.getValue(expression, context, root);
         assertEquals(expected, result);
     }
@@ -453,7 +453,7 @@ class NullSafeOperatorTest {
     // ========== Error Cases ==========
 
     @Test
-    void testParserAcceptsDotQuestion() {
+    void parserAcceptsDotQuestion() {
         // Just verify that the parser accepts the .? syntax without throwing parse exception
         assertDoesNotThrow(() -> {
             Ognl.parseExpression("obj?.property");
@@ -461,21 +461,21 @@ class NullSafeOperatorTest {
     }
 
     @Test
-    void testComplexNullSafeExpression() {
+    void complexNullSafeExpression() {
         assertDoesNotThrow(() -> {
             Ognl.parseExpression("a?.b?.c?.d?.e?.f");
         });
     }
 
     @Test
-    void testNullSafeWithProjection() {
+    void nullSafeWithProjection() {
         assertDoesNotThrow(() -> {
             Ognl.parseExpression("list?.{name}");
         });
     }
 
     @Test
-    void testNullSafeWithSelection() {
+    void nullSafeWithSelection() {
         assertDoesNotThrow(() -> {
             Ognl.parseExpression("list?.{? #this > 0}");
         });
@@ -484,7 +484,7 @@ class NullSafeOperatorTest {
     // ========== toString() Tests ==========
 
     @Test
-    void testNullSafeChainToString() throws Exception {
+    void nullSafeChainToString() throws Exception {
         Object expr = Ognl.parseExpression("a?.b?.c");
         String exprString = expr.toString();
         assertTrue(exprString.contains("?"), "Expression string should contain null-safe operator");
@@ -493,7 +493,7 @@ class NullSafeOperatorTest {
     // ========== Integration Tests ==========
 
     @Test
-    void testNullSafeDoesNotAffectRegularAccess() throws Exception {
+    void nullSafeDoesNotAffectRegularAccess() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
 
         // Regular access should still work
@@ -506,7 +506,7 @@ class NullSafeOperatorTest {
     }
 
     @Test
-    void testNullSafeBackwardCompatibility() throws Exception {
+    void nullSafeBackwardCompatibility() throws Exception {
         // Ensure existing expressions without .? still work
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
 
@@ -515,7 +515,7 @@ class NullSafeOperatorTest {
     }
 
     @Test
-    void testNullSafeIndependentOfShortCircuit() throws Exception {
+    void nullSafeIndependentOfShortCircuit() throws Exception {
         // Null-safe should work regardless of short-circuit system property
         User user = new User("Alice", null);
 
