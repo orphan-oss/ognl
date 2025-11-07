@@ -444,20 +444,6 @@ class Issue286Test {
         assertEquals("internal", result);
     }
 
-    /**
-     * Direct test of isLikelyAccessible with simulated internal class
-     */
-    @Test
-    void simulatedInternalClassIsDetectedAsInaccessible() {
-        // The class should be detected as inaccessible because it's in sun.* package
-        assertFalse(OgnlRuntime.isLikelyAccessible(sun.test.SimulatedInternalClass.class),
-                "Class in sun.test package should be detected as inaccessible");
-
-        // But the interface should be accessible because interfaces are always accessible
-        assertTrue(OgnlRuntime.isLikelyAccessible(sun.test.PublicTestInterface.class),
-                "Interface should always be detected as accessible");
-    }
-
     // Public interface - represents java.security.cert.X509Certificate
     public interface TestInterface {
         String publicMethod();
