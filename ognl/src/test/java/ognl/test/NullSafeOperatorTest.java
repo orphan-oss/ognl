@@ -333,7 +333,7 @@ class NullSafeOperatorTest {
         Map<String, String> map = null;
         Map<String, Object> root = new HashMap<>();
         root.put("map", map);
-        Object result = Ognl.getValue("map?.?['key']", context, root);
+        Object result = Ognl.getValue("map.?['key']", context, root);
         assertNull(result);
     }
 
@@ -374,7 +374,7 @@ class NullSafeOperatorTest {
     @Test
     void consecutiveNullSafeOperators() throws Exception {
         User user = new User("Alice", null);
-        Object result = Ognl.getValue("profile?.?address?.?city", context, user);
+        Object result = Ognl.getValue("profile.?address.?city", context, user);
         assertNull(result);
     }
 
