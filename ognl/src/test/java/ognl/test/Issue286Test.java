@@ -20,13 +20,19 @@ package ognl.test;
 
 import ognl.Ognl;
 import ognl.OgnlContext;
+import ognl.OgnlRuntime;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test for Issue #286: OGNL choosing method on unexported class rather than exported interface
@@ -238,6 +244,123 @@ class Issue286Test {
         assertEquals(10, result);
     }
 
+    /**
+     * Test with actual JDK classes - HashMap (concrete) vs Map (interface)
+     * This tests that OGNL prefers interface methods when available
+     */
+    @Test
+    void jdkInterfacePreferredOverConcreteClass() throws Exception {
+        Map<String, String> map = new HashMap<>();
+        map.put("key", "value");
+
+        OgnlContext context = Ognl.createDefaultContext(map);
+
+        // Call methods that exist on both Map interface and HashMap class
+        Object size = Ognl.getValue("size()", context, map);
+        assertEquals(1, size);
+
+        Object isEmpty = Ognl.getValue("isEmpty()", context, map);
+        assertEquals(false, isEmpty);
+
+        Object value = Ognl.getValue("get('key')", context, map);
+        assertEquals("value", value);
+    }
+
+    /**
+     * Test method resolution choosing between multiple method sources
+     */
+    @Test
+    void methodResolutionWithInheritance() throws Exception {
+        // Use a list to test interface vs implementation preference
+        List<String> list = List.of("a", "b", "c");
+        OgnlContext context = Ognl.createDefaultContext(list);
+
+        Object result = Ognl.getValue("size()", context, list);
+        assertEquals(3, result);
+
+        Object first = Ognl.getValue("get(0)", context, list);
+        assertEquals("a", first);
+    }
+
+    /**
+     * Test that verifies method resolution works correctly with package-private implementation
+     */
+    @Test
+    void packagePrivateImplementation() throws Exception {
+        PackagePrivateImpl obj = new PackagePrivateImpl();
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        Object result = Ognl.getValue("publicMethod()", context, obj);
+        assertNotNull(result);
+        assertEquals("package-private", result);
+    }
+
+    /**
+     * Test with method calls on objects that implement multiple interfaces
+     */
+    @Test
+    void multipleInterfaceInheritance() throws Exception {
+        CombinedInterface obj = new CombinedImplementation();
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        Object result1 = Ognl.getValue("methodA()", context, obj);
+        assertEquals("A", result1);
+
+        Object result2 = Ognl.getValue("methodB()", context, obj);
+        assertEquals("B", result2);
+    }
+
+    /**
+     * Test method resolution with classes from different packages
+     * This indirectly tests the isLikelyAccessible() logic
+     */
+    @Test
+    void methodResolutionAcrossPackages() throws Exception {
+        // Test that common JDK classes work correctly
+        String str = "test";
+        OgnlContext context = Ognl.createDefaultContext(str);
+
+        Object result = Ognl.getValue("length()", context, str);
+        assertEquals(4, result);
+
+        Object upper = Ognl.getValue("toUpperCase()", context, str);
+        assertEquals("TEST", upper);
+    }
+
+    /**
+     * Test with java.util classes to ensure proper method resolution
+     */
+    @Test
+    void javaUtilClassMethodResolution() throws Exception {
+        java.util.ArrayList<String> list = new java.util.ArrayList<>();
+        list.add("item1");
+        list.add("item2");
+
+        OgnlContext context = Ognl.createDefaultContext(list);
+
+        Object size = Ognl.getValue("size()", context, list);
+        assertEquals(2, size);
+
+        // Test method that exists on List interface
+        Object first = Ognl.getValue("get(0)", context, list);
+        assertEquals("item1", first);
+    }
+
+    /**
+     * Test with StringBuilder to verify method resolution on concrete classes
+     */
+    @Test
+    void stringBuilderMethodResolution() throws Exception {
+        StringBuilder sb = new StringBuilder("hello");
+        OgnlContext context = Ognl.createDefaultContext(sb);
+
+        Object len = Ognl.getValue("length()", context, sb);
+        assertEquals(5, len);
+
+        Object str = Ognl.getValue("toString()", context, sb);
+        assertEquals("hello", str);
+    }
+
     // Public interface - represents java.security.cert.X509Certificate
     public interface TestInterface {
         String publicMethod();
@@ -406,6 +529,37 @@ class Issue286Test {
         @Override
         public int add(int a, int b) {
             return a + b;
+        }
+    }
+
+    // Package-private class to test preference for accessible methods
+    static class PackagePrivateImpl {
+        public String publicMethod() {
+            return "package-private";
+        }
+    }
+
+    // Interfaces for testing multiple inheritance
+    public interface InterfaceA {
+        String methodA();
+    }
+
+    public interface InterfaceB {
+        String methodB();
+    }
+
+    public interface CombinedInterface extends InterfaceA, InterfaceB {
+    }
+
+    public static class CombinedImplementation implements CombinedInterface {
+        @Override
+        public String methodA() {
+            return "A";
+        }
+
+        @Override
+        public String methodB() {
+            return "B";
         }
     }
 }
