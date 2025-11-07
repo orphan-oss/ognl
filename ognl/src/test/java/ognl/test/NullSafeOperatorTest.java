@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class NullSafeOperatorTest {
 
-    private OgnlContext<?> context;
+    private OgnlContext context;
 
     // Test data classes
     public static class User {
