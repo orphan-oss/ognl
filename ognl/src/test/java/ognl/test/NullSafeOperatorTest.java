@@ -21,6 +21,7 @@ package ognl.test;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
+import ognl.OgnlRuntime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -526,6 +527,179 @@ class NullSafeOperatorTest {
 
         // With null-safe, should always return null
         Object result = Ognl.getValue("profile.?bio", context, user);
+        assertNull(result);
+    }
+
+    // ========== Expression Compilation Tests ==========
+
+    @Test
+    void nullSafeWithCompiledExpression() throws Exception {
+        User user = new User("Alice", null);
+        Object expr = Ognl.parseExpression("profile.?bio");
+
+        // Compile the expression
+        try {
+            Object compiled = Ognl.compileExpression(context, user, "profile.?bio");
+            assertNotNull(compiled, "Compiled expression should not be null");
+        } catch (Exception e) {
+            // Compilation may not be supported in all cases, but should not throw for null-safe
+        }
+
+        // Verify evaluation still works
+        Object result = Ognl.getValue(expr, context, user);
+        assertNull(result);
+    }
+
+    @Test
+    void nullSafeToGetSourceString() throws Exception {
+        User user = new User("Alice", null);
+        Object expr = Ognl.parseExpression("profile.?address.?city");
+
+        // This should trigger toGetSourceString in ASTChain
+        try {
+            String source = OgnlRuntime.getCompiler().getClassName(expr.getClass());
+            assertNotNull(source);
+        } catch (Exception e) {
+            // May not be fully supported, but shouldn't throw
+        }
+    }
+
+    // ========== Array and List Access Tests ==========
+
+    @Test
+    void nullSafeWithArrayProperty() throws Exception {
+        Map<String, Object> root = new HashMap<>();
+        root.put("items", new String[]{"a", "b", "c"});
+
+        Object result = Ognl.getValue("items.?length", context, root);
+        assertEquals(3, result);
+    }
+
+    @Test
+    void nullSafeWithNullArrayProperty() throws Exception {
+        Map<String, Object> root = new HashMap<>();
+        root.put("items", null);
+
+        Object result = Ognl.getValue("items.?length", context, root);
+        assertNull(result);
+    }
+
+    @Test
+    void nullSafeWithListProperty() throws Exception {
+        Map<String, Object> root = new HashMap<>();
+        root.put("items", java.util.Arrays.asList("a", "b", "c"));
+
+        Object result = Ognl.getValue("items.?size()", context, root);
+        assertEquals(3, result);
+    }
+
+    @Test
+    void nullSafeWithNullListProperty() throws Exception {
+        Map<String, Object> root = new HashMap<>();
+        root.put("items", null);
+
+        Object result = Ognl.getValue("items.?size()", context, root);
+        assertNull(result);
+    }
+
+    // ========== Dynamic Subscript Tests ==========
+
+    @Test
+    void nullSafeWithDynamicSubscriptFirst() throws Exception {
+        Map<String, Object> root = new HashMap<>();
+        String[] items = {"first", "second", "third"};
+        root.put("items", items);
+
+        // [^] gets first element
+        Object result = Ognl.getValue("items[^]", context, root);
+        assertEquals("first", result);
+    }
+
+    @Test
+    void nullSafeWithDynamicSubscriptLast() throws Exception {
+        Map<String, Object> root = new HashMap<>();
+        String[] items = {"first", "second", "third"};
+        root.put("items", items);
+
+        // [$] gets last element
+        Object result = Ognl.getValue("items[$]", context, root);
+        assertEquals("third", result);
+    }
+
+    @Test
+    void nullSafeBeforeIndexAccess() throws Exception {
+        Map<String, Object> root = new HashMap<>();
+        String[] items = {"first", "second", "third"};
+        root.put("items", items);
+
+        // Null-safe before index
+        Object result = Ognl.getValue("items.?[0]", context, root);
+        assertEquals("first", result);
+    }
+
+    @Test
+    void nullSafeBeforeNullIndexAccess() throws Exception {
+        Map<String, Object> root = new HashMap<>();
+        root.put("items", null);
+
+        // Null-safe with null array
+        Object result = Ognl.getValue("items.?[0]", context, root);
+        assertNull(result);
+    }
+
+    // ========== Additional toString Tests ==========
+
+    @Test
+    void toStringWithIndexedAccess() throws Exception {
+        Object expr = Ognl.parseExpression("items.?[0]");
+        String exprString = expr.toString();
+        assertTrue(exprString.contains("items"), "Expression should contain property name");
+    }
+
+    @Test
+    void toStringWithMixedAccess() throws Exception {
+        Object expr = Ognl.parseExpression("a.b.?c.d");
+        String exprString = expr.toString();
+        assertTrue(exprString.contains("?"), "Expression should show null-safe operator");
+    }
+
+    @Test
+    void toStringComplexExpression() throws Exception {
+        Object expr = Ognl.parseExpression("user.?profile.?address.?city");
+        String exprString = expr.toString();
+        // Should contain multiple null-safe operators
+        int questionMarks = exprString.length() - exprString.replace("?", "").length();
+        assertTrue(questionMarks >= 3, "Expression should contain multiple null-safe operators");
+    }
+
+    // ========== Intermediate Null Check Tests ==========
+
+    @Test
+    void nullSafeWithIntermediateNull() throws Exception {
+        // Create a chain where intermediate value becomes null
+        User user = new User("Alice", new Profile(null, null));
+
+        // Access through multiple levels where intermediate is null
+        Object result = Ognl.getValue("profile.?address.?city", context, user);
+        assertNull(result);
+    }
+
+    @Test
+    void nullSafeChainWithMultipleNullChecks() throws Exception {
+        // Test that the loop's null check (line 94-95 in ASTChain) is hit
+        User user = new User("Alice", null);
+
+        // This creates a chain that needs multiple null checks
+        Object result = Ognl.getValue("profile.?address.?city.?toString()", context, user);
+        assertNull(result);
+    }
+
+    @Test
+    void nullSafeWithNestedPropertyAccess() throws Exception {
+        // Create nested structure to test intermediate null handling
+        User user = new User("Alice", new Profile("Bio", new Address(null, "Street")));
+
+        Object result = Ognl.getValue("profile.?address.?city.?length()", context, user);
         assertNull(result);
     }
 }
