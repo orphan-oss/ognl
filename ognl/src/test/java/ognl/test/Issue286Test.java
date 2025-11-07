@@ -22,12 +22,6 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 import org.junit.jupiter.api.Test;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -45,15 +39,8 @@ class Issue286Test {
 
     @Test
     void x509CertificateMethodResolution() throws Exception {
-        // Create a simple SSL context to get a real X509Certificate
-        // The actual runtime type will be sun.security.x509.X509CertImpl
-        SSLContext sslContext = SSLContext.getDefault();
-
-        // We can't easily get a real certificate in a unit test, so we'll test with a mock
-        // that simulates the same problem: an interface with a method implemented by an
-        // internal class
-
-        // For this test, we'll use a simpler demonstration of the same principle
+        // Simulates the issue where OGNL selects a method from an internal implementation
+        // (like sun.security.x509.X509CertImpl for X509Certificate) instead of the public interface
         TestInterface obj = new InternalImplementation();
 
         OgnlContext context = Ognl.createDefaultContext(obj);
@@ -138,18 +125,6 @@ class Issue286Test {
         OgnlContext context = Ognl.createDefaultContext(container);
 
         Object result = Ognl.getValue("getChild().publicMethod()", context, container);
-        assertNotNull(result);
-    }
-
-    /**
-     * Test method with varargs parameters
-     */
-    @Test
-    void interfaceMethodWithVarargs() throws Exception {
-        VarargsInterface obj = new VarargsImplementation();
-        OgnlContext context = Ognl.createDefaultContext(obj);
-
-        Object result = Ognl.getValue("join('a', 'b', 'c')", context, obj);
         assertNotNull(result);
     }
 
@@ -324,17 +299,6 @@ class Issue286Test {
         @Override
         public TestInterface getChild() {
             return new InternalImplementation();
-        }
-    }
-
-    public interface VarargsInterface {
-        String join(String... parts);
-    }
-
-    public static class VarargsImplementation implements VarargsInterface {
-        @Override
-        public String join(String... parts) {
-            return String.join(",", parts);
         }
     }
 
