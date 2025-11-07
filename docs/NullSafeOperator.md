@@ -100,12 +100,12 @@ user.?getProfile().?getHome()
 
 ### Indexed Access
 
-Null-safe operator works with array/collection access:
+**Note**: Direct null-safe indexing (e.g., `array.?[0]`) is not supported in Phase 1
+because indexing doesn't use dot notation. Instead, use null-safe navigation before indexing:
 
 ```java
-array?.?[0]           // Null if array is null
-map?.?["key"]         // Null if map is null
-user.?addresses?.?[0] // Null if user or addresses is null
+user.?addresses[0]    // Null if user is null; exception if addresses is null but user is not
+array.?length         // Null if array is null (property access works)
 ```
 
 ### Edge Cases
@@ -119,20 +119,20 @@ null.?property  // Returns null
 #### 2. Multiple Null-Safe Operators
 
 ```java
-a?.?b?.?c?.?d  // Each level checked independently
+a.?b.?c.?d  // Each level checked independently
 ```
 
 #### 3. Combination with Other Operators
 
 ```java
-// Null coalescing with safe access
-(user.?profile ?: defaultProfile).home
+// Ternary with safe access (OGNL doesn't have ?: Elvis operator)
+(user.?profile != null ? user.?profile : defaultProfile).home
 
 // Conditional with safe access
 user.?profile.?verified ? "yes" : "no"
 
 // Method call results
-user.?getScores().?{? #this > 50}  // Projection on potentially null collection
+user.?getScores().{? #this > 50}  // Projection on potentially null collection
 ```
 
 #### 4. Assignment (Setter) Semantics
@@ -379,10 +379,10 @@ user.?getProfile().?getHome()
 - Mixed property and method: `obj.?property.?method()`
 
 #### 3. Indexed Access (8 tests)
-- Null array: `null?.?[0]`
-- Null map: `null?.?["key"]`
-- Array bounds: `array?.?[999]`
-- Nested indexed: `matrix?.?[0]?.?[0]`
+- Note: Direct null-safe indexing not supported in Phase 1
+- Null-safe before index: `user.?addresses[0]`
+- Property access on arrays: `array.?length`
+- Map value access: `map.?get("key")`
 
 #### 4. Collection Operations (8 tests)
 - Null projection: `null.?{name}`
@@ -391,18 +391,18 @@ user.?getProfile().?getHome()
 - Safe selection: `list.?{? #this.verified}`
 
 #### 5. Combined Operators (10 tests)
-- Null coalescing: `obj.?prop ?: default`
+- Ternary: `obj.?prop != null ? obj.?prop : 'default'`
 - Conditional: `obj.?prop ? 'yes' : 'no'`
 - Assignment context: `#var = obj.?prop`
-- Arithmetic: `(obj.?value ?: 0) + 10`
+- Arithmetic: `(obj.?value != null ? obj.?value : 0) + 10`
 
 #### 6. Edge Cases (12 tests)
-- Multiple consecutive: `a?.?b?.?c`
-- Empty strings: `obj.?""` (if allowed)
-- Special values: `obj.?null`, `obj.?true`
-- Variable references: `#root.?#var.?prop`
-- Static references: `@Class@FIELD.?method()`
+- Multiple consecutive: `a.?b.?c`
 - Deep nesting: 10+ levels of null-safe access
+- Variable references: `#root.?toString()`
+- Static method results: `@Class@staticMethod().?property`
+- Mixed safe/unsafe chains
+- Null root handling
 
 #### 7. Bytecode Compilation (10 tests)
 - Compiled null-safe access
@@ -417,9 +417,9 @@ user.?getProfile().?getHome()
 - With TypeConverter
 
 #### 9. Error Cases (6 tests)
-- Syntax errors: `.?`, `?.?`, `..?`
-- Invalid combinations
-- Parser edge cases
+- Parser accepts `.?` syntax
+- Complex null-safe expressions
+- Mixed with projections and selections
 
 #### 10. Regression Tests (10 tests)
 - All existing tests must pass
@@ -500,10 +500,12 @@ user.?profile.?home = "new"  // Compile error or runtime exception
 
 **Decision**: Deferred pending community feedback.
 
-### Phase 3: Null Coalescing Assignment
+### Phase 3: Elvis Operator
+
+Note: OGNL currently doesn't support the `?:` Elvis operator. If added in the future:
 
 ```java
-user.?profile.?home ?: "default"  // Already works
+user.?profile.?home ?: "default"  // Future: null coalescing
 user.?profile.?home ?= "default"  // Future: assign only if null
 ```
 
@@ -575,8 +577,8 @@ String city = Ognl.getValue("user.?profile.?address.?city", context, root);
 #### 2. Optional Configuration
 
 ```java
-// Get optional config value
-Integer timeout = Ognl.getValue("config.?database.?timeout ?: 3000", context, root);
+// Get optional config value with ternary fallback
+Integer timeout = Ognl.getValue("config.?database.?timeout != null ? config.?database.?timeout : 3000", context, root);
 ```
 
 #### 3. Collection Processing
@@ -590,14 +592,15 @@ List<String> names = Ognl.getValue("users.?{? #this.active}.?{name}", context, r
 
 ```java
 // Navigate JSON-like structure safely
-Object data = Ognl.getValue("response.?body.?data.?items?.?[0].?id", context, root);
+// Note: Direct indexing with .? not supported in Phase 1
+Object data = Ognl.getValue("response.?body.?data.?items[0].?id", context, root);
 ```
 
 #### 5. Conditional UI Rendering
 
 ```java
 // Check if user has admin role, false if user is null
-boolean isAdmin = Ognl.getValue("user.?roles.?contains('ADMIN') ?: false", context, root);
+boolean isAdmin = Ognl.getValue("user.?roles != null && user.?roles.contains('ADMIN')", context, root);
 ```
 
 ## References
