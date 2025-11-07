@@ -207,6 +207,7 @@
                     <releaseProfiles>release</releaseProfiles>
                 </configuration>
             </plugin>
+            <!-- Temporarily commented out for development
             <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
@@ -215,6 +216,7 @@
                     <publishingServerId>central</publishingServerId>
                 </configuration>
             </plugin>
+            -->
         </plugins>
 
         <defaultGoal>install</defaultGoal>

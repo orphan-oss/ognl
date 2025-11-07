@@ -973,10 +973,12 @@ void unaryExpression() : {
 
 
 // navigation chain: property references, method calls, projections, selections, etc.
-void navigationChain() : {}
+void navigationChain() : {
+    boolean nullSafe = false;
+}
 {
     primaryExpression()
-    (   "."/*@bgen(jjtree) #Chain( 2) */
+    (   ( "." { nullSafe = false; } | ".?" { nullSafe = true; } )/*@bgen(jjtree) #Chain( 2) */
         {
           ASTChain jjtn001 = new ASTChain(JJTCHAIN);
           boolean jjtc001 = true;
@@ -990,6 +992,9 @@ void navigationChain() : {}
         |   ( LOOKAHEAD(2) projection() | selection() )
         |   "(" expression() ")"
         )/*@bgen(jjtree)*/
+        {
+          jjtn001.setNullSafe(nullSafe);
+        }
         } catch (Throwable jjte001) {
           if (jjtc001) {
             jjtree.clearNodeScope(jjtn001);
