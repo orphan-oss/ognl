@@ -17,9 +17,6 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>orphan-oss</sonar.organization>
         <sonar.projectKey>orphan-oss_ognl</sonar.projectKey>
-        <sonar.coverage.jacoco.xmlReportPaths>
-            ${project.basedir}/ognl/target/site/jacoco/jacoco.xml
-        </sonar.coverage.jacoco.xmlReportPaths>
 
         <javassist.version>3.30.2-GA</javassist.version>
         <junit.version>6.0.1</junit.version>
@@ -225,6 +222,30 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>coverage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>report-aggregate</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>report-aggregate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>release</id>
             <build>
