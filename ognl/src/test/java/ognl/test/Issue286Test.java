@@ -422,6 +422,42 @@ class Issue286Test {
         assertEquals(3, length);
     }
 
+    /**
+     * Test that simulates the actual issue #286 scenario with a class in sun.* package
+     * <p>
+     * This test uses classes in sun.test package to simulate internal JDK classes.
+     * The SimulatedInternalClass will be detected as inaccessible, while the
+     * PublicTestInterface will be accessible, allowing us to test the preference logic.
+     */
+    @Test
+    void simulatedInternalClassVsInterface() throws Exception {
+        // Create an instance of a class in "sun.test" package
+        // This simulates sun.security.x509.X509CertImpl
+        sun.test.PublicTestInterface obj = new sun.test.SimulatedInternalClass();
+
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        // OGNL should prefer the interface method over the class method
+        // because the class is in a "sun." package
+        Object result = Ognl.getValue("testMethod()", context, obj);
+        assertNotNull(result);
+        assertEquals("internal", result);
+    }
+
+    /**
+     * Direct test of isLikelyAccessible with simulated internal class
+     */
+    @Test
+    void simulatedInternalClassIsDetectedAsInaccessible() {
+        // The class should be detected as inaccessible because it's in sun.* package
+        assertFalse(OgnlRuntime.isLikelyAccessible(sun.test.SimulatedInternalClass.class),
+                "Class in sun.test package should be detected as inaccessible");
+
+        // But the interface should be accessible because interfaces are always accessible
+        assertTrue(OgnlRuntime.isLikelyAccessible(sun.test.PublicTestInterface.class),
+                "Interface should always be detected as accessible");
+    }
+
     // Public interface - represents java.security.cert.X509Certificate
     public interface TestInterface {
         String publicMethod();
