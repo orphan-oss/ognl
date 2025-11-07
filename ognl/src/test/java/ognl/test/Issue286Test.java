@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class Issue286Test {
 
     @Test
-    void testX509CertificateMethodResolution() throws Exception {
+    void x509CertificateMethodResolution() throws Exception {
         // Create a simple SSL context to get a real X509Certificate
         // The actual runtime type will be sun.security.x509.X509CertImpl
         SSLContext sslContext = SSLContext.getDefault();
@@ -68,7 +68,7 @@ class Issue286Test {
      * when both have the same signature.
      */
     @Test
-    void testInterfaceMethodPreferredOverImplementation() throws Exception {
+    void interfaceMethodPreferredOverImplementation() throws Exception {
         TestInterface obj = new InternalImplementation();
         OgnlContext context = Ognl.createDefaultContext(obj);
 
@@ -81,7 +81,7 @@ class Issue286Test {
      * Test with a more complex example involving collections
      */
     @Test
-    void testInterfaceMethodOnArrayElement() throws Exception {
+    void interfaceMethodOnArrayElement() throws Exception {
         TestInterface[] array = new TestInterface[] { new InternalImplementation() };
         OgnlContext context = Ognl.createDefaultContext(array);
 
