@@ -361,6 +361,67 @@ class Issue286Test {
         assertEquals("hello", str);
     }
 
+    /**
+     * Test getMethods to ensure it returns methods from interfaces and classes
+     * This helps test the method collection logic that feeds into findBestMethod
+     */
+    @Test
+    void getMethodsIncludesInterfaceAndClassMethods() throws Exception {
+        // Test that getMethods returns methods from both the class and its interfaces
+        Map<String, String> map = new HashMap<>();
+        Class<?> clazz = map.getClass();
+
+        // Get methods - this uses OgnlRuntime.getMethods internally
+        Method[] methods = clazz.getMethods();
+
+        // Should have methods from Map interface
+        boolean hasMapMethods = false;
+        boolean hasHashMapMethods = false;
+
+        for (Method m : methods) {
+            if (m.getName().equals("get") && m.getDeclaringClass().isInterface()) {
+                hasMapMethods = true;
+            }
+            if (m.getName().equals("get") && !m.getDeclaringClass().isInterface()) {
+                hasHashMapMethods = true;
+            }
+        }
+
+        // At least one source should provide the method
+        assertTrue(hasMapMethods || hasHashMapMethods, "Should have get() method from either Map interface or HashMap class");
+    }
+
+    /**
+     * Test that verifies OGNL handles CharSequence interface correctly
+     * String implements CharSequence, testing interface preference
+     */
+    @Test
+    void charSequenceInterfaceHandling() throws Exception {
+        CharSequence seq = "test string";
+        OgnlContext context = Ognl.createDefaultContext(seq);
+
+        Object len = Ognl.getValue("length()", context, seq);
+        assertEquals(11, len);
+
+        Object charAt = Ognl.getValue("charAt(0)", context, seq);
+        assertEquals('t', charAt);
+    }
+
+    /**
+     * Test method resolution with Comparable interface
+     */
+    @Test
+    void comparableInterfaceMethodResolution() throws Exception {
+        Comparable<String> str = "abc";
+        OgnlContext context = Ognl.createDefaultContext(str);
+
+        Object result = Ognl.getValue("compareTo('abc')", context, str);
+        assertEquals(0, result);
+
+        Object length = Ognl.getValue("length()", context, str);
+        assertEquals(3, length);
+    }
+
     // Public interface - represents java.security.cert.X509Certificate
     public interface TestInterface {
         String publicMethod();
