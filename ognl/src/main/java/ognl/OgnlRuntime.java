@@ -1172,6 +1172,11 @@ public class OgnlRuntime {
 
         String packageName = clazz.getPackageName();
 
+        // Empty package name (default package) - treat as accessible
+        if (packageName == null || packageName.isEmpty()) {
+            return true;
+        }
+
         // Check for known internal/unexported packages
         if (packageName.startsWith("sun.") ||
                 packageName.startsWith("com.sun.") ||
@@ -1229,34 +1234,26 @@ public class OgnlRuntime {
                 // it happens that we see the same method signature multiple times - for the current class or interfaces ...
                 // check for same signature
                 if (Arrays.equals(mm.mMethod.getParameterTypes(), method.getParameterTypes()) && mm.mMethod.getName().equals(method.getName())) {
-                    // it is the same method. we prefer accessible ones...
-                    // Prefer methods in this order: 1) accessible > inaccessible, 2) interface > class, 3) public > non-public
+                    // it is the same method. Prefer accessible ones over inaccessible ones
                     Class<?> currentClass = mm.mMethod.getDeclaringClass();
                     Class<?> newClass = method.getDeclaringClass();
 
                     boolean currentAccessible = isLikelyAccessible(currentClass);
                     boolean newAccessible = isLikelyAccessible(newClass);
 
-                    // Prefer accessible methods over inaccessible ones
+                    // Primary goal: prefer accessible methods over inaccessible ones (fixes issue #286)
                     if (!currentAccessible && newAccessible) {
                         mm = new MatchingMethod(method, score, report, mParameterTypes);
                         failure = null;
-                    } else if (currentAccessible == newAccessible) {
-                        // Both have same accessibility, check other factors
-                        boolean currentIsInterface = currentClass.isInterface();
-                        boolean newIsInterface = newClass.isInterface();
-
-                        // Prefer interface methods over class methods (better encapsulation)
-                        if (!currentIsInterface && newIsInterface) {
+                    } else if (currentAccessible && !newAccessible) {
+                        // Current is accessible, new is not - keep current (no change needed)
+                    } else {
+                        // Both accessible or both inaccessible - use original tie-breaking logic
+                        // Prefer public classes
+                        if (!Modifier.isPublic(currentClass.getModifiers())
+                                && Modifier.isPublic(newClass.getModifiers())) {
                             mm = new MatchingMethod(method, score, report, mParameterTypes);
                             failure = null;
-                        } else if (currentIsInterface == newIsInterface) {
-                            // Both are same type (both interface or both class), check public modifier
-                            if (!Modifier.isPublic(currentClass.getModifiers())
-                                    && Modifier.isPublic(newClass.getModifiers())) {
-                                mm = new MatchingMethod(method, score, report, mParameterTypes);
-                                failure = null;
-                            }
                         }
                     }
                 } else {
