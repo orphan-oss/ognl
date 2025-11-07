@@ -1160,11 +1160,13 @@ public class OgnlRuntime {
     /**
      * Checks if a class is likely to be accessible, considering the Java module system.
      * This helps avoid selecting methods from internal JDK classes that are not exported.
+     * <p>
+     * Package-private for testing purposes.
      *
      * @param clazz the class to check
      * @return true if the class is likely accessible, false if it's likely inaccessible
      */
-    private static boolean isLikelyAccessible(Class<?> clazz) {
+    static boolean isLikelyAccessible(Class<?> clazz) {
         // Interfaces are generally preferred as they represent the public contract
         if (clazz.isInterface()) {
             return true;
