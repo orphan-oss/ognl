@@ -28,8 +28,10 @@ import javax.net.ssl.SSLSocket;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -90,6 +92,177 @@ class Issue286Test {
         assertNotNull(result);
     }
 
+    /**
+     * Test method resolution with parameters to ensure full method matching logic is exercised
+     */
+    @Test
+    void interfaceMethodWithParameters() throws Exception {
+        ParameterizedInterface obj = new ParameterizedImplementation();
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        Object result = Ognl.getValue("process('test')", context, obj);
+        assertNotNull(result);
+    }
+
+    /**
+     * Test with multiple interfaces implementing the same method
+     */
+    @Test
+    void multipleInterfacesWithSameMethod() throws Exception {
+        MultiInterfaceImplementation obj = new MultiInterfaceImplementation();
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        // Should prefer interface methods regardless of which interface
+        Object result = Ognl.getValue("getValue()", context, obj);
+        assertNotNull(result);
+    }
+
+    /**
+     * Test public class vs package-private class preference
+     */
+    @Test
+    void publicClassPreferredOverPackagePrivate() throws Exception {
+        BaseInterface obj = new PublicImplementation();
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        Object result = Ognl.getValue("baseMethod()", context, obj);
+        assertNotNull(result);
+    }
+
+    /**
+     * Test with nested method calls
+     */
+    @Test
+    void nestedMethodCallsOnInterface() throws Exception {
+        ContainerInterface container = new ContainerImplementation();
+        OgnlContext context = Ognl.createDefaultContext(container);
+
+        Object result = Ognl.getValue("getChild().publicMethod()", context, container);
+        assertNotNull(result);
+    }
+
+    /**
+     * Test method with varargs parameters
+     */
+    @Test
+    void interfaceMethodWithVarargs() throws Exception {
+        VarargsInterface obj = new VarargsImplementation();
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        Object result = Ognl.getValue("join('a', 'b', 'c')", context, obj);
+        assertNotNull(result);
+    }
+
+    /**
+     * Test overloaded methods
+     */
+    @Test
+    void overloadedInterfaceMethods() throws Exception {
+        OverloadedInterface obj = new OverloadedImplementation();
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        Object result1 = Ognl.getValue("compute(5)", context, obj);
+        assertNotNull(result1);
+        assertEquals(10, result1);
+
+        Object result2 = Ognl.getValue("compute(5, 10)", context, obj);
+        assertNotNull(result2);
+        assertEquals(15, result2);
+    }
+
+    /**
+     * Test with abstract class in hierarchy
+     */
+    @Test
+    void abstractClassInHierarchy() throws Exception {
+        AbstractInterface obj = new ConcreteImplementation();
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        Object result = Ognl.getValue("abstractMethod()", context, obj);
+        assertNotNull(result);
+        assertEquals("concrete", result);
+    }
+
+    /**
+     * Test with generics
+     */
+    @Test
+    void genericInterfaceMethod() throws Exception {
+        GenericInterface<String> obj = new GenericImplementation();
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        Object result = Ognl.getValue("transform('input')", context, obj);
+        assertNotNull(result);
+        assertEquals("TRANSFORMED: input", result);
+    }
+
+    /**
+     * Test with collection return types
+     */
+    @Test
+    void methodReturningCollection() throws Exception {
+        CollectionInterface obj = new CollectionImplementation();
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        Object result = Ognl.getValue("getItems().size()", context, obj);
+        assertNotNull(result);
+        assertEquals(3, result);
+    }
+
+    /**
+     * Test with inheritance hierarchy - interface extends interface
+     */
+    @Test
+    void extendedInterfaceMethod() throws Exception {
+        ExtendedInterface obj = new ExtendedImplementation();
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        Object result1 = Ognl.getValue("baseMethod()", context, obj);
+        assertNotNull(result1);
+
+        Object result2 = Ognl.getValue("extendedMethod()", context, obj);
+        assertNotNull(result2);
+    }
+
+    /**
+     * Test method that returns an interface type
+     */
+    @Test
+    void methodReturningInterface() throws Exception {
+        FactoryInterface factory = new FactoryImplementation();
+        OgnlContext context = Ognl.createDefaultContext(factory);
+
+        Object result = Ognl.getValue("create().publicMethod()", context, factory);
+        assertNotNull(result);
+        assertEquals("result", result);
+    }
+
+    /**
+     * Test with null parameters
+     */
+    @Test
+    void methodWithNullParameter() throws Exception {
+        NullableInterface obj = new NullableImplementation();
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        Object result = Ognl.getValue("handleNull(null)", context, obj);
+        assertNotNull(result);
+        assertEquals("null handled", result);
+    }
+
+    /**
+     * Test with primitive parameters and autoboxing
+     */
+    @Test
+    void methodWithPrimitiveParameters() throws Exception {
+        PrimitiveInterface obj = new PrimitiveImplementation();
+        OgnlContext context = Ognl.createDefaultContext(obj);
+
+        Object result = Ognl.getValue("add(3, 7)", context, obj);
+        assertNotNull(result);
+        assertEquals(10, result);
+    }
+
     // Public interface - represents java.security.cert.X509Certificate
     public interface TestInterface {
         String publicMethod();
@@ -101,6 +274,174 @@ class Issue286Test {
         @Override
         public String publicMethod() {
             return "result";
+        }
+    }
+
+    // Additional test interfaces and classes for comprehensive coverage
+
+    public interface ParameterizedInterface {
+        String process(String input);
+    }
+
+    public static class ParameterizedImplementation implements ParameterizedInterface {
+        @Override
+        public String process(String input) {
+            return "processed: " + input;
+        }
+    }
+
+    public interface FirstInterface {
+        String getValue();
+    }
+
+    public interface SecondInterface {
+        String getValue();
+    }
+
+    public static class MultiInterfaceImplementation implements FirstInterface, SecondInterface {
+        @Override
+        public String getValue() {
+            return "multi";
+        }
+    }
+
+    public interface BaseInterface {
+        String baseMethod();
+    }
+
+    public static class PublicImplementation implements BaseInterface {
+        @Override
+        public String baseMethod() {
+            return "public";
+        }
+    }
+
+    public interface ContainerInterface {
+        TestInterface getChild();
+    }
+
+    public static class ContainerImplementation implements ContainerInterface {
+        @Override
+        public TestInterface getChild() {
+            return new InternalImplementation();
+        }
+    }
+
+    public interface VarargsInterface {
+        String join(String... parts);
+    }
+
+    public static class VarargsImplementation implements VarargsInterface {
+        @Override
+        public String join(String... parts) {
+            return String.join(",", parts);
+        }
+    }
+
+    public interface OverloadedInterface {
+        Integer compute(int a);
+        Integer compute(int a, int b);
+    }
+
+    public static class OverloadedImplementation implements OverloadedInterface {
+        @Override
+        public Integer compute(int a) {
+            return a * 2;
+        }
+
+        @Override
+        public Integer compute(int a, int b) {
+            return a + b;
+        }
+    }
+
+    public interface AbstractInterface {
+        String abstractMethod();
+    }
+
+    public static abstract class AbstractBase implements AbstractInterface {
+        public abstract String abstractMethod();
+    }
+
+    public static class ConcreteImplementation extends AbstractBase {
+        @Override
+        public String abstractMethod() {
+            return "concrete";
+        }
+    }
+
+    public interface GenericInterface<T> {
+        String transform(T input);
+    }
+
+    public static class GenericImplementation implements GenericInterface<String> {
+        @Override
+        public String transform(String input) {
+            return "TRANSFORMED: " + input;
+        }
+    }
+
+    public interface CollectionInterface {
+        List<String> getItems();
+    }
+
+    public static class CollectionImplementation implements CollectionInterface {
+        @Override
+        public List<String> getItems() {
+            return List.of("item1", "item2", "item3");
+        }
+    }
+
+    public interface ParentInterface {
+        String baseMethod();
+    }
+
+    public interface ExtendedInterface extends ParentInterface {
+        String extendedMethod();
+    }
+
+    public static class ExtendedImplementation implements ExtendedInterface {
+        @Override
+        public String baseMethod() {
+            return "base";
+        }
+
+        @Override
+        public String extendedMethod() {
+            return "extended";
+        }
+    }
+
+    public interface FactoryInterface {
+        TestInterface create();
+    }
+
+    public static class FactoryImplementation implements FactoryInterface {
+        @Override
+        public TestInterface create() {
+            return new InternalImplementation();
+        }
+    }
+
+    public interface NullableInterface {
+        String handleNull(String input);
+    }
+
+    public static class NullableImplementation implements NullableInterface {
+        @Override
+        public String handleNull(String input) {
+            return input == null ? "null handled" : "value: " + input;
+        }
+    }
+
+    public interface PrimitiveInterface {
+        int add(int a, int b);
+    }
+
+    public static class PrimitiveImplementation implements PrimitiveInterface {
+        @Override
+        public int add(int a, int b) {
+            return a + b;
         }
     }
 }
