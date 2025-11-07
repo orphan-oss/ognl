@@ -146,7 +146,7 @@ class NullSafeOperatorTest {
 
     @Test
     void nullSafeOnNullRoot() throws Exception {
-        Object result = Ognl.getValue("#root?.name", context, (Object) null);
+        Object result = Ognl.getValue("#root.?name", context, (Object) null);
         assertNull(result, "Null-safe operator on null root should return null");
     }
 
@@ -160,28 +160,28 @@ class NullSafeOperatorTest {
     @Test
     void nullSafeOnNullProperty() throws Exception {
         User user = new User("Alice", null);
-        Object result = Ognl.getValue("profile?.bio", context, user);
+        Object result = Ognl.getValue("profile.?bio", context, user);
         assertNull(result, "Null-safe operator should return null when property is null");
     }
 
     @Test
     void nullSafeNestedChain() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
-        Object result = Ognl.getValue("profile?.address?.city", context, user);
+        Object result = Ognl.getValue("profile.?address.?city", context, user);
         assertEquals("NYC", result);
     }
 
     @Test
     void nullSafeNestedChainWithNullIntermediate() throws Exception {
         User user = new User("Alice", new Profile("Bio", null));
-        Object result = Ognl.getValue("profile?.address?.city", context, user);
+        Object result = Ognl.getValue("profile.?address.?city", context, user);
         assertNull(result, "Null-safe chain should return null when intermediate value is null");
     }
 
     @Test
     void mixedSafeAndUnsafeChain() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
-        Object result = Ognl.getValue("profile.address?.city", context, user);
+        Object result = Ognl.getValue("profile.address.?city", context, user);
         assertEquals("NYC", result);
     }
 
@@ -189,21 +189,21 @@ class NullSafeOperatorTest {
     void mixedChainThrowsOnNullUnsafePart() {
         User user = new User("Alice", null);
         assertThrows(Exception.class, () -> {
-            Ognl.getValue("profile.address?.city", context, user);
+            Ognl.getValue("profile.address.?city", context, user);
         }, "Unsafe part of chain should throw exception on null");
     }
 
     @Test
     void multipleNullSafeOperators() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
-        Object result = Ognl.getValue("profile?.address?.city", context, user);
+        Object result = Ognl.getValue("profile.?address.?city", context, user);
         assertEquals("NYC", result);
     }
 
     @Test
     void deepNullSafeChain() throws Exception {
         User user = new User("Alice", null);
-        Object result = Ognl.getValue("profile?.address?.city", context, user);
+        Object result = Ognl.getValue("profile.?address.?city", context, user);
         assertNull(result, "Deep null-safe chain should return null at first null encounter");
     }
 
@@ -211,7 +211,7 @@ class NullSafeOperatorTest {
 
     @Test
     void nullSafeMethodCallOnNull() throws Exception {
-        Object result = Ognl.getValue("#root?.toString()", context, (Object) null);
+        Object result = Ognl.getValue("#root.?toString()", context, (Object) null);
         assertNull(result, "Null-safe method call on null should return null");
     }
 
@@ -225,21 +225,21 @@ class NullSafeOperatorTest {
     @Test
     void nullSafeMethodChain() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
-        Object result = Ognl.getValue("getProfile()?.getAddress()?.getCity()", context, user);
+        Object result = Ognl.getValue("getProfile().?getAddress().?getCity()", context, user);
         assertEquals("NYC", result);
     }
 
     @Test
     void nullSafeMethodChainWithNullIntermediate() throws Exception {
         User user = new User("Alice", new Profile("Bio", null));
-        Object result = Ognl.getValue("getProfile()?.getAddress()?.getCity()", context, user);
+        Object result = Ognl.getValue("getProfile().?getAddress().?getCity()", context, user);
         assertNull(result, "Null-safe method chain should return null when intermediate is null");
     }
 
     @Test
     void mixedPropertyAndMethodNullSafe() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
-        Object result = Ognl.getValue("profile?.getAddress()?.city", context, user);
+        Object result = Ognl.getValue("profile.?getAddress().?city", context, user);
         assertEquals("NYC", result);
     }
 
@@ -252,7 +252,7 @@ class NullSafeOperatorTest {
 
     @Test
     void nullSafeMethodWithArgumentsOnNull() throws Exception {
-        Object result = Ognl.getValue("#root?.substring(0, 2)", context, (Object) null);
+        Object result = Ognl.getValue("#root.?substring(0, 2)", context, (Object) null);
         assertNull(result, "Null-safe method with arguments on null should return null");
     }
 
@@ -261,7 +261,7 @@ class NullSafeOperatorTest {
     @Test
     void nullSafeWithVariableReference() throws Exception {
         context.put("user", null);
-        Object result = Ognl.getValue("#user?.name", context, new Object());
+        Object result = Ognl.getValue("#user.?name", context, new Object());
         assertNull(result, "Null-safe operator on null variable should return null");
     }
 
@@ -269,7 +269,7 @@ class NullSafeOperatorTest {
     void nullSafeWithNonNullVariable() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
         context.put("user", user);
-        Object result = Ognl.getValue("#user?.name", context, new Object());
+        Object result = Ognl.getValue("#user.?name", context, new Object());
         assertEquals("Alice", result);
     }
 
@@ -277,7 +277,7 @@ class NullSafeOperatorTest {
     void nullSafeWithNestedVariables() throws Exception {
         User user = new User("Alice", null);
         context.put("user", user);
-        Object result = Ognl.getValue("#user?.profile?.bio", context, new Object());
+        Object result = Ognl.getValue("#user.?profile.?bio", context, new Object());
         assertNull(result);
     }
 
@@ -287,7 +287,7 @@ class NullSafeOperatorTest {
     void nullSafeProjectionOnNullList() throws Exception {
         User user = new User("Alice", null);
         user.setTags(null);
-        Object result = Ognl.getValue("tags?.{#this}", context, user);
+        Object result = Ognl.getValue("tags.?{#this}", context, user);
         assertNull(result, "Null-safe projection on null list should return null");
     }
 
@@ -305,7 +305,7 @@ class NullSafeOperatorTest {
     void nullSafeSelectionOnNullList() throws Exception {
         User user = new User("Alice", null);
         user.setTags(null);
-        Object result = Ognl.getValue("tags?.{? #this != null}", context, user);
+        Object result = Ognl.getValue("tags.?{? #this != null}", context, user);
         assertNull(result, "Null-safe selection on null list should return null");
     }
 
@@ -315,7 +315,7 @@ class NullSafeOperatorTest {
     void nullSafeMapAccess() throws Exception {
         Map<String, Object> root = new HashMap<>();
         root.put("user", null);
-        Object result = Ognl.getValue("user?.name", context, root);
+        Object result = Ognl.getValue("user.?name", context, root);
         assertNull(result);
     }
 
@@ -324,7 +324,7 @@ class NullSafeOperatorTest {
         Map<String, Object> root = new HashMap<>();
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
         root.put("user", user);
-        Object result = Ognl.getValue("user?.name", context, root);
+        Object result = Ognl.getValue("user.?name", context, root);
         assertEquals("Alice", result);
     }
 
@@ -342,14 +342,14 @@ class NullSafeOperatorTest {
     @Test
     void nullSafeWithNullCoalescing() throws Exception {
         User user = new User("Alice", null);
-        Object result = Ognl.getValue("profile?.bio ?: 'default'", context, user);
+        Object result = Ognl.getValue("profile.?bio ?: 'default'", context, user);
         assertEquals("default", result);
     }
 
     @Test
     void nullSafeWithConditional() throws Exception {
         User user = new User("Alice", null);
-        Object result = Ognl.getValue("profile?.bio != null ? 'yes' : 'no'", context, user);
+        Object result = Ognl.getValue("profile.?bio != null ? 'yes' : 'no'", context, user);
         assertEquals("no", result);
     }
 
@@ -357,7 +357,7 @@ class NullSafeOperatorTest {
     void nullSafeInAssignmentContext() throws Exception {
         User user = new User("Alice", null);
         context.put("result", null);
-        Ognl.getValue("#result = profile?.bio", context, user);
+        Ognl.getValue("#result = profile.?bio", context, user);
         assertNull(context.get("result"));
     }
 
@@ -396,7 +396,7 @@ class NullSafeOperatorTest {
         // Test with 10 levels of null-safe navigation
         User user = new User("Alice", null);
         Object result = Ognl.getValue(
-            "profile?.address?.city?.toString()?.toLowerCase()?.substring(0)?.trim()?.length()?.toString()?.isEmpty()",
+            "profile.?address.?city.?toString().?toLowerCase().?substring(0).?trim().?length().?toString().?isEmpty()",
             context, user);
         assertNull(result);
     }
@@ -404,13 +404,13 @@ class NullSafeOperatorTest {
     @Test
     void nullSafeWithThis() throws Exception {
         context.put("obj", null);
-        Object result = Ognl.getValue("#obj?.toString()", context, new Object());
+        Object result = Ognl.getValue("#obj.?toString()", context, new Object());
         assertNull(result);
     }
 
     @Test
     void nullSafeWithRoot() throws Exception {
-        Object result = Ognl.getValue("#root?.toString()", context, (Object) null);
+        Object result = Ognl.getValue("#root.?toString()", context, (Object) null);
         assertNull(result);
     }
 
@@ -430,23 +430,23 @@ class NullSafeOperatorTest {
 
         return Stream.of(
             // Basic null-safe access
-            Arguments.of("profile?.bio", userWithFullProfile, "Bio"),
-            Arguments.of("profile?.bio", userWithNullProfile, null),
+            Arguments.of("profile.?bio", userWithFullProfile, "Bio"),
+            Arguments.of("profile.?bio", userWithNullProfile, null),
             Arguments.of("name", userWithFullProfile, "Alice"),
 
             // Nested null-safe access
-            Arguments.of("profile?.address?.city", userWithFullProfile, "NYC"),
-            Arguments.of("profile?.address?.city", userWithNullProfile, null),
-            Arguments.of("profile?.address?.city", userWithProfileNoAddress, null),
+            Arguments.of("profile.?address.?city", userWithFullProfile, "NYC"),
+            Arguments.of("profile.?address.?city", userWithNullProfile, null),
+            Arguments.of("profile.?address.?city", userWithProfileNoAddress, null),
 
             // Method calls
             Arguments.of("getName()", userWithFullProfile, "Alice"),
-            Arguments.of("getProfile()?.getBio()", userWithFullProfile, "Bio"),
-            Arguments.of("getProfile()?.getBio()", userWithNullProfile, null),
+            Arguments.of("getProfile().?getBio()", userWithFullProfile, "Bio"),
+            Arguments.of("getProfile().?getBio()", userWithNullProfile, null),
 
             // Mixed chains
-            Arguments.of("profile.address?.city", userWithFullProfile, "NYC"),
-            Arguments.of("profile?.address.city", userWithFullProfile, "NYC")
+            Arguments.of("profile.address.?city", userWithFullProfile, "NYC"),
+            Arguments.of("profile.?address.city", userWithFullProfile, "NYC")
         );
     }
 
@@ -456,28 +456,28 @@ class NullSafeOperatorTest {
     void parserAcceptsDotQuestion() {
         // Just verify that the parser accepts the .? syntax without throwing parse exception
         assertDoesNotThrow(() -> {
-            Ognl.parseExpression("obj?.property");
+            Ognl.parseExpression("obj.?property");
         });
     }
 
     @Test
     void complexNullSafeExpression() {
         assertDoesNotThrow(() -> {
-            Ognl.parseExpression("a?.b?.c?.d?.e?.f");
+            Ognl.parseExpression("a.?b.?c.?d.?e.?f");
         });
     }
 
     @Test
     void nullSafeWithProjection() {
         assertDoesNotThrow(() -> {
-            Ognl.parseExpression("list?.{name}");
+            Ognl.parseExpression("list.?{name}");
         });
     }
 
     @Test
     void nullSafeWithSelection() {
         assertDoesNotThrow(() -> {
-            Ognl.parseExpression("list?.{? #this > 0}");
+            Ognl.parseExpression("list.?{? #this > 0}");
         });
     }
 
@@ -485,7 +485,7 @@ class NullSafeOperatorTest {
 
     @Test
     void nullSafeChainToString() throws Exception {
-        Object expr = Ognl.parseExpression("a?.b?.c");
+        Object expr = Ognl.parseExpression("a.?b.?c");
         String exprString = expr.toString();
         assertTrue(exprString.contains("?"), "Expression string should contain null-safe operator");
     }
@@ -501,7 +501,7 @@ class NullSafeOperatorTest {
         assertEquals("Bio", result1);
 
         // Null-safe access should also work
-        Object result2 = Ognl.getValue("profile?.bio", context, user);
+        Object result2 = Ognl.getValue("profile.?bio", context, user);
         assertEquals("Bio", result2);
     }
 
@@ -520,7 +520,7 @@ class NullSafeOperatorTest {
         User user = new User("Alice", null);
 
         // With null-safe, should always return null
-        Object result = Ognl.getValue("profile?.bio", context, user);
+        Object result = Ognl.getValue("profile.?bio", context, user);
         assertNull(result);
     }
 }

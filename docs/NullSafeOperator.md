@@ -2,7 +2,7 @@
 
 ## Overview
 
-The null-safe navigation operator `.?` provides a safe way to navigate object graphs without throwing exceptions when encountering null intermediate values. This feature is inspired by similar operators in Kotlin (`?.`), C# (`?.`), TypeScript (`?.`), Groovy (`.?`), and PHP 8.0 (`?->`).
+The null-safe navigation operator `.?` provides a safe way to navigate object graphs without throwing exceptions when encountering null intermediate values. This feature is inspired by similar operators in Kotlin (`.?`), C# (`.?`), TypeScript (`.?`), Groovy (`.?`), and PHP 8.0 (`?->`).
 
 ## Motivation
 
@@ -33,17 +33,17 @@ Explicit null-safe operator that works at any level:
 
 ```java
 // Returns null gracefully if any intermediate value is null
-String home = (String) Ognl.getValue("user?.profile?.home", context, root);
+String home = (String) Ognl.getValue("user.?profile.?home", context, root);
 ```
 
 ## Syntax
 
 ### Operator: `.?`
 
-We chose `.?` (dot-question) over `?.` (question-dot) for the following reasons:
+We chose `.?` (dot-question, "safe dot") for the following reasons:
 
-1. **Visual clarity**: The `?` follows the dot, making it read as "safe dot"
-2. **Groovy compatibility**: Groovy uses `.?` for the same purpose
+1. **Visual clarity**: The `.?` reads as "safe dot" - a dot with safety check
+2. **Distinction**: Different from Kotlin/TypeScript `?.` (question-dot), giving OGNL its own identity
 3. **No ambiguity**: No conflict with existing `?:` ternary operator
 4. **Precedence clarity**: Aligns with existing dot operator parsing
 
@@ -67,9 +67,9 @@ navigationChain() :=
 
 ```java
 // If obj is null, returns null instead of throwing exception
-obj?.property
-obj?.method()
-obj?.field
+obj.?property
+obj.?method()
+obj.?field
 ```
 
 ### Chaining
@@ -81,10 +81,10 @@ Each `.?` operator is independent and short-circuits only that specific access:
 a.b.c.d
 
 // Fully null-safe: null if any value is null
-a?.b?.c?.d
+a.?b.?c.?d
 
 // Mixed: exception if 'a' is null, null if 'b' is null, exception if 'c' is null
-a.b?.c.d
+a.b.?c.d
 ```
 
 ### Method Calls
@@ -92,7 +92,7 @@ a.b?.c.d
 Null-safe operator works with method invocations:
 
 ```java
-user?.getProfile()?.getHome()
+user.?getProfile().?getHome()
 
 // If user is null: does not call getProfile(), returns null
 // If user.getProfile() is null: does not call getHome(), returns null
@@ -105,7 +105,7 @@ Null-safe operator works with array/collection access:
 ```java
 array?.?[0]           // Null if array is null
 map?.?["key"]         // Null if map is null
-user?.addresses?.?[0] // Null if user or addresses is null
+user.?addresses?.?[0] // Null if user or addresses is null
 ```
 
 ### Edge Cases
@@ -113,7 +113,7 @@ user?.addresses?.?[0] // Null if user or addresses is null
 #### 1. Null Root Object
 
 ```java
-null?.property  // Returns null
+null.?property  // Returns null
 ```
 
 #### 2. Multiple Null-Safe Operators
@@ -126,25 +126,25 @@ a?.?b?.?c?.?d  // Each level checked independently
 
 ```java
 // Null coalescing with safe access
-(user?.profile ?: defaultProfile).home
+(user.?profile ?: defaultProfile).home
 
 // Conditional with safe access
-user?.profile?.verified ? "yes" : "no"
+user.?profile.?verified ? "yes" : "no"
 
 // Method call results
-user?.getScores()?.{? #this > 50}  // Projection on potentially null collection
+user.?getScores().?{? #this > 50}  // Projection on potentially null collection
 ```
 
 #### 4. Assignment (Setter) Semantics
 
 **Phase 1 (Current)**: Read-only support
 ```java
-user?.profile?.home  // Supported: returns null if any part is null
+user.?profile.?home  // Supported: returns null if any part is null
 ```
 
 **Future Phase**: Setter semantics (to be determined)
 ```java
-user?.profile?.home = "new value"  // TBD: Should this be a no-op if user or profile is null?
+user.?profile.?home = "new value"  // TBD: Should this be a no-op if user or profile is null?
 ```
 
 Decision deferred to gather user feedback on expected behavior.
@@ -318,7 +318,7 @@ user.profile.home  // May return null due to short-circuit
 user.profile.home  // Throws exception if profile is null
 
 // Null-safe operator: always returns null regardless of system property
-user?.profile?.home  // Always returns null if any part is null
+user.?profile.?home  // Always returns null if any part is null
 ```
 
 ### 2. NullHandler
@@ -330,7 +330,7 @@ Null-safe operator **bypasses** NullHandler for that specific access:
 user.profile  // NullHandler.nullPropertyValue() called if profile is null
 
 // With null-safe: NullHandler NOT invoked
-user?.profile  // Simply returns null, NullHandler not consulted
+user.?profile  // Simply returns null, NullHandler not consulted
 ```
 
 **Rationale**: The null-safe operator expresses explicit intent to handle null. If users want custom null handling, they should use regular `.` access.
@@ -344,10 +344,10 @@ Null-safe operator protects the collection access:
 users.{name}
 
 // Null if users is null
-users?.{name}
+users.?{name}
 
 // Null if users is null, otherwise projection proceeds normally
-users?.{? #this.age > 18}
+users.?{? #this.age > 18}
 ```
 
 ### 4. Method Invocation
@@ -359,7 +359,7 @@ Null-safe prevents method calls on null objects:
 user.getProfile().getHome()
 
 // Null if user is null (getProfile not called)
-user?.getProfile()?.getHome()
+user.?getProfile().?getHome()
 ```
 
 ## Testing Strategy
@@ -367,16 +367,16 @@ user?.getProfile()?.getHome()
 ### Test Categories
 
 #### 1. Basic Property Access (10 tests)
-- Null root object: `null?.property`
-- Non-null access: `object?.property`
-- Nested null-safe: `a?.b?.c`
-- Mixed safe/unsafe: `a.b?.c.d`
+- Null root object: `null.?property`
+- Non-null access: `object.?property`
+- Nested null-safe: `a.?b.?c`
+- Mixed safe/unsafe: `a.b.?c.d`
 
 #### 2. Method Calls (8 tests)
-- Null object method: `null?.method()`
-- Method chain: `obj?.method1()?.method2()`
-- Method with arguments: `obj?.method(arg1, arg2)`
-- Mixed property and method: `obj?.property?.method()`
+- Null object method: `null.?method()`
+- Method chain: `obj.?method1().?method2()`
+- Method with arguments: `obj.?method(arg1, arg2)`
+- Mixed property and method: `obj.?property.?method()`
 
 #### 3. Indexed Access (8 tests)
 - Null array: `null?.?[0]`
@@ -385,23 +385,23 @@ user?.getProfile()?.getHome()
 - Nested indexed: `matrix?.?[0]?.?[0]`
 
 #### 4. Collection Operations (8 tests)
-- Null projection: `null?.{name}`
-- Null selection: `null?.{? #this > 0}`
-- Safe projection: `list?.{name}`
-- Safe selection: `list?.{? #this.verified}`
+- Null projection: `null.?{name}`
+- Null selection: `null.?{? #this > 0}`
+- Safe projection: `list.?{name}`
+- Safe selection: `list.?{? #this.verified}`
 
 #### 5. Combined Operators (10 tests)
-- Null coalescing: `obj?.prop ?: default`
-- Conditional: `obj?.prop ? 'yes' : 'no'`
-- Assignment context: `#var = obj?.prop`
-- Arithmetic: `(obj?.value ?: 0) + 10`
+- Null coalescing: `obj.?prop ?: default`
+- Conditional: `obj.?prop ? 'yes' : 'no'`
+- Assignment context: `#var = obj.?prop`
+- Arithmetic: `(obj.?value ?: 0) + 10`
 
 #### 6. Edge Cases (12 tests)
 - Multiple consecutive: `a?.?b?.?c`
-- Empty strings: `obj?.""` (if allowed)
-- Special values: `obj?.null`, `obj?.true`
-- Variable references: `#root?.#var?.prop`
-- Static references: `@Class@FIELD?.method()`
+- Empty strings: `obj.?""` (if allowed)
+- Special values: `obj.?null`, `obj.?true`
+- Variable references: `#root.?#var.?prop`
+- Static references: `@Class@FIELD.?method()`
 - Deep nesting: 10+ levels of null-safe access
 
 #### 7. Bytecode Compilation (10 tests)
@@ -476,7 +476,7 @@ try { return user.profile.home; } catch (NullPointerException e) { return null; 
 user != null ? (user.profile != null ? user.profile.home : null) : null
 
 // Null-safe operator (new)
-user?.profile?.home
+user.?profile.?home
 ```
 
 Expected: Null-safe operator should be **faster** than try-catch and **comparable** to ternary chain.
@@ -489,13 +489,13 @@ Setter semantics for null-safe chains:
 
 ```java
 // Option 1: Silent no-op (Kotlin style)
-user?.profile?.home = "new"  // Does nothing if user or profile is null
+user.?profile.?home = "new"  // Does nothing if user or profile is null
 
 // Option 2: Create intermediate objects
-user?.profile?.home = "new"  // Creates profile if null (risky)
+user.?profile.?home = "new"  // Creates profile if null (risky)
 
 // Option 3: Error
-user?.profile?.home = "new"  // Compile error or runtime exception
+user.?profile.?home = "new"  // Compile error or runtime exception
 ```
 
 **Decision**: Deferred pending community feedback.
@@ -503,14 +503,14 @@ user?.profile?.home = "new"  // Compile error or runtime exception
 ### Phase 3: Null Coalescing Assignment
 
 ```java
-user?.profile?.home ?: "default"  // Already works
-user?.profile?.home ?= "default"  // Future: assign only if null
+user.?profile.?home ?: "default"  // Already works
+user.?profile.?home ?= "default"  // Future: assign only if null
 ```
 
 ### Phase 4: Null-Safe Method Reference
 
 ```java
-users?.{?.getName()}  // Null-safe within projection
+users.?{.?getName()}  // Null-safe within projection
 ```
 
 ## Migration Guide
@@ -539,7 +539,7 @@ try {
 **After:**
 ```java
 // Concise and explicit
-String home = Ognl.getValue("user?.getProfile()?.getHome()", context, root);
+String home = Ognl.getValue("user.?getProfile().?getHome()", context, root);
 ```
 
 ### Interaction with NullHandler
@@ -556,7 +556,7 @@ class MyNullHandler implements NullHandler {
 
 // New behavior:
 user.profile      // Returns "DEFAULT" via NullHandler if profile is null
-user?.profile     // Returns null, NullHandler NOT invoked
+user.?profile     // Returns null, NullHandler NOT invoked
 ```
 
 **Recommendation**: Use `.?` when you want explicit null returns. Use regular `.` when you want NullHandler behavior.
@@ -569,48 +569,48 @@ user?.profile     // Returns null, NullHandler NOT invoked
 
 ```java
 // Get user's home city, null if any intermediate value is null
-String city = Ognl.getValue("user?.profile?.address?.city", context, root);
+String city = Ognl.getValue("user.?profile.?address.?city", context, root);
 ```
 
 #### 2. Optional Configuration
 
 ```java
 // Get optional config value
-Integer timeout = Ognl.getValue("config?.database?.timeout ?: 3000", context, root);
+Integer timeout = Ognl.getValue("config.?database.?timeout ?: 3000", context, root);
 ```
 
 #### 3. Collection Processing
 
 ```java
 // Get names of active users, null if users list is null
-List<String> names = Ognl.getValue("users?.{? #this.active}?.{name}", context, root);
+List<String> names = Ognl.getValue("users.?{? #this.active}.?{name}", context, root);
 ```
 
 #### 4. API Response Handling
 
 ```java
 // Navigate JSON-like structure safely
-Object data = Ognl.getValue("response?.body?.data?.items?.?[0]?.id", context, root);
+Object data = Ognl.getValue("response.?body.?data.?items?.?[0].?id", context, root);
 ```
 
 #### 5. Conditional UI Rendering
 
 ```java
 // Check if user has admin role, false if user is null
-boolean isAdmin = Ognl.getValue("user?.roles?.contains('ADMIN') ?: false", context, root);
+boolean isAdmin = Ognl.getValue("user.?roles.?contains('ADMIN') ?: false", context, root);
 ```
 
 ## References
 
 ### Similar Features in Other Languages
 
-1. **Kotlin**: `?.` operator
+1. **Kotlin**: `.?` operator
    - Docs: https://kotlinlang.org/docs/null-safety.html
 
-2. **C#**: `?.` operator (Null-conditional operator)
+2. **C#**: `.?` operator (Null-conditional operator)
    - Docs: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/member-access-operators#null-conditional-operators--and-
 
-3. **TypeScript**: `?.` (Optional chaining)
+3. **TypeScript**: `.?` (Optional chaining)
    - Docs: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#optional-chaining
 
 4. **Groovy**: `.?` (Safe navigation operator)

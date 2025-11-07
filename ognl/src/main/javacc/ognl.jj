@@ -978,7 +978,7 @@ void navigationChain() : {
 }
 {
     primaryExpression()
-    (   ( "." { nullSafe = false; } | ".?" { nullSafe = true; } )/*@bgen(jjtree) #Chain( 2) */
+    (   ( ".?" { nullSafe = true; } | "." { nullSafe = false; } )/*@bgen(jjtree) #Chain( 2) */
         {
           ASTChain jjtn001 = new ASTChain(JJTCHAIN);
           boolean jjtc001 = true;
