@@ -140,13 +140,13 @@ class NullSafeOperatorTest {
 
     @Test
     void nullRootWithNullSafeOperator() throws Exception {
-        Object result = Ognl.getValue("name", context, null);
+        Object result = Ognl.getValue("name", context, (Object) null);
         assertNull(result, "Accessing property on null root should return null");
     }
 
     @Test
     void nullSafeOnNullRoot() throws Exception {
-        Object result = Ognl.getValue("#root?.name", context, null);
+        Object result = Ognl.getValue("#root?.name", context, (Object) null);
         assertNull(result, "Null-safe operator on null root should return null");
     }
 
@@ -211,7 +211,7 @@ class NullSafeOperatorTest {
 
     @Test
     void nullSafeMethodCallOnNull() throws Exception {
-        Object result = Ognl.getValue("#root?.toString()", context, null);
+        Object result = Ognl.getValue("#root?.toString()", context, (Object) null);
         assertNull(result, "Null-safe method call on null should return null");
     }
 
@@ -252,7 +252,7 @@ class NullSafeOperatorTest {
 
     @Test
     void nullSafeMethodWithArgumentsOnNull() throws Exception {
-        Object result = Ognl.getValue("#root?.substring(0, 2)", context, null);
+        Object result = Ognl.getValue("#root?.substring(0, 2)", context, (Object) null);
         assertNull(result, "Null-safe method with arguments on null should return null");
     }
 
@@ -410,7 +410,7 @@ class NullSafeOperatorTest {
 
     @Test
     void nullSafeWithRoot() throws Exception {
-        Object result = Ognl.getValue("#root?.toString()", context, null);
+        Object result = Ognl.getValue("#root?.toString()", context, (Object) null);
         assertNull(result);
     }
 
