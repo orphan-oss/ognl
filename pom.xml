@@ -22,7 +22,7 @@
         <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <javacc-maven-plugin.version>3.1.1</javacc-maven-plugin.version>
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
-        <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
+        <maven-release-plugin.version>3.2.0</maven-release-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     </properties>
 
