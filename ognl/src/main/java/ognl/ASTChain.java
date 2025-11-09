@@ -31,6 +31,7 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
     private static final long serialVersionUID = -4684366534386585181L;
 
     private final boolean shortCircuit = Boolean.parseBoolean(System.getProperty("ognl.chain.short-circuit", "true"));
+    private boolean nullSafe = false;
 
     private Class<?> getterClass;
     private Class<?> setterClass;
@@ -57,8 +58,31 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
         flattenTree();
     }
 
+    /**
+     * Sets whether this chain uses null-safe navigation (.? operator).
+     *
+     * @param nullSafe true if this is a null-safe chain, false otherwise
+     */
+    public void setNullSafe(boolean nullSafe) {
+        this.nullSafe = nullSafe;
+    }
+
+    /**
+     * Returns whether this chain uses null-safe navigation.
+     *
+     * @return true if this is a null-safe chain, false otherwise
+     */
+    public boolean isNullSafe() {
+        return nullSafe;
+    }
+
     protected Object getValueBody(C context, Object source) throws OgnlException {
         Object result = source;
+
+        // null-safe operator: return null immediately if source is null
+        if (nullSafe && result == null) {
+            return null;
+        }
 
         // short-circuit the chain only in case if the root is null and this isn't IN operator
         if (shortCircuit && result == null && !(parent instanceof ASTIn)) {
@@ -66,6 +90,11 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
         }
 
         for (int i = 0, ilast = children.length - 1; i <= ilast; ++i) {
+            // null-safe operator: return null if intermediate result is null
+            if (nullSafe && result == null) {
+                return null;
+            }
+
             // short-circuit the chain only in case if the root is null and accessing property
             if (shortCircuit && result == null && (children[i] instanceof ASTProperty)) {
                 return null;
@@ -228,7 +257,7 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
             for (int i = 0; i < children.length; i++) {
                 if (i > 0) {
                     if (!(children[i] instanceof ASTProperty) || !((ASTProperty<C>) children[i]).isIndexedAccess()) {
-                        result.append(".");
+                        result.append(nullSafe ? ".?" : ".");
                     }
                 }
                 result.append(children[i].toString());
@@ -243,6 +272,11 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
         if (target != null) {
             context.setCurrentObject(target);
             context.setCurrentType(target.getClass());
+        }
+
+        // For null-safe chains, wrap in null check
+        if (nullSafe && target == null) {
+            return "null";
         }
 
         String result = "";

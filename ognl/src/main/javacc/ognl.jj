@@ -973,10 +973,13 @@ void unaryExpression() : {
 
 
 // navigation chain: property references, method calls, projections, selections, etc.
-void navigationChain() : {}
+// Supports null-safe navigation with the .? operator
+void navigationChain() : {
+    boolean nullSafe = false;
+}
 {
     primaryExpression()
-    (   "."/*@bgen(jjtree) #Chain( 2) */
+    (   ( <SAFE_DOT> { nullSafe = true; } | "." { nullSafe = false; } )/*@bgen(jjtree) #Chain( 2) */
         {
           ASTChain jjtn001 = new ASTChain(JJTCHAIN);
           boolean jjtc001 = true;
@@ -990,6 +993,9 @@ void navigationChain() : {}
         |   ( LOOKAHEAD(2) projection() | selection() )
         |   "(" expression() ")"
         )/*@bgen(jjtree)*/
+        {
+          jjtn001.setNullSafe(nullSafe);
+        }
         } catch (Throwable jjte001) {
           if (jjtc001) {
             jjtree.clearNodeScope(jjtn001);
@@ -1893,6 +1899,12 @@ TOKEN_MGR_DECLS:
 // Whitespace -- ignored
 SKIP:
 {  " " | "\t" | "\f" | "\r" | "\n" }
+
+// Null-safe navigation operator (must be defined before IDENT to ensure proper tokenization)
+TOKEN:
+{
+    < SAFE_DOT: ".?" >
+}
 
 // An identifier.
 TOKEN:
