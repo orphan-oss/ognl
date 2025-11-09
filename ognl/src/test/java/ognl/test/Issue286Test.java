@@ -20,7 +20,6 @@ package ognl.test;
 
 import ognl.Ognl;
 import ognl.OgnlContext;
-import ognl.OgnlRuntime;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -30,13 +29,12 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test for Issue #286: OGNL choosing method on unexported class rather than exported interface
- *
+ * <p>
  * The issue occurs when OGNL selects a method from an internal implementation class
  * (like sun.security.x509.X509CertImpl) instead of the public interface
  * (java.security.cert.X509Certificate), causing IllegalAccessException due to module restrictions.
@@ -44,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class Issue286Test {
 
     @Test
-    void x509CertificateMethodResolution() throws Exception {
+    void x509CertificateMethodResolution() {
         // Simulates the issue where OGNL selects a method from an internal implementation
         // (like sun.security.x509.X509CertImpl for X509Certificate) instead of the public interface
         TestInterface obj = new InternalImplementation();
@@ -77,7 +75,7 @@ class Issue286Test {
      */
     @Test
     void interfaceMethodOnArrayElement() throws Exception {
-        TestInterface[] array = new TestInterface[] { new InternalImplementation() };
+        TestInterface[] array = new TestInterface[]{new InternalImplementation()};
         OgnlContext context = Ognl.createDefaultContext(array);
 
         // This simulates the original issue: calling a method on an array element
@@ -368,8 +366,7 @@ class Issue286Test {
     @Test
     void getMethodsIncludesInterfaceAndClassMethods() throws Exception {
         // Test that getMethods returns methods from both the class and its interfaces
-        Map<String, String> map = new HashMap<>();
-        Class<?> clazz = map.getClass();
+        Class<?> clazz = HashMap.class;
 
         // Get methods - this uses OgnlRuntime.getMethods internally
         Method[] methods = clazz.getMethods();
@@ -510,6 +507,7 @@ class Issue286Test {
 
     public interface OverloadedInterface {
         Integer compute(int a);
+
         Integer compute(int a, int b);
     }
 
@@ -529,7 +527,7 @@ class Issue286Test {
         String abstractMethod();
     }
 
-    public static abstract class AbstractBase implements AbstractInterface {
+    public abstract static class AbstractBase implements AbstractInterface {
         public abstract String abstractMethod();
     }
 
