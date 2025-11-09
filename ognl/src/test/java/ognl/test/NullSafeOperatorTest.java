@@ -26,13 +26,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Comprehensive test suite for the null-safe navigation operator (.?)
@@ -135,8 +136,6 @@ class NullSafeOperatorTest {
         context = Ognl.createDefaultContext(null);
     }
 
-    // ========== Basic Property Access Tests ==========
-
     @Test
     void nullRootWithNullSafeOperator() throws Exception {
         // Null root returns null due to short-circuit behavior
@@ -150,11 +149,20 @@ class NullSafeOperatorTest {
         assertNull(result, "Null-safe operator on null root should return null");
     }
 
-    @Test
-    void nullSafeOnNonNullObject() throws Exception {
+    @ParameterizedTest
+    @MethodSource("successfulNavigationTestCases")
+    void successfulNavigation(String expression, Object expected) throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
-        Object result = Ognl.getValue("name", context, user);
-        assertEquals("Alice", result);
+        Object result = Ognl.getValue(expression, context, user);
+        assertEquals(expected, result);
+    }
+
+    static Stream<Arguments> successfulNavigationTestCases() {
+        return Stream.of(
+                Arguments.of("name", "Alice"),
+                Arguments.of("getProfile().?getAddress().?getCity()", "NYC"),
+                Arguments.of("profile.?getAddress().?city", "NYC")
+        );
     }
 
     @Test
@@ -199,8 +207,6 @@ class NullSafeOperatorTest {
         );
     }
 
-    // ========== Method Call Tests ==========
-
     @Test
     void nullSafeMethodCallOnNull() throws Exception {
         Object result = Ognl.getValue("#root.?toString()", context, (Object) null);
@@ -215,24 +221,10 @@ class NullSafeOperatorTest {
     }
 
     @Test
-    void nullSafeMethodChain() throws Exception {
-        User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
-        Object result = Ognl.getValue("getProfile().?getAddress().?getCity()", context, user);
-        assertEquals("NYC", result);
-    }
-
-    @Test
     void nullSafeMethodChainWithNullIntermediate() throws Exception {
         User user = new User("Alice", new Profile("Bio", null));
         Object result = Ognl.getValue("getProfile().?getAddress().?getCity()", context, user);
         assertNull(result, "Null-safe method chain should return null when intermediate is null");
-    }
-
-    @Test
-    void mixedPropertyAndMethodNullSafe() throws Exception {
-        User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
-        Object result = Ognl.getValue("profile.?getAddress().?city", context, user);
-        assertEquals("NYC", result);
     }
 
     @Test
@@ -247,8 +239,6 @@ class NullSafeOperatorTest {
         Object result = Ognl.getValue("#root.?substring(0, 2)", context, (Object) null);
         assertNull(result, "Null-safe method with arguments on null should return null");
     }
-
-    // ========== Variable Reference Tests ==========
 
     @Test
     void nullSafeWithVariableReference() throws Exception {
@@ -272,8 +262,6 @@ class NullSafeOperatorTest {
         Object result = Ognl.getValue("#user.?profile.?bio", context, new Object());
         assertNull(result);
     }
-
-    // ========== Map Access Tests ==========
 
     @Test
     void nullSafeMapAccess() throws Exception {
@@ -301,8 +289,6 @@ class NullSafeOperatorTest {
         Object result = Ognl.getValue("map", context, root);
         assertNull(result, "Null map value should be null");
     }
-
-    // ========== Parameterized Tests ==========
 
     @ParameterizedTest
     @MethodSource("nullSafeTestCases")
@@ -337,8 +323,6 @@ class NullSafeOperatorTest {
                 Arguments.of("profile.?address.city", userWithFullProfile, "NYC")
         );
     }
-
-    // ========== Parser Tests ==========
 
     @Test
     void parserAcceptsDotQuestion() {
