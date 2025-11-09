@@ -21,7 +21,6 @@ package ognl.test;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -101,16 +100,12 @@ class NullSafeCollectionTest {
 
     static Stream<Arguments> propertyAccessTestCases() {
         return Stream.of(
-                // Array property tests
                 Arguments.of("items.?length", new String[]{"a", "b", "c"}, 3),
                 Arguments.of("items.?length", null, null),
-                // List property tests
                 Arguments.of("items.?size()", Arrays.asList("a", "b", "c"), 3),
                 Arguments.of("items.?size()", null, null)
         );
     }
-
-    // ========== Dynamic Subscript Tests ==========
 
     @ParameterizedTest
     @MethodSource("dynamicSubscriptTestCases")

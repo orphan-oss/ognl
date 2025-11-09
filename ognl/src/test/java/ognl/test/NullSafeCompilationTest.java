@@ -88,44 +88,36 @@ class NullSafeCompilationTest {
 
     @BeforeEach
     void setUp() {
-        context = (OgnlContext) Ognl.createDefaultContext(null);
+        context = Ognl.createDefaultContext(null);
     }
-
-    // ========== Expression Compilation Tests ==========
 
     @Test
     void nullSafeWithCompiledExpression() throws Exception {
         User user = new User("Alice", null);
         Object expr = Ognl.parseExpression("profile.?bio");
 
-        // Compile the expression
         try {
             Object compiled = Ognl.compileExpression(context, user, "profile.?bio");
             assertNotNull(compiled, "Compiled expression should not be null");
         } catch (Exception e) {
-            // Compilation may not be supported in all cases, but should not throw for null-safe
+            fail(e.getMessage());
         }
 
-        // Verify evaluation still works
         Object result = Ognl.getValue(expr, context, user);
         assertNull(result);
     }
 
     @Test
     void nullSafeToGetSourceString() throws Exception {
-        User user = new User("Alice", null);
         Object expr = Ognl.parseExpression("profile.?address.?city");
 
-        // This should trigger toGetSourceString in ASTChain
         try {
             String source = OgnlRuntime.getCompiler().getClassName(expr.getClass());
             assertNotNull(source);
         } catch (Exception e) {
-            // May not be fully supported, but shouldn't throw
+            fail(e.getMessage());
         }
     }
-
-    // ========== toString() Tests ==========
 
     @ParameterizedTest
     @MethodSource("toStringTestCases")
