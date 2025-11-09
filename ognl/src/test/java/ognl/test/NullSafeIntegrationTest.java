@@ -20,20 +20,26 @@ package ognl.test;
 
 import ognl.Ognl;
 import ognl.OgnlContext;
-import ognl.OgnlException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Integration tests for null-safe operator (.?) including edge cases,
  * combined operators, and interaction with other OGNL features.
  */
-public class NullSafeIntegrationTest {
+class NullSafeIntegrationTest {
 
     private OgnlContext context;
 
@@ -46,8 +52,13 @@ public class NullSafeIntegrationTest {
             this.profile = profile;
         }
 
-        public String getName() { return name; }
-        public Profile getProfile() { return profile; }
+        public String getName() {
+            return name;
+        }
+
+        public Profile getProfile() {
+            return profile;
+        }
     }
 
     static class Profile {
@@ -60,9 +71,17 @@ public class NullSafeIntegrationTest {
             this.address = address;
         }
 
-        public String getBio() { return bio; }
-        public Address getAddress() { return address; }
-        public boolean isVerified() { return verified; }
+        public String getBio() {
+            return bio;
+        }
+
+        public Address getAddress() {
+            return address;
+        }
+
+        public boolean isVerified() {
+            return verified;
+        }
     }
 
     static class Address {
@@ -74,8 +93,13 @@ public class NullSafeIntegrationTest {
             this.street = street;
         }
 
-        public String getCity() { return city; }
-        public String getStreet() { return street; }
+        public String getCity() {
+            return city;
+        }
+
+        public String getStreet() {
+            return street;
+        }
     }
 
     @BeforeEach
@@ -85,19 +109,19 @@ public class NullSafeIntegrationTest {
 
     // ========== Combined Operator Tests ==========
 
-    @Test
-    void nullSafeWithNullCoalescing() throws Exception {
+    @ParameterizedTest
+    @MethodSource("conditionalOperatorTestCases")
+    void nullSafeWithConditionalOperators(String expression, Object expected) throws Exception {
         User user = new User("Alice", null);
-        // Use ternary operator since OGNL doesn't have ?: Elvis operator
-        Object result = Ognl.getValue("profile.?bio != null ? profile.?bio : 'default'", context, user);
-        assertEquals("default", result);
+        Object result = Ognl.getValue(expression, context, user);
+        assertEquals(expected, result);
     }
 
-    @Test
-    void nullSafeWithConditional() throws Exception {
-        User user = new User("Alice", null);
-        Object result = Ognl.getValue("profile.?bio != null ? 'yes' : 'no'", context, user);
-        assertEquals("no", result);
+    static Stream<Arguments> conditionalOperatorTestCases() {
+        return Stream.of(
+                Arguments.of("profile.?bio != null ? profile.?bio : 'default'", "default"),
+                Arguments.of("profile.?bio != null ? 'yes' : 'no'", "no")
+        );
     }
 
     @Test
@@ -118,11 +142,16 @@ public class NullSafeIntegrationTest {
 
     // ========== Edge Cases ==========
 
-    @Test
-    void consecutiveNullSafeOperators() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "profile.?address.?city",
+            "profile.?address.?city.?toString()",
+            "profile.?address.?city.?toString().?toLowerCase().?substring(0).?trim().?length().?toString().?isEmpty()"
+    })
+    void deepNullSafeChains(String expression) throws Exception {
         User user = new User("Alice", null);
-        Object result = Ognl.getValue("profile.?address.?city", context, user);
-        assertNull(result);
+        Object result = Ognl.getValue(expression, context, user);
+        assertNull(result, "Deep null-safe chain should return null if any intermediate is null");
     }
 
     @Test
@@ -137,15 +166,6 @@ public class NullSafeIntegrationTest {
         // Static methods combined with null-safe property access
         Object result = Ognl.getValue("@java.lang.System@getProperty('java.version').?toString()", context, new Object());
         assertNotNull(result);
-    }
-
-    @Test
-    void veryDeepNullSafeChain() throws Exception {
-        User user = new User("Alice", null);
-        Object result = Ognl.getValue(
-            "profile.?address.?city.?toString().?toLowerCase().?substring(0).?trim().?length().?toString().?isEmpty()",
-            context, user);
-        assertNull(result, "Very deep null-safe chain should return null if any intermediate is null");
     }
 
     @Test

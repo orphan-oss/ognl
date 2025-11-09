@@ -20,18 +20,21 @@ package ognl.test;
 
 import ognl.Ognl;
 import ognl.OgnlContext;
-import ognl.OgnlException;
 import ognl.OgnlRuntime;
-import ognl.test.objects.Root;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for null-safe operator (.?) expression compilation and toString() functionality.
  */
-public class NullSafeCompilationTest {
+class NullSafeCompilationTest {
 
     private OgnlContext context;
 
@@ -44,8 +47,13 @@ public class NullSafeCompilationTest {
             this.profile = profile;
         }
 
-        public String getName() { return name; }
-        public Profile getProfile() { return profile; }
+        public String getName() {
+            return name;
+        }
+
+        public Profile getProfile() {
+            return profile;
+        }
     }
 
     static class Profile {
@@ -57,8 +65,13 @@ public class NullSafeCompilationTest {
             this.address = address;
         }
 
-        public String getBio() { return bio; }
-        public Address getAddress() { return address; }
+        public String getBio() {
+            return bio;
+        }
+
+        public Address getAddress() {
+            return address;
+        }
     }
 
     static class Address {
@@ -68,7 +81,9 @@ public class NullSafeCompilationTest {
             this.city = city;
         }
 
-        public String getCity() { return city; }
+        public String getCity() {
+            return city;
+        }
     }
 
     @BeforeEach
@@ -112,27 +127,22 @@ public class NullSafeCompilationTest {
 
     // ========== toString() Tests ==========
 
-    @Test
-    void nullSafeChainToString() throws Exception {
-        Object expr = Ognl.parseExpression("a.?b.?c");
+    @ParameterizedTest
+    @MethodSource("toStringTestCases")
+    void expressionToString(String expression, String expectedSubstring) throws Exception {
+        Object expr = Ognl.parseExpression(expression);
         String exprString = expr.toString();
-        assertTrue(exprString.contains("?"), "Expression string should contain null-safe operator");
-    }
-
-    @Test
-    void toStringWithPropertyChain() throws Exception {
-        Object expr = Ognl.parseExpression("user.?profile");
-        String exprString = expr.toString();
-        assertTrue(exprString.contains("user"), "Expression should contain property name");
-    }
-
-    @Test
-    void toStringWithNullSafeChain() throws Exception {
-        Object expr = Ognl.parseExpression("user.?name");
-        String exprString = expr.toString();
-        // The parsed expression should have the structure preserved
         assertNotNull(exprString, "Expression string should not be null");
-        assertTrue(exprString.contains("user"), "Expression should contain 'user'");
+        assertTrue(exprString.contains(expectedSubstring),
+                "Expression string should contain '" + expectedSubstring + "'");
+    }
+
+    static Stream<Arguments> toStringTestCases() {
+        return Stream.of(
+                Arguments.of("a.?b.?c", "?"),
+                Arguments.of("user.?profile", "user"),
+                Arguments.of("user.?name", "user")
+        );
     }
 
     @Test

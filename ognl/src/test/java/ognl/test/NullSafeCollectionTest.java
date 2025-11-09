@@ -20,172 +20,118 @@ package ognl.test;
 
 import ognl.Ognl;
 import ognl.OgnlContext;
-import ognl.OgnlException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Tests for null-safe operator (.?) with collections, arrays, and dynamic subscripts.
  */
-public class NullSafeCollectionTest {
+class NullSafeCollectionTest {
 
     private OgnlContext context;
 
     @BeforeEach
     void setUp() {
-        context = (OgnlContext) Ognl.createDefaultContext(null);
+        context = Ognl.createDefaultContext(null);
     }
 
-    // ========== Collection Projection Tests ==========
-
-    @Test
-    void nullSafeProjectionOnNullList() throws Exception {
-        Map<String, Object> root = new HashMap<>();
-        root.put("users", null);
-
-        Object result = Ognl.getValue("users.?{name}", context, root);
-        assertNull(result, "Projection on null list should return null");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "list.?{name}",
+            "list.?{? #this.active}",
+            "items.?{? #this > 0}"
+    })
+    void nullSafeExpressionParsing(String expression) {
+        assertDoesNotThrow(() -> {
+            Object expr = Ognl.parseExpression(expression);
+            assertNotNull(expr);
+        });
     }
 
-    @Test
-    void nullSafeProjectionOnNonNullList() throws Exception {
+    @ParameterizedTest
+    @MethodSource("projectionSelectionTestCases")
+    void nullSafeProjectionAndSelection(String expression, Object value, boolean expectNull) throws Exception {
         Map<String, Object> root = new HashMap<>();
+        root.put("items", value);
+
+        Object result = Ognl.getValue(expression, context, root);
+        if (expectNull) {
+            assertNull(result);
+        } else {
+            assertNotNull(result);
+        }
+    }
+
+    static Stream<Arguments> projectionSelectionTestCases() {
         List<Map<String, String>> users = Arrays.asList(
                 createMap("name", "Alice"),
                 createMap("name", "Bob")
         );
-        root.put("users", users);
-
-        Object result = Ognl.getValue("users.{name}", context, root);
-        assertNotNull(result);
+        return Stream.of(
+                Arguments.of("items.?{name}", null, true),
+                Arguments.of("items.{name}", users, false),
+                Arguments.of("items.?{? #this > 0}", null, true)
+        );
     }
 
-    @Test
-    void nullSafeWithProjection() {
-        // Test parsing of null-safe with projection
-        assertDoesNotThrow(() -> {
-            Object expr = Ognl.parseExpression("list.?{name}");
-            assertNotNull(expr);
-        });
-    }
-
-    // ========== Collection Selection Tests ==========
-
-    @Test
-    void nullSafeSelectionOnNullList() throws Exception {
+    @ParameterizedTest
+    @MethodSource("propertyAccessTestCases")
+    void nullSafePropertyAccess(String expression, Object value, Object expected) throws Exception {
         Map<String, Object> root = new HashMap<>();
-        root.put("items", null);
+        root.put("items", value);
 
-        Object result = Ognl.getValue("items.?{? #this > 0}", context, root);
-        assertNull(result, "Selection on null list should return null");
+        Object result = Ognl.getValue(expression, context, root);
+        assertEquals(expected, result);
     }
 
-    @Test
-    void nullSafeWithSelection() {
-        // Test parsing of null-safe with selection
-        assertDoesNotThrow(() -> {
-            Object expr = Ognl.parseExpression("list.?{? #this.active}");
-            assertNotNull(expr);
-        });
-    }
-
-    // ========== Array Property Access Tests ==========
-
-    @Test
-    void nullSafeWithArrayProperty() throws Exception {
-        Map<String, Object> root = new HashMap<>();
-        root.put("items", new String[]{"a", "b", "c"});
-
-        Object result = Ognl.getValue("items.?length", context, root);
-        assertEquals(3, result);
-    }
-
-    @Test
-    void nullSafeWithNullArrayProperty() throws Exception {
-        Map<String, Object> root = new HashMap<>();
-        root.put("items", null);
-
-        Object result = Ognl.getValue("items.?length", context, root);
-        assertNull(result);
-    }
-
-    @Test
-    void nullSafeArrayPropertyAccess() throws Exception {
-        // Test null-safe on array property itself
-        Map<String, Object> root = new HashMap<>();
-        root.put("items", null);
-
-        // Null-safe on property that is null
-        Object result = Ognl.getValue("items.?length", context, root);
-        assertNull(result);
-    }
-
-    // ========== List Property Access Tests ==========
-
-    @Test
-    void nullSafeWithListProperty() throws Exception {
-        Map<String, Object> root = new HashMap<>();
-        root.put("items", Arrays.asList("a", "b", "c"));
-
-        Object result = Ognl.getValue("items.?size()", context, root);
-        assertEquals(3, result);
-    }
-
-    @Test
-    void nullSafeWithNullListProperty() throws Exception {
-        Map<String, Object> root = new HashMap<>();
-        root.put("items", null);
-
-        Object result = Ognl.getValue("items.?size()", context, root);
-        assertNull(result);
+    static Stream<Arguments> propertyAccessTestCases() {
+        return Stream.of(
+                // Array property tests
+                Arguments.of("items.?length", new String[]{"a", "b", "c"}, 3),
+                Arguments.of("items.?length", null, null),
+                // List property tests
+                Arguments.of("items.?size()", Arrays.asList("a", "b", "c"), 3),
+                Arguments.of("items.?size()", null, null)
+        );
     }
 
     // ========== Dynamic Subscript Tests ==========
 
-    @Test
-    void nullSafeWithDynamicSubscriptFirst() throws Exception {
+    @ParameterizedTest
+    @MethodSource("dynamicSubscriptTestCases")
+    void dynamicSubscriptAccess(String expression, String expected) throws Exception {
         Map<String, Object> root = new HashMap<>();
         String[] items = {"first", "second", "third"};
         root.put("items", items);
 
-        // [^] gets first element
-        Object result = Ognl.getValue("items[^]", context, root);
-        assertEquals("first", result);
+        Object result = Ognl.getValue(expression, context, root);
+        assertEquals(expected, result);
     }
 
-    @Test
-    void nullSafeWithDynamicSubscriptLast() throws Exception {
-        Map<String, Object> root = new HashMap<>();
-        String[] items = {"first", "second", "third"};
-        root.put("items", items);
-
-        // [$] gets last element
-        Object result = Ognl.getValue("items[$]", context, root);
-        assertEquals("third", result);
+    static Stream<Arguments> dynamicSubscriptTestCases() {
+        return Stream.of(
+                Arguments.of("items[^]", "first"),  // [^] gets first element
+                Arguments.of("items[$]", "third"),  // [$] gets last element
+                Arguments.of("items[0]", "first")   // Regular index access
+        );
     }
 
-    @Test
-    void nullSafeWithIndexAccessAfterProperty() throws Exception {
-        // Note: .?[0] syntax not supported. Use null-safe on property, then index separately
-        Map<String, Object> root = new HashMap<>();
-        String[] items = {"first", "second", "third"};
-        root.put("items", items);
-
-        // Regular index access
-        Object result = Ognl.getValue("items[0]", context, root);
-        assertEquals("first", result);
-    }
-
-    // ========== Helper Methods ==========
-
-    private Map<String, String> createMap(String key, String value) {
+    private static Map<String, String> createMap(String key, String value) {
         Map<String, String> map = new HashMap<>();
         map.put(key, value);
         return map;

@@ -164,48 +164,39 @@ class NullSafeOperatorTest {
         assertNull(result, "Null-safe operator should return null when property is null");
     }
 
-    @Test
-    void nullSafeNestedChain() throws Exception {
-        User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
-        Object result = Ognl.getValue("profile.?address.?city", context, user);
-        assertEquals("NYC", result);
+    @ParameterizedTest
+    @MethodSource("chainedNullSafeTestCases")
+    void chainedNullSafeOperators(String expression, User user, Object expected, String description) throws Exception {
+        Object result = Ognl.getValue(expression, context, user);
+        if (expected == null) {
+            assertNull(result, description);
+        } else {
+            assertEquals(expected, result, description);
+        }
     }
 
-    @Test
-    void nullSafeNestedChainWithNullIntermediate() throws Exception {
-        User user = new User("Alice", new Profile("Bio", null));
-        Object result = Ognl.getValue("profile.?address.?city", context, user);
-        assertNull(result, "Null-safe chain should return null when intermediate value is null");
-    }
+    static Stream<Arguments> chainedNullSafeTestCases() {
+        User userWithFullProfile = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
+        User userWithNullAddress = new User("Alice", new Profile("Bio", null));
+        User userWithNullProfile = new User("Alice", null);
 
-    @Test
-    void mixedSafeAndUnsafeChain() throws Exception {
-        User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
-        Object result = Ognl.getValue("profile.address.?city", context, user);
-        assertEquals("NYC", result);
-    }
-
-    @Test
-    void mixedChainThrowsOnNullUnsafePart() throws Exception {
-        User user = new User("Alice", null);
-        // Note: With default short-circuit=true, this returns null instead of throwing
-        // To test exception behavior, we'd need to disable short-circuit system property
-        Object result = Ognl.getValue("profile.address.?city", context, user);
-        assertNull(result, "Short-circuit behavior returns null for null intermediate value");
-    }
-
-    @Test
-    void multipleNullSafeOperators() throws Exception {
-        User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
-        Object result = Ognl.getValue("profile.?address.?city", context, user);
-        assertEquals("NYC", result);
-    }
-
-    @Test
-    void deepNullSafeChain() throws Exception {
-        User user = new User("Alice", null);
-        Object result = Ognl.getValue("profile.?address.?city", context, user);
-        assertNull(result, "Deep null-safe chain should return null at first null encounter");
+        return Stream.of(
+                // Multiple null-safe operators with non-null chain
+                Arguments.of("profile.?address.?city", userWithFullProfile, "NYC",
+                        "Multiple null-safe operators should work on non-null chain"),
+                // Null-safe chain with null intermediate
+                Arguments.of("profile.?address.?city", userWithNullAddress, null,
+                        "Null-safe chain should return null when intermediate value is null"),
+                // Deep null-safe chain with null at start
+                Arguments.of("profile.?address.?city", userWithNullProfile, null,
+                        "Deep null-safe chain should return null at first null encounter"),
+                // Mixed safe and unsafe chain
+                Arguments.of("profile.address.?city", userWithFullProfile, "NYC",
+                        "Mixed safe and unsafe chain should work on non-null values"),
+                // Mixed chain with null unsafe part
+                Arguments.of("profile.address.?city", userWithNullProfile, null,
+                        "Short-circuit behavior returns null for null intermediate value")
+        );
     }
 
     // ========== Method Call Tests ==========
@@ -326,24 +317,24 @@ class NullSafeOperatorTest {
         User userWithProfileNoAddress = new User("Alice", new Profile("Bio", null));
 
         return Stream.of(
-            // Basic null-safe access
-            Arguments.of("profile.?bio", userWithFullProfile, "Bio"),
-            Arguments.of("profile.?bio", userWithNullProfile, null),
-            Arguments.of("name", userWithFullProfile, "Alice"),
+                // Basic null-safe access
+                Arguments.of("profile.?bio", userWithFullProfile, "Bio"),
+                Arguments.of("profile.?bio", userWithNullProfile, null),
+                Arguments.of("name", userWithFullProfile, "Alice"),
 
-            // Nested null-safe access
-            Arguments.of("profile.?address.?city", userWithFullProfile, "NYC"),
-            Arguments.of("profile.?address.?city", userWithNullProfile, null),
-            Arguments.of("profile.?address.?city", userWithProfileNoAddress, null),
+                // Nested null-safe access
+                Arguments.of("profile.?address.?city", userWithFullProfile, "NYC"),
+                Arguments.of("profile.?address.?city", userWithNullProfile, null),
+                Arguments.of("profile.?address.?city", userWithProfileNoAddress, null),
 
-            // Method calls
-            Arguments.of("getName()", userWithFullProfile, "Alice"),
-            Arguments.of("getProfile().?getBio()", userWithFullProfile, "Bio"),
-            Arguments.of("getProfile().?getBio()", userWithNullProfile, null),
+                // Method calls
+                Arguments.of("getName()", userWithFullProfile, "Alice"),
+                Arguments.of("getProfile().?getBio()", userWithFullProfile, "Bio"),
+                Arguments.of("getProfile().?getBio()", userWithNullProfile, null),
 
-            // Mixed chains
-            Arguments.of("profile.address.?city", userWithFullProfile, "NYC"),
-            Arguments.of("profile.?address.city", userWithFullProfile, "NYC")
+                // Mixed chains
+                Arguments.of("profile.address.?city", userWithFullProfile, "NYC"),
+                Arguments.of("profile.?address.city", userWithFullProfile, "NYC")
         );
     }
 
