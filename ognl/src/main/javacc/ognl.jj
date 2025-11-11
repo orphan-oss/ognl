@@ -946,7 +946,7 @@ void unaryExpression() : {
         navigationChain()
         [
             "instanceof"
-            t = <IDENT>/*@bgen(jjtree) #Instanceof( 1) */
+            t = classNamePart()/*@bgen(jjtree) #Instanceof( 1) */
                          {
                            ASTInstanceof jjtn004 = new ASTInstanceof(JJTINSTANCEOF);
                            boolean jjtc004 = true;
@@ -965,7 +965,7 @@ void unaryExpression() : {
                            }
                          }
 /*@egen*/
-            (   "." t = <IDENT>         { sb.append('.').append( t.image ); }
+            (   "." t = classNamePart() { sb.append('.').append( t.image ); }
             )*                          { ionode.setTargetType( new String(sb) ); }
         ]
     )
@@ -1382,9 +1382,45 @@ String className(): {
     StringBuffer result;
 }
 {
-    t=<IDENT>               { result = new StringBuffer( t.image ); }
-    ( "." t=<IDENT>         { result.append('.').append( t.image ); }
+    t=classNamePart()       { result = new StringBuffer( t.image ); }
+    ( "." t=classNamePart() { result.append('.').append( t.image ); }
     )*                      { return new String(result); }
+}
+
+/**
+ * Helper production to match class name parts, which can be either identifiers
+ * or reserved keywords (like "or", "and", "not", etc.) that appear in package names.
+ * This fixes Issue #103 where package names containing keywords would fail to parse.
+ */
+Token classNamePart(): {
+    Token t;
+}
+{
+    (
+        t=<IDENT>
+      | "or"      { t = token; }
+      | "and"     { t = token; }
+      | "not"     { t = token; }
+      | "in"      { t = token; }
+      | "bor"     { t = token; }
+      | "xor"     { t = token; }
+      | "band"    { t = token; }
+      | "eq"      { t = token; }
+      | "neq"     { t = token; }
+      | "lt"      { t = token; }
+      | "lte"     { t = token; }
+      | "gt"      { t = token; }
+      | "gte"     { t = token; }
+      | "shl"     { t = token; }
+      | "shr"     { t = token; }
+      | "ushr"    { t = token; }
+      | "new"     { t = token; }
+      | "true"    { t = token; }
+      | "false"   { t = token; }
+      | "null"    { t = token; }
+      | "instanceof" { t = token; }
+    )
+    { return t; }
 }
 
 void constructorCall()       : {/*@bgen(jjtree) Ctor */
