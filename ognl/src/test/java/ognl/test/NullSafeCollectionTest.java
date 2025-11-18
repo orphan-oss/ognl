@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
- * Tests for null-safe operator (.?) with collections, arrays, and dynamic subscripts.
+ * Tests for null-safe operator (?.) with collections, arrays, and dynamic subscripts.
  */
 class NullSafeCollectionTest {
 
@@ -51,9 +51,9 @@ class NullSafeCollectionTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "list.?{name}",
-            "list.?{? #this.active}",
-            "items.?{? #this > 0}"
+            "list?.{name}",
+            "list?.{? #this.active}",
+            "items?.{? #this > 0}"
     })
     void nullSafeExpressionParsing(String expression) {
         assertDoesNotThrow(() -> {
@@ -82,9 +82,9 @@ class NullSafeCollectionTest {
                 createMap("name", "Bob")
         );
         return Stream.of(
-                Arguments.of("items.?{name}", null, true),
+                Arguments.of("items?.{name}", null, true),
                 Arguments.of("items.{name}", users, false),
-                Arguments.of("items.?{? #this > 0}", null, true)
+                Arguments.of("items?.{? #this > 0}", null, true)
         );
     }
 
@@ -100,10 +100,10 @@ class NullSafeCollectionTest {
 
     static Stream<Arguments> propertyAccessTestCases() {
         return Stream.of(
-                Arguments.of("items.?length", new String[]{"a", "b", "c"}, 3),
-                Arguments.of("items.?length", null, null),
-                Arguments.of("items.?size()", Arrays.asList("a", "b", "c"), 3),
-                Arguments.of("items.?size()", null, null)
+                Arguments.of("items?.length", new String[]{"a", "b", "c"}, 3),
+                Arguments.of("items?.length", null, null),
+                Arguments.of("items?.size()", Arrays.asList("a", "b", "c"), 3),
+                Arguments.of("items?.size()", null, null)
         );
     }
 

@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
- * Integration tests for null-safe operator (.?) including edge cases,
+ * Integration tests for null-safe operator (?.) including edge cases,
  * combined operators, and interaction with other OGNL features.
  */
 class NullSafeIntegrationTest {
@@ -119,15 +119,15 @@ class NullSafeIntegrationTest {
 
     static Stream<Arguments> conditionalOperatorTestCases() {
         return Stream.of(
-                Arguments.of("profile.?bio != null ? profile.?bio : 'default'", "default"),
-                Arguments.of("profile.?bio != null ? 'yes' : 'no'", "no")
+                Arguments.of("profile?.bio != null ? profile?.bio : 'default'", "default"),
+                Arguments.of("profile?.bio != null ? 'yes' : 'no'", "no")
         );
     }
 
     @Test
     void nullSafeInAssignmentContext() throws Exception {
         User user = new User("Alice", null);
-        Ognl.getValue("#result = profile.?bio", context, user);
+        Ognl.getValue("#result = profile?.bio", context, user);
         assertNull(context.get("result"));
     }
 
@@ -144,9 +144,9 @@ class NullSafeIntegrationTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "profile.?address.?city",
-            "profile.?address.?city.?toString()",
-            "profile.?address.?city.?toString().?toLowerCase().?substring(0).?trim().?length().?toString().?isEmpty()"
+            "profile?.address?.city",
+            "profile?.address?.city?.toString()",
+            "profile?.address?.city?.toString()?.toLowerCase()?.substring(0)?.trim()?.length()?.toString()?.isEmpty()"
     })
     void deepNullSafeChains(String expression) throws Exception {
         User user = new User("Alice", null);
@@ -164,7 +164,7 @@ class NullSafeIntegrationTest {
     @Test
     void nullSafeOnStaticMethod() throws Exception {
         // Static methods combined with null-safe property access
-        Object result = Ognl.getValue("@java.lang.System@getProperty('java.version').?toString()", context, new Object());
+        Object result = Ognl.getValue("@java.lang.System@getProperty('java.version')?.toString()", context, new Object());
         assertNotNull(result);
     }
 
@@ -173,13 +173,13 @@ class NullSafeIntegrationTest {
         Map<String, Object> root = new HashMap<>();
         root.put("obj", null);
 
-        Object result = Ognl.getValue("#obj.?toString()", context, new Object());
+        Object result = Ognl.getValue("#obj?.toString()", context, new Object());
         assertNull(result);
     }
 
     @Test
     void nullSafeWithRoot() throws Exception {
-        Object result = Ognl.getValue("#root.?toString()", context, (Object) null);
+        Object result = Ognl.getValue("#root?.toString()", context, (Object) null);
         assertNull(result);
     }
 
@@ -194,13 +194,13 @@ class NullSafeIntegrationTest {
         assertEquals("Bio", result1);
 
         // Null-safe access should also work
-        Object result2 = Ognl.getValue("profile.?bio", context, user);
+        Object result2 = Ognl.getValue("profile?.bio", context, user);
         assertEquals("Bio", result2);
     }
 
     @Test
     void nullSafeBackwardCompatibility() throws Exception {
-        // Ensure existing expressions without .? still work
+        // Ensure existing expressions without ?. still work
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
 
         Object result = Ognl.getValue("profile.address.city", context, user);
@@ -213,7 +213,7 @@ class NullSafeIntegrationTest {
         User user = new User("Alice", null);
 
         // With null-safe, should always return null
-        Object result = Ognl.getValue("profile.?bio", context, user);
+        Object result = Ognl.getValue("profile?.bio", context, user);
         assertNull(result);
     }
 
@@ -225,7 +225,7 @@ class NullSafeIntegrationTest {
         User user = new User("Alice", new Profile(null, null));
 
         // Access through multiple levels where intermediate is null
-        Object result = Ognl.getValue("profile.?address.?city", context, user);
+        Object result = Ognl.getValue("profile?.address?.city", context, user);
         assertNull(result);
     }
 
@@ -235,7 +235,7 @@ class NullSafeIntegrationTest {
         User user = new User("Alice", null);
 
         // This creates a chain that needs multiple null checks
-        Object result = Ognl.getValue("profile.?address.?city.?toString()", context, user);
+        Object result = Ognl.getValue("profile?.address?.city?.toString()", context, user);
         assertNull(result);
     }
 
@@ -244,7 +244,7 @@ class NullSafeIntegrationTest {
         // Create nested structure to test intermediate null handling
         User user = new User("Alice", new Profile("Bio", new Address(null, "Street")));
 
-        Object result = Ognl.getValue("profile.?address.?city.?length()", context, user);
+        Object result = Ognl.getValue("profile?.address?.city?.length()", context, user);
         assertNull(result);
     }
 }

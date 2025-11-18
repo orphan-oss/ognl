@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
- * Comprehensive test suite for the null-safe navigation operator (.?)
+ * Comprehensive test suite for the null-safe navigation operator (?.)
  * Ensures 100% code coverage for the null-safe operator feature.
  */
 class NullSafeOperatorTest {
@@ -145,7 +145,7 @@ class NullSafeOperatorTest {
 
     @Test
     void nullSafeOnNullRoot() throws Exception {
-        Object result = Ognl.getValue("#root.?name", context, (Object) null);
+        Object result = Ognl.getValue("#root?.name", context, (Object) null);
         assertNull(result, "Null-safe operator on null root should return null");
     }
 
@@ -160,15 +160,15 @@ class NullSafeOperatorTest {
     static Stream<Arguments> successfulNavigationTestCases() {
         return Stream.of(
                 Arguments.of("name", "Alice"),
-                Arguments.of("getProfile().?getAddress().?getCity()", "NYC"),
-                Arguments.of("profile.?getAddress().?city", "NYC")
+                Arguments.of("getProfile()?.getAddress()?.getCity()", "NYC"),
+                Arguments.of("profile?.getAddress()?.city", "NYC")
         );
     }
 
     @Test
     void nullSafeOnNullProperty() throws Exception {
         User user = new User("Alice", null);
-        Object result = Ognl.getValue("profile.?bio", context, user);
+        Object result = Ognl.getValue("profile?.bio", context, user);
         assertNull(result, "Null-safe operator should return null when property is null");
     }
 
@@ -190,26 +190,26 @@ class NullSafeOperatorTest {
 
         return Stream.of(
                 // Multiple null-safe operators with non-null chain
-                Arguments.of("profile.?address.?city", userWithFullProfile, "NYC",
+                Arguments.of("profile?.address?.city", userWithFullProfile, "NYC",
                         "Multiple null-safe operators should work on non-null chain"),
                 // Null-safe chain with null intermediate
-                Arguments.of("profile.?address.?city", userWithNullAddress, null,
+                Arguments.of("profile?.address?.city", userWithNullAddress, null,
                         "Null-safe chain should return null when intermediate value is null"),
                 // Deep null-safe chain with null at start
-                Arguments.of("profile.?address.?city", userWithNullProfile, null,
+                Arguments.of("profile?.address?.city", userWithNullProfile, null,
                         "Deep null-safe chain should return null at first null encounter"),
                 // Mixed safe and unsafe chain
-                Arguments.of("profile.address.?city", userWithFullProfile, "NYC",
+                Arguments.of("profile.address?.city", userWithFullProfile, "NYC",
                         "Mixed safe and unsafe chain should work on non-null values"),
                 // Mixed chain with null unsafe part
-                Arguments.of("profile.address.?city", userWithNullProfile, null,
+                Arguments.of("profile.address?.city", userWithNullProfile, null,
                         "Short-circuit behavior returns null for null intermediate value")
         );
     }
 
     @Test
     void nullSafeMethodCallOnNull() throws Exception {
-        Object result = Ognl.getValue("#root.?toString()", context, (Object) null);
+        Object result = Ognl.getValue("#root?.toString()", context, (Object) null);
         assertNull(result, "Null-safe method call on null should return null");
     }
 
@@ -223,7 +223,7 @@ class NullSafeOperatorTest {
     @Test
     void nullSafeMethodChainWithNullIntermediate() throws Exception {
         User user = new User("Alice", new Profile("Bio", null));
-        Object result = Ognl.getValue("getProfile().?getAddress().?getCity()", context, user);
+        Object result = Ognl.getValue("getProfile()?.getAddress()?.getCity()", context, user);
         assertNull(result, "Null-safe method chain should return null when intermediate is null");
     }
 
@@ -236,14 +236,14 @@ class NullSafeOperatorTest {
 
     @Test
     void nullSafeMethodWithArgumentsOnNull() throws Exception {
-        Object result = Ognl.getValue("#root.?substring(0, 2)", context, (Object) null);
+        Object result = Ognl.getValue("#root?.substring(0, 2)", context, (Object) null);
         assertNull(result, "Null-safe method with arguments on null should return null");
     }
 
     @Test
     void nullSafeWithVariableReference() throws Exception {
         context.put("user", null);
-        Object result = Ognl.getValue("#user.?name", context, new Object());
+        Object result = Ognl.getValue("#user?.name", context, new Object());
         assertNull(result, "Null-safe operator on null variable should return null");
     }
 
@@ -251,7 +251,7 @@ class NullSafeOperatorTest {
     void nullSafeWithNonNullVariable() throws Exception {
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
         context.put("user", user);
-        Object result = Ognl.getValue("#user.?name", context, new Object());
+        Object result = Ognl.getValue("#user?.name", context, new Object());
         assertEquals("Alice", result);
     }
 
@@ -259,7 +259,7 @@ class NullSafeOperatorTest {
     void nullSafeWithNestedVariables() throws Exception {
         User user = new User("Alice", null);
         context.put("user", user);
-        Object result = Ognl.getValue("#user.?profile.?bio", context, new Object());
+        Object result = Ognl.getValue("#user?.profile?.bio", context, new Object());
         assertNull(result);
     }
 
@@ -267,7 +267,7 @@ class NullSafeOperatorTest {
     void nullSafeMapAccess() throws Exception {
         Map<String, Object> root = new HashMap<>();
         root.put("user", null);
-        Object result = Ognl.getValue("user.?name", context, root);
+        Object result = Ognl.getValue("user?.name", context, root);
         assertNull(result);
     }
 
@@ -276,13 +276,13 @@ class NullSafeOperatorTest {
         Map<String, Object> root = new HashMap<>();
         User user = new User("Alice", new Profile("Bio", new Address("NYC", "5th Ave")));
         root.put("user", user);
-        Object result = Ognl.getValue("user.?name", context, root);
+        Object result = Ognl.getValue("user?.name", context, root);
         assertEquals("Alice", result);
     }
 
     @Test
     void nullSafeIndexedMapAccess() throws Exception {
-        // Note: Null-safe with direct indexing map.?['key'] is not supported in Phase 1
+        // Note: Null-safe with direct indexing map?.['key'] is not supported in Phase 1
         // because indexing doesn't use dot notation. Instead test map property access.
         Map<String, Object> root = new HashMap<>();
         root.put("map", null);
@@ -304,38 +304,38 @@ class NullSafeOperatorTest {
 
         return Stream.of(
                 // Basic null-safe access
-                Arguments.of("profile.?bio", userWithFullProfile, "Bio"),
-                Arguments.of("profile.?bio", userWithNullProfile, null),
+                Arguments.of("profile?.bio", userWithFullProfile, "Bio"),
+                Arguments.of("profile?.bio", userWithNullProfile, null),
                 Arguments.of("name", userWithFullProfile, "Alice"),
 
                 // Nested null-safe access
-                Arguments.of("profile.?address.?city", userWithFullProfile, "NYC"),
-                Arguments.of("profile.?address.?city", userWithNullProfile, null),
-                Arguments.of("profile.?address.?city", userWithProfileNoAddress, null),
+                Arguments.of("profile?.address?.city", userWithFullProfile, "NYC"),
+                Arguments.of("profile?.address?.city", userWithNullProfile, null),
+                Arguments.of("profile?.address?.city", userWithProfileNoAddress, null),
 
                 // Method calls
                 Arguments.of("getName()", userWithFullProfile, "Alice"),
-                Arguments.of("getProfile().?getBio()", userWithFullProfile, "Bio"),
-                Arguments.of("getProfile().?getBio()", userWithNullProfile, null),
+                Arguments.of("getProfile()?.getBio()", userWithFullProfile, "Bio"),
+                Arguments.of("getProfile()?.getBio()", userWithNullProfile, null),
 
                 // Mixed chains
-                Arguments.of("profile.address.?city", userWithFullProfile, "NYC"),
-                Arguments.of("profile.?address.city", userWithFullProfile, "NYC")
+                Arguments.of("profile.address?.city", userWithFullProfile, "NYC"),
+                Arguments.of("profile?.address.city", userWithFullProfile, "NYC")
         );
     }
 
     @Test
     void parserAcceptsDotQuestion() {
-        // Just verify that the parser accepts the .? syntax without throwing parse exception
+        // Just verify that the parser accepts the ?. syntax without throwing parse exception
         assertDoesNotThrow(() -> {
-            Ognl.parseExpression("obj.?property");
+            Ognl.parseExpression("obj?.property");
         });
     }
 
     @Test
     void complexNullSafeExpression() {
         assertDoesNotThrow(() -> {
-            Ognl.parseExpression("a.?b.?c.?d.?e.?f");
+            Ognl.parseExpression("a?.b?.c?.d?.e?.f");
         });
     }
 }
