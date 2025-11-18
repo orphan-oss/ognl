@@ -48,6 +48,76 @@ This is a multi-module Maven project:
 - `mvn clean test -Pcoverage` - Run tests with JaCoCo coverage (generates XML report for SonarCloud)
 - `mvn sonar:sonar -Pcoverage` - Run SonarCloud analysis (requires coverage profile)
 
+**SonarCloud Integration:**
+
+- **Project Key:** `orphan-oss_ognl`
+- **Project URL:** https://sonarcloud.io/project/overview?id=orphan-oss_ognl
+- **Quality Gate:** Must pass for all PRs
+- **New Code Period:** Since last analysis on main branch
+
+**Viewing SonarCloud Issues:**
+
+To view issues for a specific pull request:
+```
+https://sonarcloud.io/project/issues?issueStatuses=OPEN%2CCONFIRMED&sinceLeakPeriod=true&pullRequest=[PR_NUMBER]&id=orphan-oss_ognl
+```
+
+Example for PR #496:
+```
+https://sonarcloud.io/project/issues?issueStatuses=OPEN%2CCONFIRMED&sinceLeakPeriod=true&pullRequest=496&id=orphan-oss_ognl
+```
+
+**Using SonarQube MCP Tools:**
+
+When addressing SonarCloud issues, use the available MCP tools:
+
+```java
+// Search for issues in the project
+mcp__sonarqube__search_sonar_issues_in_projects(
+    projects: ["orphan-oss_ognl"],
+    pullRequestId: "496"
+)
+
+// Get details about a specific rule
+mcp__sonarqube__show_rule(key: "java:S3776")
+
+// Change issue status (accept, falsepositive, reopen)
+mcp__sonarqube__change_sonar_issue_status(
+    key: "issue-key",
+    status: ["accept"]
+)
+```
+
+**Common SonarCloud Rules for OGNL:**
+
+- **java:S3776** - Cognitive Complexity (threshold: 15)
+  - Extract complex conditions into helper methods
+  - Reduce nesting levels
+  - Break down large methods
+
+- **java:S1066** - Mergeable if statements
+  - Combine consecutive if statements when possible
+
+- **java:S1161** - Missing @Override annotation
+  - Always add @Override for overridden methods
+
+- **java:S6201** - Pattern matching for instanceof
+  - Use Java 16+ pattern matching: `if (obj instanceof Type type)`
+
+- **java:S1192** - String literals duplication
+  - Extract repeated string literals as constants
+
+- **java:S127** - Loop counter modification
+  - Avoid modifying loop counters within loop body
+
+**SonarCloud Best Practices:**
+
+1. **Address New Issues Only:** Focus on issues introduced in your PR, not pre-existing ones
+2. **Run Analysis Locally:** Use `mvn sonar:sonar -Pcoverage` before pushing
+3. **Review Quality Gate:** Ensure all new code meets quality standards
+4. **Document Suppressions:** If an issue must be accepted, document why in commit message
+5. **Maintain Coverage:** Aim for >80% code coverage on new code
+
 ### Benchmarks
 
 - `cd benchmarks && mvn clean install` - Build benchmarks uber-jar
