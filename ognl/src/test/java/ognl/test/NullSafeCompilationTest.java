@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for null-safe operator (.?) expression compilation and toString() functionality.
+ * Tests for null-safe operator (?.) expression compilation and toString() functionality.
  */
 class NullSafeCompilationTest {
 
@@ -94,10 +94,10 @@ class NullSafeCompilationTest {
     @Test
     void nullSafeWithCompiledExpression() throws Exception {
         User user = new User("Alice", null);
-        Object expr = Ognl.parseExpression("profile.?bio");
+        Object expr = Ognl.parseExpression("profile?.bio");
 
         try {
-            Object compiled = Ognl.compileExpression(context, user, "profile.?bio");
+            Object compiled = Ognl.compileExpression(context, user, "profile?.bio");
             assertNotNull(compiled, "Compiled expression should not be null");
         } catch (Exception e) {
             fail(e.getMessage());
@@ -109,7 +109,7 @@ class NullSafeCompilationTest {
 
     @Test
     void nullSafeToGetSourceString() throws Exception {
-        Object expr = Ognl.parseExpression("profile.?address.?city");
+        Object expr = Ognl.parseExpression("profile?.address?.city");
 
         try {
             String source = OgnlRuntime.getCompiler().getClassName(expr.getClass());
@@ -131,15 +131,15 @@ class NullSafeCompilationTest {
 
     static Stream<Arguments> toStringTestCases() {
         return Stream.of(
-                Arguments.of("a.?b.?c", "?"),
-                Arguments.of("user.?profile", "user"),
-                Arguments.of("user.?name", "user")
+                Arguments.of("a?.b?.c", "?"),
+                Arguments.of("user?.profile", "user"),
+                Arguments.of("user?.name", "user")
         );
     }
 
     @Test
     void toStringComplexExpression() throws Exception {
-        Object expr = Ognl.parseExpression("user.?profile.?address.?city");
+        Object expr = Ognl.parseExpression("user?.profile?.address?.city");
         String exprString = expr.toString();
         // Should contain multiple null-safe operators
         int questionMarks = exprString.length() - exprString.replace("?", "").length();

@@ -973,7 +973,7 @@ void unaryExpression() : {
 
 
 // navigation chain: property references, method calls, projections, selections, etc.
-// Supports null-safe navigation with the .? operator
+// Supports null-safe navigation with the ?. operator
 void navigationChain() : {
     boolean nullSafe = false;
 }
@@ -1903,7 +1903,7 @@ SKIP:
 // Null-safe navigation operator (must be defined before IDENT to ensure proper tokenization)
 TOKEN:
 {
-    < SAFE_DOT: ".?" >
+    < SAFE_DOT: "?." >
 }
 
 // An identifier.

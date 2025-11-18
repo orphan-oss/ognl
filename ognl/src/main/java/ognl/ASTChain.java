@@ -59,7 +59,7 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
     }
 
     /**
-     * Sets whether this chain uses null-safe navigation (.? operator).
+     * Sets whether this chain uses null-safe navigation (?. operator).
      *
      * @param nullSafe true if this is a null-safe chain, false otherwise
      */
@@ -257,7 +257,7 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
             for (int i = 0; i < children.length; i++) {
                 if (i > 0) {
                     if (!(children[i] instanceof ASTProperty) || !((ASTProperty<C>) children[i]).isIndexedAccess()) {
-                        result.append(nullSafe ? ".?" : ".");
+                        result.append(nullSafe ? "?." : ".");
                     }
                 }
                 result.append(children[i].toString());

@@ -553,21 +553,21 @@ ensureLoaded(), name
 ```
 name in {null,"Untitled"} || name
 ```
-- The null-safe navigation operator (`.?`). This operator allows safe
+- The null-safe navigation operator (`?.`). This operator allows safe
   navigation through object graphs without throwing exceptions when
-  encountering null values. When you use `.?` instead of `.`, the
+  encountering null values. When you use `?.` instead of `.`, the
   expression returns null if the object is null, rather than throwing
   an exception. For example:
 ```
-user.?profile.?address.?city
+user?.profile?.address?.city
 ```
   If `user`, `profile`, or `address` is null, the entire expression
   returns null instead of throwing a NullPointerException. This is
   particularly useful for deeply nested property access where intermediate
-  values might be null. Each `.?` operator is independent - you can mix
-  null-safe (`.?`) and regular (`.`) navigation in the same expression:
+  values might be null. Each `?.` operator is independent - you can mix
+  null-safe (`?.`) and regular (`.`) navigation in the same expression:
 ```
-user.profile.?address.city
+user.profile?.address.city
 ```
   In this example, only the `address` access is null-safe. The null-safe
   operator works with property access, method calls, and collection
