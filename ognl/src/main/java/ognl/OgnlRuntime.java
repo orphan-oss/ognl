@@ -1157,6 +1157,55 @@ public class OgnlRuntime {
         }
     }
 
+    /**
+     * Checks if a class is likely to be accessible, considering the Java module system.
+     * This helps avoid selecting methods from internal JDK classes that are not exported.
+     * <p>
+     * Package-private for testing purposes.
+     *
+     * @param clazz the class to check
+     * @return true if the class is likely accessible, false if it's likely inaccessible
+     */
+    static boolean isLikelyAccessible(Class<?> clazz) {
+        // Interfaces are generally preferred as they represent the public contract
+        if (clazz.isInterface()) {
+            return true;
+        }
+
+        String packageName = clazz.getPackageName();
+
+        // Empty package name (default package) - treat as accessible
+        if (packageName == null || packageName.isEmpty()) {
+            return true;
+        }
+
+        // Check for known internal/unexported packages
+        if (packageName.startsWith("sun.") ||
+                packageName.startsWith("com.sun.") ||
+                packageName.startsWith("jdk.internal.") ||
+                packageName.startsWith("java.awt.peer") ||
+                packageName.startsWith("java.dyn") ||
+                packageName.startsWith("org.jcp.xml.dsig.internal")) {
+            return false;
+        }
+
+        // For Java 9+, check if the module exports the package
+        try {
+            Module module = clazz.getModule();
+            if (module != null && module.isNamed()) {
+                // Check if the package is exported unconditionally
+                // If it's not exported, the class is likely inaccessible
+                return module.isExported(packageName);
+            }
+        } catch (Exception e) {
+            // If we can't determine module info, assume it might be accessible
+            // (better to try and fail than to skip a valid method)
+        }
+
+        // Default: assume it's accessible
+        return true;
+    }
+
     private static MatchingMethod findBestMethod(List<Method> methods, Class<?> typeClass, String name, Class<?>[] argClasses) {
         MatchingMethod mm = null;
         IllegalArgumentException failure = null;
@@ -1187,11 +1236,27 @@ public class OgnlRuntime {
                 // it happens that we see the same method signature multiple times - for the current class or interfaces ...
                 // check for same signature
                 if (Arrays.equals(mm.mMethod.getParameterTypes(), method.getParameterTypes()) && mm.mMethod.getName().equals(method.getName())) {
-                    // it is the same method. we use the public one...
-                    if (!Modifier.isPublic(mm.mMethod.getDeclaringClass().getModifiers())
-                            && Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
+                    // it is the same method. Prefer accessible ones over inaccessible ones
+                    Class<?> currentClass = mm.mMethod.getDeclaringClass();
+                    Class<?> newClass = method.getDeclaringClass();
+
+                    boolean currentAccessible = isLikelyAccessible(currentClass);
+                    boolean newAccessible = isLikelyAccessible(newClass);
+
+                    // Primary goal: prefer accessible methods over inaccessible ones (fixes issue #286)
+                    if (!currentAccessible && newAccessible) {
                         mm = new MatchingMethod(method, score, report, mParameterTypes);
                         failure = null;
+                    } else if (currentAccessible && !newAccessible) {
+                        // Current is accessible, new is not - keep current (no change needed)
+                    } else {
+                        // Both accessible or both inaccessible - use original tie-breaking logic
+                        // Prefer public classes
+                        if (!Modifier.isPublic(currentClass.getModifiers())
+                                && Modifier.isPublic(newClass.getModifiers())) {
+                            mm = new MatchingMethod(method, score, report, mParameterTypes);
+                            failure = null;
+                        }
                     }
                 } else {
                     // two methods with same score - direct compare to find the better one...
