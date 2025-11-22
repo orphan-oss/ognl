@@ -32,6 +32,7 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
     private Class<?> setterClass;
     private String lastExpression;
     private String coreExpression;
+    private boolean nullSafe = false;
 
     public ASTChain(int id) {
         super(id);
@@ -53,10 +54,28 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
         flattenTree();
     }
 
+    public void setNullSafe(boolean nullSafe) {
+        this.nullSafe = nullSafe;
+    }
+
+    public boolean isNullSafe() {
+        return nullSafe;
+    }
+
     protected Object getValueBody(OgnlContext context, Object source) throws OgnlException {
         Object result = source;
 
+        // null-safe operator: return null immediately if source is null
+        if (nullSafe && result == null) {
+            return null;
+        }
+
         for (int i = 0, ilast = children.length - 1; i <= ilast; ++i) {
+            // null-safe operator: return null if intermediate result is null
+            if (nullSafe && result == null) {
+                return null;
+            }
+
             boolean handled = false;
 
             if (i < ilast) {
@@ -218,15 +237,17 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
 
         if ((children != null) && (children.length > 0)) {
             for (int i = 0; i < children.length; i++) {
-                if (i > 0) {
-                    if (!(children[i] instanceof ASTProperty) || !((ASTProperty) children[i]).isIndexedAccess()) {
-                        result.append(".");
-                    }
+                if (i > 0 && shouldAppendNavigationOperator(children[i])) {
+                    result.append(nullSafe ? "?." : ".");
                 }
                 result.append(children[i].toString());
             }
         }
         return result.toString();
+    }
+
+    private boolean shouldAppendNavigationOperator(Node child) {
+        return !(child instanceof ASTProperty) || !((ASTProperty) child).isIndexedAccess();
     }
 
     public String toGetSourceString(OgnlContext context, Object target) {
