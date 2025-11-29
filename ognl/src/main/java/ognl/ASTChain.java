@@ -54,6 +54,7 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
         return coreExpression;
     }
 
+    @Override
     public void jjtClose() {
         flattenTree();
     }
@@ -102,56 +103,54 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
 
             boolean handled = false;
 
-            if (i < ilast) {
-                if (children[i] instanceof ASTProperty<C> propertyNode) {
-                    int indexType = propertyNode.getIndexedPropertyType(context, result);
+            if (i < ilast && children[i] instanceof ASTProperty<C> propertyNode) {
+                int indexType = propertyNode.getIndexedPropertyType(context, result);
 
-                    if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (children[i + 1] instanceof ASTProperty<C> indexNode)) {
-                        if (indexNode.isIndexedAccess()) {
-                            Object index = indexNode.getProperty(context, result);
+                if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (children[i + 1] instanceof ASTProperty<C> indexNode) && indexNode.isIndexedAccess()) {
+                    Object index = indexNode.getProperty(context, result);
 
-                            if (index instanceof DynamicSubscript) {
-                                if (indexType == OgnlRuntime.INDEXED_PROPERTY_INT) {
-                                    Object array = propertyNode.getValue(context, result);
-                                    int len = Array.getLength(array);
+                    if (index instanceof DynamicSubscript dynamicSubscript) {
+                        if (indexType == OgnlRuntime.INDEXED_PROPERTY_INT) {
+                            Object array = propertyNode.getValue(context, result);
+                            int len = Array.getLength(array);
 
-                                    switch (((DynamicSubscript) index).getFlag()) {
-                                        case DynamicSubscript.ALL:
-                                            result = Array.newInstance(array.getClass().getComponentType(), len);
-                                            System.arraycopy(array, 0, result, 0, len);
-                                            handled = true;
-                                            i++;
-                                            break;
-                                        case DynamicSubscript.FIRST:
-                                            index = (len > 0) ? 0 : -1;
-                                            break;
-                                        case DynamicSubscript.MID:
-                                            index = (len > 0) ? (len / 2) : -1;
-                                            break;
-                                        case DynamicSubscript.LAST:
-                                            index = (len > 0) ? (len - 1) : -1;
-                                            break;
-                                    }
-                                } else {
-                                    if (indexType == OgnlRuntime.INDEXED_PROPERTY_OBJECT) {
-                                        throw new OgnlException(
-                                                "DynamicSubscript '" + indexNode
-                                                        + "' not allowed for object indexed property '" + propertyNode
-                                                        + "'");
-                                    }
-                                }
+                            switch (dynamicSubscript.getFlag()) {
+                                case DynamicSubscript.ALL:
+                                    result = Array.newInstance(array.getClass().getComponentType(), len);
+                                    System.arraycopy(array, 0, result, 0, len);
+                                    handled = true;
+                                    i++;
+                                    break;
+                                case DynamicSubscript.FIRST:
+                                    index = (len > 0) ? 0 : -1;
+                                    break;
+                                case DynamicSubscript.MID:
+                                    index = (len > 0) ? (len / 2) : -1;
+                                    break;
+                                case DynamicSubscript.LAST:
+                                    index = (len > 0) ? (len - 1) : -1;
+                                    break;
                             }
-                            if (!handled) {
-                                result = OgnlRuntime.getIndexedProperty(context, result,
-                                        propertyNode.getProperty(context, result).toString(),
-                                        index);
-                                handled = true;
-                                i++;
+                        } else {
+                            if (indexType == OgnlRuntime.INDEXED_PROPERTY_OBJECT) {
+                                throw new OgnlException(
+                                        "DynamicSubscript '" + indexNode
+                                                + "' not allowed for object indexed property '" + propertyNode
+                                                + "'");
                             }
                         }
                     }
+                    if (!handled) {
+                        result = OgnlRuntime.getIndexedProperty(context, result,
+                                propertyNode.getProperty(context, result).toString(),
+                                index);
+                        handled = true;
+                        i++;
+                    }
                 }
+
             }
+
             if (!handled) {
                 result = children[i].getValue(context, result);
             }
@@ -159,8 +158,8 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
         return result;
     }
 
-    protected void setValueBody(C context, Object target, Object value)
-            throws OgnlException {
+    @Override
+    protected void setValueBody(C context, Object target, Object value) throws OgnlException {
         boolean handled = false;
 
         for (int i = 0, ilast = children.length - 2; i <= ilast; ++i) {
@@ -171,12 +170,12 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
                     if (indexNode.isIndexedAccess()) {
                         Object index = indexNode.getProperty(context, target);
 
-                        if (index instanceof DynamicSubscript) {
+                        if (index instanceof DynamicSubscript dynamicSubscript) {
                             if (indexType == OgnlRuntime.INDEXED_PROPERTY_INT) {
                                 Object array = propertyNode.getValue(context, target);
                                 int len = Array.getLength(array);
 
-                                switch (((DynamicSubscript) index).getFlag()) {
+                                switch (dynamicSubscript.getFlag()) {
                                     case DynamicSubscript.ALL:
                                         System.arraycopy(target, 0, value, 0, len);
                                         handled = true;
@@ -225,6 +224,7 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
         }
     }
 
+    @Override
     public boolean isSimpleNavigationChain(C context)
             throws OgnlException {
         boolean result = false;
@@ -250,6 +250,7 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
         return setterClass;
     }
 
+    @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
 
@@ -264,12 +265,13 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
         return result.toString();
     }
 
-    private boolean shouldAppendNavigationOperator(Node child) {
+    private boolean shouldAppendNavigationOperator(Node<C> child) {
         return !(child instanceof ASTProperty) || !((ASTProperty<C>) child).isIndexedAccess();
     }
 
+    @Override
     public String toGetSourceString(C context, Object target) {
-        String prevChain = (String) context.get("_currentChain");
+        String prevChain = (String) context.get(OgnlContext.CURRENT_CHAIN);
 
         if (target != null) {
             context.setCurrentObject(target);
@@ -282,7 +284,7 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
         }
 
         String result = "";
-        NodeType _lastType = null;
+        NodeType lastType = null;
         boolean ordered = false;
         boolean constructor = false;
         try {
@@ -293,13 +295,12 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
                     if (child instanceof ASTCtor)
                         constructor = true;
 
-                    if (child instanceof NodeType
-                            && ((NodeType) child).getGetterClass() != null) {
-                        _lastType = (NodeType) child;
+                    if (child instanceof NodeType nodeType && nodeType.getGetterClass() != null) {
+                        lastType = nodeType;
                     }
 
                     if (!(child instanceof ASTVarRef) && !constructor
-                            && !(child instanceof OrderedReturn && ((OrderedReturn) child).getLastExpression() != null)
+                            && !(child instanceof OrderedReturn orderedReturn && orderedReturn.getLastExpression() != null)
                             && (!(parent instanceof ASTSequence))) {
                         value = OgnlRuntime.getCompiler().castExpression(context, child, value);
                     }
@@ -307,7 +308,7 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
                     if (child instanceof OrderedReturn or && or.getLastExpression() != null) {
                         ordered = true;
 
-                        if (or.getCoreExpression() == null || or.getCoreExpression().trim().length() <= 0)
+                        if (or.getCoreExpression() == null || or.getCoreExpression().trim().isEmpty())
                             result = "";
                         else
                             result += or.getCoreExpression();
@@ -327,30 +328,31 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
                         result += value;
                     }
 
-                    context.put("_currentChain", result);
+                    context.put(OgnlContext.CURRENT_CHAIN, result);
                 }
             }
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw OgnlOps.castToRuntime(t);
         }
 
-        if (_lastType != null) {
-            getterClass = _lastType.getGetterClass();
-            setterClass = _lastType.getSetterClass();
+        if (lastType != null) {
+            getterClass = lastType.getGetterClass();
+            setterClass = lastType.getSetterClass();
         }
 
         if (ordered) {
             coreExpression = result;
         }
 
-        context.put("_currentChain", prevChain);
+        context.put(OgnlContext.CURRENT_CHAIN, prevChain);
 
         return result;
     }
 
+    @Override
     public String toSetSourceString(C context, Object target) {
-        String prevChain = (String) context.get("_currentChain");
-        String prevChild = (String) context.get("_lastChild");
+        String prevChain = (String) context.get(OgnlContext.CURRENT_CHAIN);
+        String prevChild = (String) context.get(OgnlContext.LAST_CHILD);
 
         if (prevChain != null)
             throw new UnsupportedCompilationException("Can't compile nested chain expressions.");
@@ -361,7 +363,7 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
         }
 
         String result = "";
-        NodeType _lastType = null;
+        NodeType lastType = null;
         boolean constructor = false;
         try {
             if ((children != null) && (children.length > 0)) {
@@ -371,7 +373,7 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
 
                 for (int i = 0; i < children.length; i++) {
                     if (i == (children.length - 1)) {
-                        context.put("_lastChild", "true");
+                        context.put(OgnlContext.LAST_CHILD, "true");
                     }
 
                     String value = children[i].toSetSourceString(context, context.getCurrentObject());
@@ -379,13 +381,12 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
                     if (children[i] instanceof ASTCtor)
                         constructor = true;
 
-                    if (children[i] instanceof NodeType
-                            && ((NodeType) children[i]).getGetterClass() != null) {
-                        _lastType = (NodeType) children[i];
+                    if (children[i] instanceof NodeType nodeType && nodeType.getGetterClass() != null) {
+                        lastType = (NodeType) children[i];
                     }
 
                     if (!(children[i] instanceof ASTVarRef) && !constructor
-                            && !(children[i] instanceof OrderedReturn && ((OrderedReturn) children[i]).getLastExpression() != null)
+                            && !(children[i] instanceof OrderedReturn orderedReturn && orderedReturn.getLastExpression() != null)
                             && (!(parent instanceof ASTSequence))) {
                         value = OgnlRuntime.getCompiler().castExpression(context, children[i], value);
                     }
@@ -399,18 +400,18 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
                     } else
                         result += value;
 
-                    context.put("_currentChain", result);
+                    context.put(OgnlContext.CURRENT_CHAIN, result);
                 }
             }
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw OgnlOps.castToRuntime(t);
         }
 
-        context.put("_lastChild", prevChild);
-        context.put("_currentChain", prevChain);
+        context.put(OgnlContext.LAST_CHILD, prevChild);
+        context.put(OgnlContext.CURRENT_CHAIN, prevChain);
 
-        if (_lastType != null)
-            setterClass = _lastType.getSetterClass();
+        if (lastType != null)
+            setterClass = lastType.getSetterClass();
 
         return result;
     }

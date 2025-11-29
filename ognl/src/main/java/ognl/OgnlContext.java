@@ -44,6 +44,8 @@ public class OgnlContext<C extends OgnlContext<C>> implements Map<String, Object
     private static final String IGNORE_READ_METHODS_CONTEXT_KEY = "_ignoreReadMethods";
     private static final String PROPERTY_KEY_PREFIX = "ognl";
     private static final boolean DEFAULT_IGNORE_READ_METHODS = false;
+    public static final String CURRENT_CHAIN = "_currentChain";
+    public static final String LAST_CHILD = "_lastChild";
     private static boolean DEFAULT_TRACE_EVALUATIONS = false;
     private static boolean DEFAULT_KEEP_LAST_EVALUATION = false;
 
