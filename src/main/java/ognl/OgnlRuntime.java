@@ -297,6 +297,7 @@ public class OgnlRuntime {
      * Users that have their own Security Manager implementations and no intention to use the OGNL SecurityManager
      * sandbox may choose to use the 'forceDisableOnInit' flag option for performance reasons (avoiding overhead
      * involving the system property security checks - when that feature will not be used).
+     *
      * @deprecated will removed in 3.5.x
      */
     @Deprecated
@@ -307,6 +308,7 @@ public class OgnlRuntime {
      * Hold environment flag state associated with OGNL_SECURITY_MANAGER.  See
      * {@link OgnlRuntime#OGNL_SECURITY_MANAGER} for more details.
      * Default: false (if not set).
+     *
      * @deprecated will be removed in 3.5.x
      */
     @Deprecated
@@ -812,44 +814,53 @@ public class OgnlRuntime {
         }
 
         // only synchronize method invocation if it actually requires it
+        // double null check to avoid synchronizing on the method when cache is already populated
 
-        synchronized (method) {
-            methodAccessCacheValue = _methodAccessCache.get(method);
-            if (methodAccessCacheValue == null) {
-                if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-                    if (!(method.isAccessible())) {
-                        methodAccessCacheValue = Boolean.TRUE;
-                        _methodAccessCache.put(method, methodAccessCacheValue);
+        methodAccessCacheValue = _methodAccessCache.get(method);
+        if (methodAccessCacheValue == null) {
+            synchronized (method) {
+                methodAccessCacheValue = _methodAccessCache.get(method);
+                if (methodAccessCacheValue == null) {
+                    if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
+                        if (!(method.isAccessible())) {
+                            methodAccessCacheValue = Boolean.TRUE;
+                            _methodAccessCache.put(method, methodAccessCacheValue);
+                        } else {
+                            methodAccessCacheValue = Boolean.FALSE;
+                            _methodAccessCache.put(method, methodAccessCacheValue);
+                        }
                     } else {
                         methodAccessCacheValue = Boolean.FALSE;
                         _methodAccessCache.put(method, methodAccessCacheValue);
                     }
-                } else {
-                    methodAccessCacheValue = Boolean.FALSE;
-                    _methodAccessCache.put(method, methodAccessCacheValue);
                 }
             }
-            syncInvoke = Boolean.TRUE.equals(methodAccessCacheValue);
+        }
+        syncInvoke = Boolean.TRUE.equals(methodAccessCacheValue);
 
-            methodPermCacheValue = _methodPermCache.get(method);
-            if (methodPermCacheValue == null) {
-                if (securityManager != null) {
-                    try {
-                        securityManager.checkPermission(getPermission(method));
+        methodPermCacheValue = _methodPermCache.get(method);
+        if (methodPermCacheValue == null) {
+            synchronized (method) {
+                methodPermCacheValue = _methodPermCache.get(method);
+                if (methodPermCacheValue == null) {
+                    if (securityManager != null) {
+                        try {
+                            securityManager.checkPermission(getPermission(method));
+                            methodPermCacheValue = Boolean.TRUE;
+                            _methodPermCache.put(method, methodPermCacheValue);
+                        } catch (SecurityException ex) {
+                            methodPermCacheValue = Boolean.FALSE;
+                            _methodPermCache.put(method, methodPermCacheValue);
+                            throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
+                        }
+                    } else {
                         methodPermCacheValue = Boolean.TRUE;
                         _methodPermCache.put(method, methodPermCacheValue);
-                    } catch (SecurityException ex) {
-                        methodPermCacheValue = Boolean.FALSE;
-                        _methodPermCache.put(method, methodPermCacheValue);
-                        throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
                     }
-                } else {
-                    methodPermCacheValue = Boolean.TRUE;
-                    _methodPermCache.put(method, methodPermCacheValue);
                 }
             }
-            checkPermission = Boolean.FALSE.equals(methodPermCacheValue);
         }
+        checkPermission = Boolean.FALSE.equals(methodPermCacheValue);
 
         Object result;
 
@@ -1969,8 +1980,7 @@ public class OgnlRuntime {
 
     public static boolean setFieldValue(OgnlContext context, Object target, String propertyName, Object value,
                                         boolean checkAccessAndExistence)
-            throws OgnlException
-    {
+            throws OgnlException {
         boolean result = false;
 
         try {
@@ -3115,9 +3125,9 @@ public class OgnlRuntime {
      * Returns true if the given member is accessible or can be made accessible
      * by this object.
      *
-     * @param context the current execution context.
-     * @param target the Object to test accessibility for.
-     * @param member the Member to test accessibility for.
+     * @param context      the current execution context.
+     * @param target       the Object to test accessibility for.
+     * @param member       the Member to test accessibility for.
      * @param propertyName the property to test accessibility for.
      * @return true if the target/member/propertyName is accessible in the context, false otherwise.
      */
