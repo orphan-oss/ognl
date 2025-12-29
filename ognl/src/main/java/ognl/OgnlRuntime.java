@@ -668,28 +668,32 @@ public class OgnlRuntime {
         }
 
         // only synchronize method invocation if it actually requires it
-
-        synchronized (method) {
-            methodAccessCacheValue = _methodAccessCache.get(method);
-            if (methodAccessCacheValue == null) {
-                if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-                    var obj = Modifier.isStatic(method.getModifiers()) ? null : target;
-                    if (method.canAccess(obj)) {
+        methodAccessCacheValue = _methodAccessCache.get(method);
+        // double null check to avoid synchronizing on the method
+        if (methodAccessCacheValue == null) {
+            synchronized (method) {
+                methodAccessCacheValue = _methodAccessCache.get(method);
+                if (methodAccessCacheValue == null) {
+                    if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
+                        var obj = Modifier.isStatic(method.getModifiers()) ? null : target;
+                        if (method.canAccess(obj)) {
+                            methodAccessCacheValue = Boolean.FALSE;
+                            _methodAccessCache.put(method, methodAccessCacheValue);
+                        } else {
+                            methodAccessCacheValue = Boolean.TRUE;
+                            _methodAccessCache.put(method, methodAccessCacheValue);
+                        }
+                    } else {
                         methodAccessCacheValue = Boolean.FALSE;
                         _methodAccessCache.put(method, methodAccessCacheValue);
-                    } else {
-                        methodAccessCacheValue = Boolean.TRUE;
-                        _methodAccessCache.put(method, methodAccessCacheValue);
                     }
-                } else {
-                    methodAccessCacheValue = Boolean.FALSE;
-                    _methodAccessCache.put(method, methodAccessCacheValue);
                 }
-            }
-            syncInvoke = Boolean.TRUE.equals(methodAccessCacheValue);
 
-            _methodPermCache.putIfAbsent(method, Boolean.TRUE);
+                _methodPermCache.putIfAbsent(method, Boolean.TRUE);
+            }
         }
+
+        syncInvoke = Boolean.TRUE.equals(methodAccessCacheValue);
 
         Object result;
 
