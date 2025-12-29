@@ -18,12 +18,16 @@
  */
 package ognl.test;
 
+import ognl.Node;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.test.objects.Simple;
+import ognl.test.util.DualModeTestUtils;
+import ognl.test.util.OgnlExecutionMode;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -43,93 +47,108 @@ class NumberFormatExceptionTest {
         context = Ognl.createDefaultContext(simple);
     }
 
-    @Test
-    void testFloatValueValid() throws Exception {
-        Ognl.setValue("floatValue", context, simple, 10f);
-        assertEquals(10f, Ognl.getValue("floatValue", context, simple));
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testFloatValueValid(OgnlExecutionMode mode) throws Exception {
+        DualModeTestUtils.prepareAndSetValue("floatValue", context, simple, 10f, mode);
+        assertEquals(10f, DualModeTestUtils.prepareAndEvaluate("floatValue", context, simple, mode));
     }
 
-    @Test
-    void testFloatValueInvalid() {
-        assertThrows(OgnlException.class,
-                () -> Ognl.setValue("floatValue", context, simple, "x10x")
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testFloatValueInvalid(OgnlExecutionMode mode) {
+        assertThrows(Exception.class,
+                () -> DualModeTestUtils.prepareAndSetValue("floatValue", context, simple, "x10x", mode)
                 , "x10x");
     }
 
-    @Test
-    void testIntValueValid() throws Exception {
-        Ognl.setValue("intValue", context, simple, 34);
-        Object actual = Ognl.getValue("intValue", context, simple);
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testIntValueValid(OgnlExecutionMode mode) throws Exception {
+        DualModeTestUtils.prepareAndSetValue("intValue", context, simple, 34, mode);
+        Object actual = DualModeTestUtils.prepareAndEvaluate("intValue", context, simple, mode);
         assertEquals(34, actual);
     }
 
-    @Test
-    void testIntValueInvalidString() {
-        assertThrows(OgnlException.class, () -> Ognl.setValue("intValue", context, simple, "foobar"));
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testIntValueInvalidString(OgnlExecutionMode mode) {
+        assertThrows(Exception.class, () -> DualModeTestUtils.prepareAndSetValue("intValue", context, simple, "foobar", mode));
     }
 
-    @Test
-    void testIntValueEmptyString() {
-        assertThrows(OgnlException.class, () -> Ognl.setValue("intValue", context, simple, ""));
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testIntValueEmptyString(OgnlExecutionMode mode) {
+        assertThrows(Exception.class, () -> DualModeTestUtils.prepareAndSetValue("intValue", context, simple, "", mode));
     }
 
-    @Test
-    void testIntValueWhitespaceString() {
-        assertThrows(OgnlException.class, () -> Ognl.setValue("intValue", context, simple, "       \t"));
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testIntValueWhitespaceString(OgnlExecutionMode mode) {
+        assertThrows(Exception.class, () -> DualModeTestUtils.prepareAndSetValue("intValue", context, simple, "       \t", mode));
     }
 
-    @Test
-    void testIntValueValidWhitespaceString() throws Exception {
-        Ognl.setValue("intValue", context, simple, "       \t1234\t\t");
-        Object actual = Ognl.getValue("intValue", context, simple);
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testIntValueValidWhitespaceString(OgnlExecutionMode mode) throws Exception {
+        DualModeTestUtils.prepareAndSetValue("intValue", context, simple, "       \t1234\t\t", mode);
+        Object actual = DualModeTestUtils.prepareAndEvaluate("intValue", context, simple, mode);
         assertEquals(1234, actual);
     }
 
-    @Test
-    void testBigIntValueValid() throws Exception {
-        Ognl.setValue("bigIntValue", context, simple, BigInteger.valueOf(34));
-        Object actual = Ognl.getValue("bigIntValue", context, simple);
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testBigIntValueValid(OgnlExecutionMode mode) throws Exception {
+        DualModeTestUtils.prepareAndSetValue("bigIntValue", context, simple, BigInteger.valueOf(34), mode);
+        Object actual = DualModeTestUtils.prepareAndEvaluate("bigIntValue", context, simple, mode);
         assertEquals(BigInteger.valueOf(34), actual);
     }
 
-    @Test
-    void testBigIntValueNull() throws Exception {
-        Ognl.setValue("bigIntValue", context, simple, null);
-        Object actual = Ognl.getValue("bigIntValue", context, simple);
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testBigIntValueNull(OgnlExecutionMode mode) throws Exception {
+        DualModeTestUtils.prepareAndSetValue("bigIntValue", context, simple, null, mode);
+        Object actual = DualModeTestUtils.prepareAndEvaluate("bigIntValue", context, simple, mode);
         assertNull(actual);
     }
 
-    @Test
-    void testBigIntValueEmptyString() {
-        assertThrows(OgnlException.class, () -> Ognl.setValue("bigIntValue", context, simple, ""));
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testBigIntValueEmptyString(OgnlExecutionMode mode) {
+        assertThrows(Exception.class, () -> DualModeTestUtils.prepareAndSetValue("bigIntValue", context, simple, "", mode));
     }
 
-    @Test
-    void testBigIntValueInvalidString() {
-        assertThrows(OgnlException.class, () -> Ognl.setValue("bigIntValue", context, simple, "foobar"));
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testBigIntValueInvalidString(OgnlExecutionMode mode) {
+        assertThrows(Exception.class, () -> DualModeTestUtils.prepareAndSetValue("bigIntValue", context, simple, "foobar", mode));
     }
 
-    @Test
-    void testBigDecValueValid() throws Exception {
-        Ognl.setValue("bigDecValue", context, simple, BigDecimal.valueOf(34.55));
-        Object actual = Ognl.getValue("bigDecValue", context, simple);
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testBigDecValueValid(OgnlExecutionMode mode) throws Exception {
+        DualModeTestUtils.prepareAndSetValue("bigDecValue", context, simple, BigDecimal.valueOf(34.55), mode);
+        Object actual = DualModeTestUtils.prepareAndEvaluate("bigDecValue", context, simple, mode);
         assertEquals(BigDecimal.valueOf(34.55), actual);
     }
 
-    @Test
-    void testBigDecValueNull() throws Exception {
-        Ognl.setValue("bigDecValue", context, simple, null);
-        Object actual = Ognl.getValue("bigDecValue", context, simple);
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testBigDecValueNull(OgnlExecutionMode mode) throws Exception {
+        DualModeTestUtils.prepareAndSetValue("bigDecValue", context, simple, null, mode);
+        Object actual = DualModeTestUtils.prepareAndEvaluate("bigDecValue", context, simple, mode);
         assertNull(actual);
     }
 
-    @Test
-    void testBigDecValueEmptyString() {
-        assertThrows(OgnlException.class, () -> Ognl.setValue("bigDecValue", context, simple, ""));
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testBigDecValueEmptyString(OgnlExecutionMode mode) {
+        assertThrows(Exception.class, () -> DualModeTestUtils.prepareAndSetValue("bigDecValue", context, simple, "", mode));
     }
 
-    @Test
-    void testBigDecValueInvalidString() {
-        assertThrows(OgnlException.class, () -> Ognl.setValue("bigDecValue", context, simple, "foobar"));
+    @ParameterizedTest(name = "[{index}] mode={0}")
+    @EnumSource(OgnlExecutionMode.class)
+    void testBigDecValueInvalidString(OgnlExecutionMode mode) {
+        assertThrows(Exception.class, () -> DualModeTestUtils.prepareAndSetValue("bigDecValue", context, simple, "foobar", mode));
     }
 }
