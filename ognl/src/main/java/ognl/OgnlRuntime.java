@@ -688,13 +688,12 @@ public class OgnlRuntime {
                         _methodAccessCache.put(method, methodAccessCacheValue);
                     }
                 }
-                syncInvoke = Boolean.TRUE.equals(methodAccessCacheValue);
 
                 _methodPermCache.putIfAbsent(method, Boolean.TRUE);
             }
-        } else {
-            syncInvoke = Boolean.TRUE.equals(methodAccessCacheValue);
         }
+
+        syncInvoke = Boolean.TRUE.equals(methodAccessCacheValue);
 
         Object result;
 
