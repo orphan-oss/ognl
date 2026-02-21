@@ -128,7 +128,13 @@ public class ASTConst<C extends OgnlContext<C>> extends SimpleNode<C> implements
             context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(value.getClass()));
             context.setCurrentObject(value);
 
-            return value.toString();
+            String result = value.toString();
+            if (value instanceof Long) {
+                result = result + "L";
+            } else if (value instanceof Float) {
+                result = result + "f";
+            }
+            return result;
         } else if (!(parent != null && NumericExpression.class.isAssignableFrom(parent.getClass())) && String.class.isAssignableFrom(value.getClass())) {
             context.setCurrentType(String.class);
 
