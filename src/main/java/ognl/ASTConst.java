@@ -133,7 +133,13 @@ public class ASTConst extends SimpleNode implements NodeType {
             context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(value.getClass()));
             context.setCurrentObject(value);
 
-            return value.toString();
+            String result = value.toString();
+            if (value instanceof Long) {
+                result = result + "L";
+            } else if (value instanceof Float) {
+                result = result + "f";
+            }
+            return result;
         } else if (parent instanceof NumericExpression && !(parent instanceof ASTAdd)
                 && String.class.isAssignableFrom(value.getClass())) {
             // the interpreted path rejects a string operand of a numeric operator, so leave it to that path
