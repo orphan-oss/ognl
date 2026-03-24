@@ -50,16 +50,6 @@ cd benchmarks && ../mvnw clean install && java -jar target/benchmarks.jar
 
 ## Architecture
 
-### Key Source Files
-
-- **Core Evaluation**: `Ognl.java` (public API), `OgnlContext.java` (evaluation context), `SimpleNode.java` (AST base)
-- **AST Nodes**: `AST*.java` — one class per expression type (ASTProperty, ASTMethod, ASTProject, ASTSelect, etc.)
-- **Runtime**: `OgnlRuntime.java` — reflection, method resolution, type introspection
-- **Property Access**: `*PropertyAccessor.java` — pluggable accessors for different object types
-- **Type System**: `TypeConverter.java`, `OgnlOps.java` — type conversion and coercion
-- **Collections**: `*ElementsAccessor.java` — iteration support for different collection types
-- **Security**: `MemberAccess.java`, `AbstractMemberAccess.java` — access control for reflection
-
 ### Evaluation Flow
 
 1. Expression string → parsed into AST tree via JavaCC (`OgnlParser`)
@@ -67,13 +57,6 @@ cd benchmarks && ../mvnw clean install && java -jar target/benchmarks.jar
 3. Each AST node type handles its own evaluation via `SimpleNode.getValue()`/`setValue()`
 4. `OgnlRuntime` resolves properties, methods, and fields via reflection (with caching)
 5. Results pass through `TypeConverter` when type coercion is needed
-
-### Exception Hierarchy
-
-- `OgnlException` — base exception
-- `NoSuchPropertyException` — property not found
-- `MethodFailedException` — method invocation failed
-- `ExpressionSyntaxException` — malformed expression
 
 ## SonarCloud
 
@@ -87,36 +70,18 @@ cd benchmarks && ../mvnw clean install && java -jar target/benchmarks.jar
 
 ### Context Root Preservation
 
-**Never break context root preservation during nested evaluations.** The `addDefaultContext()` method in `Ognl.java`
+**Always preserve the original context root during nested evaluations.** The `addDefaultContext()` method in `Ognl.java`
 can overwrite original root contexts during list processing. Preserve original root when:
 - Initial context exists with non-null root
 - Context contains user variables (`size() > 0`)
 - New root differs from existing root (indicates nested evaluation)
-
-### Collection Processing
-
 - `#root` must always refer to original context root
 - `#this` changes scope during collection iteration
 - Preserve user context variables during projection/selection (`ASTProject`/`ASTSelect`)
 
-### Backward Compatibility
+### Constraints
 
-All changes must maintain backward compatibility. Public methods in `Ognl` class are stable API. When in doubt, preserve existing behavior.
-
-### Security
-
+- Public methods in `Ognl` class are stable API — maintain backward compatibility
 - Respect `MemberAccess` restrictions for private/protected access
 - Honor expression length limits (`expressionMaxLength`)
 - Use stricter invocation mode to prevent dangerous method calls
-
-### Test Naming Convention
-
-```java
-// Good: descriptive scenario names
-testContextRootPreservationWithListSelection()
-testIssue390ReproduceBug()
-
-// Bad: vague names
-testBug()
-testContext()
-```
