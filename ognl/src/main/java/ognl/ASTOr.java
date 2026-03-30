@@ -81,22 +81,15 @@ public class ASTOr<C extends OgnlContext<C>> extends BooleanExpression<C> {
             if (!OgnlRuntime.isBoolean(first))
                 first = OgnlRuntime.getCompiler().createLocalReference(context, first, context.getCurrentType());
 
-            Class<?> firstType = context.getCurrentType();
-
             String second = OgnlRuntime.getChildSource(context, target, children[1]);
             if (!OgnlRuntime.isBoolean(second))
                 second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());
 
-            Class<?> secondType = context.getCurrentType();
-
-            boolean mismatched = (firstType.isPrimitive() && !secondType.isPrimitive())
-                    || (!firstType.isPrimitive() && secondType.isPrimitive());
-
             result += "ognl.OgnlOps.booleanValue(" + first + ")";
             result += " ? ";
-            result += (mismatched ? " ($w) " : "") + first;
+            result += " ($w) (" + first + ")";
             result += " : ";
-            result += (mismatched ? " ($w) " : "") + second;
+            result += " ($w) (" + second + ")";
             result += ")";
 
             context.setCurrentObject(target);
