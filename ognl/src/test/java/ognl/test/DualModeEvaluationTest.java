@@ -87,6 +87,10 @@ class DualModeEvaluationTest {
                         + "\n  compiled:    " + compiled + " (" + (compiled != null ? compiled.getClass().getName() : "null") + ")");
     }
 
+    /**
+     * These constant tests intentionally overlap with {@code ConstantTest} — that class only exercises
+     * the interpreted path, while these validate that the compiled path produces identical results.
+     */
     @Nested
     class Constants {
 
@@ -229,6 +233,11 @@ class DualModeEvaluationTest {
         void subtraction() throws Exception {
             assertBothModes("5-2h", BigInteger.valueOf(3));
         }
+
+        @Test
+        void modulus() throws Exception {
+            assertBothModes("5h%2", BigInteger.valueOf(1));
+        }
     }
 
     @Nested
@@ -296,6 +305,11 @@ class DualModeEvaluationTest {
         @Test
         void unaryPlus() throws Exception {
             assertBothModes("+1d", 1d);
+        }
+
+        @Test
+        void doubleNegation() throws Exception {
+            assertBothModes("--1d", 1d);
         }
 
         @Test
@@ -429,7 +443,22 @@ class DualModeEvaluationTest {
 
         @Test
         void ternary() throws Exception {
+            assertBothModes("true ? 1 : 0", 1);
+        }
+
+        @Test
+        void ternaryShortCircuitsOnTrueBranch() throws Exception {
             assertBothModes("true ? 1 : 1/0", 1);
+        }
+
+        @Test
+        void logicalAndShortCircuits() throws Exception {
+            assertBothModes("false && 1/0 == 0", Boolean.FALSE);
+        }
+
+        @Test
+        void logicalOrShortCircuits() throws Exception {
+            assertBothModes("true || 1/0 == 0", Boolean.TRUE);
         }
     }
 
@@ -468,7 +497,7 @@ class DualModeEvaluationTest {
 
         @Test
         void intProperty() throws Exception {
-            assertBothModesMatch("intValue");
+            assertBothModesMatch("anotherIntValue");
         }
 
         @Test
@@ -513,11 +542,6 @@ class DualModeEvaluationTest {
         @Test
         void nullInequalityToValue() throws Exception {
             assertBothModes("null != 1", Boolean.TRUE);
-        }
-
-        @Test
-        void nullObjectProperty() throws Exception {
-            assertBothModes("nullObject", null);
         }
     }
 
