@@ -24,6 +24,7 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.test.objects.Root;
+import ognl.test.objects.Simple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
@@ -85,6 +86,32 @@ class DualModeEvaluationTest {
                 "Modes diverged for: " + expression
                         + "\n  interpreted: " + interpreted + " (" + (interpreted != null ? interpreted.getClass().getName() : "null") + ")"
                         + "\n  compiled:    " + compiled + " (" + (compiled != null ? compiled.getClass().getName() : "null") + ")");
+    }
+
+    private void setValueInterpreted(String expression, Object value) throws OgnlException {
+        Object tree = Ognl.parseExpression(expression);
+        ((Node) tree).setValue(context.withRoot(root), root, value);
+    }
+
+    private void setValueCompiled(String expression, Object value, OgnlContext ctx) throws Exception {
+        Node node = Ognl.compileExpression(ctx, root, expression);
+        node.getAccessor().set(ctx, root, value);
+    }
+
+    private void assertSetThenGetBothModes(String expression, Object setValue, Object expectedGet) throws Exception {
+        // Interpreted: set then get
+        setValueInterpreted(expression, setValue);
+        Object interpretedResult = getValueInterpreted(expression);
+        assertEquals(expectedGet, interpretedResult,
+                "Interpreted set+get failed for: " + expression);
+
+        // Compiled: set then get (fresh context each time)
+        OgnlContext compiledCtx = freshCompiledContext();
+        setValueCompiled(expression, setValue, compiledCtx);
+        OgnlContext compiledCtx2 = freshCompiledContext();
+        Object compiledResult = getValueCompiled(expression, compiledCtx2);
+        assertEquals(expectedGet, compiledResult,
+                "Compiled set+get failed for: " + expression);
     }
 
     /**
@@ -504,6 +531,72 @@ class DualModeEvaluationTest {
         void staticField() throws Exception {
             assertBothModesMatch("@ognl.test.objects.Root@STATIC_INT");
         }
+
+        @Test
+        void mapProperty() throws Exception {
+            assertBothModesMatch("map");
+        }
+
+        @Test
+        void mapDotAccess() throws Exception {
+            assertBothModesMatch("map.test");
+        }
+
+        @Test
+        void mapBracketAccess() throws Exception {
+            assertBothModesMatch("map[\"test\"]");
+        }
+
+        @Test
+        void mapConcatKeyAccess() throws Exception {
+            assertBothModesMatch("map[\"te\" + \"st\"]");
+        }
+
+        @Test
+        void negatedBooleanProperty() throws Exception {
+            assertBothModes("! booleanValue", Boolean.TRUE);
+        }
+
+        @Test
+        void negatedBeanProperty() throws Exception {
+            assertBothModes("!bean2.pageBreakAfter", Boolean.TRUE);
+        }
+
+        @Test
+        void stringLengthCheck() throws Exception {
+            assertBothModesMatch("indexedStringValue != null && indexedStringValue.length() > 0");
+        }
+
+        @Test
+        void disabledProperty() throws Exception {
+            assertBothModes("disabled", Boolean.TRUE);
+        }
+
+        @Test
+        void ternaryWithBooleanProperty() throws Exception {
+            assertBothModes("disabled ? 'disabled' : 'othernot'", "disabled");
+        }
+
+        @Test
+        void nullOrBooleanExpression() throws Exception {
+            assertBothModes("nullObject || !readonly", Boolean.TRUE);
+        }
+
+        @Test
+        void disabledOrReadonly() throws Exception {
+            assertBothModes("disabled || readonly", Boolean.TRUE);
+        }
+
+        @Test
+        void renderNavigationTernary() throws Exception {
+            assertBothModes("renderNavigation ? '' : 'noborder'", "noborder");
+        }
+
+        @Test
+        void stringConcatenationWithProperty() throws Exception {
+            assertBothModes("\"background-color:blue; width:\" + (currentLocaleVerbosity / 2) + \"px\"",
+                    "background-color:blue; width:43px");
+        }
     }
 
     @Nested
@@ -557,6 +650,536 @@ class DualModeEvaluationTest {
         @Test
         void doubleNotInstanceOfInteger() throws Exception {
             assertBothModes("5. instanceof java.lang.Integer", Boolean.FALSE);
+        }
+    }
+
+    @Nested
+    class SetterPaths {
+
+        @Test
+        void setMapNewValue() throws Exception {
+            assertSetThenGetBothModes("map.newValue", 101, 101);
+        }
+
+        @Test
+        void setMapBracketKey() throws Exception {
+            assertSetThenGetBothModes("map[\"testKey\"]", "testVal", "testVal");
+        }
+
+        @Test
+        void setSettableListIndex() throws Exception {
+            assertSetThenGetBothModes("settableList[0]", "foo", "foo");
+        }
+
+        @Test
+        void setIntValueProperty() throws Exception {
+            assertSetThenGetBothModes("intValue", 42, 42);
+        }
+
+        @Test
+        void setOpenTransitionWin() throws Exception {
+            assertSetThenGetBothModes("openTransitionWin", Boolean.TRUE, Boolean.TRUE);
+        }
+
+        @Test
+        void setStringValue() throws Exception {
+            assertSetThenGetBothModes("stringValue", "hello", "hello");
+        }
+    }
+
+    @Nested
+    class SetterWithConversion {
+
+        @Test
+        void setIntFromDouble() throws Exception {
+            assertSetThenGetBothModes("intValue", 6.5, 6);
+        }
+
+        @Test
+        void setIntFromString() throws Exception {
+            assertSetThenGetBothModes("intValue", "654", 654);
+        }
+
+        @Test
+        void setStringFromInt() throws Exception {
+            assertSetThenGetBothModes("stringValue", 25, "25");
+        }
+    }
+
+    @Nested
+    class IndexAccess {
+
+        @Test
+        void listWithIndexVariable() throws Exception {
+            assertBothModesMatch("list[index]");
+        }
+
+        @Test
+        void listWithObjectIndex() throws Exception {
+            assertBothModesMatch("list[objectIndex]");
+        }
+
+        @Test
+        void arrayWithObjectIndex() throws Exception {
+            assertBothModesMatch("array[objectIndex]");
+        }
+
+        @Test
+        void arrayWithMethodIndex() throws Exception {
+            assertBothModesMatch("array[getObjectIndex()]");
+        }
+
+        @Test
+        void ternaryWithArrayLength() throws Exception {
+            assertBothModes("(index == (array.length - 3)) ? 'toggle toggleSelected' : 'toggle'",
+                    "toggle toggleSelected");
+        }
+
+        @Test
+        void stringConcatWithIndex() throws Exception {
+            assertBothModes("\"return toggleDisplay('excdisplay\" + index + \"', this)\"",
+                    "return toggleDisplay('excdisplay1', this)");
+        }
+
+        @Test
+        void mapSplitAccess() throws Exception {
+            assertBothModes("map[mapKey].split('=')[0]", "StringStuff");
+        }
+
+        @Test
+        void nestedListAccess() throws Exception {
+            assertBothModesMatch("booleanValues[index1][index2]");
+        }
+    }
+
+    @Nested
+    class ArrayElements {
+
+        @Test
+        void charArrayAccess() throws Exception {
+            assertBothModes("\"{Hello}\".toCharArray()[6]", '}');
+        }
+
+        @Test
+        void tapestryCharArray() throws Exception {
+            assertBothModes("\"Tapestry\".toCharArray()[2]", 'p');
+        }
+
+        @Test
+        void listLiteral() throws Exception {
+            assertBothModesMatch("{'1','2','3'}");
+        }
+
+        @Test
+        void booleanListLiteral() throws Exception {
+            assertBothModesMatch("{ true, !false }");
+        }
+    }
+
+    @Nested
+    class MethodCallsExtended {
+
+        @Test
+        void formatMethodWithProperty() throws Exception {
+            assertBothModesMatch("getCurrentClass(\"Test\")");
+        }
+
+        @Test
+        void ternaryWithMethodResult() throws Exception {
+            assertBothModes("disabled ? 'disabled' : 'othernot'", "disabled");
+        }
+
+        @Test
+        void printDeliveryConcat() throws Exception {
+            assertBothModes("printDelivery ? 'javascript:toggle(' + bean2.id + ');' : ''",
+                    "javascript:toggle(1);");
+        }
+
+        @Test
+        void nestedMethodCall() throws Exception {
+            assertBothModes("b.methodOfB(a.methodOfA(b)-1)", 0);
+        }
+    }
+
+    @Nested
+    class InterfaceInheritance {
+
+        @Test
+        void myMap() throws Exception {
+            assertBothModesMatch("myMap");
+        }
+
+        @Test
+        void myMapDotTest() throws Exception {
+            assertBothModesMatch("myMap.test");
+        }
+
+        @Test
+        void myMapArrayAccess() throws Exception {
+            assertBothModesMatch("myMap.array[0]");
+        }
+
+        @Test
+        void myMapListAccess() throws Exception {
+            assertBothModesMatch("myMap.list[1]");
+        }
+
+        @Test
+        void myMapFirstElement() throws Exception {
+            assertBothModes("myMap[^]", 99);
+        }
+
+        @Test
+        void myMapLastElement() throws Exception {
+            assertBothModes("myMap[$]", null);
+        }
+
+        @Test
+        void mapCompFormClientId() throws Exception {
+            assertBothModes("map.comp.form.clientId", "form1");
+        }
+
+        @Test
+        void myTestTheMapKey() throws Exception {
+            assertBothModes("myTest.theMap['key']", "value");
+        }
+    }
+
+    @Nested
+    class DynamicSubscripts {
+
+        @Test
+        void mapFirstElement() throws Exception {
+            assertBothModes("map[^]", 99);
+        }
+
+        @Test
+        void mapLastElement() throws Exception {
+            assertBothModes("map[$]", null);
+        }
+
+        @Test
+        void listMidElement() throws Exception {
+            assertBothModesMatch("getMap().list[|]");
+        }
+
+        @Test
+        void arrayLastElement() throws Exception {
+            assertBothModesMatch("map.array[$]");
+        }
+    }
+
+    @Nested
+    class ComplexExpressions {
+
+        @Test
+        void subExpressionWithThis() throws Exception {
+            assertBothModesMatch("map.(#this)");
+        }
+
+        @Test
+        void subExpressionWithTernary() throws Exception {
+            assertBothModesMatch("map.(#this != null ? #this['size'] : null)");
+        }
+
+        @Test
+        void firstElementSubExpression() throws Exception {
+            assertBothModes("map[^].(#this == null ? 'empty' : #this)", 99);
+        }
+
+        @Test
+        void lastElementSubExpression() throws Exception {
+            assertBothModes("map[$].(#this == null ? 'empty' : #this)", "empty");
+        }
+
+        @Test
+        void lastElementWithRootRef() throws Exception {
+            assertBothModesMatch("map[$].(#root == null ? 'empty' : #root)");
+        }
+
+        @Test
+        void arrayPlusMapSize() throws Exception {
+            assertBothModesMatch("map.(array[2] + size())");
+        }
+
+        @Test
+        void nestedTernary() throws Exception {
+            assertBothModes("sorted ? (readonly ? 'currentSortDesc' : 'currentSortAsc') : 'currentSortNone'",
+                    "currentSortAsc");
+        }
+
+        @Test
+        void selectedLocaleTernary() throws Exception {
+            assertBothModes("((selected != null) && (currLocale.toString() == selected.toString())) ? 'first' : 'second'",
+                    "first");
+        }
+
+        @Test
+        void listLiteralWithProperties() throws Exception {
+            assertBothModesMatch("{stringValue, getMap()}");
+        }
+
+        @Test
+        void getAssetWithTernary() throws Exception {
+            assertBothModes("getAsset( (width?'Yes':'No')+'Icon' )", "NoIcon");
+        }
+    }
+
+    @Nested
+    class PrimitiveNullHandling {
+
+        @Test
+        void setNullOnIntProperty() throws Exception {
+            assertSetThenGetBothModes("intValue", null, 0);
+        }
+
+        @Test
+        void setNullOnBooleanProperty() throws Exception {
+            assertSetThenGetBothModes("booleanValue", null, false);
+        }
+
+        @Test
+        void setValueOnIntProperty() throws Exception {
+            assertSetThenGetBothModes("intValue", 42, 42);
+        }
+
+        @Test
+        void setValueOnBooleanProperty() throws Exception {
+            assertSetThenGetBothModes("booleanValue", true, true);
+        }
+    }
+
+    @Nested
+    class MethodCallsWithSimple {
+
+        private Simple simpleRoot;
+        private OgnlContext simpleContext;
+
+        @BeforeEach
+        void setUp() {
+            simpleRoot = new Simple();
+            simpleContext = Ognl.createDefaultContext(simpleRoot, new DefaultMemberAccess(false));
+        }
+
+        private void assertSimpleBothModes(String expression, Object expected) throws Exception {
+            Object tree = Ognl.parseExpression(expression);
+            Object interpreted = ((Node) tree).getValue(simpleContext.withRoot(simpleRoot), simpleRoot);
+            assertEquals(expected, interpreted, "Interpreted failed for: " + expression);
+
+            OgnlContext compiledCtx = Ognl.createDefaultContext(simpleRoot, simpleContext.getMemberAccess());
+            Node compiled = Ognl.compileExpression(compiledCtx, simpleRoot, expression);
+            Object compiledResult = compiled.getAccessor().get(compiledCtx, simpleRoot);
+            assertEquals(expected, compiledResult, "Compiled failed for: " + expression);
+        }
+
+        private void assertSimpleBothModesMatch(String expression) throws Exception {
+            Object tree = Ognl.parseExpression(expression);
+            Object interpreted = ((Node) tree).getValue(simpleContext.withRoot(simpleRoot), simpleRoot);
+
+            OgnlContext compiledCtx = Ognl.createDefaultContext(simpleRoot, simpleContext.getMemberAccess());
+            Node compiled = Ognl.compileExpression(compiledCtx, simpleRoot, expression);
+            Object compiledResult = compiled.getAccessor().get(compiledCtx, simpleRoot);
+            assertEquals(interpreted, compiledResult,
+                    "Modes diverged for: " + expression
+                            + "\n  interpreted: " + interpreted
+                            + "\n  compiled:    " + compiledResult);
+        }
+
+        @Test
+        void hashCode_() throws Exception {
+            assertSimpleBothModesMatch("hashCode()");
+        }
+
+        @Test
+        void booleanTernary() throws Exception {
+            assertSimpleBothModes("getBooleanValue() ? \"here\" : \"\"", "");
+        }
+
+        @Test
+        void isDisabled() throws Exception {
+            assertSimpleBothModes("isDisabled()", Boolean.TRUE);
+        }
+
+        @Test
+        void isTruck() throws Exception {
+            assertSimpleBothModes("isTruck", Boolean.TRUE);
+        }
+
+        @Test
+        void isEditorDisabled() throws Exception {
+            assertSimpleBothModes("isEditorDisabled()", Boolean.FALSE);
+        }
+
+        @Test
+        void messagesFormat() throws Exception {
+            assertSimpleBothModesMatch("messages.format('ShowAllCount', one)");
+        }
+
+        @Test
+        void varArgsNoArgs() throws Exception {
+            assertSimpleBothModes("isThisVarArgsWorking()", Boolean.TRUE);
+        }
+
+        @Test
+        void varArgsWithArgs() throws Exception {
+            assertSimpleBothModes("isThisVarArgsWorking(three, rootValue)", Boolean.TRUE);
+        }
+
+        @Test
+        void enumMethodArg() throws Exception {
+            assertSimpleBothModes("getTestValue(@ognl.test.objects.SimpleEnum@ONE.value)", 2);
+        }
+    }
+
+    @Nested
+    class RootArrayAccess {
+
+        private OgnlContext arrayContext;
+        private String[] stringArray;
+        private int[] intArray;
+
+        @BeforeEach
+        void setUp() {
+            stringArray = new String[]{"hello", "world"};
+            intArray = new int[]{10, 20, 30};
+        }
+
+        @Test
+        void stringArrayLength() throws Exception {
+            arrayContext = Ognl.createDefaultContext(stringArray, context.getMemberAccess());
+            Object tree = Ognl.parseExpression("length");
+            Object interpreted = ((Node) tree).getValue(arrayContext.withRoot(stringArray), stringArray);
+            assertEquals(2, interpreted, "Interpreted failed");
+
+            OgnlContext compiledCtx = Ognl.createDefaultContext(stringArray, context.getMemberAccess());
+            Node compiled = Ognl.compileExpression(compiledCtx, stringArray, "length");
+            Object compiledResult = compiled.getAccessor().get(compiledCtx, stringArray);
+            assertEquals(2, compiledResult, "Compiled failed");
+        }
+
+        @Test
+        void stringArrayRootElement() throws Exception {
+            arrayContext = Ognl.createDefaultContext(stringArray, context.getMemberAccess());
+            Object tree = Ognl.parseExpression("#root[1]");
+            Object interpreted = ((Node) tree).getValue(arrayContext.withRoot(stringArray), stringArray);
+            assertEquals("world", interpreted, "Interpreted failed");
+
+            OgnlContext compiledCtx = Ognl.createDefaultContext(stringArray, context.getMemberAccess());
+            Node compiled = Ognl.compileExpression(compiledCtx, stringArray, "#root[1]");
+            Object compiledResult = compiled.getAccessor().get(compiledCtx, stringArray);
+            assertEquals("world", compiledResult, "Compiled failed");
+        }
+
+        @Test
+        void intArrayRootElement() throws Exception {
+            arrayContext = Ognl.createDefaultContext(intArray, context.getMemberAccess());
+            Object tree = Ognl.parseExpression("#root[1]");
+            Object interpreted = ((Node) tree).getValue(arrayContext.withRoot(intArray), intArray);
+            assertEquals(20, interpreted, "Interpreted failed");
+
+            OgnlContext compiledCtx = Ognl.createDefaultContext(intArray, context.getMemberAccess());
+            Node compiled = Ognl.compileExpression(compiledCtx, intArray, "#root[1]");
+            Object compiledResult = compiled.getAccessor().get(compiledCtx, intArray);
+            assertEquals(20, compiledResult, "Compiled failed");
+        }
+    }
+
+    @Nested
+    class MethodCallsWithConversion {
+
+        @Test
+        void formatWithArray() throws Exception {
+            assertBothModesMatch("format('key', array)");
+        }
+
+        @Test
+        void formatWithIntValue() throws Exception {
+            assertBothModesMatch("format('key', intValue)");
+        }
+
+        @Test
+        void formatWithMapSize() throws Exception {
+            assertBothModesMatch("format('key', map.size)");
+        }
+    }
+
+    @Nested
+    class PrimitiveNullHandlingWithSimple {
+
+        private Simple simpleRoot;
+        private OgnlContext simpleContext;
+
+        @BeforeEach
+        void setUp() {
+            simpleRoot = new Simple();
+            simpleRoot.setFloatValue(10.56f);
+            simpleRoot.setIntValue(34);
+            simpleContext = Ognl.createDefaultContext(simpleRoot, new DefaultMemberAccess(false));
+        }
+
+        @Test
+        void setNullOnFloatValue() throws Exception {
+            // Interpreted: set null then get
+            Object tree = Ognl.parseExpression("floatValue");
+            ((Node) tree).setValue(simpleContext.withRoot(simpleRoot), simpleRoot, null);
+            Object interpreted = ((Node) Ognl.parseExpression("floatValue")).getValue(
+                    simpleContext.withRoot(simpleRoot), simpleRoot);
+            assertEquals(0f, interpreted, "Interpreted set+get failed for: floatValue");
+
+            // Reset for compiled test
+            simpleRoot.setFloatValue(10.56f);
+
+            // Compiled: set null then get
+            OgnlContext compiledCtx = Ognl.createDefaultContext(simpleRoot, simpleContext.getMemberAccess());
+            Node setNode = Ognl.compileExpression(compiledCtx, simpleRoot, "floatValue");
+            setNode.getAccessor().set(compiledCtx, simpleRoot, null);
+
+            OgnlContext compiledCtx2 = Ognl.createDefaultContext(simpleRoot, simpleContext.getMemberAccess());
+            Node getNode = Ognl.compileExpression(compiledCtx2, simpleRoot, "floatValue");
+            Object compiled = getNode.getAccessor().get(compiledCtx2, simpleRoot);
+            assertEquals(0f, compiled, "Compiled set+get failed for: floatValue");
+        }
+
+        @Test
+        void setNullOnIntValue() throws Exception {
+            Object tree = Ognl.parseExpression("intValue");
+            ((Node) tree).setValue(simpleContext.withRoot(simpleRoot), simpleRoot, null);
+            Object interpreted = ((Node) Ognl.parseExpression("intValue")).getValue(
+                    simpleContext.withRoot(simpleRoot), simpleRoot);
+            assertEquals(0, interpreted, "Interpreted set+get failed for: intValue");
+
+            simpleRoot.setIntValue(34);
+
+            OgnlContext compiledCtx = Ognl.createDefaultContext(simpleRoot, simpleContext.getMemberAccess());
+            Node setNode = Ognl.compileExpression(compiledCtx, simpleRoot, "intValue");
+            setNode.getAccessor().set(compiledCtx, simpleRoot, null);
+
+            OgnlContext compiledCtx2 = Ognl.createDefaultContext(simpleRoot, simpleContext.getMemberAccess());
+            Node getNode = Ognl.compileExpression(compiledCtx2, simpleRoot, "intValue");
+            Object compiled = getNode.getAccessor().get(compiledCtx2, simpleRoot);
+            assertEquals(0, compiled, "Compiled set+get failed for: intValue");
+        }
+
+        @Test
+        void setNullOnBooleanValue() throws Exception {
+            Object tree = Ognl.parseExpression("booleanValue");
+            ((Node) tree).setValue(simpleContext.withRoot(simpleRoot), simpleRoot, true);
+            ((Node) Ognl.parseExpression("booleanValue")).setValue(
+                    simpleContext.withRoot(simpleRoot), simpleRoot, null);
+            Object interpreted = ((Node) Ognl.parseExpression("booleanValue")).getValue(
+                    simpleContext.withRoot(simpleRoot), simpleRoot);
+            assertEquals(false, interpreted, "Interpreted set+get failed for: booleanValue");
+
+            simpleRoot.setBooleanValue(true);
+
+            OgnlContext compiledCtx = Ognl.createDefaultContext(simpleRoot, simpleContext.getMemberAccess());
+            Node setNode = Ognl.compileExpression(compiledCtx, simpleRoot, "booleanValue");
+            setNode.getAccessor().set(compiledCtx, simpleRoot, null);
+
+            OgnlContext compiledCtx2 = Ognl.createDefaultContext(simpleRoot, simpleContext.getMemberAccess());
+            Node getNode = Ognl.compileExpression(compiledCtx2, simpleRoot, "booleanValue");
+            Object compiled = getNode.getAccessor().get(compiledCtx2, simpleRoot);
+            assertEquals(false, compiled, "Compiled set+get failed for: booleanValue");
         }
     }
 }
