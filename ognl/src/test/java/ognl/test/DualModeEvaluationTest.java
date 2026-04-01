@@ -652,7 +652,6 @@ class DualModeEvaluationTest {
     }
 
     @Nested
-    @Disabled("Compiler generates invalid source for instanceof expressions: 'missing member name'")
     class InstanceOf {
 
         @Test
