@@ -2697,7 +2697,7 @@ public class OgnlRuntime {
      * Should support naming conventions of pre-JDK9 and JDK9+.
      * See <a href="https://openjdk.java.net/jeps/223">JEP 223: New Version-String Scheme</a> for details.
      *
-     * @return Detected Major Java Version, or 5 (minimum supported version for OGNL) if unable to detect.
+     * @return Detected Major Java Version, or 17 (minimum supported version for OGNL) if unable to detect.
      * @since 3.1.25
      */
     static int detectMajorJavaVersion() {
@@ -2708,7 +2708,7 @@ public class OgnlRuntime {
             // Unavailable (SecurityException, etc.)
         }
         if (majorVersion == -1) {
-            majorVersion = 5;  // Return minimum supported Java version for OGNL
+            majorVersion = 17;  // Return minimum supported Java version for OGNL
         }
 
         return majorVersion;
