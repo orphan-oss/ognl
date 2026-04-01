@@ -26,7 +26,14 @@ import java.security.BasicPermission;
  * constructors) and does not implement actions.  It is similar in spirit
  * to the {@link java.lang.reflect.ReflectPermission} class in that it
  * guards access to methods.
+ *
+ * @deprecated SecurityManager has been permanently disabled in JDK 24
+ * (<a href="https://openjdk.org/jeps/486">JEP 486</a>) and
+ * {@link java.security.BasicPermission} is deprecated for removal.
+ * This class will be removed in a future OGNL release.
  */
+@SuppressWarnings("removal")
+@Deprecated(since = "3.5.0", forRemoval = true)
 public class OgnlInvokePermission extends BasicPermission {
 
     private static final long serialVersionUID = -1075128617667321761L;
