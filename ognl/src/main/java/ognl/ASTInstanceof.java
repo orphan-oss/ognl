@@ -67,6 +67,7 @@ public class ASTInstanceof<C extends OgnlContext<C>> extends SimpleNode<C> imple
                 ret = children[0].toGetSourceString(context, target) + " instanceof " + targetType;
 
             context.setCurrentType(Boolean.TYPE);
+            context.put("_noRoot", "true");
 
             return ret;
 

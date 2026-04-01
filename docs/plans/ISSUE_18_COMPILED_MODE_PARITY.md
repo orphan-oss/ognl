@@ -6,7 +6,7 @@ Issue [#18](https://github.com/orphan-oss/ognl/issues/18) reports 85 test failur
 
 ## Current State (2026-04-01)
 
-### Dual-Mode Test Coverage: 225 tests (213 active, 12 disabled)
+### Dual-Mode Test Coverage: 225 tests (215 active, 10 disabled)
 
 Comprehensive dual-mode testing across all categories reveals that the compiled mode works correctly for the vast majority of expressions. The original estimate of ~80 remaining failures was significantly higher than reality.
 
@@ -40,7 +40,7 @@ Comprehensive dual-mode testing across all categories reveals that the compiled 
 |---|----------|-------|------------|----------|
 | 1 | BigDecimal arithmetic | 8 | Java operators can't apply to BigDecimal in generated source | Hard (redesign) |
 | 2 | BigInteger arithmetic | — | (covered by BigDecimal disabled class) | Hard (redesign) |
-| 3 | instanceof expressions | 2 | Compiler generates invalid source: 'missing member name' | Medium |
+| 3 | ~~instanceof expressions~~ | ~~2~~ | ~~Fixed: set `_noRoot` flag to prevent root expression prefix on self-contained instanceof source~~ | **Fixed** |
 | 4 | Float subtraction | 1 | Compiler widens float to double in arithmetic | Low priority |
 | 5 | ~~String escaping in concat~~ | ~~1~~ | ~~Fixed: replaced `"` → `'` substitution with proper `\"` escaping in ASTAdd~~ | **Fixed** |
 | 6 | Side-effect methods | 1 | Compiler evaluates expression during type inference, double-calling side-effect methods like EvenOdd.getNext() | Hard (architectural) |
@@ -50,7 +50,7 @@ Comprehensive dual-mode testing across all categories reveals that the compiled 
 The original issue #18 reported 85 failures. Investigation shows:
 1. **PR #555 fixed** 3 bugs (ASTConst Long/Float, ASTOr boxing) — these unlocked many expressions
 2. **Most categories work correctly** — comprehensive testing of 212 expressions confirms parity
-3. **The remaining real failures** are limited to the 12 disabled tests above (string escaping fixed)
+3. **The remaining real failures** are limited to the 10 disabled tests above (string escaping and instanceof fixed)
 4. **The original count** likely included cascading failures where one bug caused multiple test failures
 
 ## Remaining Work
@@ -58,10 +58,8 @@ The original issue #18 reported 85 failures. Investigation shows:
 ### ~~PR: String Escaping Fix (category 5)~~ — DONE
 **Fixed in PR #TBD.** Root cause: `ASTAdd.toGetSourceString()` lines 208-214 replaced `"` with `'` in string constants during compiled concatenation. Fix: use proper Java string escaping (`\"`) instead of single-quote substitution, and preserve `&quot;` as literal text.
 
-### PR: instanceof Support (category 3)
-**Difficulty:** Medium
-**Files to investigate:**
-- `ognl/src/main/java/ognl/ASTInstanceof.java` — `toGetSourceString()`
+### ~~PR: instanceof Support (category 3)~~ — DONE
+**Fixed in PR #559.** Root cause: `ASTInstanceof.toGetSourceString()` didn't set `_noRoot` flag, causing `ExpressionCompiler.generateGetter()` to prepend root expression (`$2.`) to the generated source (`true`), producing invalid Java source `$2.true`.
 
 ### Deferred: BigDecimal/BigInteger (categories 1-2 in old plan)
 **Difficulty:** Hard (significant redesign)
