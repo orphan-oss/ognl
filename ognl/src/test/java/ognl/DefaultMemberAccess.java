@@ -31,15 +31,7 @@ import java.lang.reflect.Modifier;
  * and members.
  */
 public class DefaultMemberAccess<C extends OgnlContext<C>> implements MemberAccess<C> {
-    /*
-     * Assign an accessibility modification mechanism, based on Major Java Version.
-     *   Note: Can be overridden using a Java option flag {@link OgnlRuntime#USE_PREJDK9_ACESS_HANDLER}.
-     */
-    private static final AccessibleObjectHandler _accessibleObjectHandler;
-
-    static {
-        _accessibleObjectHandler = AccessibleObjectHandlerJDK9Plus.createHandler();
-    }
+    private static final AccessibleObjectHandler _accessibleObjectHandler = new AccessibleObjectHandler() {};
 
     public boolean allowPrivateAccess;
     public boolean allowProtectedAccess;

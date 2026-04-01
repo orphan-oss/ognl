@@ -158,18 +158,16 @@ public class OgnlRuntime {
     private static final int _majorJavaVersion = detectMajorJavaVersion();
     private static final boolean _jdk9Plus = _majorJavaVersion >= 9;
 
-    /*
-     * Assign an accessibility modification mechanism, based on Major Java Version and Java option flag
-     *   flag {@link OgnlRuntime#USE_JDK9PLUS_ACCESS_HANDLER}.
-     *
-     * Note: Will use the standard Pre-JDK9 accessibility modification mechanism unless OGNL is running
-     *   on JDK9+ and the Java option flag has also been set true.
+    /**
+     * Check if a class is sun.misc.Unsafe or jdk.internal.misc.Unsafe.
+     * Used by stricter invocation mode to block OGNL expressions from invoking Unsafe methods.
      */
-    private static final AccessibleObjectHandler _accessibleObjectHandler;
-
-    static {
-        _accessibleObjectHandler = AccessibleObjectHandlerJDK9Plus.createHandler();
+    private static boolean isUnsafeClass(final Class<?> clazz) {
+        String className = clazz.getName();
+        return "sun.misc.Unsafe".equals(className) || "jdk.internal.misc.Unsafe".equals(className);
     }
+
+    private static final AccessibleObjectHandler _accessibleObjectHandler = new AccessibleObjectHandler() {};
 
     /**
      * Private references for use in blocking direct invocation by invokeMethod().
@@ -659,7 +657,7 @@ public class OgnlRuntime {
                     Runtime.class.isAssignableFrom(methodDeclaringClass) ||
                     ClassLoader.class.isAssignableFrom(methodDeclaringClass) ||
                     ProcessBuilder.class.isAssignableFrom(methodDeclaringClass) ||
-                    AccessibleObjectHandlerJDK9Plus.unsafeOrDescendant(methodDeclaringClass)) {
+                    isUnsafeClass(methodDeclaringClass)) {
                 // Prevent calls to some specific methods, as well as all methods of certain classes/interfaces
                 //   for which no (apparent) legitimate use cases exist for their usage within OGNL invokeMethod().
                 throw new IllegalAccessException("Method [" + method + "] cannot be called from within OGNL invokeMethod() " +
