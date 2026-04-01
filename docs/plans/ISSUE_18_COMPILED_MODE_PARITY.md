@@ -6,7 +6,7 @@ Issue [#18](https://github.com/orphan-oss/ognl/issues/18) reports 85 test failur
 
 ## Current State (2026-04-01)
 
-### Dual-Mode Test Coverage: 225 tests (215 active, 10 disabled)
+### Dual-Mode Test Coverage: 225 tests (216 active, 9 disabled)
 
 Comprehensive dual-mode testing across all categories reveals that the compiled mode works correctly for the vast majority of expressions. The original estimate of ~80 remaining failures was significantly higher than reality.
 
@@ -41,7 +41,7 @@ Comprehensive dual-mode testing across all categories reveals that the compiled 
 | 1 | BigDecimal arithmetic | 8 | Java operators can't apply to BigDecimal in generated source | Hard (redesign) |
 | 2 | BigInteger arithmetic | — | (covered by BigDecimal disabled class) | Hard (redesign) |
 | 3 | ~~instanceof expressions~~ | ~~2~~ | ~~Fixed: set `_noRoot` flag to prevent root expression prefix on self-contained instanceof source~~ | **Fixed** |
-| 4 | Float subtraction | 1 | Compiler widens float to double in arithmetic | Low priority |
+| 4 | ~~Float subtraction~~ | ~~1~~ | ~~Fixed: `NumericExpression.coerceToNumeric()` now appends numeric literal suffix for ASTConst~~ | **Fixed** |
 | 5 | ~~String escaping in concat~~ | ~~1~~ | ~~Fixed: replaced `"` → `'` substitution with proper `\"` escaping in ASTAdd~~ | **Fixed** |
 | 6 | Side-effect methods | 1 | Compiler evaluates expression during type inference, double-calling side-effect methods like EvenOdd.getNext() | Hard (architectural) |
 
@@ -50,7 +50,7 @@ Comprehensive dual-mode testing across all categories reveals that the compiled 
 The original issue #18 reported 85 failures. Investigation shows:
 1. **PR #555 fixed** 3 bugs (ASTConst Long/Float, ASTOr boxing) — these unlocked many expressions
 2. **Most categories work correctly** — comprehensive testing of 212 expressions confirms parity
-3. **The remaining real failures** are limited to the 10 disabled tests above (string escaping and instanceof fixed)
+3. **The remaining real failures** are limited to the 9 disabled tests above (string escaping, instanceof, and float subtraction fixed)
 4. **The original count** likely included cascading failures where one bug caused multiple test failures
 
 ## Remaining Work

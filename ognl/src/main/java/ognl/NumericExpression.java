@@ -82,7 +82,8 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
         Object value = context.getCurrentObject();
 
         if (child instanceof ASTConst && value != null) {
-            return value.toString();
+            String literal = OgnlRuntime.getNumericLiteral(value.getClass());
+            return value.toString() + (literal != null ? literal : "");
         }
 
         if (context.getCurrentType() != null && !context.getCurrentType().isPrimitive()
