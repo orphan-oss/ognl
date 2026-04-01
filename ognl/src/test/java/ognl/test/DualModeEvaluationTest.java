@@ -1663,7 +1663,6 @@ class DualModeEvaluationTest {
             assertBothModes("openTransitionWin", Boolean.FALSE);
         }
 
-        @Disabled("Compiler loses double-quote and HTML entity escaping in string concatenation: '\"' becomes \"'\" and '&quot;' is decoded")
         @Test
         void disableButtonConcat() throws Exception {
             assertBothModes("'disableButton(this,\"' + map.get('button-testing') + '\");clearElement(&quot;testFtpMessage&quot;)'",
