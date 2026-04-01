@@ -367,7 +367,6 @@ class DualModeEvaluationTest {
             assertBothModes("5+2D", 7d);
         }
 
-        @Disabled("Compiler widens float to double in arithmetic expressions")
         @Test
         void floatSubtraction() throws Exception {
             assertBothModes("5f-2F", 3.0f);
