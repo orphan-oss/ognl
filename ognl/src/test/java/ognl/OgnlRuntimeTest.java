@@ -158,6 +158,56 @@ public class OgnlRuntimeTest {
     }
 
     /**
+     * Test that stricter invocation mode blocks calls to sun.misc.Unsafe methods.
+     */
+    @Test
+    public void testStricterInvocationBlocksUnsafe() {
+        if (OgnlRuntime.getUseStricterInvocationValue()) {
+            try {
+                final Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+                final Method allocateMethod = unsafeClass.getMethod("allocateMemory", long.class);
+                // Get the Unsafe instance via reflection
+                final java.lang.reflect.Field theUnsafe = unsafeClass.getDeclaredField("theUnsafe");
+                theUnsafe.setAccessible(true);
+                final Object unsafeInstance = theUnsafe.get(null);
+                try {
+                    OgnlRuntime.invokeMethod(unsafeInstance, allocateMethod, new Object[]{1L});
+                    fail("Should have blocked Unsafe method call");
+                } catch (IllegalAccessException iae) {
+                    // Expected: stricter invocation mode blocks Unsafe
+                }
+            } catch (ClassNotFoundException cnfe) {
+                // sun.misc.Unsafe not available on this JDK, skip
+            } catch (Exception ex) {
+                fail("Unexpected exception testing Unsafe blocking: " + ex);
+            }
+        }
+    }
+
+    /**
+     * Test that AccessibleObjectHandler default method works correctly.
+     */
+    @Test
+    public void testAccessibleObjectHandlerDefault() throws Exception {
+        AccessibleObjectHandler handler = new AccessibleObjectHandler() {};
+        Method method = String.class.getMethod("length");
+        // Should not throw
+        handler.setAccessible(method, true);
+    }
+
+    /**
+     * Test that OgnlInvokePermission can be instantiated.
+     */
+    @SuppressWarnings({"deprecation", "removal"})
+    @Test
+    public void testOgnlInvokePermissionConstruction() {
+        OgnlInvokePermission perm1 = new OgnlInvokePermission("test");
+        assertEquals("test", perm1.getName());
+        OgnlInvokePermission perm2 = new OgnlInvokePermission("test", "action");
+        assertEquals("test", perm2.getName());
+    }
+
+    /**
      * Test OgnlRuntime value for _useFirstMatchGetSetLookup based on the System property
      * represented by {@link OgnlRuntime#USE_FIRSTMATCH_GETSET_LOOKUP}.
      */
