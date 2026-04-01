@@ -4,9 +4,9 @@
 
 Issue [#18](https://github.com/orphan-oss/ognl/issues/18) reports 85 test failures + 3 errors when running OGNL expressions in compiled mode vs interpreted mode. [PR #555](https://github.com/orphan-oss/ognl/pull/555) fixed 3 compiler bugs (ASTConst Long/Float suffixes, ASTOr boolean boxing). [PR #556](https://github.com/orphan-oss/ognl/pull/556) added 82 dual-mode tests confirming categories 1-10 largely work.
 
-## Current State (2026-03-31)
+## Current State (2026-04-01)
 
-### Dual-Mode Test Coverage: 225 tests (212 active, 13 disabled)
+### Dual-Mode Test Coverage: 225 tests (213 active, 12 disabled)
 
 Comprehensive dual-mode testing across all categories reveals that the compiled mode works correctly for the vast majority of expressions. The original estimate of ~80 remaining failures was significantly higher than reality.
 
@@ -42,7 +42,7 @@ Comprehensive dual-mode testing across all categories reveals that the compiled 
 | 2 | BigInteger arithmetic | — | (covered by BigDecimal disabled class) | Hard (redesign) |
 | 3 | instanceof expressions | 2 | Compiler generates invalid source: 'missing member name' | Medium |
 | 4 | Float subtraction | 1 | Compiler widens float to double in arithmetic | Low priority |
-| 5 | String escaping in concat | 1 | Compiler loses `"` and `&quot;` escaping in string concatenation | Medium |
+| 5 | ~~String escaping in concat~~ | ~~1~~ | ~~Fixed: replaced `"` → `'` substitution with proper `\"` escaping in ASTAdd~~ | **Fixed** |
 | 6 | Side-effect methods | 1 | Compiler evaluates expression during type inference, double-calling side-effect methods like EvenOdd.getNext() | Hard (architectural) |
 
 ### What Happened to the ~80 Failures?
@@ -50,19 +50,13 @@ Comprehensive dual-mode testing across all categories reveals that the compiled 
 The original issue #18 reported 85 failures. Investigation shows:
 1. **PR #555 fixed** 3 bugs (ASTConst Long/Float, ASTOr boxing) — these unlocked many expressions
 2. **Most categories work correctly** — comprehensive testing of 212 expressions confirms parity
-3. **The remaining real failures** are limited to the 13 disabled tests above
+3. **The remaining real failures** are limited to the 12 disabled tests above (string escaping fixed)
 4. **The original count** likely included cascading failures where one bug caused multiple test failures
 
 ## Remaining Work
 
-### PR: String Escaping Fix (category 5)
-**Difficulty:** Medium
-**Files to investigate:**
-- `ognl/src/main/java/ognl/ASTConst.java` — `toGetSourceString()` string handling (line 138-145)
-- `ognl/src/main/java/ognl/ASTAdd.java` — `toGetSourceString()` string concatenation
-- `ognl/src/main/java/ognl/OgnlOps.java` — `getEscapeString()` (line 829)
-
-**Bug:** Expression `'disableButton(this,"' + x + '");clearElement(&quot;testFtpMessage&quot;)'` produces `disableButton(this,'null');clearElement('testFtpMessage')` in compiled mode — double quotes become single quotes and HTML entities are decoded.
+### ~~PR: String Escaping Fix (category 5)~~ — DONE
+**Fixed in PR #TBD.** Root cause: `ASTAdd.toGetSourceString()` lines 208-214 replaced `"` with `'` in string constants during compiled concatenation. Fix: use proper Java string escaping (`\"`) instead of single-quote substitution, and preserve `&quot;` as literal text.
 
 ### PR: instanceof Support (category 3)
 **Difficulty:** Medium

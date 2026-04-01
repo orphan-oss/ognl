@@ -206,13 +206,9 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                                 && !(children[i] instanceof ASTStaticMethod)
                                 && !(children[i] instanceof ASTTest)) {
                             if (lastType != null && String.class.isAssignableFrom(lastType.getGetterClass())) {
-                                //System.out.println("Input expr >>" + expr + "<<");
-                                if (expr.contains("&quot;"))
-                                    expr = expr.replaceAll("&quot;", "\"");
                                 if (expr.indexOf('"') >= 0)
-                                    expr = expr.replaceAll("\"", "'");
+                                    expr = expr.replaceAll("\"", "\\\\\"");
                                 expr = "\"" + expr + "\"";
-                                //System.out.println("Expr now >>" + expr + "<<");
                             }
                         }
                     }
