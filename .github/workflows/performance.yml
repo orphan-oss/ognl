@@ -52,7 +52,7 @@ jobs:
           OPTIONS: publishSummary
         run: |
           echo '### Benchmarks summary 🚀' >> $GITHUB_STEP_SUMMARY
-          ./mvnw -B verify -Pbenchmarks -DskipTests
+          ./mvnw -B verify -Pbenchmarks -DskipTests -Dbenchmarks.jmhArgs="-f 10"
       - name: Upload JMH results
         uses: actions/upload-artifact@v7
         with:
