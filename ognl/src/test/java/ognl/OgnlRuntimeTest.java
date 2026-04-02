@@ -161,7 +161,7 @@ public class OgnlRuntimeTest {
      * Test that stricter invocation mode blocks calls to sun.misc.Unsafe methods.
      */
     @Test
-    public void testStricterInvocationBlocksUnsafe() {
+    void testStricterInvocationBlocksUnsafe() {
         if (OgnlRuntime.getUseStricterInvocationValue()) {
             try {
                 final Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
@@ -188,11 +188,11 @@ public class OgnlRuntimeTest {
      * Test that AccessibleObjectHandler default method works correctly.
      */
     @Test
-    public void testAccessibleObjectHandlerDefault() throws Exception {
+    void testAccessibleObjectHandlerDefault() throws Exception {
         AccessibleObjectHandler handler = new AccessibleObjectHandler() {};
         Method method = String.class.getMethod("length");
-        // Should not throw
         handler.setAccessible(method, true);
+        assertTrue(method.canAccess("test"), "Method should be accessible after setAccessible(true)");
     }
 
     /**
@@ -200,7 +200,7 @@ public class OgnlRuntimeTest {
      */
     @SuppressWarnings({"deprecation", "removal"})
     @Test
-    public void testOgnlInvokePermissionConstruction() {
+    void testOgnlInvokePermissionConstruction() {
         OgnlInvokePermission perm1 = new OgnlInvokePermission("test");
         assertEquals("test", perm1.getName());
         OgnlInvokePermission perm2 = new OgnlInvokePermission("test", "action");
