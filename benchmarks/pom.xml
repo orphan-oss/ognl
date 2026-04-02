@@ -165,11 +165,7 @@
                                 <phase>verify</phase>
                                 <configuration>
                                     <executable>java</executable>
-                                    <arguments>
-                                        <argument>-jar</argument>
-                                        <argument>${project.build.directory}/${benchmarks.finalName}.jar</argument>
-                                    </arguments>
-                                    <commandlineArgs>${benchmarks.jmhArgs}</commandlineArgs>
+                                    <commandlineArgs>-jar ${project.build.directory}/${benchmarks.finalName}.jar ${benchmarks.jmhArgs}</commandlineArgs>
                                 </configuration>
                             </execution>
                         </executions>
