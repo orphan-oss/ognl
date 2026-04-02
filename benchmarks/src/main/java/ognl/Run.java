@@ -49,16 +49,23 @@ public class Run {
         JsonNode baseline = mapper.readTree(new File(BASELINE_FILE));
         JsonNode current = mapper.readTree(new File(RESULTS_FILE));
 
+        int regressions;
         if (options != null && options.contains("publishSummary")) {
             System.out.println("Publishing Summary of comparing results with baseline");
-            publishSummary(baseline, current);
+            regressions = publishSummary(baseline, current);
         } else {
             System.out.println("Comparing results with baseline");
-            compareResults(baseline, current);
+            regressions = compareResults(baseline, current);
+        }
+
+        if (regressions > 0) {
+            System.err.printf("%d benchmark(s) regressed >%.0f%% — failing build%n", regressions, REGRESSION_THRESHOLD);
+            System.exit(1);
         }
     }
 
-    private static void compareResults(JsonNode baseline, JsonNode current) {
+    private static int compareResults(JsonNode baseline, JsonNode current) {
+        int regressionCount = 0;
         for (JsonNode baseBench : baseline) {
             String benchmark = baseBench.get("benchmark").asText();
             String mode = baseBench.get("mode").asText();
@@ -72,6 +79,7 @@ public class Run {
                     double currScore = currBench.get("primaryMetric").get("score").asDouble();
                     double percent = (baseScore != 0) ? ((currScore - baseScore) / baseScore) * 100 : 0;
                     boolean isRegression = isRegression(mode, percent);
+                    if (isRegression) regressionCount++;
                     String flag = isRegression ? " <-- REGRESSION" : "";
                     System.out.printf("%s [%s]: baseline=%.3f, current=%.3f, diff=%.3f (%.1f%%)%s%n",
                             benchmark, mode, baseScore, currScore, baseScore - currScore, percent, flag);
@@ -84,9 +92,10 @@ public class Run {
                 System.out.printf("----- NOT FOUND -----%n");
             }
         }
+        return regressionCount;
     }
 
-    private static void publishSummary(JsonNode baseline, JsonNode current) throws IOException {
+    private static int publishSummary(JsonNode baseline, JsonNode current) throws IOException {
         StringBuilder table = new StringBuilder();
         table.append("| Benchmark | Mode | Baseline | Current | Diff | Change (%) | Status |\n");
         table.append("|-----------|------|----------|---------|------|------------|--------|\n");
@@ -135,6 +144,8 @@ public class Run {
                     StandardOpenOption.CREATE, StandardOpenOption.APPEND
             );
         }
+
+        return regressionCount;
     }
 
     private static boolean isRegression(String mode, double percentChange) {
