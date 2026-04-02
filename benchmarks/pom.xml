@@ -15,6 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <benchmarks.finalName>benchmarks</benchmarks.finalName>
+        <benchmarks.jmhArgs></benchmarks.jmhArgs>
     </properties>
 
     <dependencies>
@@ -168,6 +169,7 @@
                                         <argument>-jar</argument>
                                         <argument>${project.build.directory}/${benchmarks.finalName}.jar</argument>
                                     </arguments>
+                                    <commandlineArgs>${benchmarks.jmhArgs}</commandlineArgs>
                                 </configuration>
                             </execution>
                         </executions>
