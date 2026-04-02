@@ -10,7 +10,7 @@ collection operations (projection/selection), lambda expressions, type conversio
 
 ## Development Environment
 
-- **Language**: Java 17 (CI also tests against Java 21)
+- **Language**: Java 17 (CI also tests against Java 21 and 25)
 - **Build Tool**: Maven with wrapper (`./mvnw`), multi-module project
 - **Testing**: JUnit Jupiter 6.x
 - **Parser Generator**: JavaCC (grammar at `ognl/src/main/javacc/ognl.jj`)

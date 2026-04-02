@@ -158,18 +158,16 @@ public class OgnlRuntime {
     private static final int _majorJavaVersion = detectMajorJavaVersion();
     private static final boolean _jdk9Plus = _majorJavaVersion >= 9;
 
-    /*
-     * Assign an accessibility modification mechanism, based on Major Java Version and Java option flag
-     *   flag {@link OgnlRuntime#USE_JDK9PLUS_ACCESS_HANDLER}.
-     *
-     * Note: Will use the standard Pre-JDK9 accessibility modification mechanism unless OGNL is running
-     *   on JDK9+ and the Java option flag has also been set true.
+    /**
+     * Check if a class is sun.misc.Unsafe or jdk.internal.misc.Unsafe.
+     * Used by stricter invocation mode to block OGNL expressions from invoking Unsafe methods.
      */
-    private static final AccessibleObjectHandler _accessibleObjectHandler;
-
-    static {
-        _accessibleObjectHandler = AccessibleObjectHandlerJDK9Plus.createHandler();
+    private static boolean isUnsafeClass(final Class<?> clazz) {
+        String className = clazz.getName();
+        return "sun.misc.Unsafe".equals(className) || "jdk.internal.misc.Unsafe".equals(className);
     }
+
+    private static final AccessibleObjectHandler _accessibleObjectHandler = new AccessibleObjectHandler() {};
 
     /**
      * Private references for use in blocking direct invocation by invokeMethod().
@@ -659,7 +657,7 @@ public class OgnlRuntime {
                     Runtime.class.isAssignableFrom(methodDeclaringClass) ||
                     ClassLoader.class.isAssignableFrom(methodDeclaringClass) ||
                     ProcessBuilder.class.isAssignableFrom(methodDeclaringClass) ||
-                    AccessibleObjectHandlerJDK9Plus.unsafeOrDescendant(methodDeclaringClass)) {
+                    isUnsafeClass(methodDeclaringClass)) {
                 // Prevent calls to some specific methods, as well as all methods of certain classes/interfaces
                 //   for which no (apparent) legitimate use cases exist for their usage within OGNL invokeMethod().
                 throw new IllegalAccessException("Method [" + method + "] cannot be called from within OGNL invokeMethod() " +
@@ -2699,7 +2697,7 @@ public class OgnlRuntime {
      * Should support naming conventions of pre-JDK9 and JDK9+.
      * See <a href="https://openjdk.java.net/jeps/223">JEP 223: New Version-String Scheme</a> for details.
      *
-     * @return Detected Major Java Version, or 5 (minimum supported version for OGNL) if unable to detect.
+     * @return Detected Major Java Version, or 17 (minimum supported version for OGNL) if unable to detect.
      * @since 3.1.25
      */
     static int detectMajorJavaVersion() {
@@ -2710,7 +2708,7 @@ public class OgnlRuntime {
             // Unavailable (SecurityException, etc.)
         }
         if (majorVersion == -1) {
-            majorVersion = 5;  // Return minimum supported Java version for OGNL
+            majorVersion = 17;  // Return minimum supported Java version for OGNL
         }
 
         return majorVersion;
