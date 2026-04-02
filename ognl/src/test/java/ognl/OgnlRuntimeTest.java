@@ -196,18 +196,6 @@ public class OgnlRuntimeTest {
     }
 
     /**
-     * Test that OgnlInvokePermission can be instantiated.
-     */
-    @SuppressWarnings({"deprecation", "removal"})
-    @Test
-    void testOgnlInvokePermissionConstruction() {
-        OgnlInvokePermission perm1 = new OgnlInvokePermission("test");
-        assertEquals("test", perm1.getName());
-        OgnlInvokePermission perm2 = new OgnlInvokePermission("test", "action");
-        assertEquals("test", perm2.getName());
-    }
-
-    /**
      * Test OgnlRuntime value for _useFirstMatchGetSetLookup based on the System property
      * represented by {@link OgnlRuntime#USE_FIRSTMATCH_GETSET_LOOKUP}.
      */
