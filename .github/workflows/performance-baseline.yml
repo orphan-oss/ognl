@@ -18,7 +18,8 @@ name: JMH Baseline Generation
 on:
   workflow_dispatch:
 
-permissions: read-all
+permissions:
+  contents: read
 
 env:
   MAVEN_OPTS: -Xmx2g -Xms1g
