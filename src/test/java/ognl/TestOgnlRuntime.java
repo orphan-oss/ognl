@@ -48,6 +48,12 @@ import static org.junit.Assert.fail;
  */
 public class TestOgnlRuntime {
 
+    /**
+     * SecurityManager is permanently disabled on JDK 18+ (JEP 411).
+     * Sandbox tests must be skipped on those versions.
+     */
+    private static final boolean SECURITY_MANAGER_AVAILABLE = OgnlRuntime.detectMajorJavaVersion() < 18;
+
     private OgnlContext context;
 
     @Before
@@ -207,9 +213,9 @@ public class TestOgnlRuntime {
 
     @Test
     public void test_Call_Method_In_JDK_Sandbox() {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
-            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox() -invocation test.");
-            return;  // JVM option was set to disable sandbox, do not attempt invocation.
+        if (!SECURITY_MANAGER_AVAILABLE || OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
+            System.out.println("OGNL SecurityManager sandbox unavailable or disabled.  Skipping test_Call_Method_In_JDK_Sandbox() invocation test.");
+            return;
         }
 
         OgnlContext context = this.context;
@@ -242,9 +248,9 @@ public class TestOgnlRuntime {
     @Test
     public void test_Call_Method_In_JDK_Sandbox_Thread_Safety()
             throws Exception {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
-            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox_Thread_Safety() invocation test.");
-            return;  // JVM option was set to disable sandbox, do not attempt invocation.
+        if (!SECURITY_MANAGER_AVAILABLE || OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
+            System.out.println("OGNL SecurityManager sandbox unavailable or disabled.  Skipping test_Call_Method_In_JDK_Sandbox_Thread_Safety() invocation test.");
+            return;
         }
 
         final OgnlContext context = this.context;
@@ -312,9 +318,9 @@ public class TestOgnlRuntime {
 
     @Test
     public void test_Disable_JDK_Sandbox() {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
-            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Disable_JDK_Sandbox() invocation test.");
-            return;  // JVM option was set to disable sandbox, do not attempt invocation.
+        if (!SECURITY_MANAGER_AVAILABLE || OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
+            System.out.println("OGNL SecurityManager sandbox unavailable or disabled.  Skipping test_Disable_JDK_Sandbox() invocation test.");
+            return;
         }
 
         OgnlContext context = this.context;
@@ -386,9 +392,9 @@ public class TestOgnlRuntime {
 
     @Test
     public void test_Exit_JDK_Sandbox() {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
-            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Exit_JDK_Sandbox() invocation test.");
-            return;  // JVM option was set to disable sandbox, do not attempt invocation.
+        if (!SECURITY_MANAGER_AVAILABLE || OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
+            System.out.println("OGNL SecurityManager sandbox unavailable or disabled.  Skipping test_Exit_JDK_Sandbox() invocation test.");
+            return;
         }
 
         OgnlContext context = this.context;
@@ -419,9 +425,9 @@ public class TestOgnlRuntime {
 
     @Test
     public void test_Call_Method_In_JDK_Sandbox_Privileged() throws Exception {
-        if (OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
-            System.out.println("OGNL SecurityManager sandbox disabled by JVM option.  Skipping test_Call_Method_In_JDK_Sandbox_Privileged() invocation test.");
-            return;  // JVM option was set to disable sandbox, do not attempt invocation.
+        if (!SECURITY_MANAGER_AVAILABLE || OgnlRuntime.getDisableOgnlSecurityManagerOnInitValue()) {
+            System.out.println("OGNL SecurityManager sandbox unavailable or disabled.  Skipping test_Call_Method_In_JDK_Sandbox_Privileged() invocation test.");
+            return;
         }
 
         OgnlContext context = this.context;
