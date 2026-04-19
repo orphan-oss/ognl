@@ -17,7 +17,7 @@
         <sonar.organization>orphan-oss</sonar.organization>
         <sonar.projectKey>orphan-oss_ognl</sonar.projectKey>
 
-        <javassist.version>3.30.2-GA</javassist.version>
+        <javassist.version>3.31.0-GA</javassist.version>
         <junit.version>6.0.3</junit.version>
         <jmh.version>1.37</jmh.version>
         <jackson-databind.version>2.21.2</jackson-databind.version>
