@@ -20,10 +20,10 @@ package ognl.test;
 
 import ognl.Ognl;
 import ognl.OgnlException;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class IntegerLiteralOverflowTest {
@@ -31,6 +31,8 @@ class IntegerLiteralOverflowTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "2147483648",            // decimal above Integer.MAX_VALUE
+            "-2147483648",           // lexer tokenises the leading '-' separately,
+                                     // so makeInt() sees the bare 2147483648
             "9999999999",            // larger decimal
             "9223372036854775808L",  // long above Long.MAX_VALUE
             "0xFFFFFFFF",            // hex above signed 32-bit range
@@ -39,5 +41,16 @@ class IntegerLiteralOverflowTest {
     })
     void shouldThrowOgnlExceptionForOutOfRangeIntegerLiteral(String expression) {
         assertThrows(OgnlException.class, () -> Ognl.parseExpression(expression));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "2147483647",            // Integer.MAX_VALUE
+            "9223372036854775807L",  // Long.MAX_VALUE
+            "0x7FFFFFFF",            // largest in-range hex int
+            "1e100"                  // float path is unaffected by makeInt()
+    })
+    void shouldParseInRangeNumericLiteral(String expression) {
+        assertDoesNotThrow(() -> Ognl.parseExpression(expression));
     }
 }

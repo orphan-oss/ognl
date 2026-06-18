@@ -1916,7 +1916,10 @@ TOKEN_MGR_DECLS:
         } catch ( NumberFormatException e ) {
             // Surface as a lexical error so callers see the documented OgnlException
             // instead of a raw NumberFormatException (e.g. literals out of range).
-            throw new TokenMgrError( "Integer literal out of range: " + image, TokenMgrError.LEXICAL_ERROR );
+            // TokenMgrError has no cause-accepting constructor, so fold the original
+            // detail into the message to keep diagnostics and use the caught exception.
+            throw new TokenMgrError( "Integer literal out of range: " + image
+                    + " (" + e.getMessage() + ")", TokenMgrError.LEXICAL_ERROR );
         }
         return result;
     }
