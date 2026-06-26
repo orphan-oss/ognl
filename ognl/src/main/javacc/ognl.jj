@@ -1899,18 +1899,27 @@ TOKEN_MGR_DECLS:
             base = (s.length() > 1 && (s.charAt(1) == 'x' || s.charAt(1) == 'X'))? 16 : 8;
         if ( base == 16 )
             s = s.substring(2); // Trim the 0x off the front
-        switch ( s.charAt(s.length()-1) ) {
-            case 'l': case 'L':
-                result = Long.valueOf( s.substring(0,s.length()-1), base );
-                break;
+        try {
+            switch ( s.charAt(s.length()-1) ) {
+                case 'l': case 'L':
+                    result = Long.valueOf( s.substring(0,s.length()-1), base );
+                    break;
 
-            case 'h': case 'H':
-                result = new BigInteger( s.substring(0,s.length()-1), base );
-                break;
+                case 'h': case 'H':
+                    result = new BigInteger( s.substring(0,s.length()-1), base );
+                    break;
 
-            default:
-                result = Integer.valueOf( s, base );
-                break;
+                default:
+                    result = Integer.valueOf( s, base );
+                    break;
+            }
+        } catch ( NumberFormatException e ) {
+            // Surface as a lexical error so callers see the documented OgnlException
+            // instead of a raw NumberFormatException (e.g. literals out of range).
+            // TokenMgrError has no cause-accepting constructor, so fold the original
+            // detail into the message to keep diagnostics and use the caught exception.
+            throw new TokenMgrError( "Integer literal out of range: " + image
+                    + " (" + e.getMessage() + ")", TokenMgrError.LEXICAL_ERROR );
         }
         return result;
     }
