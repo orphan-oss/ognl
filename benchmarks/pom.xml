@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <benchmarks.finalName>benchmarks</benchmarks.finalName>
-        <benchmarks.jmhArgs></benchmarks.jmhArgs>
+        <benchmarks.jmhArgs />
     </properties>
 
     <dependencies>
