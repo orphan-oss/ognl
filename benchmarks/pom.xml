@@ -5,7 +5,7 @@
     <parent>
         <groupId>ognl</groupId>
         <artifactId>ognl-parent</artifactId>
-        <version>3.5.0-SNAPSHOT</version>
+        <version>3.5.0-BETA5</version>
     </parent>
 
     <artifactId>benchmarks</artifactId>
@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <benchmarks.finalName>benchmarks</benchmarks.finalName>
-        <benchmarks.jmhArgs></benchmarks.jmhArgs>
+        <benchmarks.jmhArgs />
     </properties>
 
     <dependencies>
