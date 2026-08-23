@@ -15,7 +15,7 @@ invocation, collection operations (selection `{? ...}`, projection `{...}`), and
 - **Java**: Version 8 (source/target 1.8)
 - **Build**: Maven with wrapper (`./mvnw`)
 - **Testing**: JUnit 5 with JUnit 4 vintage compatibility
-- **Parser**: JavaCC-based (`src/main/javacc/`, `src/main/jjtree/`)
+- **Parser**: JavaCC-based; the grammar is `src/main/javacc/ognl.jj` (see Parser Modifications)
 
 ## Essential Commands
 
@@ -135,11 +135,21 @@ obj.property
 
 ### 4. Parser Modifications
 
-1. Edit grammar in `src/main/javacc/` or `src/main/jjtree/`
+1. Edit the grammar in `src/main/javacc/ognl.jj` — this is the **only** file the build reads
 2. Run `./mvnw clean generate-sources`
 3. Generated files → `target/generated-sources/java/`
 4. Never manually edit generated AST files
 5. Test thoroughly - affects all expressions
+
+**Do not edit or regenerate from `src/main/jjtree/ognl.jjt` on this branch.** `ognl.jj` was
+generated from it long ago and hand-edited ever since, so the `.jjt` is stale: it is missing
+the fixes for #486 (reserved keywords in package names), #497 (null-safe `?.` navigation) and
+#590 (out-of-range integer literals). Regenerating from it would silently revert all three, and
+editing it has no effect because the pom's `javacc` goal reads only `src/main/javacc/ognl.jj`.
+
+`main` resolved this the other way in #613/#619 — there `ognl.jjt` is the single source and the
+generated `ognl.jj` is gone. That change is deliberately **not** applied to this maintenance
+branch, so grammar habits differ between the two.
 
 ### 5. Test Requirements
 
@@ -209,7 +219,7 @@ Custom accessors must not call back into OGNL with same property
 **Property Access**: `ASTProperty.java`, `ASTChain.java`, `PropertyAccessor.java`  
 **Collections**: `ASTList.java`, `ASTSelect.java`, `ASTProject.java`  
 **Variables**: `ASTVarRef.java`, `ASTRootVarRef.java`, `ASTThisVarRef.java`  
-**Parser Grammar**: `src/main/javacc/OgnlParser.jj`  
+**Parser Grammar**: `src/main/javacc/ognl.jj` (not the stale `src/main/jjtree/ognl.jjt`)  
 **Tests**: `src/test/java/ognl/test/Issue*Test.java`
 
 ## Branch Info
