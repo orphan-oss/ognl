@@ -69,6 +69,12 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
             args[i] = children[i].getValue(context, root);
         }
 
+        if (source == null) {
+            // mirrors OgnlRuntime.getProperty() for a null source: callers are documented to
+            // see an OgnlException, not a raw NullPointerException from OgnlRuntime.callMethod()
+            throw new OgnlException("source is null for callMethod(null, \"" + methodName + "\")");
+        }
+
         result = OgnlRuntime.callMethod(context, source, methodName, args);
 
         if (result == null) {
