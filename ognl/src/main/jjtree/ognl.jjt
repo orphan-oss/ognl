@@ -211,8 +211,8 @@ void unaryExpression() : {
         navigationChain()
         [
             "instanceof"
-            t = <IDENT>  { sb = new StringBuffer(t.image); ionode = jjtThis; } #Instanceof(1)
-            (   "." t = <IDENT>         { sb.append('.').append( t.image ); }
+            t = classNamePart()  { sb = new StringBuffer(t.image); ionode = jjtThis; } #Instanceof(1)
+            (   "." t = classNamePart() { sb.append('.').append( t.image ); }
             )*                          { ionode.setTargetType( new String(sb) ); }
         ]
     )
@@ -220,15 +220,23 @@ void unaryExpression() : {
 
 
 // navigation chain: property references, method calls, projections, selections, etc.
-void navigationChain() : {}
+// Supports null-safe navigation with the ?. operator
+void navigationChain() : {
+    boolean nullSafe = false;
+}
 {
     primaryExpression()
-    (   "."
-        ( /* Prevent the "eval" ambiguity from issuing a warning; see discussion below. */
+    (   ( <SAFE_DOT> { nullSafe = true; } | "." { nullSafe = false; } )
+        (
+          ( /* Prevent the "eval" ambiguity from issuing a warning; see discussion below. */
             ( LOOKAHEAD(2) methodCall() | propertyName() )
               // Also handle "{", which requires a lookahead of 2.
-        |   ( LOOKAHEAD(2) projection() | selection() )
-        |   "(" expression() ")"
+          |   ( LOOKAHEAD(2) projection() | selection() )
+          |   "(" expression() ")"
+          )
+          {
+            jjtThis.setNullSafe(nullSafe);
+          }
         ) #Chain(2)
 
     |   index() #Chain(2)
@@ -318,9 +326,45 @@ String className(): {
     StringBuffer result;
 }
 {
-    t=<IDENT>               { result = new StringBuffer( t.image ); }
-    ( "." t=<IDENT>         { result.append('.').append( t.image ); }
+    t=classNamePart()       { result = new StringBuffer( t.image ); }
+    ( "." t=classNamePart() { result.append('.').append( t.image ); }
     )*                      { return new String(result); }
+}
+
+/**
+ * Helper production to match class name parts, which can be either identifiers
+ * or reserved keywords (like "or", "and", "not", etc.) that appear in package names.
+ * This fixes Issue #103 where package names containing keywords would fail to parse.
+ */
+Token classNamePart(): {
+    Token t;
+}
+{
+    (
+        t=<IDENT>
+      | "or"      { t = token; }
+      | "and"     { t = token; }
+      | "not"     { t = token; }
+      | "in"      { t = token; }
+      | "bor"     { t = token; }
+      | "xor"     { t = token; }
+      | "band"    { t = token; }
+      | "eq"      { t = token; }
+      | "neq"     { t = token; }
+      | "lt"      { t = token; }
+      | "lte"     { t = token; }
+      | "gt"      { t = token; }
+      | "gte"     { t = token; }
+      | "shl"     { t = token; }
+      | "shr"     { t = token; }
+      | "ushr"    { t = token; }
+      | "new"     { t = token; }
+      | "true"    { t = token; }
+      | "false"   { t = token; }
+      | "null"    { t = token; }
+      | "instanceof" { t = token; }
+    )
+    { return t; }
 }
 
 void constructorCall() #Ctor : {
@@ -481,18 +525,27 @@ TOKEN_MGR_DECLS:
             base = (s.length() > 1 && (s.charAt(1) == 'x' || s.charAt(1) == 'X'))? 16 : 8;
         if ( base == 16 )
             s = s.substring(2); // Trim the 0x off the front
-        switch ( s.charAt(s.length()-1) ) {
-            case 'l': case 'L':
-                result = Long.valueOf( s.substring(0,s.length()-1), base );
-                break;
+        try {
+            switch ( s.charAt(s.length()-1) ) {
+                case 'l': case 'L':
+                    result = Long.valueOf( s.substring(0,s.length()-1), base );
+                    break;
 
-            case 'h': case 'H':
-                result = new BigInteger( s.substring(0,s.length()-1), base );
-                break;
+                case 'h': case 'H':
+                    result = new BigInteger( s.substring(0,s.length()-1), base );
+                    break;
 
-            default:
-                result = Integer.valueOf( s, base );
-                break;
+                default:
+                    result = Integer.valueOf( s, base );
+                    break;
+            }
+        } catch ( NumberFormatException e ) {
+            // Surface as a lexical error so callers see the documented OgnlException
+            // instead of a raw NumberFormatException (e.g. literals out of range).
+            // TokenMgrError has no cause-accepting constructor, so fold the original
+            // detail into the message to keep diagnostics and use the caught exception.
+            throw new TokenMgrError( "Integer literal out of range: " + image
+                    + " (" + e.getMessage() + ")", TokenMgrError.LEXICAL_ERROR );
         }
         return result;
     }
@@ -517,6 +570,12 @@ TOKEN_MGR_DECLS:
 // Whitespace -- ignored
 SKIP:
 {  " " | "\t" | "\f" | "\r" | "\n" }
+
+// Null-safe navigation operator (must be defined before IDENT to ensure proper tokenization)
+TOKEN:
+{
+    < SAFE_DOT: "?." >
+}
 
 // An identifier.
 TOKEN:

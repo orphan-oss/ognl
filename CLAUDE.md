@@ -13,7 +13,7 @@ collection operations (projection/selection), lambda expressions, type conversio
 - **Language**: Java 17 (CI also tests against Java 21 and 25)
 - **Build Tool**: Maven with wrapper (`./mvnw`), multi-module project
 - **Testing**: JUnit Jupiter 6.x
-- **Parser Generator**: JavaCC (grammar at `ognl/src/main/javacc/ognl.jj`)
+- **Parser Generator**: JJTree + JavaCC (grammar at `ognl/src/main/jjtree/ognl.jjt`)
 
 ## Project Structure
 
@@ -44,9 +44,17 @@ cd benchmarks && ../mvnw clean install && java -jar target/benchmarks.jar
 
 ## JavaCC Parser Generation
 
-- Parser auto-generated from `ognl/src/main/javacc/ognl.jj` during `compile` phase
-- Generated sources go to `ognl/target/generated-sources/java/`
-- To regenerate AST files, uncomment `<nodePackage>*.jtree</nodePackage>` in `ognl/pom.xml` and change goal to `jtree-javacc`
+- `ognl/src/main/jjtree/ognl.jjt` is the **only** grammar source — edit the grammar there
+- During `generate-sources`, the `jjtree-javacc` goal runs JJTree then JavaCC on it, emitting
+  `OgnlParser`, `OgnlParserConstants`, `OgnlParserTokenManager`, `Token`, `ParseException`,
+  `TokenMgrError` and `JavaCharStream` into `ognl/target/generated-sources/java/`
+- The 46 `AST*.java` node classes, `JJTOgnlParserState` and `OgnlParserTreeConstants` are
+  hand-maintained in `ognl/src/main/java/ognl/`; JJTree skips generating anything that already
+  exists in the source root, so they are never clobbered
+- To generate AST scaffolding for a **new** node type, uncomment `<nodePackage>*.jtree</nodePackage>`
+  in `ognl/pom.xml`, build, and copy what you need out of the `ognl.jtree` package
+- There is no checked-in `ognl.jj`. It used to exist as committed JJTree output that was then
+  hand-edited, which let it drift from the `.jjt` for years (#613)
 
 ## Architecture
 

@@ -124,12 +124,15 @@
                         <id>ognl-jjtree</id>
                         <phase>generate-sources</phase>
                         <configuration>
+                            <sourceDirectory>${basedir}/src/main/jjtree</sourceDirectory>
                             <outputDirectory>${project.build.directory}/generated-sources/java</outputDirectory>
                             <lookAhead>1</lookAhead>
                             <isStatic>false</isStatic>
                             <javaUnicodeEscape>true</javaUnicodeEscape>
                             <unicodeInput>true</unicodeInput>
-                            <!-- Uncomment if AST files needs to be generated
+                            <!-- Uncomment to generate AST node classes into a separate
+                                 ognl.jtree package; the AST*.java in src/main/java are
+                                 hand-maintained and are never overwritten
                             <nodePackage>*.jtree</nodePackage>
                              -->
                             <!-- Uncomment if visitor default implementation needs to be generated
@@ -137,8 +140,7 @@
                             -->
                         </configuration>
                         <goals>
-                            <!-- change goal to jtree-javacc to generate AST too -->
-                            <goal>javacc</goal>
+                            <goal>jjtree-javacc</goal>
                         </goals>
                     </execution>
                 </executions>
