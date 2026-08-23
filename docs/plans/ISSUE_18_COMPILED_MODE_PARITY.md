@@ -56,7 +56,7 @@ The original issue #18 reported 85 failures. Investigation shows:
 ## Remaining Work
 
 ### ~~PR: String Escaping Fix (category 5)~~ — DONE
-**Fixed in PR #TBD.** Root cause: `ASTAdd.toGetSourceString()` lines 208-214 replaced `"` with `'` in string constants during compiled concatenation. Fix: use proper Java string escaping (`\"`) instead of single-quote substitution, and preserve `&quot;` as literal text.
+**Fixed in PR #558.** Root cause: `ASTAdd.toGetSourceString()` lines 208-214 replaced `"` with `'` in string constants during compiled concatenation. Fix: use proper Java string escaping (`\"`) instead of single-quote substitution, and preserve `&quot;` as literal text.
 
 ### ~~PR: instanceof Support (category 3)~~ — DONE
 **Fixed in PR #559.** Root cause: `ASTInstanceof.toGetSourceString()` didn't set `_noRoot` flag, causing `ExpressionCompiler.generateGetter()` to prepend root expression (`$2.`) to the generated source (`true`), producing invalid Java source `$2.true`.
