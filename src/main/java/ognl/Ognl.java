@@ -399,6 +399,12 @@ public abstract class Ognl {
      * @throws OgnlException                    if there is a pathological environmental problem
      */
     public static Object getValue(Object tree, OgnlContext context, Object root, Class<?> resultType) throws OgnlException {
+        // an explicitly passed root wins when the context does not define one, see #309;
+        // a non-null context root is left alone so nested evaluations keep the original root
+        if (context.getRoot() == null) {
+            context.setRoot(root);
+        }
+
         Object result;
 
         Node node = (Node) tree;

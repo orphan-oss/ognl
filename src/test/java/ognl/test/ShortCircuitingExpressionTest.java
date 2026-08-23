@@ -28,11 +28,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class ShortCircuitingExpressionTest {
@@ -129,11 +131,24 @@ class ShortCircuitingExpressionTest {
         assertEquals("name", val2);
     }
 
+    /**
+     * Accessing a property or calling a method on a null target throws instead of returning null.
+     * The chain short-circuit that used to return null here was removed in #476 (issue #472);
+     * ChainTest and NullRootTest were updated at the time, this test was not, because the
+     * surefire junit47 provider pin stopped it from running (#614).
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "(#x=99)? #x.someProperty : #x",  // property access on a non-null target that lacks it
+            "#xyzzy.doubleValue()"            // method call on a null target
+    })
+    void shouldThrowOgnlExceptionForNullTargetAccess(String expression) {
+        assertThrows(OgnlException.class, () -> Ognl.getValue(expression, null));
+    }
+
     private static Stream<Arguments> testValues() {
         return Stream.of(
                 Arguments.of("#root ? someProperty : 99", 99),
-                Arguments.of("(#x=99)? #x.someProperty : #x", null),
-                Arguments.of("#xyzzy.doubleValue()", null),
                 Arguments.of("#xyzzy && #xyzzy.doubleValue()", null),
                 Arguments.of("#xyzzy || 101", 101),
                 Arguments.of("99 || 101", 99)
