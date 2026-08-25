@@ -517,6 +517,47 @@ public class TestOgnlRuntime {
         }
     }
 
+    /**
+     * Test that stricter invocation mode blocks the reflection-proxy bypass: the core reflection
+     * entry points (Method.invoke, Constructor.newInstance, Field.get) must be blocked, otherwise
+     * a blocked class such as ProcessBuilder can be reached indirectly
+     * (e.g. {@code #methods[i].invoke(#pb, null)}).
+     */
+    @Test
+    public void test_Stricter_Invocation_Blocks_Reflection_Proxy() throws Exception {
+        if (OgnlRuntime.getUseStricterInvocationValue()) {
+            // Method.invoke(...) — the primary bypass vector reported against 3.4.11.
+            final Method lengthMethod = String.class.getMethod("length");
+            final Method invokeMethod = Method.class.getMethod("invoke", Object.class, Object[].class);
+            try {
+                OgnlRuntime.invokeMethod(lengthMethod, invokeMethod, new Object[]{"test", new Object[0]});
+                fail("Should have blocked Method.invoke as a reflection proxy");
+            } catch (IllegalAccessException iae) {
+                // Expected: stricter invocation mode blocks java.lang.reflect.Method
+            }
+
+            // Constructor.newInstance(...) — reflective object creation.
+            final java.lang.reflect.Constructor<String> stringCtor = String.class.getConstructor();
+            final Method newInstanceMethod = java.lang.reflect.Constructor.class.getMethod("newInstance", Object[].class);
+            try {
+                OgnlRuntime.invokeMethod(stringCtor, newInstanceMethod, new Object[]{new Object[0]});
+                fail("Should have blocked Constructor.newInstance as a reflection proxy");
+            } catch (IllegalAccessException iae) {
+                // Expected: stricter invocation mode blocks java.lang.reflect.Constructor
+            }
+
+            // Field.get(...) — reflective field access.
+            final Field outField = System.class.getField("out");
+            final Method fieldGetMethod = Field.class.getMethod("get", Object.class);
+            try {
+                OgnlRuntime.invokeMethod(outField, fieldGetMethod, new Object[]{null});
+                fail("Should have blocked Field.get as a reflection proxy");
+            } catch (IllegalAccessException iae) {
+                // Expected: stricter invocation mode blocks java.lang.reflect.Field
+            }
+        }
+    }
+
     @Test
     public void test_Class_Cache_Inspector()
             throws Exception {
