@@ -657,6 +657,9 @@ public class OgnlRuntime {
                     Runtime.class.isAssignableFrom(methodDeclaringClass) ||
                     ClassLoader.class.isAssignableFrom(methodDeclaringClass) ||
                     ProcessBuilder.class.isAssignableFrom(methodDeclaringClass) ||
+                    Method.class.isAssignableFrom(methodDeclaringClass) ||
+                    Constructor.class.isAssignableFrom(methodDeclaringClass) ||
+                    Field.class.isAssignableFrom(methodDeclaringClass) ||
                     isUnsafeClass(methodDeclaringClass)) {
                 // Prevent calls to some specific methods, as well as all methods of certain classes/interfaces
                 //   for which no (apparent) legitimate use cases exist for their usage within OGNL invokeMethod().
