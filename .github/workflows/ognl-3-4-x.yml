@@ -36,7 +36,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: 8.0.504+1
+          java-version: 25.0.4+101.0.LTS
           cache: maven
       - name: Build with Maven on Java 9
         run: ./mvnw -B package -DskipTests
