@@ -1795,14 +1795,15 @@ public class OgnlRuntime {
     }
 
     public static List<Method> getDeclaredMethods(Class<?> targetClass, String propertyName, boolean findSets) {
-        String baseName = Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
         List<Method> methods = new ArrayList<>();
-        List<String> methodNames = new ArrayList<>(2);
-        if (findSets) {
-            methodNames.add(SET_PREFIX + baseName);
-        } else {
-            methodNames.add(IS_PREFIX + baseName);
-            methodNames.add(GET_PREFIX + baseName);
+        List<String> methodNames = new ArrayList<>(4);
+        for (String baseName : accessorBaseNames(propertyName)) {
+            if (findSets) {
+                methodNames.add(SET_PREFIX + baseName);
+            } else {
+                methodNames.add(IS_PREFIX + baseName);
+                methodNames.add(GET_PREFIX + baseName);
+            }
         }
         for (String methodName : methodNames) {
             DeclaredMethodCacheEntry key = new DeclaredMethodCacheEntry(targetClass);
@@ -1813,6 +1814,29 @@ public class OgnlRuntime {
         }
 
         return methods;
+    }
+
+    /**
+     * Derives the accessor base name(s) for a property. Most property names map to a single
+     * base name with the first character capitalized. A property name whose first character
+     * is lowercase and second character is uppercase (e.g. {@code uRange}) is ambiguous:
+     * per the JavaBeans specification (the inverse of
+     * {@link java.beans.Introspector#decapitalize(String)}) its accessors keep the
+     * property's casing ({@code setuRange}), while Lombok and many hand-written beans
+     * capitalize naively ({@code setURange}). Both base names are returned for such
+     * properties, the spec-compliant one first.
+     *
+     * @param propertyName the bean property name, never empty
+     * @return the accessor base name(s) for the property, in lookup order
+     */
+    private static List<String> accessorBaseNames(String propertyName) {
+        String capitalized = Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
+        if (propertyName.length() > 1
+                && Character.isLowerCase(propertyName.charAt(0))
+                && Character.isUpperCase(propertyName.charAt(1))) {
+            return List.of(propertyName, capitalized);
+        }
+        return List.of(capitalized);
     }
 
     /**
