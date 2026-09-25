@@ -1795,7 +1795,7 @@ public class OgnlRuntime {
     }
 
     public static List<Method> getDeclaredMethods(Class<?> targetClass, String propertyName, boolean findSets) {
-        String baseName = Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
+        String baseName = capitalizeBeanPropertyName(propertyName);
         List<Method> methods = new ArrayList<>();
         List<String> methodNames = new ArrayList<>(2);
         if (findSets) {
@@ -1813,6 +1813,27 @@ public class OgnlRuntime {
         }
 
         return methods;
+    }
+
+    /**
+     * Capitalizes a property name to derive its accessor base name, following the JavaBeans
+     * specification (the inverse of {@link java.beans.Introspector#decapitalize(String)}):
+     * a property name whose first character is lowercase and second character is uppercase
+     * (e.g. {@code uRange}) keeps its casing, because its accessors are named like
+     * {@code setuRange}/{@code getuRange}. All other names get their first character
+     * capitalized. Restores the pre-3.4 behaviour (see the removed 3.3.x helper of the
+     * same name).
+     *
+     * @param propertyName the bean property name, never empty
+     * @return the accessor base name for the property
+     */
+    private static String capitalizeBeanPropertyName(String propertyName) {
+        if (propertyName.length() > 1
+                && Character.isLowerCase(propertyName.charAt(0))
+                && Character.isUpperCase(propertyName.charAt(1))) {
+            return propertyName;
+        }
+        return Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
     }
 
     /**
