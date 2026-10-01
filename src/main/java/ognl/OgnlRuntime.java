@@ -375,6 +375,7 @@ public class OgnlRuntime {
 
     static final ClassPropertyMethodCache cacheSetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
+    static final ClassPropertyMethodCache cacheReadMethod = new ClassPropertyMethodCache();
 
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
@@ -512,6 +513,7 @@ public class OgnlRuntime {
     public static void clearAdditionalCache() {
         cacheSetMethod.clear();
         cacheGetMethod.clear();
+        cacheReadMethod.clear();
         cache.clear();
     }
 
@@ -2635,6 +2637,25 @@ public class OgnlRuntime {
     }
 
     public static Method getReadMethod(Class<?> target, String name, Class<?>[] argClasses) {
+        if (argClasses != null || target == null) {
+            return _getReadMethod(target, name, argClasses);
+        }
+
+        Method method = cacheReadMethod.get(target, name);
+        if (method == ClassPropertyMethodCache.NULL_REPLACEMENT) {
+            return null;
+        }
+        if (method != null) {
+            return method;
+        }
+
+        method = _getReadMethod(target, name, null);
+        cacheReadMethod.put(target, name, method);
+
+        return method;
+    }
+
+    private static Method _getReadMethod(Class<?> target, String name, Class<?>[] argClasses) {
         try {
             if (name.indexOf('"') >= 0)
                 name = name.replaceAll("\"", "");
