@@ -30,15 +30,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Accessors of properties whose name starts with a lowercase letter followed by an
- * uppercase letter keep the property's casing per the JavaBeans specification
- * (the inverse of {@link java.beans.Introspector#decapitalize(String)}):
- * property {@code uRange} is accessed via {@code setuRange}/{@code getuRange}.
- * Lombok and many hand-written beans instead capitalize naively ({@code setURange});
- * both styles must resolve for the property name {@code uRange}, the spec-compliant
- * accessor taking precedence when a class declares both.
- * Regression test for the 3.4.x rewrite of {@code getDeclaredMethods} which only
- * searched the naively capitalized variant.
+ * Regression test for the 3.4.x rewrite of {@code getDeclaredMethods}: for a property
+ * like {@code uRange} both the JavaBeans-compliant accessors ({@code setuRange}) and the
+ * naively capitalized ones ({@code setURange}) must resolve, the spec-compliant accessor
+ * taking precedence when a class declares both.
  */
 class OgnlRuntimeBeanCapitalizationTest {
 
@@ -71,6 +66,7 @@ class OgnlRuntimeBeanCapitalizationTest {
     public static class BothStylesBean {
         private String uRange;
         String lastSetterUsed;
+        String lastGetterUsed;
 
         public void setuRange(String uRange) {
             this.uRange = uRange;
@@ -78,6 +74,7 @@ class OgnlRuntimeBeanCapitalizationTest {
         }
 
         public String getuRange() {
+            this.lastGetterUsed = "getuRange";
             return uRange;
         }
 
@@ -87,6 +84,7 @@ class OgnlRuntimeBeanCapitalizationTest {
         }
 
         public String getURange() {
+            this.lastGetterUsed = "getURange";
             return uRange;
         }
     }
@@ -158,5 +156,13 @@ class OgnlRuntimeBeanCapitalizationTest {
         BothStylesBean bean = new BothStylesBean();
         Ognl.setValue("uRange", context, bean, "0221123");
         assertEquals("setuRange", bean.lastSetterUsed);
+    }
+
+    @Test
+    void specCompliantGetterTakesPrecedenceWhenBothStylesExist() throws Exception {
+        BothStylesBean bean = new BothStylesBean();
+        bean.setuRange("0221123");
+        assertEquals("0221123", Ognl.getValue("uRange", context, bean));
+        assertEquals("getuRange", bean.lastGetterUsed);
     }
 }

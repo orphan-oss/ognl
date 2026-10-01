@@ -1817,17 +1817,9 @@ public class OgnlRuntime {
     }
 
     /**
-     * Derives the accessor base name(s) for a property. Most property names map to a single
-     * base name with the first character capitalized. A property name whose first character
-     * is lowercase and second character is uppercase (e.g. {@code uRange}) is ambiguous:
-     * per the JavaBeans specification (the inverse of
-     * {@link java.beans.Introspector#decapitalize(String)}) its accessors keep the
-     * property's casing ({@code setuRange}), while Lombok and many hand-written beans
-     * capitalize naively ({@code setURange}). Both base names are returned for such
-     * properties, the spec-compliant one first.
-     *
-     * @param propertyName the bean property name, never empty
-     * @return the accessor base name(s) for the property, in lookup order
+     * Derives the accessor base name(s) for a property, spec-compliant first: for a name
+     * like {@code uRange} both {@code uRange} (JavaBeans) and {@code URange} (naive
+     * capitalization, e.g. Lombok) are returned.
      */
     private static List<String> accessorBaseNames(String propertyName) {
         String capitalized = Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
