@@ -1781,7 +1781,7 @@ public class OgnlRuntime {
         Object result = null;
         Method m = getGetMethod((target == null) ? null : target.getClass(), propertyName);
         if (m == null && !context.isIgnoreReadMethods())
-            m = getReadMethod((target == null) ? null : target.getClass(), propertyName, null);
+            m = getReadMethod((target == null) ? null : target.getClass(), propertyName);
 
         if (checkAccessAndExistence) {
             if ((m == null) || !isAccessible(context, target, m, propertyName)) {
@@ -2633,14 +2633,6 @@ public class OgnlRuntime {
      * @return The most likely matching {@link Method}, or null if none could be found.
      */
     public static Method getReadMethod(Class<?> target, String name) {
-        return getReadMethod(target, name, null);
-    }
-
-    public static Method getReadMethod(Class<?> target, String name, Class<?>[] argClasses) {
-        if (argClasses != null || target == null) {
-            return _getReadMethod(target, name, argClasses);
-        }
-
         Method method = cacheReadMethod.get(target, name);
         if (method == ClassPropertyMethodCache.NULL_REPLACEMENT) {
             return null;
@@ -2649,13 +2641,13 @@ public class OgnlRuntime {
             return method;
         }
 
-        method = _getReadMethod(target, name, null);
+        method = getReadMethod(target, name, null);
         cacheReadMethod.put(target, name, method);
 
         return method;
     }
 
-    private static Method _getReadMethod(Class<?> target, String name, Class<?>[] argClasses) {
+    public static Method getReadMethod(Class<?> target, String name, Class<?>[] argClasses) {
         try {
             if (name.indexOf('"') >= 0)
                 name = name.replaceAll("\"", "");
