@@ -277,6 +277,7 @@ public class OgnlRuntime {
 
     static final ClassPropertyMethodCache cacheSetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
+    static final ClassPropertyMethodCache cacheReadMethod = new ClassPropertyMethodCache();
 
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
@@ -414,6 +415,7 @@ public class OgnlRuntime {
     public static void clearAdditionalCache() {
         cacheSetMethod.clear();
         cacheGetMethod.clear();
+        cacheReadMethod.clear();
         cache.clear();
     }
 
@@ -1519,7 +1521,7 @@ public class OgnlRuntime {
         Object result = null;
         Method m = getGetMethod((target == null) ? null : target.getClass(), propertyName);
         if (m == null && !context.isIgnoreReadMethods())
-            m = getReadMethod((target == null) ? null : target.getClass(), propertyName, null);
+            m = getReadMethod((target == null) ? null : target.getClass(), propertyName);
 
         if (checkAccessAndExistence) {
             if ((m == null) || !isAccessible(context, target, m, propertyName)) {
@@ -2355,7 +2357,18 @@ public class OgnlRuntime {
      * @return The most likely matching {@link Method}, or null if none could be found.
      */
     public static Method getReadMethod(Class<?> target, String name) {
-        return getReadMethod(target, name, null);
+        Method method = cacheReadMethod.get(target, name);
+        if (method == ClassPropertyMethodCache.NULL_REPLACEMENT) {
+            return null;
+        }
+        if (method != null) {
+            return method;
+        }
+
+        method = getReadMethod(target, name, null);
+        cacheReadMethod.put(target, name, method);
+
+        return method;
     }
 
     public static Method getReadMethod(Class<?> target, String name, Class<?>[] argClasses) {
