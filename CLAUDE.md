@@ -8,37 +8,10 @@ OGNL (Object-Graph Navigation Language) is an expression language for getting an
 used by frameworks including Apache Struts. Key features: property navigation (JavaBeans), method invocation,
 collection operations (projection/selection), lambda expressions, type conversion, and member access control.
 
-## Development Environment
-
-- **Language**: Java 17 (CI also tests against Java 21 and 25)
-- **Build Tool**: Maven with wrapper (`./mvnw`), multi-module project
-- **Testing**: JUnit Jupiter 6.x
-- **Parser Generator**: JJTree + JavaCC (grammar at `ognl/src/main/jjtree/ognl.jjt`)
-
-## Project Structure
-
-- **ognl/** — Core library (source: `ognl/src/main/java/ognl/`, tests: `ognl/src/test/java/ognl/`)
-- **benchmarks/** — JMH performance benchmarks
-- **docs/** — Language Guide, Developer Guide, Version Notes
-
 ## Essential Commands
 
 ```bash
-# Build
-./mvnw clean install                    # Full build + install
-./mvnw compile                          # Compile only (includes JavaCC parser generation)
-
-# Tests
-./mvnw test                             # Full test suite
-./mvnw test -pl ognl                    # Core module tests only
-./mvnw test -pl ognl -Dtest=ClassName   # Single test class
 ./mvnw test -pl ognl -Dtest=Pattern -Dsurefire.failIfNoSpecifiedTests=false  # Pattern match
-
-# Coverage & Quality
-./mvnw clean test -Pcoverage            # JaCoCo coverage report
-./mvnw sonar:sonar -Pcoverage           # SonarCloud analysis
-
-# Benchmarks
 cd benchmarks && ../mvnw clean install && java -jar target/benchmarks.jar
 ```
 
@@ -55,16 +28,6 @@ cd benchmarks && ../mvnw clean install && java -jar target/benchmarks.jar
   in `ognl/pom.xml`, build, and copy what you need out of the `ognl.jtree` package
 - There is no checked-in `ognl.jj`. It used to exist as committed JJTree output that was then
   hand-edited, which let it drift from the `.jjt` for years (#613)
-
-## Architecture
-
-### Evaluation Flow
-
-1. Expression string → parsed into AST tree via JavaCC (`OgnlParser`)
-2. AST evaluated against a root object within an `OgnlContext`
-3. Each AST node type handles its own evaluation via `SimpleNode.getValue()`/`setValue()`
-4. `OgnlRuntime` resolves properties, methods, and fields via reflection (with caching)
-5. Results pass through `TypeConverter` when type coercion is needed
 
 ## SonarCloud
 
