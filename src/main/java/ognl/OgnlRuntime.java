@@ -2120,9 +2120,9 @@ public class OgnlRuntime {
         if (propertyName.length() > 1
                 && Character.isLowerCase(propertyName.charAt(0))
                 && Character.isUpperCase(propertyName.charAt(1))) {
-            return List.of(propertyName, capitalized);
+            return Arrays.asList(propertyName, capitalized);
         }
-        return List.of(capitalized);
+        return Collections.singletonList(capitalized);
     }
 
     /**
