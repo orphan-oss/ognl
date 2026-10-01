@@ -2089,14 +2089,15 @@ public class OgnlRuntime {
     }
 
     public static List<Method> getDeclaredMethods(Class<?> targetClass, String propertyName, boolean findSets) {
-        String baseName = Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
         List<Method> methods = new ArrayList<>();
-        List<String> methodNames = new ArrayList<>(2);
-        if (findSets) {
-            methodNames.add(SET_PREFIX + baseName);
-        } else {
-            methodNames.add(IS_PREFIX + baseName);
-            methodNames.add(GET_PREFIX + baseName);
+        List<String> methodNames = new ArrayList<>(4);
+        for (String baseName : accessorBaseNames(propertyName)) {
+            if (findSets) {
+                methodNames.add(SET_PREFIX + baseName);
+            } else {
+                methodNames.add(IS_PREFIX + baseName);
+                methodNames.add(GET_PREFIX + baseName);
+            }
         }
         for (String methodName : methodNames) {
             DeclaredMethodCacheEntry key = new DeclaredMethodCacheEntry(targetClass);
@@ -2107,6 +2108,21 @@ public class OgnlRuntime {
         }
 
         return methods;
+    }
+
+    /**
+     * Derives the accessor base name(s) for a property, spec-compliant first: for a name
+     * like {@code uRange} both {@code uRange} (JavaBeans) and {@code URange} (naive
+     * capitalization, e.g. Lombok) are returned.
+     */
+    private static List<String> accessorBaseNames(String propertyName) {
+        String capitalized = Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
+        if (propertyName.length() > 1
+                && Character.isLowerCase(propertyName.charAt(0))
+                && Character.isUpperCase(propertyName.charAt(1))) {
+            return Arrays.asList(propertyName, capitalized);
+        }
+        return Collections.singletonList(capitalized);
     }
 
     /**
