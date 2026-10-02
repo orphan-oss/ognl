@@ -74,7 +74,7 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                 if (property instanceof String) {
                     return OgnlRuntime.getIndexedPropertyType((source == null)
                             ? null
-                            : OgnlRuntime.getCompiler().getInterfaceClass(source.getClass()), (String) property);
+                            : OgnlRuntime.getInterfaceClass(source.getClass()), (String) property);
                 }
             }
 
@@ -425,7 +425,7 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                 }
             }
 
-            PropertyDescriptor pd = OgnlRuntime.getPropertyDescriptor(OgnlRuntime.getCompiler().getInterfaceClass(context.getCurrentObject().getClass()), name);
+            PropertyDescriptor pd = OgnlRuntime.getPropertyDescriptor(OgnlRuntime.getInterfaceClass(context.getCurrentObject().getClass()), name);
 
             if (pd != null) {
                 Method pdMethod = lastChild(context) ? pd.getWriteMethod() : pd.getReadMethod();

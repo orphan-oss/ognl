@@ -446,10 +446,24 @@ public class OgnlRuntime {
 
     public static void setCompiler(OgnlExpressionCompiler compiler) {
         _compiler = compiler;
+        // The cached interface classes are answers of the previous compiler
+        cache.clearInterfaceClassCache();
     }
 
     public static OgnlExpressionCompiler getCompiler() {
         return _compiler;
+    }
+
+    /**
+     * Same as calling {@link OgnlExpressionCompiler#getInterfaceClass(Class)} on the current compiler, but
+     * remembering the result for each class in the {@link OgnlCache}. The answer only depends on the class and
+     * on the compiler, and interpreted evaluation asks for it on every link of a property chain.
+     *
+     * @param clazz The class to find a compatible interface for.
+     * @return what the current compiler's {@code getInterfaceClass(clazz)} returns.
+     */
+    static Class<?> getInterfaceClass(Class<?> clazz) {
+        return cache.getInterfaceClass(clazz);
     }
 
     public static <C extends OgnlContext<C>> void compileExpression(C context, Node<C> expression, Object root)

@@ -146,6 +146,9 @@ public class OgnlCache {
     private final Cache<Method, MethodAccessEntryValue> methodAccessCache =
             cacheFactory.createCache(new MethodAccessCacheEntryFactory());
 
+    private final ClassCache<Class<?>> interfaceClassCache =
+            cacheFactory.createClassCache(key -> OgnlRuntime.getCompiler().getInterfaceClass(key));
+
     public Class<?>[] getMethodParameterTypes(Method method) throws CacheException {
         return methodParameterTypesCache.get(method);
     }
@@ -168,6 +171,14 @@ public class OgnlCache {
 
     public Map<String, PropertyDescriptor> getPropertyDescriptor(Class<?> clazz) throws CacheException {
         return propertyDescriptorCache.get(clazz);
+    }
+
+    public Class<?> getInterfaceClass(Class<?> clazz) throws CacheException {
+        return interfaceClassCache.get(clazz);
+    }
+
+    void clearInterfaceClassCache() {
+        interfaceClassCache.clear();
     }
 
     public <C extends OgnlContext<C>> MethodAccessor<C> getMethodAccessor(Class<?> clazz) throws OgnlException {
@@ -204,6 +215,7 @@ public class OgnlCache {
         propertyDescriptorCache.setClassInspector(inspector);
         constructorCache.setClassInspector(inspector);
         fieldCache.setClassInspector(inspector);
+        interfaceClassCache.setClassInspector(inspector);
     }
 
     public Class<?>[] getGenericMethodParameterTypes(GenericMethodParameterTypeCacheEntry key) throws CacheException {
@@ -228,6 +240,7 @@ public class OgnlCache {
         methodCache.clear();
         fieldCache.clear();
         methodAccessCache.clear();
+        interfaceClassCache.clear();
     }
 
     public ElementsAccessor getElementsAccessor(Class<?> clazz) throws OgnlException {
