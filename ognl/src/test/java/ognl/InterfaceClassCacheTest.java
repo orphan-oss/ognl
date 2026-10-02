@@ -87,6 +87,7 @@ class InterfaceClassCacheTest {
 
     @AfterEach
     void tearDown() {
+        OgnlRuntime.setClassCacheInspector(null);
         OgnlRuntime.setCompiler(originalCompiler);
     }
 
@@ -127,6 +128,19 @@ class InterfaceClassCacheTest {
 
         assertSame(Order.class, OgnlRuntime.getInterfaceClass(Order.class));
         assertEquals(2, compiler.calls(Order.class));
+    }
+
+    @Test
+    void classCacheInspectorCanKeepAClassOutOfTheCache() {
+        OgnlRuntime.setClassCacheInspector(type -> type != Order.class);
+
+        assertSame(Order.class, OgnlRuntime.getInterfaceClass(Order.class));
+        assertSame(Order.class, OgnlRuntime.getInterfaceClass(Order.class));
+        assertSame(Customer.class, OgnlRuntime.getInterfaceClass(Customer.class));
+        assertSame(Customer.class, OgnlRuntime.getInterfaceClass(Customer.class));
+
+        assertEquals(2, compiler.calls(Order.class));
+        assertEquals(1, compiler.calls(Customer.class));
     }
 
     @Test
