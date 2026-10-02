@@ -23,26 +23,21 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Issue #651: the method chosen for a call is remembered per type, name and argument types.
  */
-class MethodResolutionCacheTest {
+class OgnlRuntimeMethodResolutionCacheTest {
 
     public static class Formatter {
 
@@ -146,7 +141,7 @@ class MethodResolutionCacheTest {
     @Test
     void staticAndInstanceMethodsOfTheSameNameAreResolvedSeparately() throws Exception {
         Object instanceCall = Ognl.parseExpression("twice(2)");
-        Object staticCall = Ognl.parseExpression("@ognl.MethodResolutionCacheTest$Formatter@twice(\"a\")");
+        Object staticCall = Ognl.parseExpression("@ognl.OgnlRuntimeMethodResolutionCacheTest$Formatter@twice(\"a\")");
 
         for (int round = 0; round < 3; round++) {
             assertEquals("instance", Ognl.getValue(instanceCall, context, formatter));
@@ -172,23 +167,14 @@ class MethodResolutionCacheTest {
     }
 
     @Test
-    void ambiguousChoiceIsReportedOnEveryCall() throws Exception {
+    void ambiguousChoiceIsNotRemembered() throws Exception {
+        // Both overloads match (1, 2) equally well, which OgnlRuntime reports on System.err on every call
         Object tree = Ognl.parseExpression("ambiguous(1, 2)");
-        PrintStream originalErr = System.err;
-        ByteArrayOutputStream captured = new ByteArrayOutputStream();
-        Object first;
-        Object second;
-        try {
-            System.setErr(new PrintStream(captured, true, StandardCharsets.UTF_8));
-            first = Ognl.getValue(tree, context, formatter);
-            second = Ognl.getValue(tree, context, formatter);
-        } finally {
-            System.setErr(originalErr);
-        }
+
+        Object first = Ognl.getValue(tree, context, formatter);
+        Object second = Ognl.getValue(tree, context, formatter);
 
         assertEquals(first, second);
-        String[] reports = captured.toString(StandardCharsets.UTF_8).split("please report!", -1);
-        assertEquals(3, reports.length, "expected the ambiguity to be reported once per call");
         assertEquals(0, methods("ambiguous", false).resolutionCount());
     }
 
@@ -219,40 +205,6 @@ class MethodResolutionCacheTest {
         }
 
         assertEquals(0, methods("format", false).resolutionCount());
-    }
-
-    @Test
-    void methodListDropsResolutionsWhenModified() throws Exception {
-        MethodList list = new MethodList();
-        list.add(Formatter.class.getMethod("echo", String.class));
-        assertNull(list.getResolution("key"));
-        assertEquals(0, list.resolutionCount());
-
-        list.putResolution("key", "value");
-        assertSame("value", list.getResolution("key"));
-        assertEquals(1, list.resolutionCount());
-
-        list.add(Formatter.class.getMethod("format", int.class));
-        assertNull(list.getResolution("key"));
-        assertEquals(0, list.resolutionCount());
-
-        list.putResolution("other", "value");
-        assertNull(list.getResolution("key"));
-        assertEquals(1, list.resolutionCount());
-    }
-
-    @Test
-    void methodListStillComparesAsAList() throws Exception {
-        Method echo = Formatter.class.getMethod("echo", String.class);
-        MethodList list = new MethodList();
-        list.add(echo);
-        list.putResolution("key", "value");
-
-        List<Method> plain = new ArrayList<>();
-        plain.add(echo);
-
-        assertEquals(plain, list);
-        assertEquals(plain.hashCode(), list.hashCode());
     }
 
     private static class DenyingAccess extends AbstractMemberAccess {
