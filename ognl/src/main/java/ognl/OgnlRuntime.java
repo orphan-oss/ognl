@@ -285,6 +285,12 @@ public class OgnlRuntime {
     private static OgnlExpressionCompiler _compiler;
 
     /**
+     * Results of {@link OgnlExpressionCompiler#getInterfaceClass(Class)}, kept together with the compiler
+     * that computed them so that a compiler set later never gets answers from a previous one.
+     */
+    private static volatile InterfaceClassCache interfaceClassCache;
+
+    /**
      * Used to provide primitive type equivalent conversions into and out of native / object types.
      */
     private static final PrimitiveWrapperClasses primitiveWrapperClasses = new PrimitiveWrapperClasses();
@@ -395,6 +401,7 @@ public class OgnlRuntime {
      */
     public static void clearCache() {
         cache.clear();
+        interfaceClassCache = null;
     }
 
     /**
@@ -417,6 +424,7 @@ public class OgnlRuntime {
         cacheGetMethod.clear();
         cacheReadMethod.clear();
         cache.clear();
+        interfaceClassCache = null;
     }
 
     /**
@@ -450,6 +458,25 @@ public class OgnlRuntime {
 
     public static OgnlExpressionCompiler getCompiler() {
         return _compiler;
+    }
+
+    /**
+     * Same as calling {@link OgnlExpressionCompiler#getInterfaceClass(Class)} on the current compiler, but
+     * remembering the result for each class. The answer only depends on the class and on the compiler, and
+     * interpreted evaluation asks for it on every link of a property chain.
+     *
+     * @param clazz The class to find a compatible interface for.
+     * @return what the current compiler's {@code getInterfaceClass(clazz)} returns.
+     */
+    static Class<?> getInterfaceClass(Class<?> clazz) {
+        OgnlExpressionCompiler compiler = _compiler;
+        InterfaceClassCache current = interfaceClassCache;
+        if (current == null || current.compiler != compiler) {
+            current = new InterfaceClassCache(compiler);
+            interfaceClassCache = current;
+        }
+
+        return current.interfaceClasses.get(clazz);
     }
 
     public static <C extends OgnlContext<C>> void compileExpression(C context, Node<C> expression, Object root)
@@ -2654,6 +2681,23 @@ public class OgnlRuntime {
         return source;
     }
 
+
+    private static final class InterfaceClassCache {
+
+        private final OgnlExpressionCompiler compiler;
+
+        // A ClassValue is cheaper to read than a map and does not keep the classes (or their class loaders) alive
+        private final ClassValue<Class<?>> interfaceClasses = new ClassValue<>() {
+            @Override
+            protected Class<?> computeValue(Class<?> type) {
+                return compiler.getInterfaceClass(type);
+            }
+        };
+
+        InterfaceClassCache(OgnlExpressionCompiler compiler) {
+            this.compiler = compiler;
+        }
+    }
 
     /*
      * The idea behind this class is to provide a very fast way to cache getter/setter methods indexed by their class
