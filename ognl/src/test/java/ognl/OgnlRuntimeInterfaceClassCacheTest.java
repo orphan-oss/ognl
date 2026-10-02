@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 /**
  * Issue #650: the interface class of a chain link's source is looked up once per class.
  */
-class InterfaceClassCacheTest {
+class OgnlRuntimeInterfaceClassCacheTest {
 
     public static class Customer {
         public String getName() {
