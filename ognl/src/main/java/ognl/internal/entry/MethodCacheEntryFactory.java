@@ -20,9 +20,9 @@ package ognl.internal.entry;
 
 import ognl.OgnlRuntime;
 import ognl.internal.CacheException;
+import ognl.internal.MethodList;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,7 @@ public abstract class MethodCacheEntryFactory<T extends MethodCacheEntry> implem
                 continue;
 
             if (shouldCache(key, method)) {
-                List<Method> ml = result.computeIfAbsent(method.getName(), k -> new ArrayList<>());
+                List<Method> ml = result.computeIfAbsent(method.getName(), k -> new MethodList());
                 ml.add(method);
             }
         }

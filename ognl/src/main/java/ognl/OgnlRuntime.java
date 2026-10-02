@@ -21,6 +21,7 @@ package ognl;
 import ognl.enhance.ExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
 import ognl.internal.CacheException;
+import ognl.internal.MethodList;
 import ognl.internal.entry.DeclaredMethodCacheEntry;
 import ognl.internal.entry.GenericMethodParameterTypeCacheEntry;
 
@@ -49,6 +50,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -1106,7 +1108,7 @@ public class OgnlRuntime {
             }
             Class<?>[] argClasses = getArgClasses(args);
 
-            MatchingMethod mm = findBestMethod(methods, typeClass, methodName, argClasses);
+            MatchingMethod mm = resolveBestMethod(methods, typeClass, methodName, argClasses);
             if (mm != null) {
                 result = mm.mMethod;
                 Class<?>[] mParameterTypes = mm.mParameterTypes;
@@ -1147,6 +1149,49 @@ public class OgnlRuntime {
             }
         }
         return result;
+    }
+
+    /**
+     * Stored instead of a {@link MatchingMethod} when none of the methods matched.
+     */
+    private static final Object NO_MATCHING_METHOD = new Object();
+
+    /**
+     * What the choice made by {@link #findBestMethod(List, Class, String, Class[])} depends on, besides the
+     * methods themselves. A null argument has no class, so its entry in {@code argClasses} is null.
+     */
+    private static final class MethodResolutionKey {
+
+        private final Class<?> typeClass;
+        private final String name;
+        private final Class<?>[] argClasses;
+        private final int hash;
+
+        MethodResolutionKey(Class<?> typeClass, String name, Class<?>[] argClasses) {
+            this.typeClass = typeClass;
+            this.name = name;
+            this.argClasses = argClasses;
+            this.hash = 31 * (31 * Objects.hashCode(typeClass) + Objects.hashCode(name)) + Arrays.hashCode(argClasses);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof MethodResolutionKey)) {
+                return false;
+            }
+            MethodResolutionKey other = (MethodResolutionKey) o;
+            return typeClass == other.typeClass
+                    && Objects.equals(name, other.name)
+                    && Arrays.equals(argClasses, other.argClasses);
+        }
+
+        @Override
+        public int hashCode() {
+            return hash;
+        }
     }
 
     private static class MatchingMethod {
@@ -1213,7 +1258,44 @@ public class OgnlRuntime {
         return true;
     }
 
+    /**
+     * Same as {@link #findBestMethod(List, Class, String, Class[], boolean[])}, but for the method lists of the
+     * method cache it remembers the outcome per type, name and argument types, so that calling the same method
+     * again with arguments of the same types does not go through all the candidates again.
+     * <p>
+     * Only the choice of method is remembered. Whether the method may be called is still checked on every call.
+     */
+    private static MatchingMethod resolveBestMethod(List<Method> methods, Class<?> typeClass, String name, Class<?>[] argClasses) {
+        if (!(methods instanceof MethodList)) {
+            return findBestMethod(methods, typeClass, name, argClasses);
+        }
+
+        MethodList methodList = (MethodList) methods;
+        MethodResolutionKey key = new MethodResolutionKey(typeClass, name, argClasses);
+        Object resolution = methodList.getResolution(key);
+        if (resolution != null) {
+            return resolution == NO_MATCHING_METHOD ? null : (MatchingMethod) resolution;
+        }
+
+        boolean[] ambiguityReported = new boolean[1];
+        MatchingMethod mm = findBestMethod(methods, typeClass, name, argClasses, ambiguityReported);
+        // A choice that was reported as ambiguous keeps being resolved (and reported) on every call
+        if (!ambiguityReported[0]) {
+            methodList.putResolution(key, mm == null ? NO_MATCHING_METHOD : mm);
+        }
+        return mm;
+    }
+
     private static MatchingMethod findBestMethod(List<Method> methods, Class<?> typeClass, String name, Class<?>[] argClasses) {
+        return findBestMethod(methods, typeClass, name, argClasses, null);
+    }
+
+    /**
+     * @param ambiguityReported if not null, its first element is set when two methods could not be told apart
+     *                          and that was written to {@code System.err}.
+     */
+    private static MatchingMethod findBestMethod(List<Method> methods, Class<?> typeClass, String name, Class<?>[] argClasses,
+                                                 boolean[] ambiguityReported) {
         MatchingMethod mm = null;
         IllegalArgumentException failure = null;
         for (Method method : methods) {
@@ -1278,6 +1360,9 @@ public class OgnlRuntime {
                         } else {
                             // both arguments are varargs...
                             System.err.println("Two vararg methods with same score(" + score + "): \"" + mm.mMethod + "\" and \"" + method + "\" please report!");
+                            if (ambiguityReported != null) {
+                                ambiguityReported[0] = true;
+                            }
                         }
                     } else {
                         int scoreCurr = 0;
@@ -1326,6 +1411,9 @@ public class OgnlRuntime {
                                     // If one is abstract and the other concrete then either choice should work for OGNL,
                                     // so we just keep the current choice and continue (without error output).
                                     System.err.println("Two methods with same score(" + score + "): \"" + mm.mMethod + "\" and \"" + method + "\" please report!");
+                                    if (ambiguityReported != null) {
+                                        ambiguityReported[0] = true;
+                                    }
                                 }
                             }
                         } else if (scoreCurr > scoreOther) {
