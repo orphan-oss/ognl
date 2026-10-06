@@ -2032,7 +2032,7 @@ public class OgnlRuntime {
      * those modifiers, and is shared with {@link #hasGetProperty}, where a final field is
      * legitimately readable.
      */
-    private static <C extends OgnlContext<C>> boolean hasSettableField(C context, Object target, Class<?> inClass, String propertyName) {
+    private static boolean hasSettableField(OgnlContext context, Object target, Class<?> inClass, String propertyName) {
         Field f = getField(inClass, propertyName);
         if (f == null) {
             return false;

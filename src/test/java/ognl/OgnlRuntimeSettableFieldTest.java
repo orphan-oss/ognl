@@ -20,7 +20,7 @@ package ognl;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -79,7 +79,7 @@ class OgnlRuntimeSettableFieldTest {
 
     @Test
     void hasSetPropertyAgreesWithSetFieldValue() throws Exception {
-        for (String property : List.of("finalField", "staticField", "plainField")) {
+        for (String property : Arrays.asList("finalField", "staticField", "plainField")) {
             FieldsOnlyBean bean = new FieldsOnlyBean();
             OgnlContext context = Ognl.createDefaultContext(bean);
             boolean promised = OgnlRuntime.hasSetProperty(context, bean, property);
