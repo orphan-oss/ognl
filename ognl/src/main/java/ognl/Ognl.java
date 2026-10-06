@@ -265,14 +265,10 @@ public abstract class Ognl {
      */
     @Deprecated(forRemoval = true)
     public static <C extends OgnlContext<C>> C addDefaultContext(Object root, C context) {
-        MemberAccess<C> memberAccess = new AbstractMemberAccess<>() {
-            @Override
-            public boolean isAccessible(C context, Object target, Member member, String propertyName) {
-                int modifiers = member.getModifiers();
-                return Modifier.isPublic(modifiers);
-            }
-        };
-        return addDefaultContext(root, memberAccess, null, null, context);
+        if (context == null) {
+            return addDefaultContext(root, Ognl.<C>publicMemberAccess(), null, null, null);
+        }
+        return addDefaultContext(root, context.getMemberAccess(), context.getClassResolver(), context.getTypeConverter(), context);
     }
 
     /**
@@ -288,14 +284,10 @@ public abstract class Ognl {
      */
     @Deprecated(forRemoval = true)
     public static <C extends OgnlContext<C>> C addDefaultContext(Object root, ClassResolver<C> classResolver, C context) {
-        MemberAccess<C> memberAccess = new AbstractMemberAccess<>() {
-            @Override
-            public boolean isAccessible(C context, Object target, Member member, String propertyName) {
-                int modifiers = member.getModifiers();
-                return Modifier.isPublic(modifiers);
-            }
-        };
-        return addDefaultContext(root, memberAccess, classResolver, null, context);
+        if (context == null) {
+            return addDefaultContext(root, publicMemberAccess(), classResolver, null, null);
+        }
+        return addDefaultContext(root, context.getMemberAccess(), classResolver, context.getTypeConverter(), context);
     }
 
     /**
@@ -312,14 +304,17 @@ public abstract class Ognl {
      */
     @Deprecated(forRemoval = true)
     public static <C extends OgnlContext<C>> C addDefaultContext(Object root, ClassResolver<C> classResolver, TypeConverter<C> converter, C context) {
-        MemberAccess<C> memberAccess = new AbstractMemberAccess<>() {
+        MemberAccess<C> memberAccess = context == null ? publicMemberAccess() : context.getMemberAccess();
+        return addDefaultContext(root, memberAccess, classResolver, converter, context);
+    }
+
+    private static <C extends OgnlContext<C>> MemberAccess<C> publicMemberAccess() {
+        return new AbstractMemberAccess<>() {
             @Override
             public boolean isAccessible(C context, Object target, Member member, String propertyName) {
-                int modifiers = member.getModifiers();
-                return Modifier.isPublic(modifiers);
+                return Modifier.isPublic(member.getModifiers());
             }
         };
-        return addDefaultContext(root, memberAccess, classResolver, converter, context);
     }
 
     public static <C extends OgnlContext<C>> C addDefaultContext(Object root, MemberAccess<C> memberAccess, ClassResolver<C> classResolver, TypeConverter<C> converter) {
