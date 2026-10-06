@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The deprecated {@code addDefaultContext(..., context)} overloads must keep whatever policy the given context
@@ -45,6 +46,24 @@ class OgnlAddDefaultContextPolicyTest {
         @Override
         public boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName) {
             return false;
+        }
+    }
+
+    private static class RefusingClassResolver implements ClassResolver {
+        @Override
+        public Class classForName(String className, OgnlContext context) throws ClassNotFoundException {
+            throw new ClassNotFoundException(className);
+        }
+    }
+
+    private static class NoMemberAccessContext extends OgnlContext {
+        NoMemberAccessContext(MemberAccess memberAccess) {
+            super(memberAccess);
+        }
+
+        @Override
+        public MemberAccess getMemberAccess() {
+            return null;
         }
     }
 
@@ -139,5 +158,21 @@ class OgnlAddDefaultContextPolicyTest {
         assertSame(otherResolver, context.getClassResolver());
         assertSame(otherConverter, context.getTypeConverter());
         assertEquals("name", Ognl.getValue("name", context, bean));
+    }
+
+    @Test
+    void contextReportingNoMemberAccessFailsClosed() {
+        OgnlContext context = new NoMemberAccessContext(memberAccess);
+
+        assertThrows(IllegalArgumentException.class, () -> Ognl.addDefaultContext(bean, context));
+    }
+
+    @Test
+    void isConstantResolvesClassesThroughTheCallersClassResolver() throws OgnlException {
+        Object tree = Ognl.parseExpression("@java.lang.Integer@MAX_VALUE");
+        OgnlContext refusing = Ognl.createDefaultContext(bean, memberAccess, new RefusingClassResolver(), typeConverter);
+
+        assertTrue(Ognl.isConstant(tree, source));
+        assertThrows(OgnlException.class, () -> Ognl.isConstant(tree, refusing));
     }
 }
