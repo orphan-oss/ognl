@@ -76,6 +76,14 @@ class OgnlRuntimeMethodResolutionCacheTest {
         public String ambiguous(Object first, Integer second) {
             return "object-integer";
         }
+
+        public String original(String value) {
+            return "original";
+        }
+
+        public String replacement(String value) {
+            return "replacement";
+        }
     }
 
     private Formatter formatter;
@@ -176,6 +184,23 @@ class OgnlRuntimeMethodResolutionCacheTest {
 
         assertEquals(first, second);
         assertEquals(0, methods("ambiguous", false).resolutionCount());
+    }
+
+    @Test
+    void methodReplacedInTheListIsNotCalledFromARememberedChoice() throws Exception {
+        Object tree = Ognl.parseExpression("original(\"x\")");
+        assertEquals("original", Ognl.getValue(tree, context, formatter));
+        assertEquals("original", Ognl.getValue(tree, context, formatter));
+        MethodList methods = methods("original", false);
+        assertEquals(1, methods.resolutionCount());
+
+        // OgnlRuntime.getMethods() hands out the cached list itself, and set() is not a structural change
+        methods.set(0, Formatter.class.getMethod("replacement", String.class));
+
+        assertEquals(0, methods.resolutionCount());
+        assertEquals("replacement", Ognl.getValue(tree, context, formatter));
+        assertEquals("replacement", Ognl.getValue(tree, context, formatter));
+        assertEquals(1, methods.resolutionCount());
     }
 
     @Test

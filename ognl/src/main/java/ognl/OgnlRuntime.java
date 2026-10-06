@@ -1166,9 +1166,9 @@ public class OgnlRuntime {
     }
 
     /**
-     * Stored instead of a {@link MatchingMethod} when none of the methods matched.
+     * Stored instead of the chosen method when none of the methods matched.
      */
-    private static final Object NO_MATCHING_METHOD = new Object();
+    private static final MatchingMethod NO_MATCHING_METHOD = new MatchingMethod(null, 0, null, null);
 
     /**
      * What the choice made by {@link #findBestMethod(List, Class, String, Class[])} depends on, besides the
@@ -1208,7 +1208,7 @@ public class OgnlRuntime {
         }
     }
 
-    private static class MatchingMethod {
+    private static class MatchingMethod implements MethodList.Resolution {
 
         Method mMethod;
         int score;
@@ -1284,18 +1284,20 @@ public class OgnlRuntime {
             return findBestMethod(methods, typeClass, name, argClasses);
         }
 
-        MethodList methodList = (MethodList) methods;
+        // The resolutions belong to the methods the list holds right now. The choice is made from that same
+        // content and stored with it, so a list changed in the meantime never gets an outdated choice.
+        MethodList.Resolutions resolutions = ((MethodList) methods).resolutions();
         MethodResolutionKey key = new MethodResolutionKey(typeClass, name, argClasses);
-        Object resolution = methodList.getResolution(key);
-        if (resolution != null) {
+        MethodList.Resolution resolution = resolutions.get(key);
+        if (resolution instanceof MatchingMethod) {
             return resolution == NO_MATCHING_METHOD ? null : (MatchingMethod) resolution;
         }
 
         boolean[] ambiguityReported = new boolean[1];
-        MatchingMethod mm = findBestMethod(methods, typeClass, name, argClasses, ambiguityReported);
+        MatchingMethod mm = findBestMethod(resolutions.methods(), typeClass, name, argClasses, ambiguityReported);
         // A choice that was reported as ambiguous keeps being resolved (and reported) on every call
         if (!ambiguityReported[0] && argClassesLiveAsLongAs(typeClass, argClasses)) {
-            methodList.putResolution(key, mm == null ? NO_MATCHING_METHOD : mm);
+            resolutions.put(key, mm == null ? NO_MATCHING_METHOD : mm);
         }
         return mm;
     }

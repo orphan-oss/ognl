@@ -22,7 +22,10 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,61 +33,154 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MethodListTest {
 
+    private static final class Outcome implements MethodList.Resolution {
+    }
+
+    private static final MethodList.Resolution ONE = new Outcome();
+    private static final MethodList.Resolution TWO = new Outcome();
+    private static final MethodList.Resolution THREE = new Outcome();
+
     private static Method method(String name) throws NoSuchMethodException {
         return Object.class.getMethod(name);
     }
 
+    private static MethodList listOf(String... methodNames) throws NoSuchMethodException {
+        MethodList list = new MethodList();
+        for (String name : methodNames) {
+            list.add(method(name));
+        }
+        return list;
+    }
+
     @Test
     void storesResolutions() throws Exception {
-        MethodList list = new MethodList();
-        list.add(method("toString"));
+        MethodList list = listOf("toString");
 
-        assertNull(list.getResolution("key"));
+        assertNull(list.resolutions().get("key"));
         assertEquals(0, list.resolutionCount());
 
-        list.putResolution("key", "value");
+        list.resolutions().put("key", ONE);
 
-        assertSame("value", list.getResolution("key"));
-        assertNull(list.getResolution("other"));
+        assertSame(ONE, list.resolutions().get("key"));
+        assertNull(list.resolutions().get("other"));
         assertEquals(1, list.resolutionCount());
     }
 
     @Test
-    void dropsResolutionsWhenModified() throws Exception {
-        MethodList list = new MethodList();
-        list.add(method("toString"));
-        list.putResolution("key", "value");
+    void resolutionsExposeTheMethodsTheyBelongTo() throws Exception {
+        MethodList list = listOf("toString", "hashCode");
+
+        MethodList.Resolutions resolutions = list.resolutions();
+        list.add(method("notify"));
+
+        assertEquals(Arrays.asList(method("toString"), method("hashCode")), resolutions.methods());
+        assertThrows(UnsupportedOperationException.class, () -> resolutions.methods().clear());
+    }
+
+    @Test
+    void sameContentKeepsTheSameResolutions() throws Exception {
+        MethodList list = listOf("toString");
+
+        assertSame(list.resolutions(), list.resolutions());
+    }
+
+    @Test
+    void dropsResolutionsWhenAnElementIsAdded() throws Exception {
+        MethodList list = listOf("toString");
+        list.resolutions().put("key", ONE);
 
         list.add(method("hashCode"));
 
-        assertNull(list.getResolution("key"));
+        assertNull(list.resolutions().get("key"));
         assertEquals(0, list.resolutionCount());
 
-        list.putResolution("other", "value");
+        list.resolutions().put("other", TWO);
 
-        assertNull(list.getResolution("key"));
-        assertSame("value", list.getResolution("other"));
+        assertNull(list.resolutions().get("key"));
+        assertSame(TWO, list.resolutions().get("other"));
         assertEquals(1, list.resolutionCount());
     }
 
     @Test
-    void comparesAsAList() throws Exception {
-        Method toString = method("toString");
-        MethodList list = new MethodList();
-        list.add(toString);
-        list.putResolution("key", "value");
+    void dropsResolutionsWhenAnElementIsReplaced() throws Exception {
+        MethodList list = listOf("toString");
+        list.resolutions().put("key", ONE);
 
-        List<Method> plain = new ArrayList<>();
-        plain.add(toString);
+        list.set(0, method("hashCode"));
 
-        assertEquals(plain, list);
-        assertEquals(plain.hashCode(), list.hashCode());
+        assertEquals(0, list.resolutionCount());
+        assertNull(list.resolutions().get("key"));
+    }
+
+    @Test
+    void dropsResolutionsWhenAnElementIsReplacedThroughAnIterator() throws Exception {
+        MethodList list = listOf("toString");
+        list.resolutions().put("key", ONE);
+
+        ListIterator<Method> iterator = list.listIterator();
+        iterator.next();
+        iterator.set(method("hashCode"));
+
+        assertEquals(0, list.resolutionCount());
+        assertNull(list.resolutions().get("key"));
+    }
+
+    @Test
+    void dropsResolutionsWhenAnElementIsReplacedThroughASubList() throws Exception {
+        MethodList list = listOf("toString", "hashCode");
+        list.resolutions().put("key", ONE);
+
+        list.subList(1, 2).set(0, method("notify"));
+
+        assertEquals(0, list.resolutionCount());
+        assertNull(list.resolutions().get("key"));
+    }
+
+    @Test
+    void dropsResolutionsWhenElementsAreSwapped() throws Exception {
+        MethodList list = listOf("toString", "hashCode");
+        list.resolutions().put("key", ONE);
+
+        Collections.swap(list, 0, 1);
+
+        assertEquals(0, list.resolutionCount());
+        assertNull(list.resolutions().get("key"));
+    }
+
+    @Test
+    void resolutionComputedBeforeAChangeIsNotServedAfterIt() throws Exception {
+        MethodList list = listOf("toString");
+
+        // a resolution is being computed from the current content...
+        MethodList.Resolutions resolutions = list.resolutions();
+        // ...the list is changed in the meantime...
+        list.set(0, method("hashCode"));
+        // ...and the outdated outcome is stored afterwards
+        resolutions.put("key", ONE);
+
+        assertEquals(0, list.resolutionCount());
+        assertNull(list.resolutions().get("key"));
+    }
+
+    @Test
+    void changedCloneDoesNotSeeTheResolutionsOfTheOriginal() throws Exception {
+        MethodList list = listOf("toString");
+        list.resolutions().put("key", ONE);
+
+        MethodList clone = (MethodList) list.clone();
+        clone.clear();
+
+        assertEquals(0, clone.resolutionCount());
+        assertNull(clone.resolutions().get("key"));
+        assertNotSame(list.resolutions(), clone.resolutions());
+        assertSame(ONE, list.resolutions().get("key"));
     }
 
     @Test
@@ -92,13 +188,13 @@ class MethodListTest {
         MethodList list = new MethodList(2);
         list.add(method("toString"));
 
-        list.putResolution("first", "1");
-        list.putResolution("second", "2");
-        list.putResolution("third", "3");
+        list.resolutions().put("first", ONE);
+        list.resolutions().put("second", TWO);
+        list.resolutions().put("third", THREE);
 
-        assertNull(list.getResolution("first"));
-        assertSame("2", list.getResolution("second"));
-        assertSame("3", list.getResolution("third"));
+        assertNull(list.resolutions().get("first"));
+        assertSame(TWO, list.resolutions().get("second"));
+        assertSame(THREE, list.resolutions().get("third"));
         assertEquals(2, list.resolutionCount());
     }
 
@@ -107,14 +203,14 @@ class MethodListTest {
         MethodList list = new MethodList(2);
         list.add(method("toString"));
 
-        list.putResolution("first", "1");
-        list.putResolution("second", "2");
-        list.putResolution("first", "1");
-        list.putResolution("third", "3");
+        list.resolutions().put("first", ONE);
+        list.resolutions().put("second", TWO);
+        list.resolutions().put("first", ONE);
+        list.resolutions().put("third", THREE);
 
-        assertNull(list.getResolution("first"));
-        assertSame("2", list.getResolution("second"));
-        assertSame("3", list.getResolution("third"));
+        assertNull(list.resolutions().get("first"));
+        assertSame(TWO, list.resolutions().get("second"));
+        assertSame(THREE, list.resolutions().get("third"));
     }
 
     @Test
@@ -133,7 +229,7 @@ class MethodListTest {
                 futures.add(executor.submit(() -> {
                     start.await();
                     for (int i = 0; i < 1000; i++) {
-                        list.putResolution(offset + i, "value");
+                        list.resolutions().put(offset + i, ONE);
                     }
                     return null;
                 }));
