@@ -20,7 +20,7 @@ invocation, collection operations (selection `{? ...}`, projection `{...}`), and
 ## Essential Commands
 
 ```bash
-# Build and run all tests (947 tests expected)
+# Build and run all tests
 ./mvnw clean test
 
 # Run specific test
@@ -177,7 +177,9 @@ public class Issue123DescriptiveNameTest {
 
 - Create `Issue###DescriptiveTest.java` for GitHub issues
 - Test edge cases and `#root` preservation
-- Verify 947 tests pass: `./mvnw clean test`
+- Confirm the new test fails before the fix, and that it appears in `target/surefire-reports` —
+  a green build alone proved nothing while the JUnit 5 pin hid Jupiter tests (#616)
+- Run the full suite with `./mvnw clean test` and check for 0 failures
 
 ## Common Pitfalls
 
