@@ -1750,8 +1750,9 @@ public class OgnlRuntime {
 
     /**
      * Whether a field write of {@code propertyName} is one {@link #setFieldValue} would carry out, which
-     * refuses a static or final field. {@link #hasField} answers presence alone and is shared with
-     * {@link #hasGetProperty}, where a final field is legitimately readable.
+     * refuses a static or final field. {@link #hasField} checks presence and accessibility but not
+     * those modifiers, and is shared with {@link #hasGetProperty}, where a final field is
+     * legitimately readable.
      */
     private static <C extends OgnlContext<C>> boolean hasSettableField(C context, Object target, Class<?> inClass, String propertyName) {
         Field f = getField(inClass, propertyName);
