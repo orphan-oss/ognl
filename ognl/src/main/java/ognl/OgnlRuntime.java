@@ -1294,10 +1294,43 @@ public class OgnlRuntime {
         boolean[] ambiguityReported = new boolean[1];
         MatchingMethod mm = findBestMethod(methods, typeClass, name, argClasses, ambiguityReported);
         // A choice that was reported as ambiguous keeps being resolved (and reported) on every call
-        if (!ambiguityReported[0]) {
+        if (!ambiguityReported[0] && argClassesLiveAsLongAs(typeClass, argClasses)) {
             methodList.putResolution(key, mm == null ? NO_MATCHING_METHOD : mm);
         }
         return mm;
+    }
+
+    /**
+     * Remembering a resolution keeps its argument classes reachable from the method cache of {@code typeClass},
+     * so it is only done when they cannot outlive it, e.g. not a webapp class passed to a JDK method.
+     */
+    private static boolean argClassesLiveAsLongAs(Class<?> typeClass, Class<?>[] argClasses) {
+        if (typeClass == null) {
+            return false;
+        }
+        ClassLoader typeLoader = typeClass.getClassLoader();
+        for (Class<?> argClass : argClasses) {
+            if (argClass != null && !isSameOrAncestor(argClass.getClassLoader(), typeLoader)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isSameOrAncestor(ClassLoader candidate, ClassLoader loader) {
+        if (candidate == null) {
+            return true;
+        }
+        try {
+            for (ClassLoader current = loader; current != null; current = current.getParent()) {
+                if (current == candidate) {
+                    return true;
+                }
+            }
+        } catch (SecurityException ignored) {
+            // without access to the parents the answer is unknown, so nothing gets remembered
+        }
+        return false;
     }
 
     private static MatchingMethod findBestMethod(List<Method> methods, Class<?> typeClass, String name, Class<?>[] argClasses) {

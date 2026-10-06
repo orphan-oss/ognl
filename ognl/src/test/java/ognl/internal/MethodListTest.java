@@ -23,10 +23,16 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MethodListTest {
 
@@ -79,6 +85,73 @@ class MethodListTest {
 
         assertEquals(plain, list);
         assertEquals(plain.hashCode(), list.hashCode());
+    }
+
+    @Test
+    void dropsOldestResolutionWhenLimitIsReached() throws Exception {
+        MethodList list = new MethodList(2);
+        list.add(method("toString"));
+
+        list.putResolution("first", "1");
+        list.putResolution("second", "2");
+        list.putResolution("third", "3");
+
+        assertNull(list.getResolution("first"));
+        assertSame("2", list.getResolution("second"));
+        assertSame("3", list.getResolution("third"));
+        assertEquals(2, list.resolutionCount());
+    }
+
+    @Test
+    void storingAgainDoesNotRefreshPosition() throws Exception {
+        MethodList list = new MethodList(2);
+        list.add(method("toString"));
+
+        list.putResolution("first", "1");
+        list.putResolution("second", "2");
+        list.putResolution("first", "1");
+        list.putResolution("third", "3");
+
+        assertNull(list.getResolution("first"));
+        assertSame("2", list.getResolution("second"));
+        assertSame("3", list.getResolution("third"));
+    }
+
+    @Test
+    void staysWithinLimitUnderConcurrentPuts() throws Exception {
+        int limit = 8;
+        MethodList list = new MethodList(limit);
+        list.add(method("toString"));
+
+        int threads = 8;
+        ExecutorService executor = Executors.newFixedThreadPool(threads);
+        try {
+            CountDownLatch start = new CountDownLatch(1);
+            List<Future<?>> futures = new ArrayList<>();
+            for (int t = 0; t < threads; t++) {
+                int offset = t * 1000;
+                futures.add(executor.submit(() -> {
+                    start.await();
+                    for (int i = 0; i < 1000; i++) {
+                        list.putResolution(offset + i, "value");
+                    }
+                    return null;
+                }));
+            }
+            start.countDown();
+            for (Future<?> future : futures) {
+                future.get(10, TimeUnit.SECONDS);
+            }
+        } finally {
+            executor.shutdownNow();
+        }
+
+        assertEquals(limit, list.resolutionCount());
+    }
+
+    @Test
+    void rejectsNonPositiveLimit() {
+        assertThrows(IllegalArgumentException.class, () -> new MethodList(0));
     }
 
 }

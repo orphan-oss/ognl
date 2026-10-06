@@ -221,4 +221,21 @@ class OgnlRuntimeMethodResolutionCacheTest {
         }
     }
 
+    @Test
+    void argumentClassFromChildLoaderOfTargetIsNotRemembered() throws Exception {
+        List<Object> list = new ArrayList<>();
+        context.put("list", list);
+        Object tree = Ognl.parseExpression("#list.add(#arg)");
+
+        context.put("arg", "text");
+        Ognl.getValue(tree, context, formatter);
+        context.put("arg", new Formatter());
+        Ognl.getValue(tree, context, formatter);
+        Ognl.getValue(tree, context, formatter);
+
+        assertEquals(3, list.size());
+        MethodList add = assertInstanceOf(MethodList.class, OgnlRuntime.getMethods(ArrayList.class, "add", false));
+        assertEquals(1, add.resolutionCount());
+    }
+
 }
