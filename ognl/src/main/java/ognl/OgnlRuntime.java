@@ -1749,6 +1749,22 @@ public class OgnlRuntime {
     }
 
     /**
+     * Whether a field write of {@code propertyName} is one {@link #setFieldValue} would carry out, which
+     * refuses a static or final field. {@link #hasField} answers presence alone and is shared with
+     * {@link #hasGetProperty}, where a final field is legitimately readable.
+     */
+    private static <C extends OgnlContext<C>> boolean hasSettableField(C context, Object target, Class<?> inClass, String propertyName) {
+        Field f = getField(inClass, propertyName);
+        if (f == null) {
+            return false;
+        }
+        final int fModifiers = f.getModifiers();
+
+        return !Modifier.isStatic(fModifiers) && !Modifier.isFinal(fModifiers)
+                && isFieldAccessible(context, target, f, propertyName);
+    }
+
+    /**
      * Method name is getStaticField(), but actually behaves more like "getStaticFieldValue()".
      * <p>
      * Typical usage: Returns the value (not the actual {@link Field}) for the given (static) fieldName.
@@ -2064,7 +2080,7 @@ public class OgnlRuntime {
         Class<?> targetClass = (target == null) ? null : target.getClass();
         String name = oname.toString();
 
-        return hasSetMethod(context, target, targetClass, name) || hasField(context, target, targetClass, name);
+        return hasSetMethod(context, target, targetClass, name) || hasSettableField(context, target, targetClass, name);
     }
 
     /**
