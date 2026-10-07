@@ -125,6 +125,7 @@ public abstract class Ognl {
      * @return a tree representation of the expression
      * @throws ExpressionSyntaxException if the expression is malformed, including an integer
      *                                   literal whose value is outside the representable range
+     *                                   or a {@code BigDecimal} literal whose scale exceeds &plusmn;10000
      * @throws OgnlException             if there is a pathological environmental problem
      */
     public static Object parseExpression(String expression) throws OgnlException {
