@@ -22,21 +22,22 @@ import ognl.internal.Cache;
 import ognl.internal.CacheException;
 import ognl.internal.CacheFactory;
 import ognl.internal.ClassCache;
-import ognl.internal.ClassCacheHandler;
+import ognl.internal.HandlerRegistry;
 import ognl.internal.HashMapCacheFactory;
+import ognl.internal.entry.CacheEntryFactory;
+import ognl.internal.entry.ClassCacheEntryFactory;
 import ognl.internal.entry.DeclaredMethodCacheEntry;
 import ognl.internal.entry.DeclaredMethodCacheEntryFactory;
 import ognl.internal.entry.FieldCacheEntryFactory;
 import ognl.internal.entry.GenericMethodParameterTypeCacheEntry;
 import ognl.internal.entry.GenericMethodParameterTypeFactory;
-import ognl.internal.entry.MethodAccessCacheEntryFactory;
-import ognl.internal.entry.MethodAccessEntryValue;
 import ognl.internal.entry.PropertyDescriptorCacheEntryFactory;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -44,15 +45,43 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class takes care of all the internal caching for OGNL.
+ * <p>
+ * Every cache is created through {@link #newCache(CacheEntryFactory)}, {@link #newClassCache(ClassCacheEntryFactory)}
+ * or {@link #newMap()}, which also records it. {@link #clear()} and {@link #setClassCacheInspector(ClassCacheInspector)}
+ * then go through what was recorded, so a cache cannot be left out of either.
  */
 public class OgnlCache {
 
     private final CacheFactory cacheFactory = new HashMapCacheFactory();
 
-    private final ClassCache<MethodAccessor> methodAccessors = cacheFactory.createClassCache();
+    // Everything clear() has to empty, and every per-class cache the inspector applies to
+    private final List<Runnable> clearActions = new ArrayList<>();
+    private final List<ClassCache<?>> classCaches = new ArrayList<>();
+
+    private <K, V> Cache<K, V> newCache(CacheEntryFactory<K, V> entryFactory) {
+        Cache<K, V> cache = cacheFactory.createCache(entryFactory);
+        clearActions.add(cache::clear);
+        return cache;
+    }
+
+    private <V> ClassCache<V> newClassCache(ClassCacheEntryFactory<V> entryFactory) {
+        ClassCache<V> cache = cacheFactory.createClassCache(entryFactory);
+        clearActions.add(cache::clear);
+        classCaches.add(cache);
+        return cache;
+    }
+
+    private <K, V> Map<K, V> newMap() {
+        Map<K, V> map = new ConcurrentHashMap<>();
+        clearActions.add(map::clear);
+        return map;
+    }
+
+    private final HandlerRegistry<MethodAccessor> methodAccessors = new HandlerRegistry<>(newClassCache(null));
 
     {
         MethodAccessor methodAccessor = new ObjectMethodAccessor();
@@ -67,7 +96,7 @@ public class OgnlCache {
         setMethodAccessor(Object[].class, methodAccessor);
     }
 
-    private final ClassCache<PropertyAccessor> propertyAccessors = cacheFactory.createClassCache();
+    private final HandlerRegistry<PropertyAccessor> propertyAccessors = new HandlerRegistry<>(newClassCache(null));
 
     {
         PropertyAccessor propertyAccessor = new ArrayPropertyAccessor();
@@ -87,7 +116,7 @@ public class OgnlCache {
         setPropertyAccessor(Enumeration.class, new EnumerationPropertyAccessor());
     }
 
-    private final ClassCache<ElementsAccessor> elementsAccessors = cacheFactory.createClassCache();
+    private final HandlerRegistry<ElementsAccessor> elementsAccessors = new HandlerRegistry<>(newClassCache(null));
 
     {
         ElementsAccessor elementsAccessor = new ArrayElementsAccessor();
@@ -107,7 +136,7 @@ public class OgnlCache {
         setElementsAccessor(Number.class, new NumberElementsAccessor());
     }
 
-    private final ClassCache<NullHandler> nullHandlers = cacheFactory.createClassCache();
+    private final HandlerRegistry<NullHandler> nullHandlers = new HandlerRegistry<>(newClassCache(null));
 
     {
         NullHandler nullHandler = new ObjectNullHandler();
@@ -123,31 +152,31 @@ public class OgnlCache {
     }
 
     final ClassCache<Map<String, PropertyDescriptor>> propertyDescriptorCache =
-            cacheFactory.createClassCache(new PropertyDescriptorCacheEntryFactory());
+            newClassCache(new PropertyDescriptorCacheEntryFactory());
 
     private final ClassCache<List<Constructor<?>>> constructorCache =
-            cacheFactory.createClassCache(key -> Arrays.asList(key.getConstructors()));
+            newClassCache(key -> Arrays.asList(key.getConstructors()));
 
     private final Cache<DeclaredMethodCacheEntry, Map<String, List<Method>>> methodCache =
-            cacheFactory.createCache(new DeclaredMethodCacheEntryFactory());
+            newCache(new DeclaredMethodCacheEntryFactory());
 
     private final ClassCache<Map<String, Field>> fieldCache =
-            cacheFactory.createClassCache(new FieldCacheEntryFactory());
+            newClassCache(new FieldCacheEntryFactory());
 
     private final Cache<Method, Class<?>[]> methodParameterTypesCache =
-            cacheFactory.createCache(Method::getParameterTypes);
+            newCache(Method::getParameterTypes);
 
     final Cache<GenericMethodParameterTypeCacheEntry, Class<?>[]> genericMethodParameterTypesCache =
-            cacheFactory.createCache(new GenericMethodParameterTypeFactory());
+            newCache(new GenericMethodParameterTypeFactory());
 
     private final Cache<Constructor<?>, Class<?>[]> ctorParameterTypesCache =
-            cacheFactory.createCache(Constructor::getParameterTypes);
-
-    private final Cache<Method, MethodAccessEntryValue> methodAccessCache =
-            cacheFactory.createCache(new MethodAccessCacheEntryFactory());
+            newCache(Constructor::getParameterTypes);
 
     private final ClassCache<Class<?>> interfaceClassCache =
-            cacheFactory.createClassCache(key -> OgnlRuntime.getCompiler().getInterfaceClass(key));
+            newClassCache(key -> OgnlRuntime.getCompiler().getInterfaceClass(key));
+
+    // Whether invoking a method needs it to be made accessible first (see OgnlRuntime#invokeMethod)
+    private final Map<Method, Boolean> methodNeedsAccessCache = newMap();
 
     public Class<?>[] getMethodParameterTypes(Method method) throws CacheException {
         return methodParameterTypesCache.get(method);
@@ -182,7 +211,7 @@ public class OgnlCache {
     }
 
     public <C extends OgnlContext<C>> MethodAccessor<C> getMethodAccessor(Class<?> clazz) throws OgnlException {
-        MethodAccessor methodAccessor = ClassCacheHandler.getHandler(clazz, methodAccessors);
+        MethodAccessor methodAccessor = methodAccessors.get(clazz);
         if (methodAccessor != null) {
             return methodAccessor;
         }
@@ -190,15 +219,15 @@ public class OgnlCache {
     }
 
     public void setMethodAccessor(Class<?> clazz, MethodAccessor accessor) {
-        methodAccessors.put(clazz, accessor);
+        methodAccessors.register(clazz, accessor);
     }
 
     public void setPropertyAccessor(Class<?> clazz, PropertyAccessor accessor) {
-        propertyAccessors.put(clazz, accessor);
+        propertyAccessors.register(clazz, accessor);
     }
 
     public <C extends OgnlContext<C>> PropertyAccessor<C> getPropertyAccessor(Class<?> clazz) throws OgnlException {
-        PropertyAccessor<C> propertyAccessor = ClassCacheHandler.getHandler(clazz, propertyAccessors);
+        PropertyAccessor<C> propertyAccessor = propertyAccessors.get(clazz);
         if (propertyAccessor != null) {
             return propertyAccessor;
         }
@@ -212,10 +241,9 @@ public class OgnlCache {
      * @param inspector The inspector instance that will be registered with all internal cache instances.
      */
     public void setClassCacheInspector(ClassCacheInspector inspector) {
-        propertyDescriptorCache.setClassInspector(inspector);
-        constructorCache.setClassInspector(inspector);
-        fieldCache.setClassInspector(inspector);
-        interfaceClassCache.setClassInspector(inspector);
+        for (ClassCache<?> classCache : classCaches) {
+            classCache.setClassInspector(inspector);
+        }
     }
 
     public Class<?>[] getGenericMethodParameterTypes(GenericMethodParameterTypeCacheEntry key) throws CacheException {
@@ -227,24 +255,32 @@ public class OgnlCache {
         return true;
     }
 
-    public MethodAccessEntryValue getMethodAccess(Method method) throws CacheException {
-        return methodAccessCache.get(method);
+    Boolean getMethodNeedsAccess(Method method) {
+        return methodNeedsAccessCache.get(method);
     }
 
+    void putMethodNeedsAccess(Method method, Boolean needsAccess) {
+        methodNeedsAccessCache.put(method, needsAccess);
+    }
+
+    /**
+     * Empties every cache. Registered accessors and null handlers are kept, what was derived from them is not.
+     */
     public void clear() {
-        methodParameterTypesCache.clear();
-        ctorParameterTypesCache.clear();
-        propertyDescriptorCache.clear();
-        genericMethodParameterTypesCache.clear();
-        constructorCache.clear();
-        methodCache.clear();
-        fieldCache.clear();
-        methodAccessCache.clear();
-        interfaceClassCache.clear();
+        for (Runnable clearAction : clearActions) {
+            clearAction.run();
+        }
+    }
+
+    /**
+     * Records a cache kept outside this class, so that {@link #clear()} empties it too.
+     */
+    void register(Runnable clearAction) {
+        clearActions.add(clearAction);
     }
 
     public ElementsAccessor getElementsAccessor(Class<?> clazz) throws OgnlException {
-        ElementsAccessor answer = ClassCacheHandler.getHandler(clazz, elementsAccessors);
+        ElementsAccessor answer = elementsAccessors.get(clazz);
         if (answer != null) {
             return answer;
         }
@@ -252,11 +288,11 @@ public class OgnlCache {
     }
 
     public void setElementsAccessor(Class<?> clazz, ElementsAccessor accessor) {
-        elementsAccessors.put(clazz, accessor);
+        elementsAccessors.register(clazz, accessor);
     }
 
     public <C extends OgnlContext<C>> NullHandler<C> getNullHandler(Class<?> clazz) throws OgnlException {
-        NullHandler<C> answer = ClassCacheHandler.getHandler(clazz, nullHandlers);
+        NullHandler<C> answer = nullHandlers.get(clazz);
         if (answer != null) {
             return answer;
         }
@@ -264,7 +300,7 @@ public class OgnlCache {
     }
 
     public void setNullHandler(Class<?> clazz, NullHandler handler) {
-        nullHandlers.put(clazz, handler);
+        nullHandlers.register(clazz, handler);
     }
 
 }
