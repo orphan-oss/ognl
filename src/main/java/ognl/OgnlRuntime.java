@@ -375,15 +375,18 @@ public class OgnlRuntime {
     static SecurityManager securityManager = System.getSecurityManager();
     static final EvaluationPool _evaluationPool = new EvaluationPool();
 
-    static final Map<Method, Boolean> _methodAccessCache = new ConcurrentHashMap<>();
-    static final Map<Method, Boolean> _methodPermCache = new ConcurrentHashMap<>();
-
     static final ClassPropertyMethodCache cacheSetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheReadMethod = new ClassPropertyMethodCache();
 
     private static final AtomicReference<PropertyResolver> propertyResolver =
             new AtomicReference<>(DefaultPropertyResolver.INSTANCE);
+
+    static {
+        cache.register(cacheSetMethod::clear);
+        cache.register(cacheGetMethod::clear);
+        cache.register(cacheReadMethod::clear);
+    }
 
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
@@ -492,7 +495,7 @@ public class OgnlRuntime {
     /**
      * Clears all of the cached reflection information normally used
      * to improve the speed of expressions that operate on the same classes
-     * or are executed multiple times.
+     * or are executed multiple times. Registered accessors and null handlers are kept.
      *
      * <p>
      * <strong>Warning:</strong> Calling this too often can be a huge performance
@@ -505,12 +508,8 @@ public class OgnlRuntime {
     }
 
     /**
-     * Clears some additional caches used by OgnlRuntime.  The existing {@link OgnlRuntime#clearCache()}
-     * clears the standard reflection-related caches, but some applications may have need to clear
-     * the additional caches as well.
-     * <p>
-     * Clearing the additional caches may have greater impact than the {@link OgnlRuntime#clearCache()}
-     * method so it should only be used when the normal cache clear is insufficient.
+     * Same as {@link OgnlRuntime#clearCache()}, which now also empties the caches this method used to
+     * clear on its own.
      *
      * <p>
      * <strong>Warning:</strong> Calling this method too often can be a huge performance
@@ -520,11 +519,7 @@ public class OgnlRuntime {
      * @since 3.1.25
      */
     public static void clearAdditionalCache() {
-        cacheSetMethod.clear();
-        cacheGetMethod.clear();
-        cacheReadMethod.clear();
-        cache.clear();
-        PropertyResolution.clear();
+        clearCache();
     }
 
     /**
@@ -889,46 +884,44 @@ public class OgnlRuntime {
         // only synchronize method invocation if it actually requires it
         // double null check to avoid synchronizing on the method when cache is already populated
 
-        methodAccessCacheValue = _methodAccessCache.get(method);
+        methodAccessCacheValue = cache.getMethodNeedsAccess(method);
         if (methodAccessCacheValue == null) {
             synchronized (method) {
-                methodAccessCacheValue = _methodAccessCache.get(method);
+                methodAccessCacheValue = cache.getMethodNeedsAccess(method);
                 if (methodAccessCacheValue == null) {
                     if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
                         if (!(method.isAccessible())) {
                             methodAccessCacheValue = Boolean.TRUE;
-                            _methodAccessCache.put(method, methodAccessCacheValue);
                         } else {
                             methodAccessCacheValue = Boolean.FALSE;
-                            _methodAccessCache.put(method, methodAccessCacheValue);
                         }
                     } else {
                         methodAccessCacheValue = Boolean.FALSE;
-                        _methodAccessCache.put(method, methodAccessCacheValue);
                     }
+                    cache.putMethodNeedsAccess(method, methodAccessCacheValue);
                 }
             }
         }
         syncInvoke = Boolean.TRUE.equals(methodAccessCacheValue);
 
-        methodPermCacheValue = _methodPermCache.get(method);
+        methodPermCacheValue = cache.getMethodPermitted(method);
         if (methodPermCacheValue == null) {
             synchronized (method) {
-                methodPermCacheValue = _methodPermCache.get(method);
+                methodPermCacheValue = cache.getMethodPermitted(method);
                 if (methodPermCacheValue == null) {
                     if (securityManager != null) {
                         try {
                             securityManager.checkPermission(getPermission(method));
                             methodPermCacheValue = Boolean.TRUE;
-                            _methodPermCache.put(method, methodPermCacheValue);
+                            cache.putMethodPermitted(method, methodPermCacheValue);
                         } catch (SecurityException ex) {
                             methodPermCacheValue = Boolean.FALSE;
-                            _methodPermCache.put(method, methodPermCacheValue);
+                            cache.putMethodPermitted(method, methodPermCacheValue);
                             throw new IllegalAccessException("Method [" + method + "] cannot be accessed.");
                         }
                     } else {
                         methodPermCacheValue = Boolean.TRUE;
-                        _methodPermCache.put(method, methodPermCacheValue);
+                        cache.putMethodPermitted(method, methodPermCacheValue);
                     }
                 }
             }
