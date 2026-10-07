@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 import ognl.enhance.UnsupportedCompilationException;
 
 import java.io.Serial;
@@ -122,11 +122,11 @@ public class ASTStaticMethod<C extends OgnlContext<C>> extends SimpleNode<C> imp
                         context.setCurrentType(prevType);
                     }
 
-                    parmString = ExpressionCompiler.getRootExpression(children[i], context.getRoot(), context) + parmString;
+                    parmString = CompiledExpressionSupport.getRootExpression(children[i], context.getRoot(), context) + parmString;
 
                     String cast = "";
-                    if (ExpressionCompiler.shouldCast(children[i])) {
-                        cast = (String) context.remove(ExpressionCompiler.PRE_CAST);
+                    if (CompiledExpressionSupport.shouldCast(children[i])) {
+                        cast = (String) context.remove(CompiledExpressionSupport.PRE_CAST);
                     }
 
                     if (cast == null)
@@ -143,7 +143,7 @@ public class ASTStaticMethod<C extends OgnlContext<C>> extends SimpleNode<C> imp
                         if (parms[i].isArray()) {
                             parmString = OgnlRuntime.getCompiler()
                                     .createLocalReference(context,
-                                            "(" + ExpressionCompiler.getCastString(parms[i])
+                                            "(" + CompiledExpressionSupport.getCastString(parms[i])
                                                     + ")ognl.OgnlOps.toArray(" + parmString + ", " + parms[i].getComponentType().getName()
                                                     + ".class, true)",
                                             parms[i]

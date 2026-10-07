@@ -360,7 +360,7 @@ After all tasks complete:
 3. **JDK 25:** `./mvnw clean verify` — must pass (forward compat)
 4. **CI green** on all matrix entries
 5. **No SonarCloud regressions** on the PR
-6. **Compiled expressions work on JDK 25** — tests exercising `ExpressionCompiler` pass
+6. **Compiled expressions work on JDK 25** — tests exercising `JavassistExpressionCompiler` pass
 
 ## Out of Scope (Track Separately)
 

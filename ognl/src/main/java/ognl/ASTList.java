@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 import ognl.enhance.UnsupportedCompilationException;
 
 import java.io.Serial;
@@ -102,12 +102,12 @@ public class ASTList<C extends OgnlContext<C>> extends SimpleNode<C> implements 
                     context.setCurrentType(prevType);
                 }
 
-                value = ExpressionCompiler.getRootExpression(children[i], target, context) + value;
+                value = CompiledExpressionSupport.getRootExpression(children[i], target, context) + value;
 
                 String cast = "";
-                if (ExpressionCompiler.shouldCast(children[i])) {
+                if (CompiledExpressionSupport.shouldCast(children[i])) {
 
-                    cast = (String) context.remove(ExpressionCompiler.PRE_CAST);
+                    cast = (String) context.remove(CompiledExpressionSupport.PRE_CAST);
                 }
                 if (cast == null)
                     cast = "";
@@ -125,7 +125,7 @@ public class ASTList<C extends OgnlContext<C>> extends SimpleNode<C> implements 
                     if (valueClass != null && ctorClass.isArray()) {
 
                         value = OgnlRuntime.getCompiler().createLocalReference(context,
-                                "(" + ExpressionCompiler.getCastString(ctorClass)
+                                "(" + CompiledExpressionSupport.getCastString(ctorClass)
                                         + ")ognl.OgnlOps.toArray(" + value + ", " + ctorClass.getComponentType().getName()
                                         + ".class, true)",
                                 ctorClass

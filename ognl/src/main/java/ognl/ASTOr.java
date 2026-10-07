@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 import ognl.enhance.UnsupportedCompilationException;
 
 import java.io.Serial;
@@ -116,14 +116,14 @@ public class ASTOr<C extends OgnlContext<C>> extends BooleanExpression<C> {
 
             children[0].getValue(context, target);
 
-            String first = ExpressionCompiler.getRootExpression(children[0], context.getRoot(), context)
+            String first = CompiledExpressionSupport.getRootExpression(children[0], context.getRoot(), context)
                     + pre + children[0].toGetSourceString(context, target);
             if (!OgnlRuntime.isBoolean(first))
                 first = OgnlRuntime.getCompiler().createLocalReference(context, first, Object.class);
 
             children[1].getValue(context, target);
 
-            String second = ExpressionCompiler.getRootExpression(children[1], context.getRoot(), context)
+            String second = CompiledExpressionSupport.getRootExpression(children[1], context.getRoot(), context)
                     + pre + children[1].toSetSourceString(context, target);
             if (!OgnlRuntime.isBoolean(second))
                 second = OgnlRuntime.getCompiler().createLocalReference(context, second, context.getCurrentType());

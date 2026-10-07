@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 
 import java.io.Serial;
 
@@ -102,11 +102,11 @@ public abstract class ExpressionNode<C extends OgnlContext<C>> extends SimpleNod
                     if (pre == null)
                         pre = "";
 
-                    String cast = (String) context.remove(ExpressionCompiler.PRE_CAST);
+                    String cast = (String) context.remove(CompiledExpressionSupport.PRE_CAST);
                     if (cast == null)
                         cast = "";
 
-                    value = cast + ExpressionCompiler.getRootExpression(children[i], context.getRoot(), context) + pre + value;
+                    value = cast + CompiledExpressionSupport.getRootExpression(children[i], context.getRoot(), context) + pre + value;
                 }
 
                 result.append(value);

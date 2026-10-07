@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 import ognl.enhance.OrderedReturn;
 import ognl.enhance.UnsupportedCompilationException;
 
@@ -315,8 +315,8 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
 
                         lastExpression = or.getLastExpression();
 
-                        if (context.get(ExpressionCompiler.PRE_CAST) != null) {
-                            lastExpression = context.remove(ExpressionCompiler.PRE_CAST) + lastExpression;
+                        if (context.get(CompiledExpressionSupport.PRE_CAST) != null) {
+                            lastExpression = context.remove(CompiledExpressionSupport.PRE_CAST) + lastExpression;
                         }
                     } else if (child instanceof ASTOr
                             || child instanceof ASTAnd

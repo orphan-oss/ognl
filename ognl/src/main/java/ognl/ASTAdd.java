@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 
 import java.io.Serial;
 import java.math.BigDecimal;
@@ -112,7 +112,7 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                 Class<?> currType = context.getCurrentType();
                 Class<?> currAccessor = context.getCurrentAccessor();
 
-                Object cast = context.get(ExpressionCompiler.PRE_CAST);
+                Object cast = context.get(CompiledExpressionSupport.PRE_CAST);
 
                 for (Node<C> child : children) {
                     child.toGetSourceString(context, target);
@@ -124,7 +124,7 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                     }
                 }
 
-                context.put(ExpressionCompiler.PRE_CAST, cast);
+                context.put(CompiledExpressionSupport.PRE_CAST, cast);
 
                 context.setCurrentType(currType);
                 context.setCurrentAccessor(currAccessor);
@@ -151,11 +151,11 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                     //System.out.println("astadd child class: " + _children[i].getClass().getName() + " and return expr: " + expr);
 
                     if (children[i] instanceof ASTProperty) {
-                        expr = ExpressionCompiler.getRootExpression(children[i], context.getRoot(), context) + expr;
+                        expr = CompiledExpressionSupport.getRootExpression(children[i], context.getRoot(), context) + expr;
                         context.setCurrentAccessor(context.getRoot().getClass());
                     } else if (children[i] instanceof ASTMethod) {
                         String chain = (String) context.get("_currentChain");
-                        String rootExpr = ExpressionCompiler.getRootExpression(children[i], context.getRoot(), context);
+                        String rootExpr = CompiledExpressionSupport.getRootExpression(children[i], context.getRoot(), context);
 
                         //System.out.println("astadd chains is >>" + chain + "<< and rootExpr is >>" + rootExpr + "<<");
 
@@ -171,7 +171,7 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                         expr = "(" + expr + ")";
                     } else if ((!(parent instanceof ASTChain))
                             && children[i] instanceof ASTChain) {
-                        String rootExpr = ExpressionCompiler.getRootExpression(children[i], context.getRoot(), context);
+                        String rootExpr = CompiledExpressionSupport.getRootExpression(children[i], context.getRoot(), context);
 
                         if (!(children[i].jjtGetChild(0) instanceof ASTProperty)
                                 && rootExpr.endsWith(")") && expr.startsWith(")"))
@@ -180,7 +180,7 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                         expr = rootExpr + expr;
                         context.setCurrentAccessor(context.getRoot().getClass());
 
-                        String cast = (String) context.remove(ExpressionCompiler.PRE_CAST);
+                        String cast = (String) context.remove(CompiledExpressionSupport.PRE_CAST);
                         if (cast == null)
                             cast = "";
 

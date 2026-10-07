@@ -4,7 +4,7 @@ import ognl.DefaultMemberAccess;
 import ognl.ListPropertyAccessor;
 import ognl.Ognl;
 import ognl.OgnlContext;
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 import ognl.test.objects.ListSource;
 import ognl.test.objects.ListSourceImpl;
 import ognl.test.objects.Root;
@@ -75,7 +75,7 @@ class ListPropertyAccessorTest {
 
         assertEquals(".getTotal()", pa.getSourceAccessor(context, list, "total"));
 
-        assertNull(context.get(ExpressionCompiler.PRE_CAST));
+        assertNull(context.get(CompiledExpressionSupport.PRE_CAST));
         assertEquals(int.class, context.getCurrentType());
         assertEquals(ListSource.class, context.getCurrentAccessor());
     }
