@@ -22,12 +22,14 @@ import ognl.ExpressionSyntaxException;
 import ognl.Ognl;
 import ognl.OgnlException;
 import ognl.TokenMgrError;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NumericLiteralOverflowTest {
 
@@ -61,6 +63,12 @@ class NumericLiteralOverflowTest {
     void shouldReportTokenMgrErrorAsReason(String expression) {
         ExpressionSyntaxException e = assertThrows(ExpressionSyntaxException.class, () -> Ognl.parseExpression(expression));
         assertInstanceOf(TokenMgrError.class, e.getReason());
+    }
+
+    @Test
+    void shouldReportScaleAgainstAllowedRange() {
+        ExpressionSyntaxException e = assertThrows(ExpressionSyntaxException.class, () -> Ognl.parseExpression("1e10001b"));
+        assertTrue(e.getReason().getMessage().contains("scale -10001 is outside -10000..10000"), e.getReason().getMessage());
     }
 
     @ParameterizedTest
