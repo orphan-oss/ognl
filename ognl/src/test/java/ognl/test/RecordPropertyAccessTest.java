@@ -89,6 +89,15 @@ class RecordPropertyAccessTest {
     }
 
     @Test
+    void clearCacheDropsReadMethods() {
+        Method first = OgnlRuntime.getReadMethod(Customer.class, "name");
+
+        OgnlRuntime.clearCache();
+
+        assertNotSame(first, OgnlRuntime.getReadMethod(Customer.class, "name"));
+    }
+
+    @Test
     void clearAdditionalCacheDropsReadMethods() {
         Method first = OgnlRuntime.getReadMethod(Customer.class, "name");
 
