@@ -20,8 +20,10 @@ package ognl;
 
 /**
  * Exception thrown if a malformed OGNL expression is encountered, including a numeric literal
- * whose value is outside the representable range. In that case {@link #getReason()} is a
- * {@link TokenMgrError}, not a {@link NumberFormatException}.
+ * that is out of range for its type: an integer that does not fit, a floating-point value that
+ * rounds to infinity or a nonzero one that rounds to zero, or a {@code BigDecimal} literal whose
+ * scale exceeds &plusmn;10000. In that case {@link #getReason()} is a {@link TokenMgrError}, not a
+ * {@link NumberFormatException}.
  */
 public class ExpressionSyntaxException extends OgnlException {
 

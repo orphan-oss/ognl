@@ -41,14 +41,23 @@ class NumericLiteralOverflowTest {
             "0xFFFFFFFF",            // hex above signed 32-bit range
             "0x100000000",
             "0xFFFFFFFFFFFFFFFFL",
-            "1e99999999999999999999b"
+            "1e400",                 // double rounds to infinity
+            "1e99999999999999999999",
+            "1e-400",                // nonzero double rounds to zero
+            "1e39f",                 // float rounds to infinity
+            "1e-46f",                // nonzero float rounds to zero
+            "1e99999999999999999999b",
+            "1e2147483647b",         // BigDecimal scale beyond the literal limit
+            "1e-2147483647b",
+            "1e10001b",
+            "1e-10001b"
     })
     void shouldThrowOgnlExceptionForOutOfRangeNumericLiteral(String expression) {
         assertThrows(OgnlException.class, () -> Ognl.parseExpression(expression));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"2147483648", "1e99999999999999999999b"})
+    @ValueSource(strings = {"2147483648", "1e400", "1e99999999999999999999b", "1e10001b"})
     void shouldReportTokenMgrErrorAsReason(String expression) {
         ExpressionSyntaxException e = assertThrows(ExpressionSyntaxException.class, () -> Ognl.parseExpression(expression));
         assertInstanceOf(TokenMgrError.class, e.getReason());
@@ -59,9 +68,13 @@ class NumericLiteralOverflowTest {
             "2147483647",            // Integer.MAX_VALUE
             "9223372036854775807L",  // Long.MAX_VALUE
             "0x7FFFFFFF",            // largest in-range hex int
-            "1e100",                 // float path is unaffected by makeInt()
-            "1e99999999999999999999",
-            "1e100b"
+            "1.7976931348623157e308", // Double.MAX_VALUE
+            "4.9e-324",              // Double.MIN_VALUE
+            "0e400",                 // zero is exact, not an underflow
+            "3.4028235e38f",         // Float.MAX_VALUE
+            "1.4e-45f",              // Float.MIN_VALUE
+            "1e10000b",
+            "1e-10000b"
     })
     void shouldParseInRangeNumericLiteral(String expression) {
         assertDoesNotThrow(() -> Ognl.parseExpression(expression));
