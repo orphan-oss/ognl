@@ -1,11 +1,5 @@
 # Version Notes
 
-## Release notes - version 3.5.0
-* Out-of-range integer and `BigDecimal` literals (e.g. `2147483648`, `1e99999999999999999999b`) now make
-  `Ognl.parseExpression` throw `ExpressionSyntaxException` instead of a raw `NumberFormatException`.
-  `ExpressionSyntaxException.getReason()` returns a `TokenMgrError` in that case, see
-  [#583](../../../issues/583), [#590](../../../pull/590), [#605](../../../issues/605)
-
 ## Release notes - version 3.4.3, 3.3.5 (2024-04-19)
 * Fixes potential security vulnerability in accessing public fields via ObjectPropertyAccessor, see [#265](../../../issues/265), [#264](../../../issues/264) -
   thanks to jefferyxhy
