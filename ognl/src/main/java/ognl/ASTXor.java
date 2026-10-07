@@ -44,6 +44,11 @@ public class ASTXor<C extends OgnlContext<C>> extends NumericExpression<C> {
         return result;
     }
 
+    @Override
+    protected String getOgnlOpsMethod() {
+        return "binaryXor";
+    }
+
     public String getExpressionOperator(int index) {
         return "^";
     }

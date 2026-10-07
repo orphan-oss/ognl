@@ -301,6 +301,49 @@ class DualModeEvaluationTest {
             root.setBigDecimalValue(new BigDecimal("10"));
             assertEquals(new BigDecimal("11"), node.getAccessor().get(ctx, root));
         }
+
+        @Test
+        void bigDecimalResultAsMethodArgument() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModes("bigDecimalValue.add(bigDecimalValue + 1)", new BigDecimal("4.0"));
+        }
+
+        @Test
+        void methodCallOnBigDecimalResult() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModes("(bigDecimalValue + 1).scale()", 1);
+        }
+
+        @Test
+        void bigDecimalSumFollowedByString() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModes("bigDecimalValue + 1 + \" USD\"", "2.5 USD");
+        }
+
+        @Test
+        void bigDecimalConstantsFollowedByString() throws Exception {
+            assertBothModes("1b + 2b + \"a\"", "3a");
+        }
+
+        @Test
+        void bigDecimalSumInBitwiseAnd() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModesMatch("(bigDecimalValue + 1) & 1");
+        }
+
+        @Test
+        void nullBigDecimalPropertyAtCompileTime() throws Exception {
+            OgnlContext ctx = freshCompiledContext();
+            Node node = Ognl.compileExpression(ctx, root, "bigDecimalValue * 2");
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertEquals(new BigDecimal("3.0"), node.getAccessor().get(ctx, root));
+        }
+
+        @Test
+        void negatedBigDecimalProperty() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModes("-bigDecimalValue", new BigDecimal("-1.5"));
+        }
     }
 
     @Nested
@@ -354,6 +397,18 @@ class DualModeEvaluationTest {
         @Test
         void mixedDoubleAndBigInteger() throws Exception {
             assertBothModesMatch("2.5 * 2h");
+        }
+
+        @Test
+        void bitNegatedBigIntegerProperty() throws Exception {
+            root.setBigIntegerValue(BigInteger.valueOf(5));
+            assertBothModes("~bigIntegerValue", BigInteger.valueOf(~5));
+        }
+
+        @Test
+        void bigIntegerPropertyInBitwiseOr() throws Exception {
+            root.setBigIntegerValue(BigInteger.valueOf(4));
+            assertBothModes("bigIntegerValue | 1", BigInteger.valueOf(5));
         }
     }
 
@@ -498,6 +553,21 @@ class DualModeEvaluationTest {
         @Test
         void bigIntegerBitwiseNot() throws Exception {
             assertBothModes("~1h", BigInteger.valueOf(~1));
+        }
+
+        @Test
+        void bigIntegerBitwiseAnd() throws Exception {
+            assertBothModes("5h & 3h", BigInteger.valueOf(1));
+        }
+
+        @Test
+        void bigIntegerBitwiseOr() throws Exception {
+            assertBothModes("5h | 3h", BigInteger.valueOf(7));
+        }
+
+        @Test
+        void bigIntegerBitwiseXor() throws Exception {
+            assertBothModes("5h ^ 3h", BigInteger.valueOf(6));
         }
 
         @Test

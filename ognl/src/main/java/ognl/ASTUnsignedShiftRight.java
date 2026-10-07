@@ -52,19 +52,17 @@ public class ASTUnsignedShiftRight<C extends OgnlContext<C>> extends NumericExpr
         String result;
 
         try {
-            Object sample = getValueBody(context, target);
-            if (sample != null && OgnlRuntime.isBigNumber(sample.getClass())) {
-                getterClass = sample.getClass();
-                String bigSource = toBigSourceString(context, target);
-                context.setCurrentObject(sample);
-                return bigSource;
+            String operand1 = OgnlRuntime.getChildSource(context, target, children[0]);
+            boolean bigOperand = OgnlRuntime.isBigNumber(context.getCurrentType());
+            String child1 = coerceToNumeric(operand1, context, children[0]);
+
+            String operand2 = OgnlRuntime.getChildSource(context, target, children[1]);
+            bigOperand |= OgnlRuntime.isBigNumber(context.getCurrentType());
+            String child2 = coerceToNumeric(operand2, context, children[1]);
+
+            if (bigOperand) {
+                return toBigSourceString(new String[]{operand1, operand2}, getValueBody(context, target), context);
             }
-
-            String child1 = OgnlRuntime.getChildSource(context, target, children[0]);
-            child1 = coerceToNumeric(child1, context, children[0]);
-
-            String child2 = OgnlRuntime.getChildSource(context, target, children[1]);
-            child2 = coerceToNumeric(child2, context, children[1]);
 
             Object v1 = children[0].getValue(context, target);
             int type = OgnlOps.getNumericType(v1);
