@@ -44,6 +44,11 @@ public class ASTMultiply<C extends OgnlContext<C>> extends NumericExpression<C> 
         return result;
     }
 
+    @Override
+    protected String getOgnlOpsMethod() {
+        return "multiply";
+    }
+
     public String getExpressionOperator(int index) {
         return "*";
     }

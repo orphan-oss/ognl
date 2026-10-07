@@ -39,6 +39,11 @@ public class ASTDivide<C extends OgnlContext<C>> extends NumericExpression<C> {
         return OgnlOps.divide(v1, v2);
     }
 
+    @Override
+    protected String getOgnlOpsMethod() {
+        return "divide";
+    }
+
     public String getExpressionOperator(int index) {
         return "/";
     }

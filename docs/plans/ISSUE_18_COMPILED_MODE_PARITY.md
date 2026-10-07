@@ -61,11 +61,9 @@ The original issue #18 reported 85 failures. Investigation shows:
 ### ~~PR: instanceof Support (category 3)~~ — DONE
 **Fixed in PR #559.** Root cause: `ASTInstanceof.toGetSourceString()` didn't set `_noRoot` flag, causing `ExpressionCompiler.generateGetter()` to prepend root expression (`$2.`) to the generated source (`true`), producing invalid Java source `$2.true`.
 
-### Deferred: BigDecimal/BigInteger (categories 1-2 in old plan)
-**Difficulty:** Hard (significant redesign)
-- Requires compiler to generate `OgnlOps` helper calls instead of Java operators
-- ~8 `@Disabled` tests covering this limitation
-- Should be a separate initiative
+### DONE: BigDecimal/BigInteger (categories 1-2 in old plan)
+Compiled mode now generates `OgnlOps` helper calls for BigDecimal/BigInteger arithmetic, negation, bitwise-not
+and shifts (GH-544). The related `@Disabled` tests are enabled.
 
 ### Deferred: Side-effect methods during compilation (category 6)
 **Difficulty:** Hard (architectural)

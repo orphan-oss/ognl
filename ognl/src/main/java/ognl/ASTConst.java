@@ -125,6 +125,11 @@ public class ASTConst<C extends OgnlContext<C>> extends SimpleNode<C> implements
 
             return value.toString();
         } else if (Number.class.isAssignableFrom(value.getClass())) {
+            if (OgnlRuntime.isBigNumber(value.getClass())) {
+                context.setCurrentType(value.getClass());
+                context.setCurrentObject(value);
+                return "new " + value.getClass().getName() + "(\"" + value + "\")";
+            }
             context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(value.getClass()));
             context.setCurrentObject(value);
 

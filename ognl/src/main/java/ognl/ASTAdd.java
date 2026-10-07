@@ -101,8 +101,25 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
         return true;
     }
 
+    @Override
+    protected String getOgnlOpsMethod() {
+        return "add";
+    }
+
+    private boolean isBigNumberConstant(Node<C> child) {
+        Object value = child instanceof ASTConst ? ((ASTConst<C>) child).getValue() : null;
+        return value != null && OgnlRuntime.isBigNumber(value.getClass());
+    }
+
     public String toGetSourceString(C context, Object target) {
         try {
+            Object sample = getValueBody(context, target);
+            if (sample != null && OgnlRuntime.isBigNumber(sample.getClass())) {
+                getterClass = sample.getClass();
+                context.setCurrentObject(sample);
+                return toBigSourceString(context, target);
+            }
+
             StringBuilder result = new StringBuilder();
             NodeType lastType = null;
 
@@ -204,7 +221,8 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                                 && !NumericExpression.class.isAssignableFrom(children[i].getClass())
                                 && !(children[i] instanceof ASTStaticField)
                                 && !(children[i] instanceof ASTStaticMethod)
-                                && !(children[i] instanceof ASTTest)) {
+                                && !(children[i] instanceof ASTTest)
+                                && !isBigNumberConstant(children[i])) {
                             if (lastType != null && String.class.isAssignableFrom(lastType.getGetterClass())) {
                                 if (expr.indexOf('"') >= 0)
                                     expr = expr.replaceAll("\"", "\\\\\"");

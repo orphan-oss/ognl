@@ -44,6 +44,19 @@ public class ASTNegate<C extends OgnlContext<C>> extends NumericExpression<C> {
     public String toGetSourceString(C context, Object target) {
         String source = children[0].toGetSourceString(context, target);
 
+        Object sample;
+        try {
+            sample = getValueBody(context, target);
+        } catch (OgnlException e) {
+            throw OgnlOps.castToRuntime(e);
+        }
+        if (sample != null && OgnlRuntime.isBigNumber(sample.getClass())) {
+            getterClass = sample.getClass();
+            context.setCurrentType(getterClass);
+            context.setCurrentObject(sample);
+            return "ognl.OgnlOps.negate(" + source + ")";
+        }
+
         if (!(children[0] instanceof ASTNegate)) {
             return "-" + source;
         } else {

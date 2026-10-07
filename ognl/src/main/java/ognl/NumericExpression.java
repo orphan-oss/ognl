@@ -62,6 +62,12 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
                 getterClass = value.getClass();
             }
 
+            if (getOgnlOpsMethod() != null && OgnlRuntime.isBigNumber(getterClass)) {
+                String bigSource = toBigSourceString(context, target);
+                context.setCurrentObject(value);
+                return bigSource;
+            }
+
             for (int i = 0; i < children.length; i++) {
                 if (i > 0) {
                     result.append(" ").append(getExpressionOperator(i)).append(" ");
@@ -75,6 +81,24 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
         }
 
         return result.toString();
+    }
+
+    protected String getOgnlOpsMethod() {
+        return null;
+    }
+
+    protected String toBigSourceString(C context, Object target) throws OgnlException {
+        String method = getOgnlOpsMethod();
+        String result = boxedOperand(children[0], context, target);
+        for (int i = 1; i < children.length; i++) {
+            result = "ognl.OgnlOps." + method + "(" + result + ", " + boxedOperand(children[i], context, target) + ")";
+        }
+        context.setCurrentType(getterClass);
+        return result;
+    }
+
+    private String boxedOperand(Node<C> child, C context, Object target) throws OgnlException {
+        return "($w) (" + OgnlRuntime.getChildSource(context, target, child) + ")";
     }
 
     public String coerceToNumeric(String source, C context, Node<C> child) {

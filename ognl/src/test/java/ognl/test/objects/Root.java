@@ -20,6 +20,7 @@ package ognl.test.objects;
 
 import ognl.DynamicSubscript;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -460,5 +461,15 @@ public class Root {
 
     public B getB() {
         return new B();
+    }
+
+    private BigDecimal bigDecimalValue;
+
+    public BigDecimal getBigDecimalValue() {
+        return bigDecimalValue;
+    }
+
+    public void setBigDecimalValue(BigDecimal bigDecimalValue) {
+        this.bigDecimalValue = bigDecimalValue;
     }
 }

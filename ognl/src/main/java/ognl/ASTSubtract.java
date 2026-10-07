@@ -39,6 +39,11 @@ public class ASTSubtract<C extends OgnlContext<C>> extends NumericExpression<C> 
         return OgnlOps.subtract(v1, v2);
     }
 
+    @Override
+    protected String getOgnlOpsMethod() {
+        return "subtract";
+    }
+
     public String getExpressionOperator(int index) {
         return "-";
     }
