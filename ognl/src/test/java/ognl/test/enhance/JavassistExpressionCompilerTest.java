@@ -9,7 +9,7 @@ import ognl.Node;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.JavassistExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
 import ognl.test.objects.Bean1;
 import ognl.test.objects.GenericRoot;
@@ -31,9 +31,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Tests functionality of {@link ExpressionCompiler}.
+ * Tests functionality of {@link JavassistExpressionCompiler}.
  */
-public class ExpressionCompilerTest {
+public class JavassistExpressionCompilerTest {
 
     private OgnlExpressionCompiler compiler;
     private OgnlContext context;
@@ -41,7 +41,7 @@ public class ExpressionCompilerTest {
     @BeforeEach
     void setUp() {
         context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
-        compiler = new ExpressionCompiler();
+        compiler = new JavassistExpressionCompiler();
     }
 
     @Test

@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.JavassistExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +51,7 @@ class OgnlRuntimeInterfaceClassCacheTest {
         }
     }
 
-    private static class CountingCompiler<C extends OgnlContext<C>> extends ExpressionCompiler<C> {
+    private static class CountingCompiler<C extends OgnlContext<C>> extends JavassistExpressionCompiler<C> {
 
         private final ConcurrentHashMap<Class<?>, AtomicInteger> calls = new ConcurrentHashMap<>();
 
@@ -67,7 +67,7 @@ class OgnlRuntimeInterfaceClassCacheTest {
         }
     }
 
-    private static class ConstantCompiler<C extends OgnlContext<C>> extends ExpressionCompiler<C> {
+    private static class ConstantCompiler<C extends OgnlContext<C>> extends JavassistExpressionCompiler<C> {
 
         @Override
         public Class<?> getInterfaceClass(Class<?> clazz) {

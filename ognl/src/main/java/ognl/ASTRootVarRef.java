@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 
 import java.io.Serial;
 
@@ -59,7 +59,7 @@ public class ASTRootVarRef<C extends OgnlContext<C>> extends ASTVarRef<C> {
         if (parent == null || (getterClass != null && getterClass.isArray()))
             return "";
         else
-            return ExpressionCompiler.getRootExpression(this, target, context);
+            return CompiledExpressionSupport.getRootExpression(this, target, context);
     }
 
     public String toSetSourceString(C context, Object target) {

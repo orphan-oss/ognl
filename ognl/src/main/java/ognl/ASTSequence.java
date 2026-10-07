@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 import ognl.enhance.OrderedReturn;
 
 import java.io.Serial;
@@ -109,7 +109,7 @@ public class ASTSequence<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                 if (pre == null) {
                     pre = "";
                 }
-                seqValue = ExpressionCompiler.getRootExpression(children[i], context.getRoot(), context) + pre + seqValue;
+                seqValue = CompiledExpressionSupport.getRootExpression(children[i], context.getRoot(), context) + pre + seqValue;
                 context.setCurrentAccessor(context.getRoot().getClass());
             }
 

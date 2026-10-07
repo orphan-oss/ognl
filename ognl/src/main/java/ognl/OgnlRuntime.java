@@ -18,7 +18,8 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
+import ognl.enhance.JavassistExpressionCompiler;
 import ognl.enhance.OgnlExpressionCompiler;
 import ognl.internal.CacheException;
 import ognl.internal.entry.DeclaredMethodCacheEntry;
@@ -313,7 +314,7 @@ public class OgnlRuntime {
     static {
         try {
             Class.forName("javassist.ClassPool");
-            _compiler = new ExpressionCompiler();
+            _compiler = new JavassistExpressionCompiler();
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Javassist library is missing in classpath! Please add missed dependency!", e);
         } catch (RuntimeException rt) {
@@ -2311,7 +2312,7 @@ public class OgnlRuntime {
             // used to reset context after loop
             Class<?> currType = context.getCurrentType();
             Class<?> currAccessor = context.getCurrentAccessor();
-            Object cast = context.get(ExpressionCompiler.PRE_CAST);
+            Object cast = context.get(CompiledExpressionSupport.PRE_CAST);
 
             context.setCurrentObject(context.getRoot());
             context.setCurrentType(context.getRoot() != null ? context.getRoot().getClass() : null);
@@ -2323,7 +2324,7 @@ public class OgnlRuntime {
                 parms[i] = context.getCurrentType();
             }
 
-            context.put(ExpressionCompiler.PRE_CAST, cast);
+            context.put(CompiledExpressionSupport.PRE_CAST, cast);
 
             context.setCurrentType(currType);
             context.setCurrentAccessor(currAccessor);
@@ -2667,12 +2668,12 @@ public class OgnlRuntime {
         }
 
         if (context.getRoot() != null) {
-            source = ExpressionCompiler.getRootExpression(child, context.getRoot(), context) + source;
+            source = CompiledExpressionSupport.getRootExpression(child, context.getRoot(), context) + source;
             context.setCurrentAccessor(context.getRoot().getClass());
         }
 
         if (child instanceof ASTChain) {
-            String cast = (String) context.remove(ExpressionCompiler.PRE_CAST);
+            String cast = (String) context.remove(CompiledExpressionSupport.PRE_CAST);
             if (cast == null)
                 cast = "";
 

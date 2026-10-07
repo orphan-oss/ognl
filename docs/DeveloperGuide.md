@@ -297,6 +297,19 @@ public interface NullHandler
 `NullHandler` implementors are registered with OGNL using the
 `OgnlRuntime.setNullHandler()` method.
 
+### Expression Compiler
+
+Compiled expressions are produced by an `OgnlExpressionCompiler`. The default is `JavassistExpressionCompiler`;
+`OgnlRuntime.setCompiler()` installs a custom backend:
+
+```java
+OgnlRuntime.setCompiler(new MyBackendCompiler<>());
+```
+
+Source-string helpers shared by all backends (`PRE_CAST`, `getRootExpression`, `getCastString`, ...) live in
+`CompiledExpressionSupport`, so a backend does not need to extend the Javassist implementation
+(Javassist itself is still required on the classpath).
+
 ## Generic Context
 
 As of OGNL 3.5.0, the `OgnlContext` class and related interfaces support a self-referential generic type parameter. This feature enables type-safe custom context implementations while maintaining proper type information throughout the evaluation chain.

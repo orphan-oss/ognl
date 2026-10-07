@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 import ognl.enhance.OrderedReturn;
 import ognl.enhance.UnsupportedCompilationException;
 
@@ -166,7 +166,7 @@ public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implement
 
             if ((children != null) && (children.length > 0)) {
                 Class<?>[] parms = m.getParameterTypes();
-                String prevCast = (String) context.remove(ExpressionCompiler.PRE_CAST);
+                String prevCast = (String) context.remove(CompiledExpressionSupport.PRE_CAST);
 
                 for (int i = 0; i < children.length; i++) {
                     if (i > 0) {
@@ -191,11 +191,11 @@ public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implement
                         context.setCurrentType(prevType);
                     }
 
-                    parmString = ExpressionCompiler.getRootExpression(children[i], context.getRoot(), context) + parmString;
+                    parmString = CompiledExpressionSupport.getRootExpression(children[i], context.getRoot(), context) + parmString;
 
                     String cast = "";
-                    if (ExpressionCompiler.shouldCast(children[i])) {
-                        cast = (String) context.remove(ExpressionCompiler.PRE_CAST);
+                    if (CompiledExpressionSupport.shouldCast(children[i])) {
+                        cast = (String) context.remove(CompiledExpressionSupport.PRE_CAST);
                     }
                     if (cast == null)
                         cast = "";
@@ -211,7 +211,7 @@ public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implement
                         if (parms[i].isArray()) {
 
                             parmString = OgnlRuntime.getCompiler().createLocalReference(context,
-                                    "(" + ExpressionCompiler.getCastString(parms[i])
+                                    "(" + CompiledExpressionSupport.getCastString(parms[i])
                                             + ")ognl.OgnlOps#toArray(" + parmString + ", " + parms[i].getComponentType().getName()
                                             + ".class, true)",
                                     parms[i]
@@ -246,7 +246,7 @@ public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implement
                 }
 
                 if (prevCast != null) {
-                    context.put(ExpressionCompiler.PRE_CAST, prevCast);
+                    context.put(CompiledExpressionSupport.PRE_CAST, prevCast);
                 }
             }
 
@@ -289,7 +289,7 @@ public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implement
         if (m.getReturnType() != void.class && m.getReturnType().isPrimitive() && (!(parent instanceof ASTTest))) {
             Class<?> wrapper = OgnlRuntime.getPrimitiveWrapperClass(m.getReturnType());
 
-            ExpressionCompiler.addCastString(context, "new " + wrapper.getName() + "(");
+            CompiledExpressionSupport.addCastString(context, "new " + wrapper.getName() + "(");
             post = ")";
             getterClass = wrapper;
         }
@@ -303,7 +303,7 @@ public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implement
         try {
             if ((children != null) && (children.length > 0)) {
                 Class<?>[] parms = m.getParameterTypes();
-                String prevCast = (String) context.remove(ExpressionCompiler.PRE_CAST);
+                String prevCast = (String) context.remove(CompiledExpressionSupport.PRE_CAST);
 
                 for (int i = 0; i < children.length; i++) {
                     if (i > 0) {
@@ -336,11 +336,11 @@ public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implement
                         context.setCurrentType(prevType);
                     }
 
-                    parmString = ExpressionCompiler.getRootExpression(children[i], context.getRoot(), context) + parmString;
+                    parmString = CompiledExpressionSupport.getRootExpression(children[i], context.getRoot(), context) + parmString;
 
                     String cast = "";
-                    if (ExpressionCompiler.shouldCast(children[i])) {
-                        cast = (String) context.remove(ExpressionCompiler.PRE_CAST);
+                    if (CompiledExpressionSupport.shouldCast(children[i])) {
+                        cast = (String) context.remove(CompiledExpressionSupport.PRE_CAST);
                     }
 
                     if (cast == null)
@@ -355,7 +355,7 @@ public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implement
                     if (valueClass != parms[i]) {
                         if (parms[i].isArray()) {
                             parmString = OgnlRuntime.getCompiler().createLocalReference(context,
-                                    "(" + ExpressionCompiler.getCastString(parms[i])
+                                    "(" + CompiledExpressionSupport.getCastString(parms[i])
                                             + ")ognl.OgnlOps#toArray(" + parmString + ", "
                                             + parms[i].getComponentType().getName()
                                             + ".class)",
@@ -392,7 +392,7 @@ public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implement
                 }
 
                 if (prevCast != null) {
-                    context.put(ExpressionCompiler.PRE_CAST, prevCast);
+                    context.put(CompiledExpressionSupport.PRE_CAST, prevCast);
                 }
             }
 

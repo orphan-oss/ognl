@@ -26,7 +26,7 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlRuntime;
 import ognl.SimpleNode;
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 import ognl.test.objects.Bean2;
 import ognl.test.objects.Bean3;
 import ognl.test.objects.Root;
@@ -72,7 +72,7 @@ class ASTMethodTest {
         assertNull(context.getPreviousAccessor());
 
         assertEquals(".get(\"value\")", OgnlRuntime.getCompiler().castExpression(context, p, ".get(\"value\")"));
-        assertNull(context.get(ExpressionCompiler.PRE_CAST));
+        assertNull(context.get(CompiledExpressionSupport.PRE_CAST));
 
         // now test one context level further to see casting work properly on base object types
 

@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 
 import java.io.Serial;
 import java.lang.reflect.Array;
@@ -167,7 +167,7 @@ public class ASTCtor<C extends OgnlContext<C>> extends SimpleNode<C> {
                     result.append("[").append(children[0].toGetSourceString(context, target)).append("]");
                 } else if (children[0] instanceof ASTProperty) {
 
-                    result.append("[").append(ExpressionCompiler.getRootExpression(children[0], target, context)).append(children[0].toGetSourceString(context, target)).append("]");
+                    result.append("[").append(CompiledExpressionSupport.getRootExpression(children[0], target, context)).append(children[0].toGetSourceString(context, target)).append("]");
                 } else if (children[0] instanceof ASTChain) {
 
                     result.append("[").append(children[0].toGetSourceString(context, target)).append("]");
@@ -193,13 +193,13 @@ public class ASTCtor<C extends OgnlContext<C>> extends SimpleNode<C> {
                         String value = children[i].toGetSourceString(context, target);
 
                         if (!(children[i] instanceof ASTRootVarRef)) {
-                            value = ExpressionCompiler.getRootExpression(children[i], target, context) + value;
+                            value = CompiledExpressionSupport.getRootExpression(children[i], target, context) + value;
                         }
 
                         String cast = "";
-                        if (ExpressionCompiler.shouldCast(children[i])) {
+                        if (CompiledExpressionSupport.shouldCast(children[i])) {
 
-                            cast = (String) context.remove(ExpressionCompiler.PRE_CAST);
+                            cast = (String) context.remove(CompiledExpressionSupport.PRE_CAST);
                         }
                         if (cast == null)
                             cast = "";
@@ -263,7 +263,7 @@ public class ASTCtor<C extends OgnlContext<C>> extends SimpleNode<C> {
 
                                 if (!types[i].isArray()
                                         && types[i].isPrimitive() && !ctorParamTypes[i].isPrimitive())
-                                    value = "new " + ExpressionCompiler.getCastString(OgnlRuntime.getPrimitiveWrapperClass(types[i])) + "(" + value + ")";
+                                    value = "new " + CompiledExpressionSupport.getCastString(OgnlRuntime.getPrimitiveWrapperClass(types[i])) + "(" + value + ")";
                                 else
                                     value = " ($w) " + value;
                             }

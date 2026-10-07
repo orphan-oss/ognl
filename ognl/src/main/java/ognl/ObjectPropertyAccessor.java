@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 import ognl.enhance.UnsupportedCompilationException;
 
 import java.beans.IntrospectionException;
@@ -220,7 +220,7 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
 
             } else if (param.isArray()) {
                 conversion = OgnlRuntime.getCompiler().createLocalReference(context,
-                        "(" + ExpressionCompiler.getCastString(param) + ")ognl.OgnlOps#toArray($3,"
+                        "(" + CompiledExpressionSupport.getCastString(param) + ")ognl.OgnlOps#toArray($3,"
                                 + param.getComponentType().getName() + ".class)",
                         param);
 

@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 
 import java.io.Serial;
 
@@ -88,7 +88,7 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
 
         if (context.getCurrentType() != null && !context.getCurrentType().isPrimitive()
                 && context.getCurrentObject() != null && context.getCurrentObject() instanceof Number) {
-            ret = "((" + ExpressionCompiler.getCastString(context.getCurrentObject().getClass()) + ")" + ret + ")";
+            ret = "((" + CompiledExpressionSupport.getCastString(context.getCurrentObject().getClass()) + ")" + ret + ")";
             ret += "." + OgnlRuntime.getNumericValueGetter(context.getCurrentObject().getClass());
         } else if (context.getCurrentType() != null && context.getCurrentType().isPrimitive()
                 && (child instanceof ASTConst || child instanceof NumericExpression)) {

@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 import ognl.enhance.UnsupportedCompilationException;
 
 import java.beans.IndexedPropertyDescriptor;
@@ -150,10 +150,10 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                 // Get root cast string if the child is a type that needs it (like a nested ASTProperty)
 
                 String srcString = children[0].toGetSourceString(context, context.getRoot());
-                srcString = ExpressionCompiler.getRootExpression(children[0], context.getRoot(), context) + srcString;
+                srcString = CompiledExpressionSupport.getRootExpression(children[0], context.getRoot(), context) + srcString;
 
                 if (children[0] instanceof ASTChain) {
-                    String cast = (String) context.remove(ExpressionCompiler.PRE_CAST);
+                    String cast = (String) context.remove(CompiledExpressionSupport.PRE_CAST);
                     if (cast != null)
                         srcString = cast + srcString;
                 }
@@ -339,10 +339,10 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                     throw new UnsupportedCompilationException("Value passed as indexed property is null, can't enhance statement to bytecode.");
 
                 String srcString = children[0].toGetSourceString(context, context.getRoot());
-                srcString = ExpressionCompiler.getRootExpression(children[0], context.getRoot(), context) + srcString;
+                srcString = CompiledExpressionSupport.getRootExpression(children[0], context.getRoot(), context) + srcString;
 
                 if (children[0] instanceof ASTChain) {
-                    String cast = (String) context.remove(ExpressionCompiler.PRE_CAST);
+                    String cast = (String) context.remove(CompiledExpressionSupport.PRE_CAST);
                     if (cast != null)
                         srcString = cast + srcString;
                 }
@@ -453,7 +453,7 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
 
                     m = OgnlRuntime.getWriteMethod(context.getCurrentObject().getClass(), name);
                     Class<?> parm = m.getParameterTypes()[0];
-                    String cast = parm.isArray() ? ExpressionCompiler.getCastString(parm) : parm.getName();
+                    String cast = parm.isArray() ? CompiledExpressionSupport.getCastString(parm) : parm.getName();
 
                     result = m.getName() + "((" + cast + ")$3)";
                     setterClass = parm;

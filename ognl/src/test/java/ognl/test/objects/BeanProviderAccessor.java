@@ -8,7 +8,7 @@ import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.OgnlRuntime;
 import ognl.PropertyAccessor;
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 import ognl.enhance.UnsupportedCompilationException;
 
 /**
@@ -41,7 +41,7 @@ public class BeanProviderAccessor<C extends OgnlContext<C>> extends ObjectProper
             context.setCurrentAccessor(BeanProvider.class);
             context.setCurrentType(provider.getBean(beanName).getClass());
 
-            ExpressionCompiler.addCastString(context, "(("
+            CompiledExpressionSupport.addCastString(context, "(("
                     + OgnlRuntime.getCompiler().getInterfaceClass(provider.getBean(beanName).getClass()).getName() + ")");
 
             return ".getBean(\"" + beanName + "\"))";

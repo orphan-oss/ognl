@@ -18,7 +18,7 @@
  */
 package ognl;
 
-import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.CompiledExpressionSupport;
 import ognl.enhance.UnsupportedCompilationException;
 
 import java.io.Serial;
@@ -135,12 +135,12 @@ public class ASTAnd<C extends OgnlContext<C>> extends BooleanExpression<C> {
                 throw new UnsupportedCompilationException("And expression can't be compiled until all conditions are true.");
             }
 
-            String first = ExpressionCompiler.getRootExpression(children[0], context.getRoot(), context)
+            String first = CompiledExpressionSupport.getRootExpression(children[0], context.getRoot(), context)
                     + pre + children[0].toGetSourceString(context, target);
 
             children[1].getValue(context, target);
 
-            String second = ExpressionCompiler.getRootExpression(children[1], context.getRoot(), context)
+            String second = CompiledExpressionSupport.getRootExpression(children[1], context.getRoot(), context)
                     + pre + children[1].toSetSourceString(context, target);
 
             if (!OgnlRuntime.isBoolean(first))
