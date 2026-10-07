@@ -44,21 +44,41 @@ public final class MethodList extends ArrayList<Method> {
 
     public static final int DEFAULT_MAX_RESOLUTIONS = 64;
 
+    private final Class<?> owner;
     private final int maxResolutions;
     private transient volatile Resolutions resolutions;
 
     public MethodList() {
-        this(DEFAULT_MAX_RESOLUTIONS);
+        this(null, DEFAULT_MAX_RESOLUTIONS);
+    }
+
+    /**
+     * @param owner the class the methods were collected for, {@code null} if unknown.
+     */
+    public MethodList(Class<?> owner) {
+        this(owner, DEFAULT_MAX_RESOLUTIONS);
     }
 
     /**
      * @param maxResolutions how many resolutions to keep, the oldest one is dropped first once it is reached.
      */
     public MethodList(int maxResolutions) {
+        this(null, maxResolutions);
+    }
+
+    public MethodList(Class<?> owner, int maxResolutions) {
         if (maxResolutions < 1) {
             throw new IllegalArgumentException("maxResolutions must be positive, was " + maxResolutions);
         }
+        this.owner = owner;
         this.maxResolutions = maxResolutions;
+    }
+
+    /**
+     * @return the class the methods were collected for, or {@code null} if unknown.
+     */
+    public Class<?> owner() {
+        return owner;
     }
 
     /**

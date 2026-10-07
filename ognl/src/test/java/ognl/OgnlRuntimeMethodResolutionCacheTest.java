@@ -263,4 +263,50 @@ class OgnlRuntimeMethodResolutionCacheTest {
         assertEquals(1, add.resolutionCount());
     }
 
+
+    private static final class ChildLoader extends ClassLoader {
+
+        ChildLoader() {
+            super(OgnlRuntimeMethodResolutionCacheTest.class.getClassLoader());
+        }
+
+        @Override
+        protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+            if (!name.equals(Formatter.class.getName())) {
+                return super.loadClass(name, resolve);
+            }
+            synchronized (getClassLoadingLock(name)) {
+                Class<?> loaded = findLoadedClass(name);
+                if (loaded == null) {
+                    try (java.io.InputStream in = getParent().getResourceAsStream(name.replace('.', '/') + ".class")) {
+                        byte[] bytes = in.readAllBytes();
+                        loaded = defineClass(name, bytes, 0, bytes.length);
+                    } catch (java.io.IOException e) {
+                        throw new ClassNotFoundException(name, e);
+                    }
+                }
+                return loaded;
+            }
+        }
+    }
+
+    @Test
+    void typeClassFromChildLoaderOfListOwnerIsNotRemembered() throws Exception {
+        Object target = new ChildLoader().loadClass(Formatter.class.getName()).getDeclaredConstructor().newInstance();
+        List<Method> methods = OgnlRuntime.getMethods(Object.class, "toString", false);
+
+        OgnlRuntime.callAppropriateMethod(context, target, target, "toString", null, methods, new Object[0]);
+
+        assertEquals(0, assertInstanceOf(MethodList.class, methods).resolutionCount());
+    }
+
+    @Test
+    void typeClassMatchingListOwnerIsRemembered() throws Exception {
+        List<Method> methods = OgnlRuntime.getMethods(Formatter.class, "toString", false);
+
+        OgnlRuntime.callAppropriateMethod(context, formatter, formatter, "toString", null, methods, new Object[0]);
+
+        assertEquals(1, assertInstanceOf(MethodList.class, methods).resolutionCount());
+    }
+
 }
