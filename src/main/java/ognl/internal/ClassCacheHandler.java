@@ -18,6 +18,11 @@
  */
 package ognl.internal;
 
+/**
+ * @deprecated no longer used by OGNL, accessors and null handlers are looked up through {@link HandlerRegistry}.
+ * Will be removed in 3.5.0.
+ */
+@Deprecated
 public class ClassCacheHandler {
 
     private ClassCacheHandler() {
