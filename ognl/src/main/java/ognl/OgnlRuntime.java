@@ -110,6 +110,11 @@ public class OgnlRuntime {
     public static final String IS_PREFIX = "is";
 
     /**
+     * Boolean {@code has<Foo>} getter prefix.
+     */
+    public static final String HAS_PREFIX = "has";
+
+    /**
      * Prefix padding for hexadecimal numbers to HEX_LENGTH.
      */
     private static final Map<Integer, String> HEX_PADDING = new HashMap<>();
@@ -150,6 +155,22 @@ public class OgnlRuntime {
             // Unavailable (SecurityException, etc.)
         }
         _useStricterInvocation = initialFlagState;
+    }
+
+    /**
+     * Control whether property names match accessor names exactly, using the JVM option
+     * -Dognl.UseStrictPropertyNames=true. The default is case-insensitive matching.
+     */
+    static final String USE_STRICT_PROPERTY_NAMES = "ognl.UseStrictPropertyNames";
+
+    private static volatile boolean _useStrictPropertyNames;
+
+    static {
+        try {
+            _useStrictPropertyNames = Boolean.parseBoolean(System.getProperty(USE_STRICT_PROPERTY_NAMES));
+        } catch (Exception ex) {
+            // Unavailable (SecurityException, etc.)
+        }
     }
 
     /*
@@ -278,6 +299,7 @@ public class OgnlRuntime {
     static final ClassPropertyMethodCache cacheSetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheReadMethod = new ClassPropertyMethodCache();
+    static final ClassPropertyMethodCache cacheStrictReadMethod = new ClassPropertyMethodCache();
 
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
@@ -416,6 +438,7 @@ public class OgnlRuntime {
         cacheSetMethod.clear();
         cacheGetMethod.clear();
         cacheReadMethod.clear();
+        cacheStrictReadMethod.clear();
         cache.clear();
     }
 
@@ -1864,6 +1887,17 @@ public class OgnlRuntime {
         return List.of(capitalized);
     }
 
+    private static boolean isPropertyName(String methodName, String name, boolean strict) {
+        return strict ? methodName.equals(name) : methodName.equalsIgnoreCase(name);
+    }
+
+    private static boolean isPrefixedPropertyName(String methodName, String prefix, String name, boolean strict) {
+        if (!strict) {
+            return methodName.toLowerCase().equals(prefix + name.toLowerCase());
+        }
+        return !name.isEmpty() && accessorBaseNames(name).stream().anyMatch(base -> methodName.equals(prefix + base));
+    }
+
     /**
      * Convenience used to check if a method is a synthetic method so as to avoid
      * calling un-callable methods.  These methods are not considered callable by
@@ -2388,7 +2422,9 @@ public class OgnlRuntime {
      * @return The most likely matching {@link Method}, or null if none could be found.
      */
     public static Method getReadMethod(Class<?> target, String name) {
-        Method method = cacheReadMethod.get(target, name);
+        boolean strict = _useStrictPropertyNames;
+        ClassPropertyMethodCache readMethodCache = strict ? cacheStrictReadMethod : cacheReadMethod;
+        Method method = readMethodCache.get(target, name);
         if (method == ClassPropertyMethodCache.NULL_REPLACEMENT) {
             return null;
         }
@@ -2396,18 +2432,24 @@ public class OgnlRuntime {
             return method;
         }
 
-        method = getReadMethod(target, name, null);
-        cacheReadMethod.put(target, name, method);
+        method = getReadMethod(target, name, null, strict);
+        readMethodCache.put(target, name, method);
 
         return method;
     }
 
     public static Method getReadMethod(Class<?> target, String name, Class<?>[] argClasses) {
+        return getReadMethod(target, name, argClasses, _useStrictPropertyNames);
+    }
+
+    private static Method getReadMethod(Class<?> target, String name, Class<?>[] argClasses, boolean strict) {
         try {
             if (name.indexOf('"') >= 0)
                 name = name.replaceAll("\"", "");
 
-            name = name.toLowerCase();
+            if (!strict) {
+                name = name.toLowerCase();
+            }
 
             Method[] methods = target.getMethods();
 
@@ -2420,10 +2462,10 @@ public class OgnlRuntime {
                     continue;
                 }
 
-                if ((method.getName().equalsIgnoreCase(name)
-                        || method.getName().toLowerCase().equals("get" + name)
-                        || method.getName().toLowerCase().equals("has" + name)
-                        || method.getName().toLowerCase().equals("is" + name))
+                if ((isPropertyName(method.getName(), name, strict)
+                        || isPrefixedPropertyName(method.getName(), GET_PREFIX, name, strict)
+                        || isPrefixedPropertyName(method.getName(), HAS_PREFIX, name, strict)
+                        || isPrefixedPropertyName(method.getName(), IS_PREFIX, name, strict))
                         && !method.getName().startsWith("set")) {
                     candidates.add(method);
                 }
@@ -2440,7 +2482,7 @@ public class OgnlRuntime {
                     continue;
                 }
 
-                if (method.getName().equalsIgnoreCase(name)
+                if (isPropertyName(method.getName(), name, strict)
                         && !method.getName().startsWith("set")
                         && !method.getName().startsWith("get")
                         && !method.getName().startsWith("is")
@@ -2462,7 +2504,7 @@ public class OgnlRuntime {
             // try one last time adding a get to beginning
 
             if (!name.startsWith("get")) {
-                Method ret = OgnlRuntime.getReadMethod(target, "get" + name, argClasses);
+                Method ret = getReadMethod(target, "get" + name, argClasses, strict);
                 if (ret != null)
                     return ret;
             }
@@ -2489,6 +2531,10 @@ public class OgnlRuntime {
     }
 
     public static Method getWriteMethod(Class<?> target, String name, Class<?>[] argClasses) {
+        return getWriteMethod(target, name, argClasses, _useStrictPropertyNames);
+    }
+
+    private static Method getWriteMethod(Class<?> target, String name, Class<?>[] argClasses, boolean strict) {
         try {
             if (name.indexOf('"') >= 0) {
                 name = name.replaceAll("\"", "");
@@ -2505,8 +2551,8 @@ public class OgnlRuntime {
                     continue;
                 }
 
-                if ((method.getName().equalsIgnoreCase(name)
-                        || method.getName().toLowerCase().equals("set" + name.toLowerCase()))
+                if ((isPropertyName(method.getName(), name, strict)
+                        || isPrefixedPropertyName(method.getName(), SET_PREFIX, name, strict))
                         && !method.getName().startsWith("get")) {
 
                     candidates.add(method.getMethod());
@@ -2527,8 +2573,8 @@ public class OgnlRuntime {
                     continue;
                 }
 
-                if ((cmethod.getName().equalsIgnoreCase(name)
-                        || cmethod.getName().toLowerCase().equals("set" + name.toLowerCase()))
+                if ((isPropertyName(cmethod.getName(), name, strict)
+                        || isPrefixedPropertyName(cmethod.getName(), SET_PREFIX, name, strict))
                         && !cmethod.getName().startsWith("get")) {
 
                     if (!candidates.contains(cmethod))
@@ -2544,7 +2590,7 @@ public class OgnlRuntime {
 
             // try one last time adding a set to beginning
             if (!name.startsWith("set")) {
-                Method ret = OgnlRuntime.getReadMethod(target, "set" + name, argClasses);
+                Method ret = getReadMethod(target, "set" + name, argClasses, strict);
                 if (ret != null)
                     return ret;
             }
@@ -2577,7 +2623,7 @@ public class OgnlRuntime {
             PropertyDescriptor[] pds = info.getPropertyDescriptors();
 
             for (PropertyDescriptor pd : pds) {
-                if (pd.getName().equalsIgnoreCase(name) || pd.getName().toLowerCase().endsWith(name.toLowerCase()))
+                if (pd.getName().equalsIgnoreCase(name))
                     return pd;
             }
 
@@ -2848,6 +2894,27 @@ public class OgnlRuntime {
      */
     public static boolean getUseFirstMatchGetSetLookupValue() {
         return _useFirstMatchGetSetLookup;
+    }
+
+    /**
+     * Returns whether property names must match accessor names exactly, instead of case-insensitively.
+     *
+     * @return true if strict property-name matching is in effect, false otherwise.
+     * @since 3.5.0
+     */
+    public static boolean getUseStrictPropertyNamesValue() {
+        return _useStrictPropertyNames;
+    }
+
+    /**
+     * Switches strict property-name matching on or off. Read methods are cached per mode, so lookups
+     * made under the previous mode are not served after the switch. Initial value comes from {@link OgnlRuntime#USE_STRICT_PROPERTY_NAMES}.
+     *
+     * @param strict true to match property names to accessor names exactly.
+     * @since 3.5.0
+     */
+    public static void setUseStrictPropertyNames(boolean strict) {
+        _useStrictPropertyNames = strict;
     }
 
     /**
