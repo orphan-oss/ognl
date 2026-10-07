@@ -1935,7 +1935,7 @@ TOKEN_MGR_DECLS:
                     throw literalOutOfRange( "Floating-point", e.getMessage() );
                 }
                 if ( b.scale() > MAX_BIG_DECIMAL_LITERAL_SCALE || b.scale() < -MAX_BIG_DECIMAL_LITERAL_SCALE )
-                    throw literalOutOfRange( "Floating-point", "scale " + b.scale() + " exceeds " + MAX_BIG_DECIMAL_LITERAL_SCALE );
+                    throw literalOutOfRange( "Floating-point", "scale " + b.scale() + " is outside -" + MAX_BIG_DECIMAL_LITERAL_SCALE + ".." + MAX_BIG_DECIMAL_LITERAL_SCALE );
                 return b;
 
             case 'd': case 'D':

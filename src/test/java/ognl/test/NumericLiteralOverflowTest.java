@@ -84,6 +84,12 @@ public class NumericLiteralOverflowTest {
     }
 
     @Test
+    public void shouldReportScaleAgainstAllowedRange() {
+        ExpressionSyntaxException e = assertThrows(ExpressionSyntaxException.class, () -> Ognl.parseExpression("1e10001b"));
+        assertTrue(e.getReason().getMessage(), e.getReason().getMessage().contains("scale -10001 is outside -10000..10000"));
+    }
+
+    @Test
     public void shouldParseInRangeNumericLiteral() throws OgnlException {
         for (String expression : IN_RANGE) {
             assertNotNull("Expected " + expression + " to parse", Ognl.parseExpression(expression));
