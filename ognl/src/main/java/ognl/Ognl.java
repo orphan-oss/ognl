@@ -115,8 +115,8 @@ public abstract class Ognl {
      *
      * @param expression the OGNL expression to be parsed
      * @return a tree representation of the expression
-     * @throws ExpressionSyntaxException if the expression is malformed, including an integer
-     *                                   literal whose value is outside the representable range
+     * @throws ExpressionSyntaxException if the expression is malformed, including a numeric
+     *                                   literal that is out of range for its type
      * @throws OgnlException             if there is a pathological environmental problem
      */
     public static Object parseExpression(String expression) throws OgnlException {

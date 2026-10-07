@@ -540,30 +540,60 @@ TOKEN_MGR_DECLS:
                     break;
             }
         } catch ( NumberFormatException e ) {
-            // Surface as a lexical error so callers see the documented OgnlException
-            // instead of a raw NumberFormatException (e.g. literals out of range).
-            // TokenMgrError has no cause-accepting constructor, so fold the original
-            // detail into the message to keep diagnostics and use the caught exception.
-            throw new TokenMgrError( "Integer literal out of range: " + image
-                    + " (" + e.getMessage() + ")", TokenMgrError.LEXICAL_ERROR );
+            throw literalOutOfRange( "Integer", e.getMessage() );
         }
         return result;
     }
+
+    private static final int MAX_BIG_DECIMAL_LITERAL_SCALE = 10000;
 
     private Object makeFloat()
     {
         String s = image.toString();
         switch ( s.charAt(s.length()-1) ) {
             case 'f': case 'F':
-                return Float.valueOf( s );
+                Float f = Float.valueOf( s );
+                if ( f.isInfinite() || (f == 0 && hasNonZeroSignificand( s )) )
+                    throw literalOutOfRange( "Floating-point", null );
+                return f;
 
             case 'b': case 'B':
-                return new BigDecimal( s.substring(0,s.length()-1) );
+                BigDecimal b;
+                try {
+                    b = new BigDecimal( s.substring(0,s.length()-1) );
+                } catch ( NumberFormatException e ) {
+                    throw literalOutOfRange( "Floating-point", e.getMessage() );
+                }
+                if ( b.scale() > MAX_BIG_DECIMAL_LITERAL_SCALE || b.scale() < -MAX_BIG_DECIMAL_LITERAL_SCALE )
+                    throw literalOutOfRange( "Floating-point", "scale " + b.scale() + " exceeds " + MAX_BIG_DECIMAL_LITERAL_SCALE );
+                return b;
 
             case 'd': case 'D':
             default:
-                return Double.valueOf( s );
+                Double d = Double.valueOf( s );
+                if ( d.isInfinite() || (d == 0 && hasNonZeroSignificand( s )) )
+                    throw literalOutOfRange( "Floating-point", null );
+                return d;
         }
+    }
+
+    private static boolean hasNonZeroSignificand( String s )
+    {
+        for ( int i = 0; i < s.length(); i++ ) {
+            char c = s.charAt(i);
+            if ( c == 'e' || c == 'E' )
+                return false;
+            if ( c >= '1' && c <= '9' )
+                return true;
+        }
+        return false;
+    }
+
+      /** TokenMgrError takes no cause, so the original detail goes into the message. */
+    private TokenMgrError literalOutOfRange( String kind, String detail )
+    {
+        return new TokenMgrError( kind + " literal out of range: " + image
+                + (detail == null ? "" : " (" + detail + ")"), TokenMgrError.LEXICAL_ERROR );
     }
 }
 
