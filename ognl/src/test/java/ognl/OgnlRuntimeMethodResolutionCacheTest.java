@@ -23,6 +23,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -30,9 +33,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Issue #651: the method chosen for a call is remembered per type, name and argument types.
@@ -263,4 +268,69 @@ class OgnlRuntimeMethodResolutionCacheTest {
         assertEquals(1, add.resolutionCount());
     }
 
+
+    private static final class ChildLoader extends ClassLoader {
+
+        ChildLoader() {
+            super(OgnlRuntimeMethodResolutionCacheTest.class.getClassLoader());
+        }
+
+        @Override
+        protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+            if (!name.equals(Formatter.class.getName())) {
+                return super.loadClass(name, resolve);
+            }
+            synchronized (getClassLoadingLock(name)) {
+                Class<?> loaded = findLoadedClass(name);
+                if (loaded == null) {
+                    try (InputStream in = getParent().getResourceAsStream(name.replace('.', '/') + ".class")) {
+                        if (in == null) {
+                            throw new ClassNotFoundException(name);
+                        }
+                        byte[] bytes = readFully(in);
+                        loaded = defineClass(name, bytes, 0, bytes.length);
+                    } catch (IOException e) {
+                        throw new ClassNotFoundException(name, e);
+                    }
+                }
+                return loaded;
+            }
+        }
+
+        private static byte[] readFully(InputStream in) throws IOException {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buffer = new byte[4096];
+            for (int n; (n = in.read(buffer)) != -1; ) {
+                out.write(buffer, 0, n);
+            }
+            return out.toByteArray();
+        }
+    }
+
+    @Test
+    void typeClassFromChildLoaderOfListOwnerIsNotRemembered() throws Exception {
+        Object target = new ChildLoader().loadClass(Formatter.class.getName()).getDeclaredConstructor().newInstance();
+        List<Method> methods = OgnlRuntime.getMethods(Object.class, "toString", false);
+
+        OgnlRuntime.callAppropriateMethod(context, target, target, "toString", null, methods, new Object[0]);
+
+        assertEquals(0, assertInstanceOf(MethodList.class, methods).resolutionCount());
+    }
+
+    @Test
+    void typeClassMatchingListOwnerIsRemembered() throws Exception {
+        List<Method> methods = OgnlRuntime.getMethods(Formatter.class, "toString", false);
+
+        OgnlRuntime.callAppropriateMethod(context, formatter, formatter, "toString", null, methods, new Object[0]);
+
+        assertEquals(1, assertInstanceOf(MethodList.class, methods).resolutionCount());
+    }
+
+    @Test
+    void argumentClassesAreCheckedAgainstTheOwnersLoader() throws Exception {
+        Class<?> childFormatter = new ChildLoader().loadClass(Formatter.class.getName());
+
+        assertTrue(OgnlRuntime.canRememberIn(childFormatter, Formatter.class, new Class<?>[]{childFormatter}));
+        assertFalse(OgnlRuntime.canRememberIn(Formatter.class, Formatter.class, new Class<?>[]{childFormatter}));
+    }
 }

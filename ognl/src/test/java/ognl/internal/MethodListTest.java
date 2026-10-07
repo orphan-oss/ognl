@@ -52,7 +52,7 @@ class MethodListTest {
     }
 
     private static MethodList listOf(String... methodNames) throws NoSuchMethodException {
-        MethodList list = new MethodList();
+        MethodList list = new MethodList(Object.class);
         for (String name : methodNames) {
             list.add(method(name));
         }
@@ -185,7 +185,7 @@ class MethodListTest {
 
     @Test
     void dropsOldestResolutionWhenLimitIsReached() throws Exception {
-        MethodList list = new MethodList(2);
+        MethodList list = new MethodList(Object.class, 2);
         list.add(method("toString"));
 
         list.resolutions().put("first", ONE);
@@ -200,7 +200,7 @@ class MethodListTest {
 
     @Test
     void storingAgainDoesNotRefreshPosition() throws Exception {
-        MethodList list = new MethodList(2);
+        MethodList list = new MethodList(Object.class, 2);
         list.add(method("toString"));
 
         list.resolutions().put("first", ONE);
@@ -216,7 +216,7 @@ class MethodListTest {
     @Test
     void staysWithinLimitUnderConcurrentPuts() throws Exception {
         int limit = 8;
-        MethodList list = new MethodList(limit);
+        MethodList list = new MethodList(Object.class, limit);
         list.add(method("toString"));
 
         int threads = 8;
@@ -247,7 +247,12 @@ class MethodListTest {
 
     @Test
     void rejectsNonPositiveLimit() {
-        assertThrows(IllegalArgumentException.class, () -> new MethodList(0));
+        assertThrows(IllegalArgumentException.class, () -> new MethodList(Object.class, 0));
+    }
+
+    @Test
+    void requiresAnOwner() {
+        assertThrows(NullPointerException.class, () -> new MethodList(null));
     }
 
 }
