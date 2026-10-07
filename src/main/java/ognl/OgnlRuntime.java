@@ -1522,27 +1522,28 @@ public class OgnlRuntime {
         if (typeClass == null) {
             return false;
         }
-        ClassLoader typeLoader = typeClass.getClassLoader();
-        for (Class<?> argClass : argClasses) {
-            if (argClass != null && !isSameOrAncestor(argClass.getClassLoader(), typeLoader)) {
-                return false;
+        try {
+            ClassLoader typeLoader = typeClass.getClassLoader();
+            for (Class<?> argClass : argClasses) {
+                if (argClass != null && !isSameOrAncestor(argClass.getClassLoader(), typeLoader)) {
+                    return false;
+                }
             }
+            return true;
+        } catch (SecurityException e) {
+            // without access to the class loaders the answer is unknown, so nothing gets remembered
+            return false;
         }
-        return true;
     }
 
     private static boolean isSameOrAncestor(ClassLoader candidate, ClassLoader loader) {
         if (candidate == null) {
             return true;
         }
-        try {
-            for (ClassLoader current = loader; current != null; current = current.getParent()) {
-                if (current == candidate) {
-                    return true;
-                }
+        for (ClassLoader current = loader; current != null; current = current.getParent()) {
+            if (current == candidate) {
+                return true;
             }
-        } catch (SecurityException ignored) {
-            // without access to the parents the answer is unknown, so nothing gets remembered
         }
         return false;
     }
