@@ -40,6 +40,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1751,8 +1752,7 @@ public class OgnlRuntime {
     /**
      * Whether a field write of {@code propertyName} is one {@link #setFieldValue} would carry out, which
      * refuses a static or final field. {@link #hasField} checks presence and accessibility but not
-     * those modifiers, and is shared with {@link #hasGetProperty}, where a final field is
-     * legitimately readable.
+     * those modifiers.
      */
     private static <C extends OgnlContext<C>> boolean hasSettableField(C context, Object target, Class<?> inClass, String propertyName) {
         Field f = getField(inClass, propertyName);
@@ -1763,6 +1763,29 @@ public class OgnlRuntime {
 
         return !Modifier.isStatic(fModifiers) && !Modifier.isFinal(fModifiers)
                 && isFieldAccessible(context, target, f, propertyName);
+    }
+
+    /**
+     * Whether a field read of {@code propertyName} is one {@link #getFieldValue} would carry out, which
+     * refuses a static field. A final field is readable.
+     */
+    private static <C extends OgnlContext<C>> boolean hasReadableField(C context, Object target, Class<?> inClass, String propertyName) {
+        Field f = getField(inClass, propertyName);
+
+        return f != null && !Modifier.isStatic(f.getModifiers())
+                && isFieldAccessible(context, target, f, propertyName);
+    }
+
+    private static <C extends OgnlContext<C>> boolean hasRecordComponentAccessor(C context, Object target, Class<?> targetClass, String propertyName) {
+        if (targetClass == null || !targetClass.isRecord() || context.isIgnoreReadMethods()) {
+            return false;
+        }
+        for (RecordComponent component : targetClass.getRecordComponents()) {
+            if (component.getName().equalsIgnoreCase(propertyName)) {
+                return isMethodAccessible(context, target, component.getAccessor(), propertyName);
+            }
+        }
+        return false;
     }
 
     /**
@@ -2074,7 +2097,9 @@ public class OgnlRuntime {
         Class<?> targetClass = (target == null) ? null : target.getClass();
         String name = oname.toString();
 
-        return hasGetMethod(context, target, targetClass, name) || hasField(context, target, targetClass, name);
+        return hasGetMethod(context, target, targetClass, name)
+                || hasRecordComponentAccessor(context, target, targetClass, name)
+                || hasReadableField(context, target, targetClass, name);
     }
 
     public static boolean hasSetProperty(OgnlContext context, Object target, Object oname) throws IntrospectionException {
