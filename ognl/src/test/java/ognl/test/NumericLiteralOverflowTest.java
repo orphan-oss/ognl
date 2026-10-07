@@ -18,15 +18,18 @@
  */
 package ognl.test;
 
+import ognl.ExpressionSyntaxException;
 import ognl.Ognl;
 import ognl.OgnlException;
+import ognl.TokenMgrError;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class IntegerLiteralOverflowTest {
+class NumericLiteralOverflowTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -37,10 +40,18 @@ class IntegerLiteralOverflowTest {
             "9223372036854775808L",  // long above Long.MAX_VALUE
             "0xFFFFFFFF",            // hex above signed 32-bit range
             "0x100000000",
-            "0xFFFFFFFFFFFFFFFFL"
+            "0xFFFFFFFFFFFFFFFFL",
+            "1e99999999999999999999b"
     })
-    void shouldThrowOgnlExceptionForOutOfRangeIntegerLiteral(String expression) {
+    void shouldThrowOgnlExceptionForOutOfRangeNumericLiteral(String expression) {
         assertThrows(OgnlException.class, () -> Ognl.parseExpression(expression));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"2147483648", "1e99999999999999999999b"})
+    void shouldReportTokenMgrErrorAsReason(String expression) {
+        ExpressionSyntaxException e = assertThrows(ExpressionSyntaxException.class, () -> Ognl.parseExpression(expression));
+        assertInstanceOf(TokenMgrError.class, e.getReason());
     }
 
     @ParameterizedTest
@@ -48,7 +59,9 @@ class IntegerLiteralOverflowTest {
             "2147483647",            // Integer.MAX_VALUE
             "9223372036854775807L",  // Long.MAX_VALUE
             "0x7FFFFFFF",            // largest in-range hex int
-            "1e100"                  // float path is unaffected by makeInt()
+            "1e100",                 // float path is unaffected by makeInt()
+            "1e99999999999999999999",
+            "1e100b"
     })
     void shouldParseInRangeNumericLiteral(String expression) {
         assertDoesNotThrow(() -> Ognl.parseExpression(expression));

@@ -558,7 +558,12 @@ TOKEN_MGR_DECLS:
                 return Float.valueOf( s );
 
             case 'b': case 'B':
-                return new BigDecimal( s.substring(0,s.length()-1) );
+                try {
+                    return new BigDecimal( s.substring(0,s.length()-1) );
+                } catch ( NumberFormatException e ) {
+                    throw new TokenMgrError( "Floating-point literal out of range: " + image
+                            + " (" + e.getMessage() + ")", TokenMgrError.LEXICAL_ERROR );
+                }
 
             case 'd': case 'D':
             default:

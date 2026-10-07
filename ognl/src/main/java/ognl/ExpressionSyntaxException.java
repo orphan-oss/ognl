@@ -19,7 +19,9 @@
 package ognl;
 
 /**
- * Exception thrown if a malformed OGNL expression is encountered.
+ * Exception thrown if a malformed OGNL expression is encountered, including a numeric literal
+ * whose value is outside the representable range. In that case {@link #getReason()} is a
+ * {@link TokenMgrError}, not a {@link NumberFormatException}.
  */
 public class ExpressionSyntaxException extends OgnlException {
 
