@@ -50,7 +50,12 @@ public class NumericStringConstantCompileTest {
             "#c + \"b\"",      // string literal after a character-typed value
             "#c + \"b\\\\\"",  // escaping still applies after a character-typed value
             "\"b\" + #c",      // character-typed value after a string literal
-            "\"a\" + 1"
+            "\"a\" + 1",
+            "'\\'' + \"b\"",    // a quote character literal before a string literal
+            "\"b\" + '\\''",    // a quote character literal after a string literal
+            "'\\'' + 1",        // a quote character literal concatenated with a number
+            "'\\\\' + \"b\"",   // a backslash character literal
+            "'\\\"' + \"b\""     // a double-quote character literal
     };
 
     private OgnlContext context;

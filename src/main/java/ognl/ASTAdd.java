@@ -189,8 +189,7 @@ public class ASTAdd extends NumericExpression {
                     // turn quoted characters into quoted strings
 
                     if (children[i] instanceof ASTConst && ((ASTConst) children[i]).getValue() instanceof Character) {
-                        if (expr.indexOf('\'') >= 0)
-                            expr = expr.replaceAll("'", "\"");
+                        expr = "\"" + OgnlOps.getEscapeString(((ASTConst) children[i]).getValue().toString()) + "\"";
                         context.setCurrentType(String.class);
                     } else {
 
