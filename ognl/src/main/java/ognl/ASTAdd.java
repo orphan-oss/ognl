@@ -224,8 +224,11 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                                 && !(children[i] instanceof ASTStaticMethod)
                                 && !(children[i] instanceof ASTTest)) {
                             if (lastType != null && String.class.isAssignableFrom(lastType.getGetterClass())) {
-                                if (expr.indexOf('"') >= 0)
+                                if (isStringConstant(children[i])) {
+                                    expr = OgnlOps.getEscapeString(expr);
+                                } else if (expr.indexOf('"') >= 0) {
                                     expr = expr.replaceAll("\"", "\\\\\"");
+                                }
                                 expr = "\"" + expr + "\"";
                             }
                         }

@@ -140,7 +140,11 @@ public class ASTConst<C extends OgnlContext<C>> extends SimpleNode<C> implements
                 result = result + "f";
             }
             return result;
-        } else if (!(parent != null && NumericExpression.class.isAssignableFrom(parent.getClass())) && String.class.isAssignableFrom(value.getClass())) {
+        } else if (parent instanceof NumericExpression && !(parent instanceof ASTAdd)
+                && String.class.isAssignableFrom(value.getClass())) {
+            // the interpreted path rejects a string operand of a numeric operator, so leave it to that path
+            throw new UnsupportedCompilationException("Can't compile a string constant as a numeric operand.");
+        } else if (!(parent instanceof NumericExpression) && String.class.isAssignableFrom(value.getClass())) {
             context.setCurrentType(String.class);
 
             retval = '\"' + OgnlOps.getEscapeString(value.toString()) + '\"';
