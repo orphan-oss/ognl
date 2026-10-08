@@ -27,6 +27,7 @@ import ognl.OgnlRuntime;
 import ognl.test.objects.BaseGeneric;
 import ognl.test.objects.Bean1;
 import ognl.test.objects.CharHolder;
+import ognl.test.objects.CtorTargets;
 import ognl.test.objects.BeanProvider;
 import ognl.test.objects.BeanProviderAccessor;
 import ognl.test.objects.EvenOdd;
@@ -924,6 +925,145 @@ class DualModeEvaluationTest {
         @Test
         void overloadedMethodTakesBoxedMultiplication() throws Exception {
             assertCharBothModes("overload(boxedChar * 2)", "int:196");
+        }
+
+        // A wrapper-typed parameter must still get the conversion ASTMethod inserts when the
+        // argument's reported type differs from it, or the uncast Object source will not compile
+        @Test
+        void wrapperParameterTakesLiteralSubtraction() throws Exception {
+            assertCharBothModes("takesInteger('b' - 'a')", "Integer:1");
+        }
+
+        @Test
+        void wrapperParameterTakesBoxedNegation() throws Exception {
+            assertCharBothModes("takesInteger(-boxedChar)", "Integer:-98");
+        }
+
+        @Test
+        void wrapperParameterTakesPrimitiveNegation() throws Exception {
+            assertCharBothModes("takesInteger(-primChar)", "Integer:-98");
+        }
+
+        @Test
+        void wrapperParameterTakesBoxedAddition() throws Exception {
+            assertCharBothModes("takesInteger(boxedChar + boxedChar)", "Integer:196");
+        }
+
+        // Detection can fire on a compile-time value, so the runtime value may be of another class
+        // entirely and the generated source must not assume the compile-time one
+        private void assertObjectValueBothModes(String expression, Object runtimeValue, Object expected)
+                throws Exception {
+            Object tree = Ognl.parseExpression(expression);
+            charRoot.setObjectValue(runtimeValue);
+            assertEquals(expected, ((Node) tree).getValue(charContext.withRoot(charRoot), charRoot),
+                    "Interpreted failed for: " + expression);
+
+            charRoot.setObjectValue('a');
+            OgnlContext compiledCtx = Ognl.createDefaultContext(charRoot, charContext.getMemberAccess());
+            compiledCtx.setValues(charContext.getValues());
+            Node compiled = Ognl.compileExpression(compiledCtx, charRoot, expression);
+            charRoot.setObjectValue(runtimeValue);
+            assertEquals(expected, compiled.getAccessor().get(compiledCtx, charRoot),
+                    "Compiled failed for: " + expression);
+        }
+
+        @Test
+        void objectOperandBecomesNumberAtRuntime() throws Exception {
+            assertObjectValueBothModes("objectValue + 1", 1, 2);
+        }
+
+        @Test
+        void objectOperandBecomesStringAtRuntime() throws Exception {
+            assertObjectValueBothModes("objectValue + 1", "x", "x1");
+        }
+
+        @Test
+        void objectOperandStaysCharacterAtRuntime() throws Exception {
+            assertObjectValueBothModes("objectValue + 1", 'a', "a1");
+        }
+
+        @Test
+        void objectOperandBecomesNumberInSubtraction() throws Exception {
+            assertObjectValueBothModes("objectValue - 1", 5, 4);
+        }
+    }
+
+    /**
+     * An OgnlOps-delegated operand is an {@code Object} in the generated source whatever class it
+     * reports, so every node that passes one as an argument has to convert rather than assume.
+     * {@code ASTMethod}, {@code ASTStaticMethod} and {@code ASTCtor} each carry that guard.
+     */
+    @Nested
+    class DelegatedOperandAsArgument {
+
+        private CharHolder charRoot;
+        private OgnlContext charContext;
+
+        @BeforeEach
+        void setUp() {
+            charRoot = new CharHolder();
+            charContext = Ognl.createDefaultContext(charRoot, new DefaultMemberAccess(false));
+        }
+
+        private void assertBoth(String expression, Object expected) throws Exception {
+            assertEquals(expected, ((Node) Ognl.parseExpression(expression))
+                            .getValue(charContext.withRoot(charRoot), charRoot),
+                    "Interpreted failed for: " + expression);
+
+            OgnlContext compiledCtx = Ognl.createDefaultContext(charRoot, charContext.getMemberAccess());
+            compiledCtx.setValues(charContext.getValues());
+            Node compiled = Ognl.compileExpression(compiledCtx, charRoot, expression);
+            assertEquals(expected, compiled.getAccessor().get(compiledCtx, charRoot),
+                    "Compiled failed for: " + expression);
+        }
+
+        @Test
+        void staticMethodWithWrapperParameter() throws Exception {
+            assertBoth("@ognl.test.objects.CharHolder@statInteger('b' - 'a')", "statInteger:1");
+        }
+
+        @Test
+        void staticMethodWithBigDecimalParameter() throws Exception {
+            assertBoth("@ognl.test.objects.CharHolder@statBigDecimal(bigDecimalValue + 1)", "statBigDecimal:3.5");
+        }
+
+        @Test
+        void staticMethodWithBigIntegerParameter() throws Exception {
+            assertBoth("@ognl.test.objects.CharHolder@statBigInteger(bigIntegerValue + 1)", "statBigInteger:8");
+        }
+
+        @Test
+        void constructorWithBigIntegerParameter() throws Exception {
+            assertBoth("new java.math.BigDecimal(bigIntegerValue + 1)", new BigDecimal(8));
+        }
+
+        @Test
+        void constructorWithBigDecimalDerivedParameter() throws Exception {
+            assertBoth("new java.math.BigDecimal(bigIntegerValue - 1)", new BigDecimal(6));
+        }
+
+        @Test
+        void constructorWithCharParameter() throws Exception {
+            assertBoth("new ognl.test.objects.CtorTargets$WithChar('b' - 'a')",
+                    new CtorTargets.WithChar((char) 1));
+        }
+
+        @Test
+        void constructorWithCharParameterFromBigInteger() throws Exception {
+            assertBoth("new ognl.test.objects.CtorTargets$WithChar(bigIntegerValue + 1)",
+                    new CtorTargets.WithChar((char) 8));
+        }
+
+        @Test
+        void constructorWithObjectArrayParameter() throws Exception {
+            assertBoth("new ognl.test.objects.CtorTargets$WithObjectArray(bigIntegerValue + 1)",
+                    new CtorTargets.WithObjectArray(new Object[]{BigInteger.valueOf(8)}));
+        }
+
+        @Test
+        void constructorWithCharArrayParameter() throws Exception {
+            assertBoth("new ognl.test.objects.CtorTargets$WithCharArray(bigIntegerValue + 1)",
+                    new CtorTargets.WithCharArray("8".toCharArray()));
         }
     }
 

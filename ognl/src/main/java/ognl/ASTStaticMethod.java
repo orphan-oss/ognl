@@ -139,6 +139,10 @@ public class ASTStaticMethod<C extends OgnlContext<C>> extends SimpleNode<C> imp
                     if (NodeType.class.isAssignableFrom(children[i].getClass()))
                         valueClass = ((NodeType) children[i]).getGetterClass();
 
+                    if (NumericExpression.isOpsDelegatedSource(children[i])) {
+                        valueClass = Object.class;
+                    }
+
                     if (valueClass != parms[i]) {
                         if (parms[i].isArray()) {
                             parmString = OgnlRuntime.getCompiler()

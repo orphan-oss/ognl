@@ -116,6 +116,15 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
         return child instanceof NumericExpression && ((NumericExpression<C>) child).opsSource;
     }
 
+    /**
+     * Whether this node's source is an {@code OgnlOps} call. Such source is an {@code Object} whatever
+     * class {@link #getGetterClass()} reports, so a node passing it as an argument has to convert it
+     * rather than take the reported class for the source's static type.
+     */
+    static boolean isOpsDelegatedSource(Node<?> child) {
+        return child instanceof NumericExpression && ((NumericExpression<?>) child).opsSource;
+    }
+
     protected String getOgnlOpsMethod() {
         return null;
     }
@@ -133,22 +142,19 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
         return result.toString();
     }
 
+    /**
+     * Reports the compile-time result class without casting the source to it. Casting is what the first
+     * cuts of this got wrong: a compile-time class does not hold for every runtime value, neither for a
+     * {@code Character} that turns out null nor for an operand only seen to be a character while
+     * compiling, and the cast then fails where interpreted mode answers. The class is still worth
+     * reporting, because an enclosing method call resolves its overload on it.
+     */
     protected String castOpsResult(String source, Object value, C context) {
         markOpsSource();
-        reportOpsResult(value, context);
-        // Cast only where the operand types pin the class. A character operand does not: it admits
-        // null, which OgnlOps answers from its non-numeric branches, and the cast would fail
-        return value != null && (OgnlRuntime.isBigNumber(value.getClass()) || value instanceof String)
-                ? "((" + value.getClass().getName() + ") " + source + ")"
-                : source;
-    }
-
-    // The source stays an Object, but an enclosing method call resolves its overload on the type
-    // reported here, and it has to pick the one the interpreted path picks
-    private void reportOpsResult(Object value, C context) {
         getterClass = value != null ? value.getClass() : Object.class;
         context.setCurrentType(getterClass);
         context.setCurrentObject(value);
+        return source;
     }
 
     protected String toOpsUnarySourceString(String method, Class<?> resultClass, C context, Object target) {
@@ -164,11 +170,11 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
         markOpsSource();
         String operand = OgnlRuntime.getChildSource(context, target, children[0]);
         try {
-            reportOpsResult(getValueBody(context, target), context);
+            return castOpsResult("ognl.OgnlOps." + method + "(($w) (" + operand + "))",
+                    getValueBody(context, target), context);
         } catch (OgnlException e) {
             throw OgnlOps.castToRuntime(e);
         }
-        return "ognl.OgnlOps." + method + "(($w) (" + operand + "))";
     }
 
     private void markOpsSource() {
