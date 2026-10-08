@@ -74,7 +74,9 @@ class NumericStringConstantCompileTest {
             "#c + \"b\"",      // string literal after a character-typed value
             "#c + \"b\\\\\"",  // escaping still applies after a character-typed value
             "\"b\" + #c",      // character-typed value after a string literal
-            "\"a\" + 1"       // character-typed value and numeric value concatenation
+            "\"a\" + 1",      // character-typed value and numeric value concatenation
+            "\"x\\by\" + 1",   // backspace inside a string literal
+            "'\\b' + \"y\""    // backspace character literal
     })
     void concatenatedLiteralMatchesInterpretedMode(String expression) throws Exception {
         assertSameValue(expression);
