@@ -110,6 +110,9 @@ public class ASTConst<C extends OgnlContext<C>> extends SimpleNode<C> implements
 
     public String toGetSourceString(C context, Object target) {
         if (value == null && parent instanceof ExpressionNode) {
+            if (parent instanceof NumericExpression && !(parent instanceof ASTAdd)) {
+                throw new UnsupportedCompilationException("Can't compile this operand of a numeric expression.");
+            }
             context.setCurrentType(null);
             return "null";
         } else if (value == null) {

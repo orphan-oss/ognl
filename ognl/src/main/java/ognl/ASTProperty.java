@@ -158,6 +158,10 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                         srcString = cast + srcString;
                 }
 
+                if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof Character) {
+                    throw new UnsupportedCompilationException("Can't compile a character index key.");
+                }
+
                 if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof String)
                     srcString = "\"" + OgnlOps.getEscapeString(srcString) + "\"";
 
@@ -280,6 +284,10 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
 
                         String srcString = children[0].toGetSourceString(context, context.getRoot());
 
+                        if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof Character) {
+                            throw new UnsupportedCompilationException("Can't compile a character index key.");
+                        }
+
                         if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof String) {
                             srcString = "\"" + OgnlOps.getEscapeString(srcString) + "\"";
                         }
@@ -345,6 +353,10 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                     String cast = (String) context.remove(ExpressionCompiler.PRE_CAST);
                     if (cast != null)
                         srcString = cast + srcString;
+                }
+
+                if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof Character) {
+                    throw new UnsupportedCompilationException("Can't compile a character index key.");
                 }
 
                 if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof String) {
@@ -480,6 +492,10 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                         //Class prevType = context.getPreviousType();
 
                         String srcString = children[0].toGetSourceString(context, context.getRoot());
+
+                        if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof Character) {
+                            throw new UnsupportedCompilationException("Can't compile a character index key.");
+                        }
 
                         if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof String) {
                             srcString = "\"" + OgnlOps.getEscapeString(srcString) + "\"";
