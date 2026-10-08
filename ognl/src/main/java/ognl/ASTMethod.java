@@ -207,6 +207,10 @@ public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implement
                     if (NodeType.class.isAssignableFrom(children[i].getClass()))
                         valueClass = ((NodeType) children[i]).getGetterClass();
 
+                    if (NumericExpression.isOpsDelegatedSource(children[i])) {
+                        valueClass = Object.class;
+                    }
+
                     if (valueClass != parms[i]) {
                         if (parms[i].isArray()) {
 
@@ -351,6 +355,10 @@ public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implement
                     Class<?> valueClass = value != null ? value.getClass() : null;
                     if (NodeType.class.isAssignableFrom(children[i].getClass()))
                         valueClass = ((NodeType) children[i]).getGetterClass();
+
+                    if (NumericExpression.isOpsDelegatedSource(children[i])) {
+                        valueClass = Object.class;
+                    }
 
                     if (valueClass != parms[i]) {
                         if (parms[i].isArray()) {

@@ -160,14 +160,11 @@ public class ASTConst<C extends OgnlContext<C>> extends SimpleNode<C> implements
 
             return retval.toString();
         } else if (value instanceof Character) {
-            Character val = (Character) value;
-
             context.setCurrentType(Character.class);
 
-            if (Character.isLetterOrDigit(val))
-                retval = "'" + value + "'";
-            else
-                retval = "'" + OgnlOps.getEscapedChar((Character) value) + "'";
+            // A numeric cast carries every character, including the ones javassist's lexer cannot read
+            // inside a quoted literal, such as a raw backspace
+            retval = "((char) " + (int) (char) (Character) value + ")";
 
             context.setCurrentObject(retval);
             return retval.toString();

@@ -46,7 +46,11 @@ public class ASTNegate<C extends OgnlContext<C>> extends NumericExpression<C> {
 
         Class<?> bigClass = bigOperandClass(context);
         if (bigClass != null) {
-            return toBigUnarySourceString("negate", bigClass, context, target);
+            return toOpsUnarySourceString("negate", bigClass, context, target);
+        }
+
+        if (isCharOperand(context) || isOpsDelegated(children[0])) {
+            return toOpsUnarySourceString("negate", context, target);
         }
 
         if (!(children[0] instanceof ASTNegate)) {

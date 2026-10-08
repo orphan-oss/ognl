@@ -26,6 +26,8 @@ import ognl.OgnlException;
 import ognl.OgnlRuntime;
 import ognl.test.objects.BaseGeneric;
 import ognl.test.objects.Bean1;
+import ognl.test.objects.CharHolder;
+import ognl.test.objects.CtorTargets;
 import ognl.test.objects.BeanProvider;
 import ognl.test.objects.BeanProviderAccessor;
 import ognl.test.objects.EvenOdd;
@@ -44,6 +46,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -340,6 +343,11 @@ class DualModeEvaluationTest {
         }
 
         @Test
+        void chainedMethodCall() throws Exception {
+            assertBothModes("(1b + 2b).toString()", "3");
+        }
+
+        @Test
         void bigDecimalInNumberPropertyPlusPrimitive() throws Exception {
             root.setNumberValue(new BigDecimal("1.5"));
             assertBothModes("numberValue + 1", new BigDecimal("2.5"));
@@ -526,6 +534,604 @@ class DualModeEvaluationTest {
         @Test
         void floatSubtraction() throws Exception {
             assertBothModes("5f-2F", 3.0f);
+        }
+    }
+
+    /**
+     * Character operands in arithmetic, see <a href="https://github.com/orphan-oss/ognl/issues/689">Issue #689</a>.
+     * Expectations are pinned to interpreted mode: {@code OgnlOps} promotes char to int when both
+     * operands are chars, and concatenates as a string otherwise.
+     */
+    @Nested
+    class CharacterArithmetic {
+
+        private CharHolder charRoot;
+        private OgnlContext charContext;
+
+        @BeforeEach
+        void setUp() {
+            charRoot = new CharHolder();
+            charContext = Ognl.createDefaultContext(charRoot, new DefaultMemberAccess(false));
+            charContext.put("c", 'a');
+            context.put("c", 'a');
+        }
+
+        private void assertCharBothModes(String expression, Object expected) throws Exception {
+            Object interpreted = ((Node) Ognl.parseExpression(expression))
+                    .getValue(charContext.withRoot(charRoot), charRoot);
+            assertEquals(expected, interpreted, "Interpreted failed for: " + expression);
+
+            OgnlContext compiledCtx = Ognl.createDefaultContext(charRoot, charContext.getMemberAccess());
+            compiledCtx.setValues(charContext.getValues());
+            Node compiled = Ognl.compileExpression(compiledCtx, charRoot, expression);
+            assertEquals(expected, compiled.getAccessor().get(compiledCtx, charRoot),
+                    "Compiled failed for: " + expression);
+        }
+
+        @Test
+        void addition() throws Exception {
+            assertBothModes("'a' + 'b'", 195);
+        }
+
+        @Test
+        void subtraction() throws Exception {
+            assertBothModes("'b' - 'a'", 1);
+        }
+
+        @Test
+        void multiplication() throws Exception {
+            assertBothModes("'b' * 'a'", 9506);
+        }
+
+        @Test
+        void division() throws Exception {
+            assertBothModes("'b' / 'a'", 1);
+        }
+
+        @Test
+        void modulus() throws Exception {
+            assertBothModes("'b' % 'a'", 1);
+        }
+
+        @Test
+        void bitwiseOr() throws Exception {
+            assertBothModes("'b' | 'a'", 99);
+        }
+
+        @Test
+        void bitwiseAnd() throws Exception {
+            assertBothModes("'b' & 'a'", 96);
+        }
+
+        @Test
+        void bitwiseXor() throws Exception {
+            assertBothModes("'b' ^ 'a'", 3);
+        }
+
+        @Test
+        void shiftLeft() throws Exception {
+            assertBothModes("'b' << 1", 196);
+        }
+
+        @Test
+        void shiftRight() throws Exception {
+            assertBothModes("'b' >> 1", 49);
+        }
+
+        @Test
+        void unsignedShiftRight() throws Exception {
+            assertBothModes("'b' >>> 1", 49);
+        }
+
+        @Test
+        void negation() throws Exception {
+            assertBothModes("-'b'", -98);
+        }
+
+        @Test
+        void bitwiseNot() throws Exception {
+            assertBothModes("~'b'", -99);
+        }
+
+        @Test
+        void additionIsLeftAssociative() throws Exception {
+            assertBothModes("'a' + 'b' + 'c'", "195c");
+        }
+
+        @Test
+        void additionFoldsBeforeStringConcatenation() throws Exception {
+            assertBothModes("'a' + 'b' + \"x\"", "195x");
+        }
+
+        @Test
+        void variableAndLiteral() throws Exception {
+            assertBothModes("#c + 'b'", 195);
+        }
+
+        @Test
+        void variableAndVariable() throws Exception {
+            assertBothModes("#c + #c", 194);
+        }
+
+        @Test
+        void variableSubtraction() throws Exception {
+            assertBothModes("#c - #c", 0);
+        }
+
+        @Test
+        void stringOperandConcatenates() throws Exception {
+            assertBothModes("'a' + \"b\"", "ab");
+        }
+
+        @Test
+        void numberOperandConcatenates() throws Exception {
+            assertBothModes("'a' + 1", "a1");
+        }
+
+        @Test
+        void numberOperandConcatenatesOnTheLeft() throws Exception {
+            assertBothModes("1 + 'a'", "1a");
+        }
+
+        @Test
+        void numberBetweenTwoChars() throws Exception {
+            assertBothModes("'a' + 1 + 'b'", "a1b");
+        }
+
+        @Test
+        void stringBeforeTwoChars() throws Exception {
+            assertBothModes("\"x\" + 'a' + 'b'", "xab");
+        }
+
+        @Test
+        void comparison() throws Exception {
+            assertBothModes("'b' > 'a'", Boolean.TRUE);
+        }
+
+        @Test
+        void equality() throws Exception {
+            assertBothModes("'b' == 'b'", Boolean.TRUE);
+        }
+
+        @Test
+        void primitiveProperties() throws Exception {
+            assertCharBothModes("primChar + primChar", 196);
+        }
+
+        @Test
+        void boxedProperties() throws Exception {
+            assertCharBothModes("boxedChar + boxedChar", 196);
+        }
+
+        @Test
+        void primitiveAndBoxedProperties() throws Exception {
+            assertCharBothModes("primChar + boxedChar", 196);
+        }
+
+        @Test
+        void primitivePropertyAndLiteral() throws Exception {
+            assertCharBothModes("primChar + 'a'", 195);
+        }
+
+        @Test
+        void boxedPropertyAndLiteral() throws Exception {
+            assertCharBothModes("boxedChar + 'a'", 195);
+        }
+
+        @Test
+        void primitivePropertySubtraction() throws Exception {
+            assertCharBothModes("primChar - primChar", 0);
+        }
+
+        @Test
+        void boxedPropertySubtraction() throws Exception {
+            assertCharBothModes("boxedChar - boxedChar", 0);
+        }
+
+        @Test
+        void primitivePropertyMultiplication() throws Exception {
+            assertCharBothModes("primChar * primChar", 9604);
+        }
+
+        @Test
+        void primitivePropertyAndString() throws Exception {
+            assertCharBothModes("primChar + \"x\"", "bx");
+        }
+
+        @Test
+        void propertyComparison() throws Exception {
+            assertCharBothModes("primChar > boxedChar", Boolean.FALSE);
+        }
+
+        @Test
+        void nestedInEnclosingArithmetic() throws Exception {
+            assertBothModes("index + ('b' - 'a')", 2);
+        }
+
+        @Test
+        void nestedInEnclosingAddition() throws Exception {
+            assertBothModes("('a' + 'b') + 1", 196);
+        }
+
+        @Test
+        void nestedOnTheRightOfStringConcatenation() throws Exception {
+            assertBothModes("1 + ('a' + 'b')", "1ab");
+        }
+
+        @Test
+        void chainedMethodCall() throws Exception {
+            assertBothModes("('a' + 'b').toString()", "195");
+        }
+
+        @Test
+        void listLiteralElement() throws Exception {
+            assertBothModes("{'a' + 'b'}", Collections.singletonList(195));
+        }
+
+        @Test
+        void methodArgument() throws Exception {
+            assertCharBothModes("plusOne('b' - 'a')", 2);
+        }
+
+        @Test
+        void methodArgumentFromVariables() throws Exception {
+            assertCharBothModes("plusOne(#c - #c)", 1);
+        }
+
+        @Test
+        void negationInEnclosingSubtraction() throws Exception {
+            assertBothModes("1 - (-'b')", 99);
+        }
+
+        @Test
+        void negationOnTheLeftOfSubtraction() throws Exception {
+            assertBothModes("(-'b') - 1", -99);
+        }
+
+        @Test
+        void negationInEnclosingMultiplication() throws Exception {
+            assertBothModes("(-'b') * (-'b')", 9604);
+        }
+
+        @Test
+        void doubleNegation() throws Exception {
+            assertBothModes("-(-'b')", 98);
+        }
+
+        @Test
+        void bitwiseNotInEnclosingAddition() throws Exception {
+            assertBothModes("1 + (~'b')", -98);
+        }
+
+        @Test
+        void negationAsMethodArgument() throws Exception {
+            assertCharBothModes("plusOne(-'b')", -97);
+        }
+
+        @Test
+        void primitivePropertyBitwiseAnd() throws Exception {
+            assertCharBothModes("primChar & primChar", 98);
+        }
+
+        @Test
+        void boxedPropertyBitwiseOr() throws Exception {
+            assertCharBothModes("boxedChar | boxedChar", 98);
+        }
+
+        @Test
+        void primitivePropertyUnsignedShiftRight() throws Exception {
+            assertCharBothModes("primChar >>> 1", 49);
+        }
+
+        // A declared Character admits null, and OgnlOps answers a null operand from its non-numeric
+        // branches, so a result class inferred at compile time cannot be cast into the generated source
+        private void assertNullBoxedCharBothModes(String expression, Object expected) throws Exception {
+            Object tree = Ognl.parseExpression(expression);
+            charRoot.setBoxedChar(null);
+            assertEquals(expected, ((Node) tree).getValue(charContext.withRoot(charRoot), charRoot),
+                    "Interpreted failed for: " + expression);
+
+            charRoot.setBoxedChar('b');
+            OgnlContext compiledCtx = Ognl.createDefaultContext(charRoot, charContext.getMemberAccess());
+            compiledCtx.setValues(charContext.getValues());
+            Node compiled = Ognl.compileExpression(compiledCtx, charRoot, expression);
+            charRoot.setBoxedChar(null);
+            assertEquals(expected, compiled.getAccessor().get(compiledCtx, charRoot),
+                    "Compiled failed for: " + expression);
+        }
+
+        @Test
+        void nullBoxedCharAddition() throws Exception {
+            assertNullBoxedCharBothModes("boxedChar + boxedChar", "nullnull");
+        }
+
+        @Test
+        void nullBoxedCharSubtraction() throws Exception {
+            assertNullBoxedCharBothModes("boxedChar - boxedChar", BigInteger.ZERO);
+        }
+
+        @Test
+        void nullBoxedCharMultiplication() throws Exception {
+            assertNullBoxedCharBothModes("boxedChar * boxedChar", BigInteger.ZERO);
+        }
+
+        @Test
+        void nullBoxedCharBitwiseAnd() throws Exception {
+            assertNullBoxedCharBothModes("boxedChar & boxedChar", BigInteger.ZERO);
+        }
+
+        @Test
+        void nullBoxedCharUnsignedShiftRight() throws Exception {
+            assertNullBoxedCharBothModes("boxedChar >>> 1", BigInteger.ZERO);
+        }
+
+        @Test
+        void nullBoxedCharNegation() throws Exception {
+            assertNullBoxedCharBothModes("-boxedChar", BigInteger.ZERO);
+        }
+
+        @Test
+        void nullBoxedCharBitwiseNot() throws Exception {
+            assertNullBoxedCharBothModes("~boxedChar", BigInteger.valueOf(-1));
+        }
+
+        @Test
+        void objectTypedCharAddition() throws Exception {
+            assertCharBothModes("objectChar + objectChar", 196);
+        }
+
+        @Test
+        void objectTypedCharSubtraction() throws Exception {
+            assertCharBothModes("objectChar - objectChar", 0);
+        }
+
+        @Test
+        void objectTypedCharNegation() throws Exception {
+            assertCharBothModes("-objectChar", -98);
+        }
+
+        @Test
+        void objectTypedCharAndLiteral() throws Exception {
+            assertCharBothModes("objectChar + 'a'", 195);
+        }
+
+        // An OgnlOps result is an Object in the source, but the overload has to be the one the
+        // interpreted path resolves, so the reported type stays the compile-time class
+        @Test
+        void overloadedMethodTakesLiteralSubtraction() throws Exception {
+            assertCharBothModes("overload('b' - 'a')", "int:1");
+        }
+
+        @Test
+        void overloadedMethodTakesLiteralNegation() throws Exception {
+            assertCharBothModes("overload(-'b')", "int:-98");
+        }
+
+        @Test
+        void overloadedMethodTakesBoxedNegation() throws Exception {
+            assertCharBothModes("overload(-boxedChar)", "int:-98");
+        }
+
+        @Test
+        void overloadedMethodTakesBoxedBitwiseNot() throws Exception {
+            assertCharBothModes("overload(~boxedChar)", "int:-99");
+        }
+
+        @Test
+        void overloadedMethodTakesBoxedAddition() throws Exception {
+            assertCharBothModes("overload(boxedChar + boxedChar)", "int:196");
+        }
+
+        @Test
+        void overloadedMethodTakesBoxedMultiplication() throws Exception {
+            assertCharBothModes("overload(boxedChar * 2)", "int:196");
+        }
+
+        // A wrapper-typed parameter must still get the conversion ASTMethod inserts when the
+        // argument's reported type differs from it, or the uncast Object source will not compile
+        @Test
+        void wrapperParameterTakesLiteralSubtraction() throws Exception {
+            assertCharBothModes("takesInteger('b' - 'a')", "Integer:1");
+        }
+
+        @Test
+        void wrapperParameterTakesBoxedNegation() throws Exception {
+            assertCharBothModes("takesInteger(-boxedChar)", "Integer:-98");
+        }
+
+        @Test
+        void wrapperParameterTakesPrimitiveNegation() throws Exception {
+            assertCharBothModes("takesInteger(-primChar)", "Integer:-98");
+        }
+
+        @Test
+        void wrapperParameterTakesBoxedAddition() throws Exception {
+            assertCharBothModes("takesInteger(boxedChar + boxedChar)", "Integer:196");
+        }
+
+        // Detection can fire on a compile-time value, so the runtime value may be of another class
+        // entirely and the generated source must not assume the compile-time one
+        private void assertObjectValueBothModes(String expression, Object runtimeValue, Object expected)
+                throws Exception {
+            Object tree = Ognl.parseExpression(expression);
+            charRoot.setObjectValue(runtimeValue);
+            assertEquals(expected, ((Node) tree).getValue(charContext.withRoot(charRoot), charRoot),
+                    "Interpreted failed for: " + expression);
+
+            charRoot.setObjectValue('a');
+            OgnlContext compiledCtx = Ognl.createDefaultContext(charRoot, charContext.getMemberAccess());
+            compiledCtx.setValues(charContext.getValues());
+            Node compiled = Ognl.compileExpression(compiledCtx, charRoot, expression);
+            charRoot.setObjectValue(runtimeValue);
+            assertEquals(expected, compiled.getAccessor().get(compiledCtx, charRoot),
+                    "Compiled failed for: " + expression);
+        }
+
+        @Test
+        void objectOperandBecomesNumberAtRuntime() throws Exception {
+            assertObjectValueBothModes("objectValue + 1", 1, 2);
+        }
+
+        @Test
+        void objectOperandBecomesStringAtRuntime() throws Exception {
+            assertObjectValueBothModes("objectValue + 1", "x", "x1");
+        }
+
+        @Test
+        void objectOperandStaysCharacterAtRuntime() throws Exception {
+            assertObjectValueBothModes("objectValue + 1", 'a', "a1");
+        }
+
+        @Test
+        void objectOperandBecomesNumberInSubtraction() throws Exception {
+            assertObjectValueBothModes("objectValue - 1", 5, 4);
+        }
+    }
+
+    /**
+     * An OgnlOps-delegated operand is an {@code Object} in the generated source whatever class it
+     * reports, so every node that passes one as an argument has to convert rather than assume.
+     * {@code ASTMethod}, {@code ASTStaticMethod} and {@code ASTCtor} each carry that guard.
+     */
+    @Nested
+    class DelegatedOperandAsArgument {
+
+        private CharHolder charRoot;
+        private OgnlContext charContext;
+
+        @BeforeEach
+        void setUp() {
+            charRoot = new CharHolder();
+            charContext = Ognl.createDefaultContext(charRoot, new DefaultMemberAccess(false));
+        }
+
+        private void assertBoth(String expression, Object expected) throws Exception {
+            assertEquals(expected, ((Node) Ognl.parseExpression(expression))
+                            .getValue(charContext.withRoot(charRoot), charRoot),
+                    "Interpreted failed for: " + expression);
+
+            OgnlContext compiledCtx = Ognl.createDefaultContext(charRoot, charContext.getMemberAccess());
+            compiledCtx.setValues(charContext.getValues());
+            Node compiled = Ognl.compileExpression(compiledCtx, charRoot, expression);
+            assertEquals(expected, compiled.getAccessor().get(compiledCtx, charRoot),
+                    "Compiled failed for: " + expression);
+        }
+
+        @Test
+        void staticMethodWithWrapperParameter() throws Exception {
+            assertBoth("@ognl.test.objects.CharHolder@statInteger('b' - 'a')", "statInteger:1");
+        }
+
+        @Test
+        void staticMethodWithBigDecimalParameter() throws Exception {
+            assertBoth("@ognl.test.objects.CharHolder@statBigDecimal(bigDecimalValue + 1)", "statBigDecimal:3.5");
+        }
+
+        @Test
+        void staticMethodWithBigIntegerParameter() throws Exception {
+            assertBoth("@ognl.test.objects.CharHolder@statBigInteger(bigIntegerValue + 1)", "statBigInteger:8");
+        }
+
+        @Test
+        void constructorWithBigIntegerParameter() throws Exception {
+            assertBoth("new java.math.BigDecimal(bigIntegerValue + 1)", new BigDecimal(8));
+        }
+
+        @Test
+        void constructorWithBigDecimalDerivedParameter() throws Exception {
+            assertBoth("new java.math.BigDecimal(bigIntegerValue - 1)", new BigDecimal(6));
+        }
+
+        @Test
+        void constructorWithCharParameter() throws Exception {
+            assertBoth("new ognl.test.objects.CtorTargets$WithChar('b' - 'a')",
+                    new CtorTargets.WithChar((char) 1));
+        }
+
+        @Test
+        void constructorWithCharParameterFromBigInteger() throws Exception {
+            assertBoth("new ognl.test.objects.CtorTargets$WithChar(bigIntegerValue + 1)",
+                    new CtorTargets.WithChar((char) 8));
+        }
+
+        @Test
+        void constructorWithObjectArrayParameter() throws Exception {
+            assertBoth("new ognl.test.objects.CtorTargets$WithObjectArray(bigIntegerValue + 1)",
+                    new CtorTargets.WithObjectArray(new Object[]{BigInteger.valueOf(8)}));
+        }
+
+        @Test
+        void constructorWithCharArrayParameter() throws Exception {
+            assertBoth("new ognl.test.objects.CtorTargets$WithCharArray(bigIntegerValue + 1)",
+                    new CtorTargets.WithCharArray("8".toCharArray()));
+        }
+    }
+
+    /**
+     * Character literals that javassist's lexer cannot read inside a quoted literal, so the generated
+     * source carries them as a numeric cast instead. See {@code ASTConst.toGetSourceString}.
+     */
+    @Nested
+    class CharacterLiteralEscaping {
+
+        @Test
+        void backspaceWithString() throws Exception {
+            assertBothModes("'\\b' + \"b\"", "\bb");
+        }
+
+        @Test
+        void backspaceWithCharacter() throws Exception {
+            assertBothModes("'\\b' + 'a'", 105);
+        }
+
+        @Test
+        void backspaceComparison() throws Exception {
+            assertBothModes("'\\b' > 'a'", Boolean.FALSE);
+        }
+
+        @Test
+        void backspaceEquality() throws Exception {
+            assertBothModes("'\\b' == '\\b'", Boolean.TRUE);
+        }
+
+        @Test
+        void backspaceInListLiteral() throws Exception {
+            assertBothModes("{'\\b'}", Collections.singletonList('\b'));
+        }
+
+        @Test
+        void nul() throws Exception {
+            assertBothModes("'\\u0000' + 'a'", 97);
+        }
+
+        @Test
+        void singleQuote() throws Exception {
+            assertBothModes("'\\'' + \"b\"", "'b");
+        }
+
+        @Test
+        void backslash() throws Exception {
+            assertBothModes("'\\\\' + \"b\"", "\\b");
+        }
+
+        @Test
+        void doubleQuote() throws Exception {
+            assertBothModes("'\"' + \"b\"", "\"b");
+        }
+
+        @Test
+        void newline() throws Exception {
+            assertBothModes("'\\n' + \"b\"", "\nb");
+        }
+
+        @Test
+        void formFeed() throws Exception {
+            assertBothModes("'\\f' + \"b\"", "\fb");
+        }
+
+        @Test
+        void carriageReturn() throws Exception {
+            assertBothModes("'\\r' + \"b\"", "\rb");
         }
     }
 

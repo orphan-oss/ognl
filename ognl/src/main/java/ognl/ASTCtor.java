@@ -252,7 +252,29 @@ public class ASTCtor<C extends OgnlContext<C>> extends SimpleNode<C> {
                                 value += literal;
                         }
 
-                        if (ctorParamTypes[i] != types[i]) {
+                        if (NumericExpression.isOpsDelegatedSource(children[i])) {
+
+                            // Convert to the constructor's parameter type. The branch below would instead
+                            // cast to the class the operand happened to have while compiling, which is not
+                            // the class it need have when the accessor runs
+                            Class<?> paramType = ctorParamTypes[i];
+                            if (paramType.isPrimitive()) {
+                                Class<?> wrapClass = OgnlRuntime.getPrimitiveWrapperClass(paramType);
+                                // NumericValues has no char entry, and every primitive's accessor is
+                                // named after it anyway
+                                String valueGetter = OgnlRuntime.getNumericValueGetter(wrapClass);
+                                if (valueGetter == null) {
+                                    valueGetter = paramType.getName() + "Value()";
+                                }
+                                value = "((" + wrapClass.getName() + ") ognl.OgnlOps.convertValue(" + value
+                                        + ", " + wrapClass.getName() + ".class, true))." + valueGetter;
+                            } else {
+                                // getCastString, not getName: an array's binary name is not a type expression
+                                String paramName = ExpressionCompiler.getCastString(paramType);
+                                value = "(" + paramName + ") ognl.OgnlOps.convertValue(" + value
+                                        + ", " + paramName + ".class)";
+                            }
+                        } else if (ctorParamTypes[i] != types[i]) {
 
                             if (values[i] != null && !types[i].isPrimitive()
                                     && !values[i].getClass().isArray() && !(children[i] instanceof ASTConst)) {
