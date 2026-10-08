@@ -119,6 +119,10 @@ public class ASTConst<C extends OgnlContext<C>> extends SimpleNode<C> implements
 
         getterClass = value.getClass();
 
+        if (value instanceof Node) {
+            throw new UnsupportedCompilationException("Can't compile a lambda constant.");
+        }
+
         Object retval;
         if (parent instanceof ASTProperty) {
             context.setCurrentObject(value);
