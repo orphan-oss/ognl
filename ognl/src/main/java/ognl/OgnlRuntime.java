@@ -442,6 +442,11 @@ public class OgnlRuntime {
         return numericCasts.get(type);
     }
 
+    public static boolean isBigNumber(Class<?> type) {
+        return type != null
+                && (java.math.BigDecimal.class.isAssignableFrom(type) || java.math.BigInteger.class.isAssignableFrom(type));
+    }
+
     public static String getNumericLiteral(Class<?> type) {
         return numericLiterals.get(type);
     }

@@ -19,6 +19,7 @@
 package ognl;
 
 import java.io.Serial;
+import java.math.BigInteger;
 
 public class ASTBitNegate<C extends OgnlContext<C>> extends NumericExpression<C> {
 
@@ -43,6 +44,10 @@ public class ASTBitNegate<C extends OgnlContext<C>> extends NumericExpression<C>
 
     public String toGetSourceString(C context, Object target) {
         String source = children[0].toGetSourceString(context, target);
+
+        if (bigOperandClass(context) != null) {
+            return toBigUnarySourceString("bitNegate", BigInteger.class, context, target);
+        }
 
         if (!(children[0] instanceof ASTBitNegate)) {
             return "~(" + super.coerceToNumeric(source, context, children[0]) + ")";

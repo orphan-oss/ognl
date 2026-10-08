@@ -39,6 +39,11 @@ public class ASTUnsignedShiftRight<C extends OgnlContext<C>> extends NumericExpr
         return OgnlOps.unsignedShiftRight(v1, v2);
     }
 
+    @Override
+    protected String getOgnlOpsMethod() {
+        return "unsignedShiftRight";
+    }
+
     public String getExpressionOperator(int index) {
         return ">>>";
     }
@@ -47,11 +52,17 @@ public class ASTUnsignedShiftRight<C extends OgnlContext<C>> extends NumericExpr
         String result;
 
         try {
-            String child1 = OgnlRuntime.getChildSource(context, target, children[0]);
-            child1 = coerceToNumeric(child1, context, children[0]);
+            String operand1 = OgnlRuntime.getChildSource(context, target, children[0]);
+            boolean bigOperand = bigOperandClass(context) != null;
+            String child1 = coerceToNumeric(operand1, context, children[0]);
 
-            String child2 = OgnlRuntime.getChildSource(context, target, children[1]);
-            child2 = coerceToNumeric(child2, context, children[1]);
+            String operand2 = OgnlRuntime.getChildSource(context, target, children[1]);
+            bigOperand |= bigOperandClass(context) != null;
+            String child2 = coerceToNumeric(operand2, context, children[1]);
+
+            if (bigOperand) {
+                return toBigSourceString(new String[]{operand1, operand2}, getValueBody(context, target), context);
+            }
 
             Object v1 = children[0].getValue(context, target);
             int type = OgnlOps.getNumericType(v1);

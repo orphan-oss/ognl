@@ -110,6 +110,9 @@ public class ASTConst<C extends OgnlContext<C>> extends SimpleNode<C> implements
 
     public String toGetSourceString(C context, Object target) {
         if (value == null && parent instanceof ExpressionNode) {
+            if (parent instanceof NumericExpression && !(parent instanceof ASTAdd)) {
+                throw new UnsupportedCompilationException("Can't compile this operand of a numeric expression.");
+            }
             context.setCurrentType(null);
             return "null";
         } else if (value == null) {
@@ -119,12 +122,21 @@ public class ASTConst<C extends OgnlContext<C>> extends SimpleNode<C> implements
 
         getterClass = value.getClass();
 
+        if (value instanceof Node) {
+            throw new UnsupportedCompilationException("Can't compile a lambda constant.");
+        }
+
         Object retval;
         if (parent instanceof ASTProperty) {
             context.setCurrentObject(value);
 
             return value.toString();
         } else if (Number.class.isAssignableFrom(value.getClass())) {
+            if (OgnlRuntime.isBigNumber(value.getClass())) {
+                context.setCurrentType(value.getClass());
+                context.setCurrentObject(value);
+                return "new " + value.getClass().getName() + "(\"" + value + "\")";
+            }
             context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(value.getClass()));
             context.setCurrentObject(value);
 
@@ -135,7 +147,11 @@ public class ASTConst<C extends OgnlContext<C>> extends SimpleNode<C> implements
                 result = result + "f";
             }
             return result;
-        } else if (!(parent != null && NumericExpression.class.isAssignableFrom(parent.getClass())) && String.class.isAssignableFrom(value.getClass())) {
+        } else if (parent instanceof NumericExpression && !(parent instanceof ASTAdd)
+                && String.class.isAssignableFrom(value.getClass())) {
+            // the interpreted path rejects a string operand of a numeric operator, so leave it to that path
+            throw new UnsupportedCompilationException("Can't compile a string constant as a numeric operand.");
+        } else if (!(parent instanceof NumericExpression) && String.class.isAssignableFrom(value.getClass())) {
             context.setCurrentType(String.class);
 
             retval = '\"' + OgnlOps.getEscapeString(value.toString()) + '\"';

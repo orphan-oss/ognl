@@ -19,10 +19,9 @@
 package ognl;
 
 import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.UnsupportedCompilationException;
 
 import java.io.Serial;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
 
@@ -79,12 +78,10 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
         else if (parent == null && String.class.isAssignableFrom(type.getGetterClass()))
             return false;
 
-        if (BigDecimal.class.isAssignableFrom(type.getGetterClass())
-                || BigInteger.class.isAssignableFrom(type.getGetterClass()))
+        if (OgnlRuntime.isBigNumber(type.getGetterClass()))
             return true;
 
-        if (BigDecimal.class.isAssignableFrom(lastType.getGetterClass())
-                || BigInteger.class.isAssignableFrom(lastType.getGetterClass()))
+        if (OgnlRuntime.isBigNumber(lastType.getGetterClass()))
             return false;
 
         if (Double.class.isAssignableFrom(type.getGetterClass()))
@@ -101,6 +98,15 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
         return true;
     }
 
+    @Override
+    protected String getOgnlOpsMethod() {
+        return "add";
+    }
+
+    private boolean isStringConstant(Node<C> child) {
+        return child instanceof ASTConst && ((ASTConst<C>) child).getValue() instanceof String;
+    }
+
     public String toGetSourceString(C context, Object target) {
         try {
             StringBuilder result = new StringBuilder();
@@ -113,9 +119,11 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                 Class<?> currAccessor = context.getCurrentAccessor();
 
                 Object cast = context.get(ExpressionCompiler.PRE_CAST);
+                boolean bigOperand = false;
 
                 for (Node<C> child : children) {
                     child.toGetSourceString(context, target);
+                    bigOperand |= bigOperandClass(context) != null;
 
                     if (child instanceof NodeType
                             && ((NodeType) child).getGetterClass() != null
@@ -128,6 +136,17 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
 
                 context.setCurrentType(currType);
                 context.setCurrentAccessor(currAccessor);
+
+                if (bigOperand) {
+                    context.setCurrentObject(target);
+                    String[] operands = new String[children.length];
+                    for (int i = 0; i < children.length; i++) {
+                        operands[i] = isStringConstant(children[i])
+                                ? "\"" + OgnlOps.getEscapeString(((ASTConst<C>) children[i]).getValue().toString()) + "\""
+                                : OgnlRuntime.getChildSource(context, target, children[i]);
+                    }
+                    return toBigSourceString(operands, getValueBody(context, target), context);
+                }
             }
 
             // reset context since previous children loop would have changed it
@@ -189,8 +208,7 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
 
                     // turn quoted characters into quoted strings
 
-                    if (context.getCurrentType() != null && context.getCurrentType() == Character.class
-                            && children[i] instanceof ASTConst) {
+                    if (children[i] instanceof ASTConst && ((ASTConst<C>) children[i]).getValue() instanceof Character) {
                         if (expr.indexOf('\'') >= 0)
                             expr = expr.replaceAll("'", "\"");
                         context.setCurrentType(String.class);
@@ -206,9 +224,10 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                                 && !(children[i] instanceof ASTStaticMethod)
                                 && !(children[i] instanceof ASTTest)) {
                             if (lastType != null && String.class.isAssignableFrom(lastType.getGetterClass())) {
-                                if (expr.indexOf('"') >= 0)
-                                    expr = expr.replaceAll("\"", "\\\\\"");
-                                expr = "\"" + expr + "\"";
+                                if (!(children[i] instanceof ASTConst)) {
+                                    throw new UnsupportedCompilationException("Can't compile this operand of a string concatenation.");
+                                }
+                                expr = "\"" + OgnlOps.getEscapeString(expr) + "\"";
                             }
                         }
                     }

@@ -44,6 +44,11 @@ public class ASTBitOr<C extends OgnlContext<C>> extends NumericExpression<C> {
         return result;
     }
 
+    @Override
+    protected String getOgnlOpsMethod() {
+        return "binaryOr";
+    }
+
     public String getExpressionOperator(int index) {
         return "|";
     }

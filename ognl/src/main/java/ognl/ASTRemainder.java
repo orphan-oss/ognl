@@ -39,6 +39,11 @@ public class ASTRemainder<C extends OgnlContext<C>> extends NumericExpression<C>
         return OgnlOps.remainder(v1, v2);
     }
 
+    @Override
+    protected String getOgnlOpsMethod() {
+        return "remainder";
+    }
+
     public String getExpressionOperator(int index) {
         return "%";
     }

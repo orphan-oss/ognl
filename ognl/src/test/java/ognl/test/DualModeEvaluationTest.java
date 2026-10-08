@@ -47,15 +47,16 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests that interpreted and compiled evaluation modes produce identical results.
  * Addresses <a href="https://github.com/orphan-oss/ognl/issues/18">Issue #18</a>.
  *
  * <p>Tests marked {@code @Disabled} document known divergences between the interpreted and compiled
- * evaluation paths. The compiler generates Java source code (via javassist), which cannot represent
- * BigDecimal/BigInteger arithmetic using operators, and has other limitations around instanceof
- * and method calls on auto-boxed primitives.</p>
+ * evaluation paths: the compiler widens ints in some bitwise expressions, loses a double operand in
+ * bitwise AND, cannot call methods on auto-boxed primitives, and evaluates side-effecting methods
+ * during compilation.</p>
  */
 class DualModeEvaluationTest {
 
@@ -191,7 +192,6 @@ class DualModeEvaluationTest {
     }
 
     @Nested
-    @Disabled("Compiler does not support BigDecimal: Java operators (+, -, *, /) cannot be applied to BigDecimal objects in generated source")
     class BigDecimalArithmetic {
 
         @Test
@@ -233,12 +233,139 @@ class DualModeEvaluationTest {
         void subtraction() throws Exception {
             assertBothModes("5-2B", BigDecimal.valueOf(3));
         }
+
+        @Test
+        void constantKeepsPrecision() throws Exception {
+            assertBothModes("12345678901234567890.123456789b + 0",
+                    new BigDecimal("12345678901234567890.123456789"));
+        }
+
+        @Test
+        void stringConcatenationIsUnaffected() throws Exception {
+            assertBothModes("\"a\" + 1b", "a1");
+        }
+
+        @Test
+        void divideByZeroThrowsInBothModes() {
+            Class<?> interpreted = assertThrows(Exception.class, () -> getValueInterpreted("1b/0")).getClass();
+            Class<?> compiled = assertThrows(Exception.class,
+                    () -> getValueCompiled("1b/0", freshCompiledContext())).getClass();
+            assertEquals(interpreted, compiled);
+        }
+
+        @Test
+        void stringAfterBigDecimalConstant() throws Exception {
+            assertBothModes("1b + \"a\"", "1a");
+        }
+
+        @Test
+        void stringAfterBigDecimalProperty() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModes("bigDecimalValue + \" USD\"", "1.5 USD");
+        }
+
+        @Test
+        void stringAroundBigDecimalProperty() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModes("\"a\" + bigDecimalValue + \"b\"", "a1.5b");
+        }
+
+        @Test
+        void nestedWithTrailingPrimitive() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModes("bigDecimalValue * 2 + 1", new BigDecimal("4.0"));
+        }
+
+        @Test
+        void groupedBigDecimalTimesPrimitive() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModes("(bigDecimalValue + 1) * 2", new BigDecimal("5.0"));
+        }
+
+        @Test
+        void groupedPrimitiveTimesBigDecimal() throws Exception {
+            assertBothModes("(1+2)*2b", BigDecimal.valueOf(6));
+        }
+
+        @Test
+        void characterTimesBigDecimal() throws Exception {
+            assertBothModes("'c' * 2b", BigDecimal.valueOf(198));
+        }
+
+        @Test
+        void propertyOperandRecompilesWithNewValue() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            OgnlContext ctx = freshCompiledContext();
+            Node node = Ognl.compileExpression(ctx, root, "bigDecimalValue + 1");
+            assertEquals(new BigDecimal("2.5"), node.getAccessor().get(ctx, root));
+            root.setBigDecimalValue(new BigDecimal("10"));
+            assertEquals(new BigDecimal("11"), node.getAccessor().get(ctx, root));
+        }
+
+        @Test
+        void bigDecimalResultAsMethodArgument() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModes("bigDecimalValue.add(bigDecimalValue + 1)", new BigDecimal("4.0"));
+        }
+
+        @Test
+        void methodCallOnBigDecimalResult() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModes("(bigDecimalValue + 1).scale()", 1);
+        }
+
+        @Test
+        void bigDecimalSumFollowedByString() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModes("bigDecimalValue + 1 + \" USD\"", "2.5 USD");
+        }
+
+        @Test
+        void bigDecimalConstantsFollowedByString() throws Exception {
+            assertBothModes("1b + 2b + \"a\"", "3a");
+        }
+
+        @Test
+        void bigDecimalSumInBitwiseAnd() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModesMatch("(bigDecimalValue + 1) & 1");
+        }
+
+        @Test
+        void nullBigDecimalPropertyAtCompileTime() throws Exception {
+            OgnlContext ctx = freshCompiledContext();
+            Node node = Ognl.compileExpression(ctx, root, "bigDecimalValue * 2");
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertEquals(new BigDecimal("3.0"), node.getAccessor().get(ctx, root));
+        }
+
+        @Test
+        void bigDecimalInNumberPropertyPlusPrimitive() throws Exception {
+            root.setNumberValue(new BigDecimal("1.5"));
+            assertBothModes("numberValue + 1", new BigDecimal("2.5"));
+        }
+
+        @Test
+        void negatedBigDecimalInNumberProperty() throws Exception {
+            root.setNumberValue(new BigDecimal("1.5"));
+            assertBothModes("-numberValue", new BigDecimal("-1.5"));
+        }
+
+        @Test
+        void negatedBigDecimalProperty() throws Exception {
+            root.setBigDecimalValue(new BigDecimal("1.5"));
+            assertBothModes("-bigDecimalValue", new BigDecimal("-1.5"));
+        }
     }
 
     @Nested
-    @Disabled("Compiler does not support BigInteger: Java operators cannot be applied to BigInteger objects in generated source")
     class BigIntegerArithmetic {
 
+
+        @Test
+        void nestedBigIntegerWithTrailingPrimitive() throws Exception {
+            assertBothModes("5h * 2 - 1", BigInteger.valueOf(9));
+        }
         @Test
         void negation() throws Exception {
             assertBothModes("-1h", BigInteger.valueOf(-1));
@@ -277,6 +404,35 @@ class DualModeEvaluationTest {
         @Test
         void modulus() throws Exception {
             assertBothModes("5h%2", BigInteger.valueOf(1));
+        }
+
+        @Test
+        void mixedDoubleAndBigInteger() throws Exception {
+            assertBothModesMatch("2.5 * 2h");
+        }
+
+        @Test
+        void bitNegatedBigIntegerProperty() throws Exception {
+            root.setBigIntegerValue(BigInteger.valueOf(5));
+            assertBothModes("~bigIntegerValue", BigInteger.valueOf(~5));
+        }
+
+        @Test
+        void bitNegatedBigIntegerInNumberProperty() throws Exception {
+            root.setNumberValue(BigInteger.valueOf(5));
+            assertBothModes("~numberValue", BigInteger.valueOf(~5));
+        }
+
+        @Test
+        void bigIntegerInNumberPropertyUnsignedShift() throws Exception {
+            root.setNumberValue(BigInteger.valueOf(8));
+            assertBothModes("numberValue >>> 1", BigInteger.valueOf(4));
+        }
+
+        @Test
+        void bigIntegerPropertyInBitwiseOr() throws Exception {
+            root.setBigIntegerValue(BigInteger.valueOf(4));
+            assertBothModes("bigIntegerValue | 1", BigInteger.valueOf(5));
         }
     }
 
@@ -418,22 +574,39 @@ class DualModeEvaluationTest {
             assertBothModes("5&(3|5^3)", 5);
         }
 
-        @Disabled("Compiler does not support BigInteger bitwise operations")
         @Test
         void bigIntegerBitwiseNot() throws Exception {
             assertBothModes("~1h", BigInteger.valueOf(~1));
         }
 
-        @Disabled("Compiler does not support BigInteger bitwise operations")
+        @Test
+        void bigIntegerBitwiseAnd() throws Exception {
+            assertBothModes("5h & 3h", BigInteger.valueOf(1));
+        }
+
+        @Test
+        void bigIntegerBitwiseOr() throws Exception {
+            assertBothModes("5h | 3h", BigInteger.valueOf(7));
+        }
+
+        @Test
+        void bigIntegerBitwiseXor() throws Exception {
+            assertBothModes("5h ^ 3h", BigInteger.valueOf(6));
+        }
+
         @Test
         void bigIntegerLeftShift() throws Exception {
             assertBothModes("5h<<2", BigInteger.valueOf(20));
         }
 
-        @Disabled("Compiler does not support BigInteger bitwise operations")
         @Test
         void bigIntegerRightShift() throws Exception {
             assertBothModes("5h>>2", BigInteger.valueOf(1));
+        }
+
+        @Test
+        void bigIntegerUnsignedRightShift() throws Exception {
+            assertBothModes("5h>>>2", BigInteger.valueOf(1));
         }
     }
 

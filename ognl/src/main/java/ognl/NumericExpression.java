@@ -19,6 +19,7 @@
 package ognl;
 
 import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.UnsupportedCompilationException;
 
 import java.io.Serial;
 
@@ -31,6 +32,8 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
     private static final long serialVersionUID = 2899128497573777569L;
 
     protected Class<?> getterClass;
+
+    private transient boolean bigSource;
 
     public NumericExpression(int id) {
         super(id);
@@ -62,12 +65,20 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
                 getterClass = value.getClass();
             }
 
+            String[] operands = new String[children.length];
+            boolean bigOperand = false;
             for (int i = 0; i < children.length; i++) {
                 if (i > 0) {
                     result.append(" ").append(getExpressionOperator(i)).append(" ");
                 }
                 String str = OgnlRuntime.getChildSource(context, target, children[i]);
+                operands[i] = str;
+                bigOperand |= bigOperandClass(context) != null;
                 result.append(coerceToNumeric(str, context, children[i]));
+            }
+
+            if (getOgnlOpsMethod() != null && (bigOperand || OgnlRuntime.isBigNumber(getterClass))) {
+                return toBigSourceString(operands, value, context);
             }
 
         } catch (Throwable t) {
@@ -75,6 +86,64 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
         }
 
         return result.toString();
+    }
+
+    // A Number- or Object-typed operand can still hold a Big value, so the compile-time value counts too
+    protected Class<?> bigOperandClass(C context) {
+        if (OgnlRuntime.isBigNumber(context.getCurrentType())) {
+            return context.getCurrentType();
+        }
+        Object value = context.getCurrentObject();
+        return value != null && OgnlRuntime.isBigNumber(value.getClass()) ? value.getClass() : null;
+    }
+
+    protected String getOgnlOpsMethod() {
+        return null;
+    }
+
+    protected String toBigSourceString(String[] operands, Object value, C context) {
+        StringBuilder result = new StringBuilder("($w) (").append(operands[0]).append(")");
+        for (int i = 1; i < operands.length; i++) {
+            result.insert(0, "ognl.OgnlOps." + getOgnlOpsMethod() + "(")
+                    .append(", ($w) (").append(operands[i]).append("))");
+        }
+        return castBigResult(result.toString(), value, context);
+    }
+
+    // OgnlOps returns Object, so cast to the type getGetterClass() reports, or a method argument won't compile
+    protected String castBigResult(String source, Object value, C context) {
+        markBigSource();
+        Class<?> resultClass = value != null && (OgnlRuntime.isBigNumber(value.getClass()) || value instanceof String)
+                ? value.getClass()
+                : Object.class;
+        getterClass = resultClass;
+        context.setCurrentType(resultClass);
+        context.setCurrentObject(value);
+        return resultClass == Object.class ? source : "((" + resultClass.getName() + ") " + source + ")";
+    }
+
+    protected String toBigUnarySourceString(String method, Class<?> resultClass, C context, Object target) {
+        markBigSource();
+        String operand = OgnlRuntime.getChildSource(context, target, children[0]);
+        getterClass = resultClass;
+        context.setCurrentType(resultClass);
+        return "((" + resultClass.getName() + ") ognl.OgnlOps." + method + "(($w) (" + operand + ")))";
+    }
+
+    private void markBigSource() {
+        // ASTChain prefixes its first link with the root expression, which no expression source survives
+        if (parent instanceof ASTChain && parent.jjtGetChild(0) == this) {
+            throw new UnsupportedCompilationException("Can't chain a call on a BigDecimal/BigInteger expression.");
+        }
+        bigSource = true;
+    }
+
+    @Override
+    public String toSetSourceString(C context, Object target) {
+        if (bigSource) {
+            throw new UnsupportedCompilationException("Can't compile a setter through a BigDecimal/BigInteger expression.");
+        }
+        return super.toSetSourceString(context, target);
     }
 
     public String coerceToNumeric(String source, C context, Node<C> child) {

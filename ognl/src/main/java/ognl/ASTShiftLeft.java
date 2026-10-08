@@ -39,6 +39,11 @@ public class ASTShiftLeft<C extends OgnlContext<C>> extends NumericExpression<C>
         return OgnlOps.shiftLeft(v1, v2);
     }
 
+    @Override
+    protected String getOgnlOpsMethod() {
+        return "shiftLeft";
+    }
+
     public String getExpressionOperator(int index) {
         return "<<";
     }

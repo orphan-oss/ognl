@@ -158,8 +158,12 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                         srcString = cast + srcString;
                 }
 
+                if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof Character) {
+                    throw new UnsupportedCompilationException("Can't compile a character index key.");
+                }
+
                 if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof String)
-                    srcString = "\"" + srcString + "\"";
+                    srcString = "\"" + OgnlOps.getEscapeString(srcString) + "\"";
 
                 // System.out.println("indexed getting with child srcString: " + srcString + " value class: " + value.getClass() + " and child: " + _children[0].getClass());
 
@@ -280,8 +284,12 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
 
                         String srcString = children[0].toGetSourceString(context, context.getRoot());
 
+                        if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof Character) {
+                            throw new UnsupportedCompilationException("Can't compile a character index key.");
+                        }
+
                         if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof String) {
-                            srcString = "\"" + srcString + "\"";
+                            srcString = "\"" + OgnlOps.getEscapeString(srcString) + "\"";
                         }
 
                         context.setCurrentObject(currObj);
@@ -347,8 +355,12 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                         srcString = cast + srcString;
                 }
 
+                if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof Character) {
+                    throw new UnsupportedCompilationException("Can't compile a character index key.");
+                }
+
                 if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof String) {
-                    srcString = "\"" + srcString + "\"";
+                    srcString = "\"" + OgnlOps.getEscapeString(srcString) + "\"";
                 }
 
                 if (context.get("_indexedMethod") != null) {
@@ -481,8 +493,12 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
 
                         String srcString = children[0].toGetSourceString(context, context.getRoot());
 
+                        if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof Character) {
+                            throw new UnsupportedCompilationException("Can't compile a character index key.");
+                        }
+
                         if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof String) {
-                            srcString = "\"" + srcString + "\"";
+                            srcString = "\"" + OgnlOps.getEscapeString(srcString) + "\"";
                         }
 
                         context.setCurrentObject(currObj);
