@@ -340,6 +340,18 @@ class DualModeEvaluationTest {
         }
 
         @Test
+        void bigDecimalInNumberPropertyPlusPrimitive() throws Exception {
+            root.setNumberValue(new BigDecimal("1.5"));
+            assertBothModes("numberValue + 1", new BigDecimal("2.5"));
+        }
+
+        @Test
+        void negatedBigDecimalInNumberProperty() throws Exception {
+            root.setNumberValue(new BigDecimal("1.5"));
+            assertBothModes("-numberValue", new BigDecimal("-1.5"));
+        }
+
+        @Test
         void negatedBigDecimalProperty() throws Exception {
             root.setBigDecimalValue(new BigDecimal("1.5"));
             assertBothModes("-bigDecimalValue", new BigDecimal("-1.5"));
@@ -403,6 +415,18 @@ class DualModeEvaluationTest {
         void bitNegatedBigIntegerProperty() throws Exception {
             root.setBigIntegerValue(BigInteger.valueOf(5));
             assertBothModes("~bigIntegerValue", BigInteger.valueOf(~5));
+        }
+
+        @Test
+        void bitNegatedBigIntegerInNumberProperty() throws Exception {
+            root.setNumberValue(BigInteger.valueOf(5));
+            assertBothModes("~numberValue", BigInteger.valueOf(~5));
+        }
+
+        @Test
+        void bigIntegerInNumberPropertyUnsignedShift() throws Exception {
+            root.setNumberValue(BigInteger.valueOf(8));
+            assertBothModes("numberValue >>> 1", BigInteger.valueOf(4));
         }
 
         @Test

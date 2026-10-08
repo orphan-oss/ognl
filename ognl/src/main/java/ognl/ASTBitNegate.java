@@ -45,7 +45,7 @@ public class ASTBitNegate<C extends OgnlContext<C>> extends NumericExpression<C>
     public String toGetSourceString(C context, Object target) {
         String source = children[0].toGetSourceString(context, target);
 
-        if (OgnlRuntime.isBigNumber(context.getCurrentType())) {
+        if (bigOperandClass(context) != null) {
             return toBigUnarySourceString("bitNegate", BigInteger.class, context, target);
         }
 

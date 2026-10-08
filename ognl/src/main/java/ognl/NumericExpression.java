@@ -73,7 +73,7 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
                 }
                 String str = OgnlRuntime.getChildSource(context, target, children[i]);
                 operands[i] = str;
-                bigOperand |= OgnlRuntime.isBigNumber(context.getCurrentType());
+                bigOperand |= bigOperandClass(context) != null;
                 result.append(coerceToNumeric(str, context, children[i]));
             }
 
@@ -86,6 +86,15 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
         }
 
         return result.toString();
+    }
+
+    // A Number- or Object-typed operand can still hold a Big value, so the compile-time value counts too
+    protected Class<?> bigOperandClass(C context) {
+        if (OgnlRuntime.isBigNumber(context.getCurrentType())) {
+            return context.getCurrentType();
+        }
+        Object value = context.getCurrentObject();
+        return value != null && OgnlRuntime.isBigNumber(value.getClass()) ? value.getClass() : null;
     }
 
     protected String getOgnlOpsMethod() {

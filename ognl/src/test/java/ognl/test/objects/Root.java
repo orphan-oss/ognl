@@ -483,4 +483,14 @@ public class Root {
     public void setBigIntegerValue(BigInteger bigIntegerValue) {
         this.bigIntegerValue = bigIntegerValue;
     }
+
+    private Number numberValue;
+
+    public Number getNumberValue() {
+        return numberValue;
+    }
+
+    public void setNumberValue(Number numberValue) {
+        this.numberValue = numberValue;
+    }
 }

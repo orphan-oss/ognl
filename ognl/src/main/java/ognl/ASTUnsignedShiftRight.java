@@ -53,11 +53,11 @@ public class ASTUnsignedShiftRight<C extends OgnlContext<C>> extends NumericExpr
 
         try {
             String operand1 = OgnlRuntime.getChildSource(context, target, children[0]);
-            boolean bigOperand = OgnlRuntime.isBigNumber(context.getCurrentType());
+            boolean bigOperand = bigOperandClass(context) != null;
             String child1 = coerceToNumeric(operand1, context, children[0]);
 
             String operand2 = OgnlRuntime.getChildSource(context, target, children[1]);
-            bigOperand |= OgnlRuntime.isBigNumber(context.getCurrentType());
+            bigOperand |= bigOperandClass(context) != null;
             String child2 = coerceToNumeric(operand2, context, children[1]);
 
             if (bigOperand) {

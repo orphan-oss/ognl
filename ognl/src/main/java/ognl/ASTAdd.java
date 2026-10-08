@@ -122,7 +122,7 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
 
                 for (Node<C> child : children) {
                     child.toGetSourceString(context, target);
-                    bigOperand |= OgnlRuntime.isBigNumber(context.getCurrentType());
+                    bigOperand |= bigOperandClass(context) != null;
 
                     if (child instanceof NodeType
                             && ((NodeType) child).getGetterClass() != null
