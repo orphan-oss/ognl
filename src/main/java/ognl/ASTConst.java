@@ -108,6 +108,9 @@ public class ASTConst extends SimpleNode implements NodeType {
 
     public String toGetSourceString(OgnlContext context, Object target) {
         if (value == null && parent instanceof ExpressionNode) {
+            if (parent instanceof NumericExpression && !(parent instanceof ASTAdd)) {
+                throw new UnsupportedCompilationException("Can't compile this operand of a numeric expression.");
+            }
             context.setCurrentType(null);
             return "null";
         } else if (value == null) {
@@ -116,6 +119,10 @@ public class ASTConst extends SimpleNode implements NodeType {
         }
 
         getterClass = value.getClass();
+
+        if (value instanceof Node) {
+            throw new UnsupportedCompilationException("Can't compile a lambda constant.");
+        }
 
         Object retval;
         if (parent instanceof ASTProperty) {
@@ -127,6 +134,10 @@ public class ASTConst extends SimpleNode implements NodeType {
             context.setCurrentObject(value);
 
             return value.toString();
+        } else if (parent instanceof NumericExpression && !(parent instanceof ASTAdd)
+                && String.class.isAssignableFrom(value.getClass())) {
+            // the interpreted path rejects a string operand of a numeric operator, so leave it to that path
+            throw new UnsupportedCompilationException("Can't compile a string constant as a numeric operand.");
         } else if (!(parent != null && NumericExpression.class.isAssignableFrom(parent.getClass())) && String.class.isAssignableFrom(value.getClass())) {
             context.setCurrentType(String.class);
 

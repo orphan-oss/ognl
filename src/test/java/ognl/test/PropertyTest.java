@@ -84,7 +84,7 @@ public class PropertyTest extends OgnlTestCase {
             {ROOT, "format('key', intValue)", ROOT.format("key", /*ROOT.getIntValue()*/ 2)}, // getIntValue() is 0 during startup, but set to 2 during tests!
             {ROOT, "format('key', map.size)", ROOT.format("key", ROOT.getMap().size())},
             {ROOT, "'disableButton(this,\"' + map.get('button-testing') + '\");clearElement(&quot;testFtpMessage&quot;)'",
-                    "disableButton(this,'null');clearElement('testFtpMessage')"},
+                    "disableButton(this,\"null\");clearElement(&quot;testFtpMessage&quot;)"},
             {ROOT.getMap(), "!disableWarning", Boolean.TRUE},
             {ROOT.getMap(), "get('value').bean3.value", new Integer(((Bean2) ROOT.getMap().get("value")).getBean3().getValue())},
             {ROOT.getMap(), "\"Tapestry\".toCharArray()[2]", new Character('p')},

@@ -1,0 +1,85 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package ognl.test;
+
+import ognl.DefaultMemberAccess;
+import ognl.Node;
+import ognl.Ognl;
+import ognl.OgnlContext;
+import ognl.test.objects.Root;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+
+/**
+ * A string constant used as an operand of a numeric operator must behave the same in compiled and interpreted mode.
+ */
+public class NumericStringConstantCompileTest {
+
+    private static final String[] NUMERIC_OPERANDS = {
+            "-\"a b\"",   // a space would break the generated `-<text>` into two tokens
+            "~\"a b\"",
+            "-\"x)y\"",   // a paren would unbalance the generated source
+            "1 + \"a\" * 2",
+            "\"a\" - 1",
+    };
+
+    private static final String[] CONCATENATIONS = {
+            "\"a\" + stringValue",
+            "\"a\\\\\" + 1",   // backslash at the end of the literal
+            "\"x\\ny\" + 1",   // newline inside the literal
+            "\"q\\\"q\" + 1",  // quote inside the literal
+            "#c + \"b\"",      // string literal after a character-typed value
+            "#c + \"b\\\\\"",  // escaping still applies after a character-typed value
+            "\"b\" + #c",      // character-typed value after a string literal
+            "\"a\" + 1"
+    };
+
+    private OgnlContext context;
+    private Root root;
+
+    @Before
+    public void setUp() {
+        root = new Root();
+        context = Ognl.createDefaultContext(root, new DefaultMemberAccess(false));
+        context.put("c", 'a');
+    }
+
+    @Test
+    public void compiledModeMatchesInterpretedMode() throws Exception {
+        for (final String expression : NUMERIC_OPERANDS) {
+            final Node node = (Node) Ognl.parseExpression(expression);
+            Class<?> interpreted = assertThrows(Exception.class, () -> node.getValue(context, root)).getClass();
+            Class<?> compiled = assertThrows(Exception.class,
+                    () -> Ognl.compileExpression(context, root, expression).getAccessor().get(context, root)).getClass();
+            assertEquals("compiled mode diverged from interpreted for: " + expression, interpreted, compiled);
+        }
+    }
+
+    @Test
+    public void concatenatedLiteralMatchesInterpretedMode() throws Exception {
+        for (String expression : CONCATENATIONS) {
+            Object interpreted = ((Node) Ognl.parseExpression(expression)).getValue(context, root);
+            Object compiled = Ognl.compileExpression(context, root, expression).getAccessor().get(context, root);
+            assertEquals("compiled mode diverged from interpreted for: " + expression, interpreted, compiled);
+        }
+    }
+}

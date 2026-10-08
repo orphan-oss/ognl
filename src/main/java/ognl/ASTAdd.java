@@ -19,6 +19,7 @@
 package ognl;
 
 import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.UnsupportedCompilationException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -187,8 +188,7 @@ public class ASTAdd extends NumericExpression {
 
                     // turn quoted characters into quoted strings
 
-                    if (context.getCurrentType() != null && context.getCurrentType() == Character.class
-                            && children[i] instanceof ASTConst) {
+                    if (children[i] instanceof ASTConst && ((ASTConst) children[i]).getValue() instanceof Character) {
                         if (expr.indexOf('\'') >= 0)
                             expr = expr.replaceAll("'", "\"");
                         context.setCurrentType(String.class);
@@ -204,13 +204,10 @@ public class ASTAdd extends NumericExpression {
                                 && !(children[i] instanceof ASTStaticMethod)
                                 && !(children[i] instanceof ASTTest)) {
                             if (lastType != null && String.class.isAssignableFrom(lastType.getGetterClass())) {
-                                //System.out.println("Input expr >>" + expr + "<<");
-                                if (expr.contains("&quot;"))
-                                    expr = expr.replaceAll("&quot;", "\"");
-                                if (expr.indexOf('"') >= 0)
-                                    expr = expr.replaceAll("\"", "'");
-                                expr = "\"" + expr + "\"";
-                                //System.out.println("Expr now >>" + expr + "<<");
+                                if (!(children[i] instanceof ASTConst)) {
+                                    throw new UnsupportedCompilationException("Can't compile string concatenation of non-constant " + children[i]);
+                                }
+                                expr = "\"" + OgnlOps.getEscapeString(expr) + "\"";
                             }
                         }
                     }
