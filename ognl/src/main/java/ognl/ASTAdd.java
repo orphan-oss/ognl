@@ -119,11 +119,11 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                 Class<?> currAccessor = context.getCurrentAccessor();
 
                 Object cast = context.get(ExpressionCompiler.PRE_CAST);
-                boolean bigOperand = false;
+                boolean opsOperand = false;
 
                 for (Node<C> child : children) {
                     child.toGetSourceString(context, target);
-                    bigOperand |= bigOperandClass(context) != null;
+                    opsOperand |= needsOgnlOps(context, child);
 
                     if (child instanceof NodeType
                             && ((NodeType) child).getGetterClass() != null
@@ -137,7 +137,7 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                 context.setCurrentType(currType);
                 context.setCurrentAccessor(currAccessor);
 
-                if (bigOperand) {
+                if (opsOperand) {
                     context.setCurrentObject(target);
                     String[] operands = new String[children.length];
                     for (int i = 0; i < children.length; i++) {
@@ -145,7 +145,7 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                                 ? "\"" + OgnlOps.getEscapeString(((ASTConst<C>) children[i]).getValue().toString()) + "\""
                                 : OgnlRuntime.getChildSource(context, target, children[i]);
                     }
-                    return toBigSourceString(operands, getValueBody(context, target), context);
+                    return toOpsSourceString(operands, getValueBody(context, target), context);
                 }
             }
 
