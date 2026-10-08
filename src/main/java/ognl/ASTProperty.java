@@ -158,8 +158,12 @@ public class ASTProperty extends SimpleNode implements NodeType {
                         srcString = cast + srcString;
                 }
 
+                if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof Character) {
+                    throw new UnsupportedCompilationException("Can't compile a character index key.");
+                }
+
                 if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof String)
-                    srcString = "\"" + srcString + "\"";
+                    srcString = "\"" + OgnlOps.getEscapeString(srcString) + "\"";
 
                 // System.out.println("indexed getting with child srcString: " + srcString + " value class: " + value.getClass() + " and child: " + _children[0].getClass());
 
@@ -283,8 +287,12 @@ public class ASTProperty extends SimpleNode implements NodeType {
 
                         String srcString = children[0].toGetSourceString(context, context.getRoot());
 
+                        if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof Character) {
+                            throw new UnsupportedCompilationException("Can't compile a character index key.");
+                        }
+
                         if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof String) {
-                            srcString = "\"" + srcString + "\"";
+                            srcString = "\"" + OgnlOps.getEscapeString(srcString) + "\"";
                         }
 
                         context.setCurrentObject(currObj);
@@ -353,8 +361,12 @@ public class ASTProperty extends SimpleNode implements NodeType {
                         srcString = cast + srcString;
                 }
 
+                if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof Character) {
+                    throw new UnsupportedCompilationException("Can't compile a character index key.");
+                }
+
                 if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof String) {
-                    srcString = "\"" + srcString + "\"";
+                    srcString = "\"" + OgnlOps.getEscapeString(srcString) + "\"";
                 }
 
 //                System.out.println("astproperty setter using indexed value " + value + " and srcString: " + srcString);
@@ -497,8 +509,12 @@ public class ASTProperty extends SimpleNode implements NodeType {
 
                         String srcString = children[0].toGetSourceString(context, context.getRoot());
 
+                        if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof Character) {
+                            throw new UnsupportedCompilationException("Can't compile a character index key.");
+                        }
+
                         if (children[0] instanceof ASTConst && context.getCurrentObject() instanceof String) {
-                            srcString = "\"" + srcString + "\"";
+                            srcString = "\"" + OgnlOps.getEscapeString(srcString) + "\"";
                         }
 
                         context.setCurrentObject(currObj);
