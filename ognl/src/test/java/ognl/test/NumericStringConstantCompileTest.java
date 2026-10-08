@@ -25,13 +25,17 @@ import ognl.OgnlContext;
 import ognl.test.objects.Root;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * A string constant used as an operand of a numeric operator must behave the same in compiled and interpreted mode.
+ * A constant used as an operand or as an index key must behave the same in compiled and interpreted mode.
  */
 class NumericStringConstantCompileTest {
 
@@ -73,6 +77,64 @@ class NumericStringConstantCompileTest {
             "\"a\" + 1"       // character-typed value and numeric value concatenation
     })
     void concatenatedLiteralMatchesInterpretedMode(String expression) throws Exception {
+        assertSameValue(expression);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "\"a\" + (1 == 1)",  // a comparison operand is neither a constant nor one of the excluded node types
+            "\"a\" + (1 > 2)",
+            "\"a\" + !false",
+            "\"a\" + {1, 2}",    // a list operand
+            "\"a\" + new java.lang.StringBuilder(\"x\")"
+    })
+    void nonConstantOperandMatchesInterpretedMode(String expression) throws Exception {
+        assertSameValue(expression);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"1 * null", "1 - null", "1 / null", "null * 1"})
+    void nullNumericOperandMatchesInterpretedMode(String expression) throws Exception {
+        assertSameValue(expression);
+    }
+
+    static Stream<Arguments> indexKeys() {
+        return Stream.of(
+                Arguments.of("map[\"a\\\"b\"]", "a\"b"),  // a quote inside a string index key
+                Arguments.of("map['\\'']", '\'')           // a character index key
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("indexKeys")
+    void indexKeyGetterMatchesInterpretedMode(String expression, Object key) throws Exception {
+        root.getMap().put(key, "found");
+
+        Object interpreted = ((Node) Ognl.parseExpression(expression)).getValue(context, root);
+        Object compiled = Ognl.compileExpression(context, root, expression).getAccessor().get(context, root);
+
+        assertEquals("found", interpreted, "the index key " + key + " did not reach the map");
+        assertEquals(interpreted, compiled, "compiled mode diverged from interpreted for: " + expression);
+    }
+
+    @ParameterizedTest
+    @MethodSource("indexKeys")
+    void indexKeySetterMatchesInterpretedMode(String expression, Object key) throws Exception {
+        Root interpretedRoot = new Root();
+        OgnlContext interpretedContext = Ognl.createDefaultContext(interpretedRoot, new DefaultMemberAccess(false));
+        ((Node) Ognl.parseExpression(expression)).setValue(interpretedContext, interpretedRoot, "stored");
+
+        Root compiledRoot = new Root();
+        OgnlContext compiledContext = Ognl.createDefaultContext(compiledRoot, new DefaultMemberAccess(false));
+        Ognl.compileExpression(compiledContext, compiledRoot, expression)
+                .getAccessor().set(compiledContext, compiledRoot, "stored");
+
+        assertEquals("stored", interpretedRoot.getMap().get(key), "the interpreted setter did not store under " + key);
+        assertEquals(interpretedRoot.getMap().get(key), compiledRoot.getMap().get(key),
+                "compiled mode diverged from interpreted for: " + expression);
+    }
+
+    private void assertSameValue(String expression) throws Exception {
         Object interpreted = ((Node) Ognl.parseExpression(expression)).getValue(context, root);
         Object compiled = Ognl.compileExpression(context, root, expression).getAccessor().get(context, root);
         assertEquals(interpreted, compiled, "compiled mode diverged from interpreted for: " + expression);
