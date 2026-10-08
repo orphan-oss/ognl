@@ -19,6 +19,7 @@
 package ognl;
 
 import ognl.enhance.ExpressionCompiler;
+import ognl.enhance.UnsupportedCompilationException;
 
 import java.io.Serial;
 
@@ -207,8 +208,7 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
 
                     // turn quoted characters into quoted strings
 
-                    if (context.getCurrentType() != null && context.getCurrentType() == Character.class
-                            && children[i] instanceof ASTConst) {
+                    if (children[i] instanceof ASTConst && ((ASTConst<C>) children[i]).getValue() instanceof Character) {
                         if (expr.indexOf('\'') >= 0)
                             expr = expr.replaceAll("'", "\"");
                         context.setCurrentType(String.class);
@@ -226,8 +226,8 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                             if (lastType != null && String.class.isAssignableFrom(lastType.getGetterClass())) {
                                 if (isStringConstant(children[i])) {
                                     expr = OgnlOps.getEscapeString(expr);
-                                } else if (expr.indexOf('"') >= 0) {
-                                    expr = expr.replaceAll("\"", "\\\\\"");
+                                } else if (!(children[i] instanceof ASTConst)) {
+                                    throw new UnsupportedCompilationException("Can't compile this operand of a string concatenation.");
                                 }
                                 expr = "\"" + expr + "\"";
                             }

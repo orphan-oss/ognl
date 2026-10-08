@@ -42,6 +42,7 @@ class NumericStringConstantCompileTest {
     void setUp() {
         root = new Root();
         context = Ognl.createDefaultContext(root, new DefaultMemberAccess(false));
+        context.put("c", 'a');
     }
 
     @ParameterizedTest
@@ -63,9 +64,13 @@ class NumericStringConstantCompileTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "\"a\" + stringValue",
-            "\"a\\\\\" + 1",  // backslash at the end of the literal
-            "\"x\\ny\" + 1",    // newline inside the literal
+            "\"a\\\\\" + 1",   // backslash at the end of the literal
+            "\"x\\ny\" + 1",   // newline inside the literal
             "\"q\\\"q\" + 1",  // quote inside the literal
+            "#c + \"b\"",      // string literal after a character-typed value
+            "#c + \"b\\\\\"",  // escaping still applies after a character-typed value
+            "\"b\" + #c",      // character-typed value after a string literal
+            "\"a\" + 1"       // character-typed value and numeric value concatenation
     })
     void concatenatedLiteralMatchesInterpretedMode(String expression) throws Exception {
         Object interpreted = ((Node) Ognl.parseExpression(expression)).getValue(context, root);
