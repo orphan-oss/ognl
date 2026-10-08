@@ -53,9 +53,9 @@ class NumericStringConstantCompileTest {
             "1 + \"a\" * 2",
             "\"a\" - 1",
     })
-    void compiledModeMatchesInterpretedMode(String expression) {
-        Class<?> interpreted = assertThrows(Exception.class,
-                () -> ((Node) Ognl.parseExpression(expression)).getValue(context, root)).getClass();
+    void compiledModeMatchesInterpretedMode(String expression) throws Exception {
+        Node node = (Node) Ognl.parseExpression(expression);
+        Class<?> interpreted = assertThrows(Exception.class, () -> node.getValue(context, root)).getClass();
         Class<?> compiled = assertThrows(Exception.class,
                 () -> Ognl.compileExpression(context, root, expression).getAccessor().get(context, root)).getClass();
         assertEquals(interpreted, compiled, "compiled mode diverged from interpreted for: " + expression);

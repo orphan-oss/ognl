@@ -102,11 +102,12 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
     }
 
     protected String toBigSourceString(String[] operands, Object value, C context) {
-        String result = "($w) (" + operands[0] + ")";
+        StringBuilder result = new StringBuilder("($w) (").append(operands[0]).append(")");
         for (int i = 1; i < operands.length; i++) {
-            result = "ognl.OgnlOps." + getOgnlOpsMethod() + "(" + result + ", ($w) (" + operands[i] + "))";
+            result.insert(0, "ognl.OgnlOps." + getOgnlOpsMethod() + "(")
+                    .append(", ($w) (").append(operands[i]).append("))");
         }
-        return castBigResult(result, value, context);
+        return castBigResult(result.toString(), value, context);
     }
 
     // OgnlOps returns Object, so cast to the type getGetterClass() reports, or a method argument won't compile
