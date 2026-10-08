@@ -927,6 +927,74 @@ class DualModeEvaluationTest {
         }
     }
 
+    /**
+     * Character literals that javassist's lexer cannot read inside a quoted literal, so the generated
+     * source carries them as a numeric cast instead. See {@code ASTConst.toGetSourceString}.
+     */
+    @Nested
+    class CharacterLiteralEscaping {
+
+        @Test
+        void backspaceWithString() throws Exception {
+            assertBothModes("'\\b' + \"b\"", "\bb");
+        }
+
+        @Test
+        void backspaceWithCharacter() throws Exception {
+            assertBothModes("'\\b' + 'a'", 105);
+        }
+
+        @Test
+        void backspaceComparison() throws Exception {
+            assertBothModes("'\\b' > 'a'", Boolean.FALSE);
+        }
+
+        @Test
+        void backspaceEquality() throws Exception {
+            assertBothModes("'\\b' == '\\b'", Boolean.TRUE);
+        }
+
+        @Test
+        void backspaceInListLiteral() throws Exception {
+            assertBothModes("{'\\b'}", Collections.singletonList('\b'));
+        }
+
+        @Test
+        void nul() throws Exception {
+            assertBothModes("'\\u0000' + 'a'", 97);
+        }
+
+        @Test
+        void singleQuote() throws Exception {
+            assertBothModes("'\\'' + \"b\"", "'b");
+        }
+
+        @Test
+        void backslash() throws Exception {
+            assertBothModes("'\\\\' + \"b\"", "\\b");
+        }
+
+        @Test
+        void doubleQuote() throws Exception {
+            assertBothModes("'\"' + \"b\"", "\"b");
+        }
+
+        @Test
+        void newline() throws Exception {
+            assertBothModes("'\\n' + \"b\"", "\nb");
+        }
+
+        @Test
+        void formFeed() throws Exception {
+            assertBothModes("'\\f' + \"b\"", "\fb");
+        }
+
+        @Test
+        void carriageReturn() throws Exception {
+            assertBothModes("'\\r' + \"b\"", "\rb");
+        }
+    }
+
     @Nested
     class BitwiseOperations {
 
