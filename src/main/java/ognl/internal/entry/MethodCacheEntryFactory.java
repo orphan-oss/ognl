@@ -32,14 +32,14 @@ public abstract class MethodCacheEntryFactory<T extends MethodCacheEntry> implem
     public Map<String, List<Method>> create(T key) throws CacheException {
         Map<String, List<Method>> result = new HashMap<>(23);
 
-        collectMethods(key, key.targetClass, result);
+        collectMethods(key, key.targetClass, key.targetClass, result);
 
         return result;
     }
 
     protected abstract boolean shouldCache(T key, Method method);
 
-    private void collectMethods(T key, Class<?> c, Map<String, List<Method>> result) {
+    private void collectMethods(T key, Class<?> owner, Class<?> c, Map<String, List<Method>> result) {
         Method[] ma;
         try {
             ma = c.getDeclaredMethods();
@@ -51,17 +51,17 @@ public abstract class MethodCacheEntryFactory<T extends MethodCacheEntry> implem
                 continue;
 
             if (shouldCache(key, method)) {
-                List<Method> ml = result.computeIfAbsent(method.getName(), k -> new MethodList());
+                List<Method> ml = result.computeIfAbsent(method.getName(), k -> new MethodList(owner));
                 ml.add(method);
             }
         }
         final Class<?> superclass = c.getSuperclass();
         if (superclass != null) {
-            collectMethods(key, superclass, result);
+            collectMethods(key, owner, superclass, result);
         }
 
         for (final Class<?> iface : c.getInterfaces()) {
-            collectMethods(key, iface, result);
+            collectMethods(key, owner, iface, result);
         }
     }
 
