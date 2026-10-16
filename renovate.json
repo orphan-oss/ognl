@@ -9,6 +9,14 @@
       "matchUpdateTypes": ["major","minor", "patch"],
       "matchCurrentVersion": "!/^0/",
       "automerge": true
+    },
+    {
+      "matchPackageNames": [
+        "org.apache.maven:apache-maven",
+        "org.sonatype.central:central-publishing-maven-plugin"
+      ],
+      "groupName": "Maven and central-publishing-maven-plugin",
+      "automerge": false
     }
   ]
 }
