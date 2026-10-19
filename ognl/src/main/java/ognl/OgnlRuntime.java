@@ -2507,6 +2507,14 @@ public class OgnlRuntime {
         return null;
     }
 
+    private static boolean isAccessorFor(String methodName, String prefix, String property) {
+        if (property.isEmpty()) {
+            return false;
+        }
+        return methodName.equals(prefix + property)
+                || methodName.equals(prefix + Character.toUpperCase(property.charAt(0)) + property.substring(1));
+    }
+
     /**
      * Finds the best possible match for a method on the specified target class with a matching
      * name.
@@ -2539,8 +2547,6 @@ public class OgnlRuntime {
             if (name.indexOf('"') >= 0)
                 name = name.replaceAll("\"", "");
 
-            name = name.toLowerCase();
-
             Method[] methods = target.getMethods();
 
             // exact matches first
@@ -2552,10 +2558,10 @@ public class OgnlRuntime {
                     continue;
                 }
 
-                if ((method.getName().equalsIgnoreCase(name)
-                        || method.getName().toLowerCase().equals("get" + name)
-                        || method.getName().toLowerCase().equals("has" + name)
-                        || method.getName().toLowerCase().equals("is" + name))
+                if ((method.getName().equals(name)
+                        || isAccessorFor(method.getName(), "get", name)
+                        || isAccessorFor(method.getName(), "has", name)
+                        || isAccessorFor(method.getName(), "is", name))
                         && !method.getName().startsWith("set")) {
                     candidates.add(method);
                 }
@@ -2572,7 +2578,7 @@ public class OgnlRuntime {
                     continue;
                 }
 
-                if (method.getName().equalsIgnoreCase(name)
+                if (method.getName().equals(name)
                         && !method.getName().startsWith("set")
                         && !method.getName().startsWith("get")
                         && !method.getName().startsWith("is")
@@ -2637,8 +2643,8 @@ public class OgnlRuntime {
                     continue;
                 }
 
-                if ((method.getName().equalsIgnoreCase(name)
-                        || method.getName().toLowerCase().equals("set" + name.toLowerCase()))
+                if ((method.getName().equals(name)
+                        || isAccessorFor(method.getName(), "set", name))
                         && !method.getName().startsWith("get")) {
 
                     candidates.add(method.getMethod());
@@ -2659,8 +2665,8 @@ public class OgnlRuntime {
                     continue;
                 }
 
-                if ((cmethod.getName().equalsIgnoreCase(name)
-                        || cmethod.getName().toLowerCase().equals("set" + name.toLowerCase()))
+                if ((cmethod.getName().equals(name)
+                        || isAccessorFor(cmethod.getName(), "set", name))
                         && !cmethod.getName().startsWith("get")) {
 
                     if (!candidates.contains(cmethod))
@@ -2709,7 +2715,7 @@ public class OgnlRuntime {
             PropertyDescriptor[] pds = info.getPropertyDescriptors();
 
             for (PropertyDescriptor pd : pds) {
-                if (pd.getName().equalsIgnoreCase(name) || pd.getName().toLowerCase().endsWith(name.toLowerCase()))
+                if (pd.getName().equals(name))
                     return pd;
             }
 
