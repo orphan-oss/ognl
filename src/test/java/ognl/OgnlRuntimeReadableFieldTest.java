@@ -20,6 +20,8 @@ package ognl;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Member;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -76,5 +78,34 @@ class OgnlRuntimeReadableFieldTest {
         FieldsOnlyBean bean = new FieldsOnlyBean();
         OgnlContext context = Ognl.createDefaultContext(bean);
         assertEquals("static value", Ognl.getValue("@ognl.OgnlRuntimeReadableFieldTest$FieldsOnlyBean@staticField", context, bean));
+    }
+
+    @Test
+    void hasGetPropertyIsFalseForMissingField() throws Exception {
+        FieldsOnlyBean bean = new FieldsOnlyBean();
+        OgnlContext context = Ognl.createDefaultContext(bean);
+        assertFalse(OgnlRuntime.hasGetProperty(context, bean, "noSuchField"));
+    }
+
+    @Test
+    void hasGetPropertyIsFalseWhenMemberAccessDeniesTheField() throws Exception {
+        FieldsOnlyBean bean = new FieldsOnlyBean();
+        OgnlContext context = Ognl.createDefaultContext(bean, new DenyingAccess("plainField"));
+        assertFalse(OgnlRuntime.hasGetProperty(context, bean, "plainField"));
+        assertTrue(OgnlRuntime.hasGetProperty(context, bean, "finalField"));
+    }
+
+    private static class DenyingAccess extends AbstractMemberAccess {
+
+        private final String deniedMember;
+
+        DenyingAccess(String deniedMember) {
+            this.deniedMember = deniedMember;
+        }
+
+        @Override
+        public boolean isAccessible(OgnlContext context, Object target, Member member, String propertyName) {
+            return Modifier.isPublic(member.getModifiers()) && !member.getName().equals(deniedMember);
+        }
     }
 }
