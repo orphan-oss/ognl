@@ -136,7 +136,9 @@ treat numeric properties similarly, with the property name as the index,
 but string properties the same way ordinary objects do. Ordinary objects
 (that is, all other kinds) only can handle string properties and do so
 by using "get" and "set" methods (or "is" and "set"), if the object has
-them, or a field with the given name otherwise.
+them, or a field with the given name otherwise. Property names are
+case-sensitive: `uRange` resolves to `getuRange()` or `getURange()`, but
+`URANGE` resolves to neither.
 
 Note the new terminology here. Property "names" can be of any type, not
 just Strings. But to refer to non-String properties, you must use what
