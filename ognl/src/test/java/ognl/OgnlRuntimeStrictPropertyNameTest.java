@@ -117,7 +117,7 @@ class OgnlRuntimeStrictPropertyNameTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"URange", "urange", "URANGE", "uRANGE"})
-    void evaluationRejectsMisCasedNames(String name) throws Exception {
+    void evaluationRejectsMisCasedNames(String name) {
         Bean bean = new Bean();
         OgnlContext context = Ognl.createDefaultContext(bean, new PublicOnly());
 
