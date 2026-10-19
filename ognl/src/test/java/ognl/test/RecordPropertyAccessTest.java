@@ -25,16 +25,20 @@ import ognl.OgnlException;
 import ognl.OgnlRuntime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Issue #646: record accessors are resolved through {@link OgnlRuntime#getReadMethod(Class, String)}.
@@ -42,6 +46,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class RecordPropertyAccessTest {
 
     public record Customer(String name) {
+    }
+
+    public record RangedCustomer(String name, String uRange) {
+    }
+
+    public static class Calculator {
+        public String compute() {
+            return "computed";
+        }
     }
 
     @BeforeEach
@@ -94,6 +107,54 @@ class RecordPropertyAccessTest {
 
         assertThrows(OgnlException.class, () -> Ognl.getValue(tree, context, customer));
         assertThrows(OgnlException.class, () -> Ognl.getValue(tree, context, customer));
+    }
+
+    @Test
+    void hasGetPropertyAgreesWithGetValueForRecordComponents() throws Exception {
+        RangedCustomer customer = new RangedCustomer("Alice", "r1");
+        OgnlContext context = Ognl.createDefaultContext(customer, new PublicOnlyAccess(null));
+
+        assertEquals("Alice", Ognl.getValue("name", context, customer));
+        assertTrue(OgnlRuntime.hasGetProperty(context, customer, "name"));
+        assertEquals("r1", Ognl.getValue("uRange", context, customer));
+        assertTrue(OgnlRuntime.hasGetProperty(context, customer, "uRange"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"NAME", "Name", "URange", "urange"})
+    void hasGetPropertyAgreesWithGetValueForMisCasedRecordComponents(String name) throws Exception {
+        RangedCustomer customer = new RangedCustomer("Alice", "r1");
+        OgnlContext context = Ognl.createDefaultContext(customer, new PublicOnlyAccess(null));
+
+        assertThrows(OgnlException.class, () -> Ognl.getValue(name, context, customer));
+        assertFalse(OgnlRuntime.hasGetProperty(context, customer, name));
+    }
+
+    @Test
+    void hasGetPropertyAgreesWithGetValueWhenReadMethodsAreIgnored() throws Exception {
+        RangedCustomer customer = new RangedCustomer("Alice", "r1");
+        OgnlContext context = Ognl.createDefaultContext(customer, new PublicOnlyAccess(null));
+        context.setIgnoreReadMethods(true);
+
+        assertThrows(OgnlException.class, () -> Ognl.getValue("name", context, customer));
+        assertFalse(OgnlRuntime.hasGetProperty(context, customer, "name"));
+    }
+
+    @Test
+    void hasGetPropertyHonoursMemberAccessForRecordAccessor() throws Exception {
+        RangedCustomer customer = new RangedCustomer("Alice", "r1");
+        OgnlContext context = Ognl.createDefaultContext(customer, new PublicOnlyAccess("name"));
+
+        assertFalse(OgnlRuntime.hasGetProperty(context, customer, "name"));
+        assertTrue(OgnlRuntime.hasGetProperty(context, customer, "uRange"));
+    }
+
+    @Test
+    void hasGetPropertyStillIgnoresPrefixlessMethodsOnOrdinaryClasses() throws Exception {
+        Calculator calculator = new Calculator();
+        OgnlContext context = Ognl.createDefaultContext(calculator, new PublicOnlyAccess(null));
+
+        assertFalse(OgnlRuntime.hasGetProperty(context, calculator, "compute"));
     }
 
     private static class PublicOnlyAccess extends AbstractMemberAccess {
