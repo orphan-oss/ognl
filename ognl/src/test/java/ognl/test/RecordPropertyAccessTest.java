@@ -25,6 +25,8 @@ import ognl.OgnlException;
 import ognl.OgnlRuntime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -118,15 +120,14 @@ class RecordPropertyAccessTest {
         assertTrue(OgnlRuntime.hasGetProperty(context, customer, "uRange"));
     }
 
-    @Test
-    void hasGetPropertyAgreesWithGetValueForMisCasedRecordComponents() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"NAME", "Name", "URange", "urange"})
+    void hasGetPropertyAgreesWithGetValueForMisCasedRecordComponents(String name) throws Exception {
         RangedCustomer customer = new RangedCustomer("Alice", "r1");
         OgnlContext context = Ognl.createDefaultContext(customer, new PublicOnlyAccess(null));
 
-        assertEquals("Alice", Ognl.getValue("NAME", context, customer));
-        assertTrue(OgnlRuntime.hasGetProperty(context, customer, "NAME"));
-        assertEquals("r1", Ognl.getValue("URange", context, customer));
-        assertTrue(OgnlRuntime.hasGetProperty(context, customer, "URange"));
+        assertThrows(OgnlException.class, () -> Ognl.getValue(name, context, customer));
+        assertFalse(OgnlRuntime.hasGetProperty(context, customer, name));
     }
 
     @Test

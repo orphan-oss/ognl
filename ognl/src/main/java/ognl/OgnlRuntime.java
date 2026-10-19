@@ -1913,7 +1913,7 @@ public class OgnlRuntime {
             return false;
         }
         for (RecordComponent component : targetClass.getRecordComponents()) {
-            if (component.getName().equalsIgnoreCase(propertyName)) {
+            if (component.getName().equals(propertyName)) {
                 return isMethodAccessible(context, target, component.getAccessor(), propertyName);
             }
         }
