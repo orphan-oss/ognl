@@ -55,7 +55,19 @@ public class NumericStringConstantCompileTest {
             "\"b\" + '\\''",    // a quote character literal after a string literal
             "'\\'' + 1",        // a quote character literal concatenated with a number
             "'\\\\' + \"b\"",   // a backslash character literal
-            "'\\\"' + \"b\""     // a double-quote character literal
+            "'\\\"' + \"b\"",    // a double-quote character literal
+            "\"x\\by\" + 1",     // backspace inside a string literal
+            "'\\b' + \"y\""      // backspace character literal
+    };
+
+    private static final String[] CONTROL_CHARACTERS = {
+            "\"a\u0001b\" + 1",   // U+0001, the lowest control character javassist has to carry raw
+            "\"a\u000bb\" + 1",   // vertical tab, between the named escapes
+            "\"a\u001bb\" + 1",   // escape, the highest C0 control character
+            "\"a\u007fb\" + 1",   // delete
+            "\"a\u0085b\" + 1",   // next line, a C1 control character
+            "\"a\u009fb\" + 1",   // the highest C1 control character
+            "'\u0001' + \"y\""    // a control character as a character literal
     };
 
     private static final String[] NON_CONSTANT_OPERANDS = {
@@ -75,6 +87,7 @@ public class NumericStringConstantCompileTest {
 
     private static final Object[][] INDEX_KEYS = {
             {"map[\"a\\\"b\"]", "a\"b"},        // a quote inside a string index key
+            {"map[\"a\u0001b\"]", "a\u0001b"},  // a control character inside a string index key
             {"map['\\'']", '\''}                // a character index key
     };
 
@@ -102,6 +115,11 @@ public class NumericStringConstantCompileTest {
     @Test
     public void concatenatedLiteralMatchesInterpretedMode() throws Exception {
         assertSameValue(CONCATENATIONS);
+    }
+
+    @Test
+    public void controlCharacterLiteralMatchesInterpretedMode() throws Exception {
+        assertSameValue(CONTROL_CHARACTERS);
     }
 
     @Test

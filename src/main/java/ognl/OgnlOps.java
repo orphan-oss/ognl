@@ -891,28 +891,7 @@ public abstract class OgnlOps implements NumericTypes {
                 result = "\\\\";
                 break;
             default:
-                if (Character.isISOControl(ch)) {
-
-                    String hc = Integer.toString(ch, 16);
-                    int hcl = hc.length();
-
-                    result = "\\u";
-                    if (hcl < 4) {
-                        if (hcl == 3) {
-                            result = result + "0";
-                        } else {
-                            if (hcl == 2) {
-                                result = result + "00";
-                            } else {
-                                result = result + "000";
-                            }
-                        }
-                    }
-
-                    result = result + hc;
-                } else {
-                    result = ch + "";
-                }
+                result = String.valueOf(ch);
                 break;
         }
         return result;
