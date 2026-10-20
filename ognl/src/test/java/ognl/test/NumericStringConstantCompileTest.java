@@ -84,6 +84,20 @@ class NumericStringConstantCompileTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
+            "\"a\u0001b\" + 1",   // U+0001, the lowest control character javassist has to carry raw
+            "\"a\u000bb\" + 1",   // vertical tab, between the named escapes
+            "\"a\u001bb\" + 1",   // escape, the highest C0 control character
+            "\"a\u007fb\" + 1",   // delete
+            "\"a\u0085b\" + 1",   // next line, a C1 control character
+            "\"a\u009fb\" + 1",   // the highest C1 control character
+            "'\u0001' + \"y\""    // a control character as a character literal
+    })
+    void controlCharacterLiteralMatchesInterpretedMode(String expression) throws Exception {
+        assertSameValue(expression);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
             "\"a\" + (1 == 1)",  // a comparison operand is neither a constant nor one of the excluded node types
             "\"a\" + (1 > 2)",
             "\"a\" + !false",
@@ -103,6 +117,7 @@ class NumericStringConstantCompileTest {
     static Stream<Arguments> indexKeys() {
         return Stream.of(
                 Arguments.of("map[\"a\\\"b\"]", "a\"b"),  // a quote inside a string index key
+                Arguments.of("map[\"a\u0001b\"]", "a\u0001b"),  // a control character inside a string index key
                 Arguments.of("map['\\'']", '\'')           // a character index key
         );
     }
