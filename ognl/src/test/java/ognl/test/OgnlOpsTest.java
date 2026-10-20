@@ -184,6 +184,13 @@ class OgnlOpsTest {
     }
 
     @Test
+    void otherControlCharactersAreCarriedRaw() {
+        assertEquals("\u0001", OgnlOps.getEscapedChar('\u0001'));
+        assertEquals("\u001b", OgnlOps.getEscapedChar('\u001b'));
+        assertEquals("\u009f", OgnlOps.getEscapedChar('\u009f'));
+    }
+
+    @Test
     void testReturnValue() {
         assertEquals("test", OgnlOps.returnValue(null, "test"));
     }
