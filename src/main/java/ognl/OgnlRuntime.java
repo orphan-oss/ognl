@@ -2171,8 +2171,7 @@ public class OgnlRuntime {
     /**
      * Whether a field write of {@code propertyName} is one {@link #setFieldValue} would carry out, which
      * refuses a static or final field. {@link #hasField} checks presence and accessibility but not
-     * those modifiers, and is shared with {@link #hasGetProperty}, where a final field is
-     * legitimately readable.
+     * those modifiers.
      */
     private static boolean hasSettableField(OgnlContext context, Object target, Class<?> inClass, String propertyName) {
         Field f = getField(inClass, propertyName);
@@ -2182,6 +2181,17 @@ public class OgnlRuntime {
         final int fModifiers = f.getModifiers();
 
         return !Modifier.isStatic(fModifiers) && !Modifier.isFinal(fModifiers)
+                && isFieldAccessible(context, target, f, propertyName);
+    }
+
+    /**
+     * Whether a field read of {@code propertyName} is one {@link #getFieldValue} would carry out, which
+     * refuses a static field. A final field is readable.
+     */
+    private static boolean hasReadableField(OgnlContext context, Object target, Class<?> inClass, String propertyName) {
+        Field f = getField(inClass, propertyName);
+
+        return f != null && !Modifier.isStatic(f.getModifiers())
                 && isFieldAccessible(context, target, f, propertyName);
     }
 
@@ -2494,7 +2504,7 @@ public class OgnlRuntime {
         Class<?> targetClass = (target == null) ? null : target.getClass();
         String name = oname.toString();
 
-        return hasGetMethod(context, target, targetClass, name) || hasField(context, target, targetClass, name);
+        return hasGetMethod(context, target, targetClass, name) || hasReadableField(context, target, targetClass, name);
     }
 
     public static boolean hasSetProperty(OgnlContext context, Object target, Object oname) throws IntrospectionException {
