@@ -3,6 +3,7 @@ package ognl.test;
 import ognl.OgnlOps;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -82,5 +83,18 @@ public class OgnlOpsTest {
         final Object v2 = "b";
         assertFalse(OgnlOps.equal(null, v2));
         assertFalse(OgnlOps.equal(v2, null));
+    }
+
+    @Test
+    public void namedEscapesKeepTheirBackslashForm() {
+        assertEquals("\\t", OgnlOps.getEscapedChar('\t'));
+        assertEquals("\\n", OgnlOps.getEscapedChar('\n'));
+    }
+
+    @Test
+    public void otherControlCharactersAreCarriedRaw() {
+        assertEquals("\u0001", OgnlOps.getEscapedChar('\u0001'));
+        assertEquals("\u001b", OgnlOps.getEscapedChar('\u001b'));
+        assertEquals("\u009f", OgnlOps.getEscapedChar('\u009f'));
     }
 }
