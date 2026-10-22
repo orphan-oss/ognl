@@ -2,12 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
-
-OGNL (Object-Graph Navigation Language) is an expression language for getting and setting properties of Java objects,
-used by frameworks including Apache Struts. Key features: property navigation (JavaBeans), method invocation,
-collection operations (projection/selection), lambda expressions, type conversion, and member access control.
-
 ## Essential Commands
 
 ```bash
