@@ -803,9 +803,7 @@ public class OgnlRuntime {
     }
 
     /**
-     * Stricter invocation mode refuses some specific methods, and every method of certain classes and
-     * interfaces, for which no legitimate use case exists inside an OGNL expression. Both the interpreted
-     * {@link #invokeMethod} path and the expression compiler must apply the same rule.
+     * Shared by {@link #invokeMethod} and the expression compiler so both modes refuse the same methods.
      */
     static boolean isBlockedByStricterInvocation(Method method) {
         if (!_useStricterInvocation) {
