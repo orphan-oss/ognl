@@ -164,6 +164,11 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
                     if (String.class.isAssignableFrom(index.getClass()) && !target.getClass().isArray()) {
                         Field f = target.getClass().getField(methodName);
 
+                        if (!context.getMemberAccess().isAccessible(context, target, f, methodName)) {
+                            throw new UnsupportedCompilationException("Member access forbidden for field " + methodName
+                                    + " on class " + target.getClass());
+                        }
+
                         context.setCurrentType(f.getType());
                         context.setCurrentAccessor(f.getDeclaringClass());
 
