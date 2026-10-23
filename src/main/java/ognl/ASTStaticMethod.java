@@ -100,6 +100,11 @@ public class ASTStaticMethod extends SimpleNode implements NodeType {
                         "For static class method " + className + " / " + methodName);
             }
 
+            if (OgnlRuntime.isBlockedByStricterInvocation(m)) {
+                throw new UnsupportedCompilationException("Method is blocked under stricter invocation mode. " +
+                        "For static class method " + className + " / " + methodName);
+            }
+
             if ((children != null) && (children.length > 0)) {
                 Class<?>[] parms = m.getParameterTypes();
 
