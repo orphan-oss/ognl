@@ -20,10 +20,13 @@ package ognl.test;
 
 import ognl.DefaultMemberAccess;
 import ognl.ExcludedObjectMemberAccess;
+import ognl.MethodFailedException;
 import ognl.Node;
+import ognl.NoSuchPropertyException;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
+import ognl.enhance.ExpressionAccessor;
 import ognl.test.objects.Root;
 import org.junit.jupiter.api.Test;
 
@@ -43,8 +46,11 @@ class CompiledMemberAccessTest {
         ExcludedObjectMemberAccess memberAccess = new ExcludedObjectMemberAccess(false);
         memberAccess.exclude(Root.class.getField("anotherStringValue"));
 
-        assertThrows(OgnlException.class, () -> getValueInterpreted("anotherStringValue", memberAccess));
-        assertThrows(OgnlException.class, () -> getValueCompiled("anotherStringValue", memberAccess));
+        assertThrows(NoSuchPropertyException.class, () -> getValueInterpreted("anotherStringValue", memberAccess));
+
+        OgnlContext context = Ognl.createDefaultContext(root, memberAccess);
+        ExpressionAccessor accessor = compile("anotherStringValue", context);
+        assertThrows(NoSuchPropertyException.class, () -> accessor.get(context, root));
     }
 
     @Test
@@ -52,8 +58,11 @@ class CompiledMemberAccessTest {
         ExcludedObjectMemberAccess memberAccess = new ExcludedObjectMemberAccess(false);
         memberAccess.exclude(Root.class.getField("STATIC_INT"));
 
-        assertThrows(OgnlException.class, () -> getValueInterpreted("STATIC_INT", memberAccess));
-        assertThrows(OgnlException.class, () -> getValueCompiled("STATIC_INT", memberAccess));
+        assertThrows(NoSuchPropertyException.class, () -> getValueInterpreted("STATIC_INT", memberAccess));
+
+        OgnlContext context = Ognl.createDefaultContext(root, memberAccess);
+        ExpressionAccessor accessor = compile("STATIC_INT", context);
+        assertThrows(NoSuchPropertyException.class, () -> accessor.get(context, root));
     }
 
     @Test
@@ -61,15 +70,20 @@ class CompiledMemberAccessTest {
         DefaultMemberAccess memberAccess = new DefaultMemberAccess(false);
 
         assertEquals("foo", getValueInterpreted("anotherStringValue", memberAccess));
-        assertEquals("foo", getValueCompiled("anotherStringValue", memberAccess));
+
+        OgnlContext context = Ognl.createDefaultContext(root, memberAccess);
+        assertEquals("foo", compile("anotherStringValue", context).get(context, root));
     }
 
     @Test
-    void staticMethodBlockedByStricterInvocationIsRefusedInBothModes() {
+    void staticMethodBlockedByStricterInvocationIsRefusedInBothModes() throws Exception {
         DefaultMemberAccess memberAccess = new DefaultMemberAccess(false);
 
-        assertThrows(OgnlException.class, () -> getValueInterpreted("@java.lang.Runtime@getRuntime()", memberAccess));
-        assertThrows(OgnlException.class, () -> getValueCompiled("@java.lang.Runtime@getRuntime()", memberAccess));
+        assertThrows(MethodFailedException.class, () -> getValueInterpreted("@java.lang.Runtime@getRuntime()", memberAccess));
+
+        OgnlContext context = Ognl.createDefaultContext(root, memberAccess);
+        ExpressionAccessor accessor = compile("@java.lang.Runtime@getRuntime()", context);
+        assertThrows(MethodFailedException.class, () -> accessor.get(context, root));
     }
 
     @Test
@@ -77,7 +91,9 @@ class CompiledMemberAccessTest {
         DefaultMemberAccess memberAccess = new DefaultMemberAccess(false);
 
         assertEquals(2, getValueInterpreted("@java.lang.Math@max(1, 2)", memberAccess));
-        assertEquals(2, getValueCompiled("@java.lang.Math@max(1, 2)", memberAccess));
+
+        OgnlContext context = Ognl.createDefaultContext(root, memberAccess);
+        assertEquals(2, compile("@java.lang.Math@max(1, 2)", context).get(context, root));
     }
 
     private Object getValueInterpreted(String expression, DefaultMemberAccess memberAccess) throws OgnlException {
@@ -86,9 +102,8 @@ class CompiledMemberAccessTest {
     }
 
     @SuppressWarnings("unchecked")
-    private Object getValueCompiled(String expression, DefaultMemberAccess memberAccess) throws Exception {
-        OgnlContext context = Ognl.createDefaultContext(root, memberAccess);
+    private ExpressionAccessor compile(String expression, OgnlContext context) throws Exception {
         Node node = Ognl.compileExpression(context, root, expression);
-        return node.getAccessor().get(context, root);
+        return node.getAccessor();
     }
 }
