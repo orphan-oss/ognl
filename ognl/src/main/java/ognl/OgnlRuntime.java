@@ -662,34 +662,42 @@ public class OgnlRuntime {
         return cache.getParameterTypes(constructor);
     }
 
+    /**
+     * Stricter invocation mode refuses some specific methods, and every method of certain classes and
+     * interfaces, for which no legitimate use case exists inside an OGNL expression. Both the interpreted
+     * {@link #invokeMethod} path and the expression compiler must apply the same rule.
+     */
+    static boolean isBlockedByStricterInvocation(Method method) {
+        if (!_useStricterInvocation) {
+            return false;
+        }
+        final Class<?> methodDeclaringClass = method.getDeclaringClass();
+        return (AO_SETACCESSIBLE_REF != null && AO_SETACCESSIBLE_REF.equals(method)) ||
+                (AO_SETACCESSIBLE_ARR_REF != null && AO_SETACCESSIBLE_ARR_REF.equals(method)) ||
+                (SYS_EXIT_REF != null && SYS_EXIT_REF.equals(method)) ||
+                (SYS_CONSOLE_REF != null && SYS_CONSOLE_REF.equals(method)) ||
+                AccessibleObjectHandler.class.isAssignableFrom(methodDeclaringClass) ||
+                ClassResolver.class.isAssignableFrom(methodDeclaringClass) ||
+                MethodAccessor.class.isAssignableFrom(methodDeclaringClass) ||
+                MemberAccess.class.isAssignableFrom(methodDeclaringClass) ||
+                OgnlContext.class.isAssignableFrom(methodDeclaringClass) ||
+                Runtime.class.isAssignableFrom(methodDeclaringClass) ||
+                ClassLoader.class.isAssignableFrom(methodDeclaringClass) ||
+                ProcessBuilder.class.isAssignableFrom(methodDeclaringClass) ||
+                Method.class.isAssignableFrom(methodDeclaringClass) ||
+                Constructor.class.isAssignableFrom(methodDeclaringClass) ||
+                Field.class.isAssignableFrom(methodDeclaringClass) ||
+                isUnsafeClass(methodDeclaringClass);
+    }
+
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException {
         boolean syncInvoke;
         Boolean methodAccessCacheValue;
 
-        if (_useStricterInvocation) {
-            final Class<?> methodDeclaringClass = method.getDeclaringClass();  // Note: synchronized(method) call below will already NPE, so no null check.
-            if ((AO_SETACCESSIBLE_REF != null && AO_SETACCESSIBLE_REF.equals(method)) ||
-                    (AO_SETACCESSIBLE_ARR_REF != null && AO_SETACCESSIBLE_ARR_REF.equals(method)) ||
-                    (SYS_EXIT_REF != null && SYS_EXIT_REF.equals(method)) ||
-                    (SYS_CONSOLE_REF != null && SYS_CONSOLE_REF.equals(method)) ||
-                    AccessibleObjectHandler.class.isAssignableFrom(methodDeclaringClass) ||
-                    ClassResolver.class.isAssignableFrom(methodDeclaringClass) ||
-                    MethodAccessor.class.isAssignableFrom(methodDeclaringClass) ||
-                    MemberAccess.class.isAssignableFrom(methodDeclaringClass) ||
-                    OgnlContext.class.isAssignableFrom(methodDeclaringClass) ||
-                    Runtime.class.isAssignableFrom(methodDeclaringClass) ||
-                    ClassLoader.class.isAssignableFrom(methodDeclaringClass) ||
-                    ProcessBuilder.class.isAssignableFrom(methodDeclaringClass) ||
-                    Method.class.isAssignableFrom(methodDeclaringClass) ||
-                    Constructor.class.isAssignableFrom(methodDeclaringClass) ||
-                    Field.class.isAssignableFrom(methodDeclaringClass) ||
-                    isUnsafeClass(methodDeclaringClass)) {
-                // Prevent calls to some specific methods, as well as all methods of certain classes/interfaces
-                //   for which no (apparent) legitimate use cases exist for their usage within OGNL invokeMethod().
-                throw new IllegalAccessException("Method [" + method + "] cannot be called from within OGNL invokeMethod() " +
-                        "under stricter invocation mode.");
-            }
+        if (isBlockedByStricterInvocation(method)) {
+            throw new IllegalAccessException("Method [" + method + "] cannot be called from within OGNL invokeMethod() " +
+                    "under stricter invocation mode.");
         }
 
         // only synchronize method invocation if it actually requires it
