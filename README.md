@@ -45,7 +45,7 @@ no plans to release a new version under Apache Software Foundation umbrella and 
 
 ## Commercial Support
 
-The project maintaners are working with Tidelift to provide commercial support and invest paid working time in the improvement of the projects. 
+The project maintainers are working with Tidelift to provide commercial support and invest paid working time in the improvement of the projects. 
 For more information, visit the [Tidelift resources](https://tidelift.com/subscription/pkg/maven-ognl.ognl?utm_source=maven-ognl.ognl&utm_medium=referral&utm_campaign=enterprise) regarding OGNL.
 
 ## Contributing
