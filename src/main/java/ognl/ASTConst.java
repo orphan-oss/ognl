@@ -106,6 +106,16 @@ public class ASTConst extends SimpleNode implements NodeType {
         return result;
     }
 
+    static String literalSuffix(Object value) {
+        if (value instanceof Long) {
+            return "L";
+        }
+        if (value instanceof Float) {
+            return "f";
+        }
+        return "";
+    }
+
     public String toGetSourceString(OgnlContext context, Object target) {
         if (value == null && parent instanceof ExpressionNode) {
             if (parent instanceof NumericExpression && !(parent instanceof ASTAdd)) {
@@ -133,13 +143,7 @@ public class ASTConst extends SimpleNode implements NodeType {
             context.setCurrentType(OgnlRuntime.getPrimitiveWrapperClass(value.getClass()));
             context.setCurrentObject(value);
 
-            String result = value.toString();
-            if (value instanceof Long) {
-                result = result + "L";
-            } else if (value instanceof Float) {
-                result = result + "f";
-            }
-            return result;
+            return value.toString() + literalSuffix(value);
         } else if (parent instanceof NumericExpression && !(parent instanceof ASTAdd)
                 && String.class.isAssignableFrom(value.getClass())) {
             // the interpreted path rejects a string operand of a numeric operator, so leave it to that path
