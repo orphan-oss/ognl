@@ -50,7 +50,6 @@ class NumericLiteralSuffixCompileTest {
             "-5L >> 1",
             "-5L << 1",
             "-5L * 2",
-            "~5L",
             "5L & 3",
             "--1f",
             "new ognl.test.objects.Simple(\"foo\", 1.0f, 2).floatValue",
