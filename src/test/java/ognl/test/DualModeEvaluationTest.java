@@ -56,7 +56,8 @@ class DualModeEvaluationTest {
 
     private Object getValueInterpreted(String expression) throws OgnlException {
         Object tree = Ognl.parseExpression(expression);
-        return ((Node) tree).getValue(context.withRoot(root), root);
+        context.setRoot(root);
+        return ((Node) tree).getValue(context, root);
     }
 
     @SuppressWarnings("unchecked")
