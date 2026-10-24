@@ -243,13 +243,6 @@ public class ASTCtor extends SimpleNode {
 
                         String value = expressions[i];
 
-                        if (types[i].isPrimitive()) {
-
-                            String literal = OgnlRuntime.getNumericLiteral(types[i]);
-                            if (literal != null)
-                                value += literal;
-                        }
-
                         if (ctorParamTypes[i] != types[i]) {
 
                             if (values[i] != null && !types[i].isPrimitive()
