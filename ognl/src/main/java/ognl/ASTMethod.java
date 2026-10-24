@@ -242,7 +242,7 @@ public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implement
                                 && ((NodeType) children[i]).getGetterClass() != null
                                 && Number.class.isAssignableFrom(((NodeType) children[i]).getGetterClass()))
                                 || (valueClass != null && valueClass.isPrimitive())) {
-                            parmString = " ($w) " + parmString;
+                            parmString = " ($w) (" + parmString + ")";
                         }
                     }
 
@@ -392,7 +392,7 @@ public class ASTMethod<C extends OgnlContext<C>> extends SimpleNode<C> implement
                                 && ((NodeType) children[i]).getGetterClass() != null
                                 && Number.class.isAssignableFrom(((NodeType) children[i]).getGetterClass()))
                                 || (valueClass != null && valueClass.isPrimitive())) {
-                            parmString = " ($w) " + parmString;
+                            parmString = " ($w) (" + parmString + ")";
                         }
                     }
 
