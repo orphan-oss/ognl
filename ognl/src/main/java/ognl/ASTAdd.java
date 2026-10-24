@@ -227,7 +227,9 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                                 if (!(children[i] instanceof ASTConst)) {
                                     throw new UnsupportedCompilationException("Can't compile this operand of a string concatenation.");
                                 }
-                                expr = "\"" + OgnlOps.getEscapeString(expr) + "\"";
+                                Object constant = ((ASTConst<C>) children[i]).getValue();
+                                String text = constant instanceof Number ? constant.toString() : expr;
+                                expr = "\"" + OgnlOps.getEscapeString(text) + "\"";
                             }
                         }
                     }
