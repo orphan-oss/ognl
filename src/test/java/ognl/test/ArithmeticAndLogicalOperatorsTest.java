@@ -56,7 +56,7 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase {
             {"2*2.0", new Double(4.0)},
             {"5/2.", new Double(2.5)},
             {"5+2D", new Double(7)},
-            {"5f-2F", new Double(3.0)},
+            {"5f-2F", new Float(3.0)},
             {"5.+2*3", new Double(11)},
             {"(5.+2)*3", new Double(21)},
 
