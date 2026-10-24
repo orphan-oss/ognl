@@ -112,6 +112,8 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
             StringBuilder result = new StringBuilder();
             NodeType lastType = null;
 
+            Object value = getValueBody(context, target);
+
             // go through once to determine the ultimate type
 
             if ((children != null) && (children.length > 0)) {
@@ -137,7 +139,7 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                 context.setCurrentType(currType);
                 context.setCurrentAccessor(currAccessor);
 
-                if (opsOperand) {
+                if (opsOperand || promotesFloatToDouble(context, target)) {
                     context.setCurrentObject(target);
                     String[] operands = new String[children.length];
                     for (int i = 0; i < children.length; i++) {
@@ -145,7 +147,7 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                                 ? "\"" + OgnlOps.getEscapeString(((ASTConst<C>) children[i]).getValue().toString()) + "\""
                                 : OgnlRuntime.getChildSource(context, target, children[i]);
                     }
-                    return toOpsSourceString(operands, getValueBody(context, target), context);
+                    return toOpsSourceString(operands, value, context);
                 }
             }
 
@@ -265,12 +267,7 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                 context.setCurrentType(getterClass);
             }
 
-            try {
-                Object contextObj = getValueBody(context, target);
-                context.setCurrentObject(contextObj);
-            } catch (Throwable t) {
-                throw OgnlOps.castToRuntime(t);
-            }
+            context.setCurrentObject(value);
 
             return result.toString();
 

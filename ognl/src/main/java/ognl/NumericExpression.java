@@ -77,7 +77,8 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
                 result.append(coerceToNumeric(str, context, children[i]));
             }
 
-            if (getOgnlOpsMethod() != null && (opsOperand || OgnlRuntime.isBigNumber(getterClass))) {
+            if (getOgnlOpsMethod() != null && (opsOperand || OgnlRuntime.isBigNumber(getterClass)
+                    || promotesFloatToDouble(context, target))) {
                 return toOpsSourceString(operands, value, context);
             }
 
@@ -104,6 +105,31 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
         Class<?> type = context.getCurrentType();
         return Character.class == type || Character.TYPE == type
                 || context.getCurrentObject() instanceof Character;
+    }
+
+    // OgnlOps.getNumericType answers double for a float met by an int or long, where Java keeps the
+    // arithmetic at float width; a float met by a short, a char, a double or another float agrees in both.
+    // Decided on the operand values, because the context only carries a native child's last operand, and
+    // only up to the first non-number, since OgnlOps.add concatenates from there on
+    protected boolean promotesFloatToDouble(C context, Object target) throws OgnlException {
+        Class<?> type = context.getCurrentType();
+        Object object = context.getCurrentObject();
+        boolean floatOperand = false;
+        boolean integralOperand = false;
+        try {
+            for (Node<C> child : children) {
+                Object operand = child.getValue(context, target);
+                if (!(operand instanceof Number)) {
+                    break;
+                }
+                floatOperand |= operand instanceof Float;
+                integralOperand |= operand instanceof Integer || operand instanceof Long;
+            }
+        } finally {
+            context.setCurrentType(type);
+            context.setCurrentObject(object);
+        }
+        return floatOperand && integralOperand;
     }
 
     // An operand that OgnlOps already answered is an Object, which javassist would concatenate rather
