@@ -52,7 +52,7 @@ public class ArithmeticAndLogicalOperatorsTest extends OgnlTestCase {
             // Double-valued arithmetic expressions
             {"-1d", new Double(-1)},
             {"+1d", new Double(1)},
-            {"--1f", new Double(1)},
+            {"--1f", new Float(1)},
             {"2*2.0", new Double(4.0)},
             {"5/2.", new Double(2.5)},
             {"5+2D", new Double(7)},
