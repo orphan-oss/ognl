@@ -243,7 +243,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
                                 && ((NodeType) children[i]).getGetterClass() != null
                                 && Number.class.isAssignableFrom(((NodeType) children[i]).getGetterClass()))
                                 || (valueClass != null && valueClass.isPrimitive())) {
-                            parmString = " ($w) " + parmString;
+                            parmString = " ($w) (" + parmString + ")";
                         }
                     }
 
@@ -393,7 +393,7 @@ public class ASTMethod extends SimpleNode implements OrderedReturn, NodeType {
                                 && ((NodeType) children[i]).getGetterClass() != null
                                 && Number.class.isAssignableFrom(((NodeType) children[i]).getGetterClass()))
                                 || (valueClass != null && valueClass.isPrimitive())) {
-                            parmString = " ($w) " + parmString;
+                            parmString = " ($w) (" + parmString + ")";
                         }
                     }
 
