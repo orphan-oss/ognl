@@ -206,7 +206,9 @@ public class ASTAdd extends NumericExpression {
                                 if (!(children[i] instanceof ASTConst)) {
                                     throw new UnsupportedCompilationException("Can't compile string concatenation of non-constant " + children[i]);
                                 }
-                                expr = "\"" + OgnlOps.getEscapeString(expr) + "\"";
+                                Object constant = ((ASTConst<C>) children[i]).getValue();
+                                String text = constant instanceof Number ? constant.toString() : expr;
+                                expr = "\"" + OgnlOps.getEscapeString(text) + "\"";
                             }
                         }
                     }

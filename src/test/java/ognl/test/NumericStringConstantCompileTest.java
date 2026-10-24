@@ -57,7 +57,13 @@ public class NumericStringConstantCompileTest {
             "'\\\\' + \"b\"",   // a backslash character literal
             "'\\\"' + \"b\"",    // a double-quote character literal
             "\"x\\by\" + 1",     // backspace inside a string literal
-            "'\\b' + \"y\""      // backspace character literal
+            "'\\b' + \"y\"",     // backspace character literal
+            "\"a\" + 1L",         // the long literal's compiled source carries an L suffix (#687)
+            "\"a\" + 1.5f",       // the float literal's compiled source carries an f suffix
+            "1L + \"a\"",
+            "1.5f + \"a\"",
+            "\"a\" + 1L + 2.5f",
+            "\"a\" + 1.0"         // a double literal has no suffix and must keep working
     };
 
     private static final String[] CONTROL_CHARACTERS = {
