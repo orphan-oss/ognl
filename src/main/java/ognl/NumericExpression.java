@@ -79,7 +79,7 @@ public abstract class NumericExpression extends ExpressionNode implements NodeTy
         Object value = context.getCurrentObject();
 
         if (child instanceof ASTConst && value != null) {
-            return value.toString();
+            return value.toString() + ASTConst.literalSuffix(value);
         }
 
         if (context.getCurrentType() != null && !context.getCurrentType().isPrimitive()
