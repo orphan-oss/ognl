@@ -86,9 +86,6 @@ public abstract class NumericExpression extends ExpressionNode implements NodeTy
                 && context.getCurrentObject() != null && context.getCurrentObject() instanceof Number) {
             ret = "((" + ExpressionCompiler.getCastString(context.getCurrentObject().getClass()) + ")" + ret + ")";
             ret += "." + OgnlRuntime.getNumericValueGetter(context.getCurrentObject().getClass());
-        } else if (context.getCurrentType() != null && context.getCurrentType().isPrimitive()
-                && (child instanceof ASTConst || child instanceof NumericExpression)) {
-            ret += OgnlRuntime.getNumericLiteral(context.getCurrentType());
         } else if (context.getCurrentType() != null && String.class.isAssignableFrom(context.getCurrentType())) {
             ret = "Double.parseDouble(" + ret + ")";
             context.setCurrentType(Double.TYPE);
