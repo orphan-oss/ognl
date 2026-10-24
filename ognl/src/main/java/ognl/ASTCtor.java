@@ -245,13 +245,6 @@ public class ASTCtor<C extends OgnlContext<C>> extends SimpleNode<C> {
 
                         String value = expressions[i];
 
-                        if (types[i].isPrimitive()) {
-
-                            String literal = OgnlRuntime.getNumericLiteral(types[i]);
-                            if (literal != null)
-                                value += literal;
-                        }
-
                         if (NumericExpression.isOpsDelegatedSource(children[i])) {
 
                             // Convert to the constructor's parameter type. The branch below would instead
