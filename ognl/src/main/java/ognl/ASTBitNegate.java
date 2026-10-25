@@ -43,7 +43,7 @@ public class ASTBitNegate<C extends OgnlContext<C>> extends NumericExpression<C>
     }
 
     public String toGetSourceString(C context, Object target) {
-        String source = children[0].toGetSourceString(context, target);
+        String source = OgnlRuntime.getChildSource(context, target, children[0]);
 
         if (bigOperandClass(context) != null) {
             return toOpsUnarySourceString("bitNegate", BigInteger.class, context, target);
@@ -53,10 +53,6 @@ public class ASTBitNegate<C extends OgnlContext<C>> extends NumericExpression<C>
             return toOpsUnarySourceString("bitNegate", context, target);
         }
 
-        if (!(children[0] instanceof ASTBitNegate)) {
-            return "~(" + super.coerceToNumeric(source, context, children[0]) + ")";
-        } else {
-            return "~(" + source + ")";
-        }
+        return toUnarySourceString("~", source, context, target);
     }
 }
