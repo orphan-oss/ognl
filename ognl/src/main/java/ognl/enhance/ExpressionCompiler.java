@@ -483,7 +483,7 @@ public class ExpressionCompiler<C extends OgnlContext<C>> implements OgnlExpress
         String post = "";
         String body;
 
-        context.setRoot(root);
+        context.withRoot(root);
 
         // the ExpressionAccessor API has to reference the generic Object class for get/set operations, so this sets up that known
         // type beforehand
@@ -593,7 +593,7 @@ public class ExpressionCompiler<C extends OgnlContext<C>> implements OgnlExpress
             throw new UnsupportedCompilationException("Can't compile expression/constant setters.");
         }
 
-        context.setRoot(root);
+        context.withRoot(root);
         context.remove(PRE_CAST);
 
         String body;
