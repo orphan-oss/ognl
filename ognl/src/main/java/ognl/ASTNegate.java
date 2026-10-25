@@ -42,7 +42,7 @@ public class ASTNegate<C extends OgnlContext<C>> extends NumericExpression<C> {
     }
 
     public String toGetSourceString(C context, Object target) {
-        String source = children[0].toGetSourceString(context, target);
+        String source = OgnlRuntime.getChildSource(context, target, children[0]);
 
         Class<?> bigClass = bigOperandClass(context);
         if (bigClass != null) {
@@ -53,11 +53,7 @@ public class ASTNegate<C extends OgnlContext<C>> extends NumericExpression<C> {
             return toOpsUnarySourceString("negate", context, target);
         }
 
-        if (!(children[0] instanceof ASTNegate)) {
-            return "-" + source;
-        } else {
-            return "-(" + source + ")";
-        }
+        return toUnarySourceString("-", source, context, target);
     }
 
     @Override

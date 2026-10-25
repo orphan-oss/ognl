@@ -191,6 +191,25 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
         return "((" + resultClass.getName() + ") ognl.OgnlOps." + method + "(($w) (" + operand + ")))";
     }
 
+    // Java widens a byte or short operand to int, where OgnlOps keeps the operand's width
+    protected String toUnarySourceString(String operator, String source, C context, Object target) {
+        String result = operator + "(" + coerceToNumeric(source, context, children[0]) + ")";
+        Object value;
+        try {
+            value = getValueBody(context, target);
+        } catch (OgnlException e) {
+            throw OgnlOps.castToRuntime(e);
+        }
+        getterClass = value.getClass();
+        Class<?> primitive = OgnlRuntime.getPrimitiveWrapperClass(getterClass);
+        if (value instanceof Short || value instanceof Byte) {
+            result = "(" + primitive.getName() + ") " + result;
+        }
+        context.setCurrentType(primitive);
+        context.setCurrentObject(value);
+        return result;
+    }
+
     // Uncast, for an operand whose runtime value can change the result class, such as a null Character
     protected String toOpsUnarySourceString(String method, C context, Object target) {
         markOpsSource();
