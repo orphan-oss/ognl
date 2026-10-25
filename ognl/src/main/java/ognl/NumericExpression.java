@@ -82,11 +82,10 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
                 return toOpsSourceString(operands, value, context);
             }
 
+            return castNativeResult(result.toString(), value, context);
         } catch (Throwable t) {
             throw OgnlOps.castToRuntime(t);
         }
-
-        return result.toString();
     }
 
     // A Number- or Object-typed operand can still hold a Big value, so the compile-time value counts too
@@ -191,24 +190,25 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
         return "((" + resultClass.getName() + ") ognl.OgnlOps." + method + "(($w) (" + operand + ")))";
     }
 
-    // Java widens a byte or short operand to int, where OgnlOps keeps the operand's width. A native
-    // expression operand is already primitive whatever its last operand left in the context
     protected String toUnarySourceString(String operator, String source, C context, Object target) {
         String operand = children[0] instanceof NumericExpression ? source : coerceToNumeric(source, context, children[0]);
-        String result = operator + "(" + operand + ")";
-        Object value;
         try {
-            value = getValueBody(context, target);
+            return castNativeResult(operator + "(" + operand + ")", getValueBody(context, target), context);
         } catch (OgnlException e) {
             throw OgnlOps.castToRuntime(e);
         }
+    }
+
+    // A native expression is primitive whatever its last operand left in the context, and Java widens a byte or
+    // short operand to int where OgnlOps keeps the operand's width
+    protected String castNativeResult(String source, Object value, C context) {
         getterClass = OgnlRuntime.getPrimitiveWrapperClass(value.getClass());
-        if (value instanceof Short || value instanceof Byte) {
-            result = "(" + getterClass.getName() + ") " + result;
-        }
         context.setCurrentType(getterClass);
         context.setCurrentObject(value);
-        return result;
+        if (value instanceof Short || value instanceof Byte) {
+            return "(" + getterClass.getName() + ") (" + source + ")";
+        }
+        return source;
     }
 
     // Uncast, for an operand whose runtime value can change the result class, such as a null Character
@@ -234,12 +234,14 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
         }
     }
 
+    // An arithmetic expression is only ever read, so a setter pass reaches it as a method or constructor argument
+    // and needs the coerced operands the getter pass emits, not ExpressionNode's bare ones
     @Override
     public String toSetSourceString(C context, Object target) {
         if (opsSource) {
             throw new UnsupportedCompilationException("Can't compile a setter through an OgnlOps-delegated expression.");
         }
-        return super.toSetSourceString(context, target);
+        return toGetSourceString(context, target);
     }
 
     public String coerceToNumeric(String source, C context, Node<C> child) {
