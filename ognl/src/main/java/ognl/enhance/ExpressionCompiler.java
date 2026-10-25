@@ -140,6 +140,11 @@ public class ExpressionCompiler<C extends OgnlContext<C>> implements OgnlExpress
         if (!shouldCast(expression))
             return rootExpr;
 
+        // the first link of such a chain emits the root receiver itself, unless the root is an array
+        if (expression instanceof ASTChain && expression.jjtGetChild(0) instanceof ASTRootVarRef
+                && root != null && !root.getClass().isArray())
+            return rootExpr;
+
         if ((!(expression instanceof ASTList)
                 && !(expression instanceof ASTVarRef)
                 && !(expression instanceof ASTStaticMethod)
