@@ -37,6 +37,19 @@ We pronounce OGNL as a word, like the last syllables of a drunken pronunciation 
  - [Developer Guide](docs/DeveloperGuide.md)
  - [Version Notes](docs/VersionNotes.md)
 
+## Release lines
+
+| Branch | Version | Java | Receives |
+| ------ | ------- | ---- | -------- |
+| `main` | 3.5.x | 17 | all development |
+| `ognl-3-4-x` | 3.4.x | 8 | security fixes and interpreted-mode bug fixes |
+
+Compiled mode (`Ognl.compileExpression` and the `ognl.enhance` package) is frozen on 3.4.x. It has known
+divergences from interpreted mode in arithmetic, mostly result types and operator precedence, such as
+[#722](https://github.com/orphan-oss/ognl/issues/722) and [#727](https://github.com/orphan-oss/ognl/issues/727), and
+those are fixed on 3.5.x only. A project that evaluates through `Ognl.getValue` or `Ognl.parseExpression` is not
+affected. A project that compiles expressions on 3.4.x should treat the result as best effort, or move to 3.5.x.
+
 ## Apache Commons OGNL project
 
 Sometimes ago this project has been migrated to [Apache Commons](http://commons.apache.org/ognl/) 
