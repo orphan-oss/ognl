@@ -1403,7 +1403,6 @@ class DualModeEvaluationTest {
             assertBothModes("getCurrentClass(\"Test\")", "Test stop");
         }
 
-        @Disabled("Compiler generates invalid cast for method call on auto-boxed primitive")
         @Test
         void toStringOnInteger() throws Exception {
             assertBothModes("index.toString()", "1");

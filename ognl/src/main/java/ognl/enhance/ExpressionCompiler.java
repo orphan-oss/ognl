@@ -145,6 +145,10 @@ public class ExpressionCompiler<C extends OgnlContext<C>> implements OgnlExpress
                 && root != null && !root.getClass().isArray())
             return rootExpr;
 
+        // an expression receiver carries the root inside its operands, where each needs it
+        if (expression instanceof ASTChain && expression.jjtGetChild(0) instanceof ExpressionNode)
+            return rootExpr;
+
         if ((!(expression instanceof ASTList)
                 && !(expression instanceof ASTVarRef)
                 && !(expression instanceof ASTStaticMethod)
