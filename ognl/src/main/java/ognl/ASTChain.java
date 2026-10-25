@@ -269,6 +269,31 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
         return !(child instanceof ASTProperty) || !((ASTProperty<C>) child).isIndexedAccess();
     }
 
+    // javassist types a ($w) boxing as Object, so the next link only resolves through a cast to the wrapper
+    private String boxExpressionReceiver(Node<C> child, String source, C context) {
+        Class<?> wrapper = null;
+        if (child instanceof NumericExpression) {
+            wrapper = context.getCurrentType();
+        } else if (child instanceof BooleanExpression && !(child instanceof ASTOr) && !(child instanceof ASTAnd)) {
+            wrapper = Boolean.class;
+        }
+        if (wrapper != null && wrapper.isPrimitive()) {
+            wrapper = OgnlRuntime.getPrimitiveWrapperClass(wrapper);
+        }
+        if (wrapper == null || wrapper == Object.class) {
+            return "(($w) (" + source + "))";
+        }
+        return "((" + wrapper.getName() + ")($w) (" + source + "))";
+    }
+
+    private Class<?> primitiveReceiverOf(int link, C context) {
+        Class<?> type = context.getCurrentType();
+        if (link == 0 || children[link - 1] instanceof ExpressionNode || type == null || !type.isPrimitive()) {
+            return null;
+        }
+        return OgnlRuntime.getPrimitiveWrapperClass(type);
+    }
+
     @Override
     public String toGetSourceString(C context, Object target) {
         String prevChain = (String) context.get(OgnlContext.CURRENT_CHAIN);
@@ -289,7 +314,9 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
         boolean constructor = false;
         try {
             if (children != null) {
-                for (Node<C> child : children) {
+                for (int i = 0; i < children.length; i++) {
+                    Node<C> child = children[i];
+                    Class<?> primitiveReceiver = primitiveReceiverOf(i, context);
                     String value = child.toGetSourceString(context, context.getCurrentObject());
 
                     if (child instanceof ASTCtor)
@@ -299,7 +326,12 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
                         lastType = nodeType;
                     }
 
-                    if (!(child instanceof ASTVarRef) && !constructor
+                    if (i == 0 && child instanceof ExpressionNode) {
+                        value = boxExpressionReceiver(child, value, context);
+                    } else if (primitiveReceiver != null) {
+                        ExpressionCompiler.addCastString(context, "((" + primitiveReceiver.getName() + ")(($w) ");
+                        value = "))" + value;
+                    } else if (!(child instanceof ASTVarRef) && !constructor
                             && !(child instanceof OrderedReturn orderedReturn && orderedReturn.getLastExpression() != null)
                             && (!(parent instanceof ASTSequence))) {
                         value = OgnlRuntime.getCompiler().castExpression(context, child, value);
