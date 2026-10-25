@@ -22,6 +22,7 @@ import ognl.DefaultMemberAccess;
 import ognl.Node;
 import ognl.Ognl;
 import ognl.OgnlContext;
+import ognl.test.objects.CharHolder;
 import ognl.test.objects.Root;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -47,6 +48,7 @@ class NegateCompileTest {
         context.put("d", 2.5);
         context.put("b", java.math.BigInteger.valueOf(2));
         context.put("by", (byte) 2);
+        context.put("h", new CharHolder());
     }
 
     @ParameterizedTest
@@ -89,6 +91,25 @@ class NegateCompileTest {
             "~#i",
             "~intValue",
             "~(intValue + 1)",
+            "-objectIndex",
+            "~objectIndex",
+            "-#root.intValue",
+            "~#root.intValue",
+            "-#root.objectIndex",
+            "-(#root.intValue + 1)",
+            "-(#i * #i)",
+            "~(#i * #i)",
+            "-(2 * #i)",
+            "-(#l * #l)",
+            "-(#d * #d)",
+            "-(#i * #i) + 1",
+            "#h.takesInteger(-1)",
+            "#h.takesInteger(~1)",
+            "#h.takesInteger(-#i)",
+            "#h.takesInteger(-(1 + 2))",
+            "#h.plusOne(-1)",
+            "#h.overload(-1)",
+            "@ognl.test.objects.CharHolder@statInteger(-1)",
     })
     void compiledModeMatchesInterpretedMode(String expression) throws Exception {
         Object interpreted = Ognl.getValue(expression, context, root);
