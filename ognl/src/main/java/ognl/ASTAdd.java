@@ -260,6 +260,10 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
                 }
             }
 
+            if (value instanceof Number) {
+                return castNativeResult(result.toString(), value, context);
+            }
+
             if (parent == null || ASTSequence.class.isAssignableFrom(parent.getClass())) {
                 if (getterClass != null && String.class.isAssignableFrom(getterClass))
                     getterClass = Object.class;
