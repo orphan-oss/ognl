@@ -190,7 +190,7 @@ public class ASTAdd<C extends OgnlContext<C>> extends NumericExpression<C> {
 
                     } else if (children[i] instanceof ExpressionNode) {
                         expr = "(" + expr + ")";
-                    } else if ((!(parent instanceof ASTChain))
+                    } else if ((!(parent instanceof ASTChain) || parent.jjtGetChild(0) == this)
                             && children[i] instanceof ASTChain) {
                         String rootExpr = ExpressionCompiler.getRootExpression(children[i], context.getRoot(), context);
 

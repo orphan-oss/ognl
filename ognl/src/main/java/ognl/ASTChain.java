@@ -269,8 +269,10 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
         return !(child instanceof ASTProperty) || !((ASTProperty<C>) child).isIndexedAccess();
     }
 
-    // javassist types a ($w) boxing as Object, so the next link only resolves through a cast to the wrapper
-    private String boxExpressionReceiver(Node<C> child, String source, C context) {
+    // javassist types a ($w) boxing as Object, so the next link only resolves through a cast to the wrapper.
+    // An or, and or ternary leaves the root as the current object, so the next link would resolve against the
+    // root's class instead, and its Java type depends on both operands besides
+    private Class<?> expressionReceiverWrapper(Node<C> child, C context) {
         Class<?> wrapper = null;
         if (child instanceof NumericExpression) {
             wrapper = context.getCurrentType();
@@ -281,9 +283,9 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
             wrapper = OgnlRuntime.getPrimitiveWrapperClass(wrapper);
         }
         if (wrapper == null || wrapper == Object.class) {
-            return "(($w) (" + source + "))";
+            throw new UnsupportedCompilationException("Can't chain a call on an expression of undetermined type.");
         }
-        return "((" + wrapper.getName() + ")($w) (" + source + "))";
+        return wrapper;
     }
 
     private Class<?> primitiveReceiverOf(int link, C context) {
@@ -327,7 +329,7 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
                     }
 
                     if (i == 0 && child instanceof ExpressionNode) {
-                        value = boxExpressionReceiver(child, value, context);
+                        value = "((" + expressionReceiverWrapper(child, context).getName() + ")($w) (" + value + "))";
                     } else if (primitiveReceiver != null) {
                         ExpressionCompiler.addCastString(context, "((" + primitiveReceiver.getName() + ")(($w) ");
                         value = "))" + value;
@@ -409,6 +411,10 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
                     }
 
                     String value = children[i].toSetSourceString(context, context.getCurrentObject());
+
+                    if (i == 0 && children[i] instanceof ExpressionNode) {
+                        expressionReceiverWrapper(children[i], context);
+                    }
 
                     if (children[i] instanceof ASTCtor)
                         constructor = true;
