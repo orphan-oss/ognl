@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * A binary arithmetic expression on variables must compile to the value and class interpreted mode answers,
- * on its own, nested under another operator, and as a method or constructor argument (#733, #736, #719).
+ * on its own, nested under another operator, and as a method or constructor argument (#733, #736, #719, #742).
  */
 class BinaryArithmeticCompileTest {
 
@@ -98,6 +98,15 @@ class BinaryArithmeticCompileTest {
             "-(#s * #s)",
             "(2 * #l) - 1",
             "(2 * #d) - 1",
+            "#i & 1",
+            "1 & 1",
+            "#s & 1",
+            "#i & #l",
+            "(#i & 1) - 1",
+            "#i | 1",
+            "#i ^ 1",
+            "#i << 1",
+            "#l >> 1",
             "(1 + 2) - 1",
             "(2 * 3) - 1",
             "intValue * 2",
@@ -108,6 +117,12 @@ class BinaryArithmeticCompileTest {
             "#h.takesInteger(#s + #s)",
             "#h.plusOne(#i * #i)",
             "#h.overload(#i * #i)",
+            "#h.plusOne(1 & 1)",
+            "#h.plusOne(#i & 1)",
+            "#h.plusOne(#i | 1)",
+            "#h.plusOne(#i << 1)",
+            "#h.overload(1 & 1)",
+            "#h.takesInteger(1 & 1)",
             "@ognl.test.objects.CharHolder@statInteger(#i * #i)",
             "@ognl.test.objects.CharHolder@statInteger(1 + 2)",
             "new ognl.test.objects.ObjectParameterTarget(1 + 2).description",

@@ -200,7 +200,8 @@ public abstract class NumericExpression<C extends OgnlContext<C>> extends Expres
     }
 
     // A native expression is primitive whatever its last operand left in the context, and Java widens a byte or
-    // short operand to int where OgnlOps keeps the operand's width
+    // short operand to int where OgnlOps keeps the operand's width. ASTChain glues its receiver onto the front
+    // of the source, so nothing may precede the first operand unless the width needs it
     protected String castNativeResult(String source, Object value, C context) {
         getterClass = OgnlRuntime.getPrimitiveWrapperClass(value.getClass());
         context.setCurrentType(getterClass);
