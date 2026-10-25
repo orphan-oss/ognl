@@ -53,7 +53,13 @@ public class ASTBitAnd<C extends OgnlContext<C>> extends NumericExpression<C> {
         return "&";
     }
 
+    // Java rejects a floating operand of &, where OgnlOps truncates it to long
     public String coerceToNumeric(String source, C context, Node<C> child) {
-        return "(long)" + super.coerceToNumeric(source, context, child);
+        Object operand = context.getCurrentObject();
+        String ret = super.coerceToNumeric(source, context, child);
+        if (operand instanceof Integer || operand instanceof Long || operand instanceof Short || operand instanceof Byte) {
+            return ret;
+        }
+        return "(long)" + ret;
     }
 }
