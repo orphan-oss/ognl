@@ -18,6 +18,7 @@
  */
 package ognl;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -82,5 +83,27 @@ class OgnlRuntimeStricterInvocationTest {
     @MethodSource("allowedMethods")
     void allowsOrdinaryMethods(Method method) {
         assertFalse(OgnlRuntime.isBlockedByStricterInvocation(method), method.toString());
+    }
+
+    @Test
+    void blocksOneMethodOfAClassWithoutBlockingTheOthers() throws Exception {
+        Method exit = System.class.getMethod("exit", int.class);
+        Method getProperty = System.class.getMethod("getProperty", String.class);
+
+        assertTrue(OgnlRuntime.isBlockedByStricterInvocation(exit));
+        assertFalse(OgnlRuntime.isBlockedByStricterInvocation(getProperty));
+        assertTrue(OgnlRuntime.isBlockedByStricterInvocation(exit));
+        assertFalse(OgnlRuntime.isBlockedByStricterInvocation(getProperty));
+    }
+
+    @Test
+    void blocksMethodsDeclaredBySubclassesOfBlockedTypes() throws Exception {
+        assertTrue(OgnlRuntime.isBlockedByStricterInvocation(CustomClassLoader.class.getMethod("describe")));
+    }
+
+    public static class CustomClassLoader extends ClassLoader {
+        public String describe() {
+            return "custom";
+        }
     }
 }
