@@ -81,7 +81,9 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
             if (i < ilast) {
                 if (children[i] instanceof ASTProperty) {
                     ASTProperty propertyNode = (ASTProperty) children[i];
-                    int indexType = propertyNode.getIndexedPropertyType(context, result);
+                    int indexType = isIndexedAccess(children[i + 1])
+                            ? propertyNode.getIndexedPropertyType(context, result)
+                            : OgnlRuntime.INDEXED_PROPERTY_NONE;
 
                     if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (children[i + 1] instanceof ASTProperty)) {
                         ASTProperty indexNode = (ASTProperty) children[i + 1];
@@ -145,7 +147,9 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
         for (int i = 0, ilast = children.length - 2; i <= ilast; ++i) {
             if (children[i] instanceof ASTProperty) {
                 ASTProperty propertyNode = (ASTProperty) children[i];
-                int indexType = propertyNode.getIndexedPropertyType(context, target);
+                int indexType = isIndexedAccess(children[i + 1])
+                        ? propertyNode.getIndexedPropertyType(context, target)
+                        : OgnlRuntime.INDEXED_PROPERTY_NONE;
 
                 if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (children[i + 1] instanceof ASTProperty)) {
                     ASTProperty indexNode = (ASTProperty) children[i + 1];
@@ -244,6 +248,10 @@ public class ASTChain extends SimpleNode implements NodeType, OrderedReturn {
             }
         }
         return result.toString();
+    }
+
+    private boolean isIndexedAccess(Node child) {
+        return child instanceof ASTProperty && ((ASTProperty) child).isIndexedAccess();
     }
 
     private boolean shouldAppendNavigationOperator(Node child) {

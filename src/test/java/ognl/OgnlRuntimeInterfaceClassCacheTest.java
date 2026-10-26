@@ -38,8 +38,18 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 class OgnlRuntimeInterfaceClassCacheTest {
 
     public static class Customer {
+        private String name = "Alice";
+
         public String getName() {
-            return "Alice";
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public List<String> getTags() {
+            return List.of("vip");
         }
     }
 
@@ -95,13 +105,34 @@ class OgnlRuntimeInterfaceClassCacheTest {
     void chainLooksUpInterfaceClassOncePerClass() throws Exception {
         Order order = new Order();
         OgnlContext context = Ognl.createDefaultContext(order, new DefaultMemberAccess(false));
-        Object tree = Ognl.parseExpression("customer.name");
+        Object tree = Ognl.parseExpression("customer.tags[0]");
 
         for (int i = 0; i < 5; i++) {
-            assertEquals("Alice", Ognl.getValue(tree, context, order));
+            assertEquals("vip", Ognl.getValue(tree, context, order));
         }
 
-        assertEquals(1, compiler.calls(Order.class));
+        assertEquals(1, compiler.calls(Customer.class));
+    }
+
+    @Test
+    void chainWithoutIndexDoesNotLookUpInterfaceClass() throws Exception {
+        Order order = new Order();
+        OgnlContext context = Ognl.createDefaultContext(order, new DefaultMemberAccess(false));
+
+        assertEquals("Alice", Ognl.getValue(Ognl.parseExpression("customer.name"), context, order));
+
+        assertEquals(0, compiler.calls(Order.class));
+    }
+
+    @Test
+    void settingThroughChainWithoutIndexDoesNotLookUpInterfaceClass() throws Exception {
+        Order order = new Order();
+        OgnlContext context = Ognl.createDefaultContext(order, new DefaultMemberAccess(false));
+
+        Ognl.setValue(Ognl.parseExpression("customer.name"), context, order, "Bob");
+
+        assertEquals("Bob", order.getCustomer().getName());
+        assertEquals(0, compiler.calls(Order.class));
     }
 
     @Test
