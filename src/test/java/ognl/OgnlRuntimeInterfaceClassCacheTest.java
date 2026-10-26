@@ -25,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,7 +50,7 @@ class OgnlRuntimeInterfaceClassCacheTest {
         }
 
         public List<String> getTags() {
-            return List.of("vip");
+            return Collections.singletonList("vip");
         }
     }
 
