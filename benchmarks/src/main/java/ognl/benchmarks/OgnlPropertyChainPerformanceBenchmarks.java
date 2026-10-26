@@ -18,6 +18,8 @@ import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,6 +44,7 @@ public class OgnlPropertyChainPerformanceBenchmarks {
     private BenchmarkOrderBean root;
     private SimpleNode twoLinkChainExpression;
     private SimpleNode threeLinkChainExpression;
+    private SimpleNode indexedChainExpression;
 
     @Setup
     public void setup() {
@@ -51,6 +54,7 @@ public class OgnlPropertyChainPerformanceBenchmarks {
 
             twoLinkChainExpression = (SimpleNode) Ognl.parseExpression("customer.name");
             threeLinkChainExpression = (SimpleNode) Ognl.parseExpression("customer.address.city");
+            indexedChainExpression = (SimpleNode) Ognl.parseExpression("customer.attributes['tier']");
         } catch (Exception e) {
             throw new RuntimeException("Failed to setup benchmark", e);
         }
@@ -66,6 +70,22 @@ public class OgnlPropertyChainPerformanceBenchmarks {
     public void threeLinkChainExpressionInterpreted(Blackhole blackhole) throws OgnlException {
         Object result = Ognl.getValue(threeLinkChainExpression, context, root);
         blackhole.consume(result);
+    }
+
+    @Benchmark
+    public void indexedChainExpressionInterpreted(Blackhole blackhole) throws OgnlException {
+        Object result = Ognl.getValue(indexedChainExpression, context, root);
+        blackhole.consume(result);
+    }
+
+    @Benchmark
+    public void threeLinkChainSetValueInterpreted() throws OgnlException {
+        Ognl.setValue(threeLinkChainExpression, context, root, "Shelbyville");
+    }
+
+    @Benchmark
+    public void indexedChainSetValueInterpreted() throws OgnlException {
+        Ognl.setValue(indexedChainExpression, context, root, "silver");
     }
 
     // Bean classes for testing
@@ -90,6 +110,7 @@ public class OgnlPropertyChainPerformanceBenchmarks {
 
     public static class BenchmarkCustomerBean extends BenchmarkBaseBean implements Comparable<BenchmarkCustomerBean> {
         private BenchmarkAddressBean address = new BenchmarkAddressBean();
+        private final Map<String, Object> attributes = new HashMap<>(Map.of("tier", "gold"));
 
         public String getName() {
             return "Alice";
@@ -99,6 +120,10 @@ public class OgnlPropertyChainPerformanceBenchmarks {
             return address;
         }
 
+        public Map<String, Object> getAttributes() {
+            return attributes;
+        }
+
         @Override
         public int compareTo(BenchmarkCustomerBean other) {
             return 0;
@@ -106,8 +131,14 @@ public class OgnlPropertyChainPerformanceBenchmarks {
     }
 
     public static class BenchmarkAddressBean extends BenchmarkBaseBean implements Comparable<BenchmarkAddressBean> {
+        private String city = "Springfield";
+
         public String getCity() {
-            return "Springfield";
+            return city;
+        }
+
+        public void setCity(String city) {
+            this.city = city;
         }
 
         @Override
