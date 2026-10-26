@@ -24,8 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Interpreted property chains on classes shaped like typical model objects, with a base class and a few
- * interfaces (issue #650). Every link of a chain except the last one looks up the interface class of its
- * source, which walks the type hierarchy, so these complement the plain beans used by
+ * interfaces (issue #650). A link followed by an index looks up the interface class of its source, which
+ * walks the type hierarchy, so these complement the plain beans used by
  * {@link OgnlPerformanceBenchmarks}.
  */
 @State(Scope.Benchmark)
