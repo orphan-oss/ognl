@@ -103,10 +103,11 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
 
             boolean handled = false;
 
-            if (i < ilast && children[i] instanceof ASTProperty<C> propertyNode) {
+            if (i < ilast && children[i] instanceof ASTProperty<C> propertyNode
+                    && children[i + 1] instanceof ASTProperty<C> indexNode && indexNode.isIndexedAccess()) {
                 int indexType = propertyNode.getIndexedPropertyType(context, result);
 
-                if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (children[i + 1] instanceof ASTProperty<C> indexNode) && indexNode.isIndexedAccess()) {
+                if (indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) {
                     Object index = indexNode.getProperty(context, result);
 
                     if (index instanceof DynamicSubscript dynamicSubscript) {
@@ -164,7 +165,9 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
 
         for (int i = 0, ilast = children.length - 2; i <= ilast; ++i) {
             if (children[i] instanceof ASTProperty<C> propertyNode) {
-                int indexType = propertyNode.getIndexedPropertyType(context, target);
+                int indexType = isIndexedAccess(children[i + 1])
+                        ? propertyNode.getIndexedPropertyType(context, target)
+                        : OgnlRuntime.INDEXED_PROPERTY_NONE;
 
                 if ((indexType != OgnlRuntime.INDEXED_PROPERTY_NONE) && (children[i + 1] instanceof ASTProperty<C> indexNode)) {
                     if (indexNode.isIndexedAccess()) {
@@ -263,6 +266,10 @@ public class ASTChain<C extends OgnlContext<C>> extends SimpleNode<C> implements
             }
         }
         return result.toString();
+    }
+
+    private boolean isIndexedAccess(Node<C> child) {
+        return child instanceof ASTProperty<C> property && property.isIndexedAccess();
     }
 
     private boolean shouldAppendNavigationOperator(Node<C> child) {
