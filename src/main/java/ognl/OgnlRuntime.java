@@ -809,24 +809,30 @@ public class OgnlRuntime {
         if (!_useStricterInvocation) {
             return false;
         }
-        final Class<?> methodDeclaringClass = method.getDeclaringClass();
         return (AO_SETACCESSIBLE_REF != null && AO_SETACCESSIBLE_REF.equals(method)) ||
                 (AO_SETACCESSIBLE_ARR_REF != null && AO_SETACCESSIBLE_ARR_REF.equals(method)) ||
                 (SYS_EXIT_REF != null && SYS_EXIT_REF.equals(method)) ||
                 (SYS_CONSOLE_REF != null && SYS_CONSOLE_REF.equals(method)) ||
-                AccessibleObjectHandler.class.isAssignableFrom(methodDeclaringClass) ||
-                ClassResolver.class.isAssignableFrom(methodDeclaringClass) ||
-                MethodAccessor.class.isAssignableFrom(methodDeclaringClass) ||
-                MemberAccess.class.isAssignableFrom(methodDeclaringClass) ||
-                OgnlContext.class.isAssignableFrom(methodDeclaringClass) ||
-                Runtime.class.isAssignableFrom(methodDeclaringClass) ||
-                ClassLoader.class.isAssignableFrom(methodDeclaringClass) ||
-                ProcessBuilder.class.isAssignableFrom(methodDeclaringClass) ||
-                Method.class.isAssignableFrom(methodDeclaringClass) ||
-                Constructor.class.isAssignableFrom(methodDeclaringClass) ||
-                Field.class.isAssignableFrom(methodDeclaringClass) ||
-                AccessibleObjectHandlerJDK9Plus.unsafeOrDescendant(methodDeclaringClass);
+                BLOCKED_DECLARING_CLASS.get(method.getDeclaringClass());
     }
+
+    private static final ClassValue<Boolean> BLOCKED_DECLARING_CLASS = new ClassValue<Boolean>() {
+        @Override
+        protected Boolean computeValue(Class<?> declaringClass) {
+            return AccessibleObjectHandler.class.isAssignableFrom(declaringClass) ||
+                    ClassResolver.class.isAssignableFrom(declaringClass) ||
+                    MethodAccessor.class.isAssignableFrom(declaringClass) ||
+                    MemberAccess.class.isAssignableFrom(declaringClass) ||
+                    OgnlContext.class.isAssignableFrom(declaringClass) ||
+                    Runtime.class.isAssignableFrom(declaringClass) ||
+                    ClassLoader.class.isAssignableFrom(declaringClass) ||
+                    ProcessBuilder.class.isAssignableFrom(declaringClass) ||
+                    Method.class.isAssignableFrom(declaringClass) ||
+                    Constructor.class.isAssignableFrom(declaringClass) ||
+                    Field.class.isAssignableFrom(declaringClass) ||
+                    AccessibleObjectHandlerJDK9Plus.unsafeOrDescendant(declaringClass);
+        }
+    };
 
     public static Object invokeMethod(Object target, Method method, Object[] argsArray)
             throws InvocationTargetException, IllegalAccessException {
