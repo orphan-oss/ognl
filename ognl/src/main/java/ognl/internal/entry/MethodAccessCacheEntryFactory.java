@@ -23,6 +23,10 @@ import ognl.internal.CacheException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+/**
+ * @deprecated no longer used by OGNL, the cache it fed was removed.
+ */
+@Deprecated(since = "3.5.0", forRemoval = true)
 public class MethodAccessCacheEntryFactory implements CacheEntryFactory<Method, MethodAccessEntryValue> {
 
     public static final MethodAccessEntryValue INACCESSIBLE_NON_PUBLIC_METHOD = new MethodAccessEntryValue(false, true);

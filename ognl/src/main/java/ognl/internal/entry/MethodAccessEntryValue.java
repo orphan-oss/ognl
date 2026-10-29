@@ -18,6 +18,10 @@
  */
 package ognl.internal.entry;
 
+/**
+ * @deprecated no longer used by OGNL, the cache it was a value of was removed.
+ */
+@Deprecated(since = "3.5.0", forRemoval = true)
 public class MethodAccessEntryValue {
 
     private final boolean isAccessible;
