@@ -35,6 +35,7 @@ import ognl.test.objects.OtherEnum;
 import ognl.test.objects.Root;
 import ognl.test.objects.SetterReturns;
 import ognl.test.objects.SubclassSyntheticObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -66,6 +67,11 @@ class OgnlRuntimeMethodsTest {
     @BeforeEach
     void setUp() {
         context = Ognl.createDefaultContext(null);
+    }
+
+    @AfterEach
+    void tearDown() {
+        OgnlRuntime.setClassCacheInspector(null);
     }
 
     @Test
