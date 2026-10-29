@@ -18,6 +18,11 @@
  */
 package ognl.internal.entry;
 
+/**
+ * @deprecated only used by the deprecated {@link ognl.OgnlCache#getMethodAccess(java.lang.reflect.Method)}.
+ * Will be removed in 3.5.0.
+ */
+@Deprecated
 public class MethodAccessEntryValue {
 
     private final boolean isAccessible;

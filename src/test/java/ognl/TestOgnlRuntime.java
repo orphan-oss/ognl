@@ -17,6 +17,7 @@ import ognl.test.objects.OtherEnum;
 import ognl.test.objects.Root;
 import ognl.test.objects.SetterReturns;
 import ognl.test.objects.SubclassSyntheticObject;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,6 +60,11 @@ public class TestOgnlRuntime {
     @Before
     public void setUp() throws Exception {
         context = Ognl.createDefaultContext(null, new DefaultMemberAccess(false));
+    }
+
+    @After
+    public void tearDown() {
+        OgnlRuntime.setClassCacheInspector(null);
     }
 
     @Test
