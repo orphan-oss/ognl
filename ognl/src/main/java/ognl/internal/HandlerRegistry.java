@@ -18,8 +18,8 @@
  */
 package ognl.internal;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Handlers (accessors, null handlers) registered for classes, and the handler each other class ends up
@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class HandlerRegistry<T> {
 
-    private final Map<Class<?>, T> registered = new ConcurrentHashMap<>();
+    private final Map<Class<?>, T> registered = new HashMap<>(); // only used under the monitor
     private final ClassCache<T> derived;
 
     /**

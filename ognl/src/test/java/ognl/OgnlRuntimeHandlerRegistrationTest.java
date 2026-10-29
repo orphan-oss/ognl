@@ -21,6 +21,10 @@ package ognl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -42,6 +46,7 @@ class OgnlRuntimeHandlerRegistrationTest {
     void tearDown() {
         OgnlRuntime.setPropertyAccessor(Base.class, null);
         OgnlRuntime.setMethodAccessor(Base.class, null);
+        OgnlRuntime.setClassCacheInspector(null);
     }
 
     @Test
@@ -91,6 +96,31 @@ class OgnlRuntimeHandlerRegistrationTest {
         OgnlRuntime.setPropertyAccessor(Base.class, null);
 
         assertSame(inherited, OgnlRuntime.getPropertyAccessor(LookedUpBefore.class));
+    }
+
+    @Test
+    void classCacheInspectorIsNotAppliedToAccessors() throws Exception {
+        Set<Class<?>> inspected = new HashSet<>();
+        OgnlRuntime.setClassCacheInspector(type -> {
+            inspected.add(type);
+            return false;
+        });
+
+        OgnlRuntime.getPropertyAccessor(LookedUpAfter.class);
+        OgnlRuntime.getMethodAccessor(LookedUpAfter.class);
+
+        assertFalse(inspected.contains(LookedUpAfter.class));
+    }
+
+    @Test
+    void accessorCanBeRegisteredForNullClass() throws Exception {
+        ObjectPropertyAccessor custom = new ObjectPropertyAccessor() {
+        };
+
+        OgnlRuntime.setPropertyAccessor(null, custom);
+        OgnlRuntime.setPropertyAccessor(null, null);
+
+        assertNotSame(custom, OgnlRuntime.getPropertyAccessor(LookedUpBefore.class));
     }
 
 }
