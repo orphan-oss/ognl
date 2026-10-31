@@ -85,6 +85,9 @@ to ask or report an issue.
             }
         };
      ```
+ - Is stricter invocation mode a sandbox for untrusted expressions?
+   - No. `MemberAccess` is the only access-control layer; the stricter-invocation list only guards against
+     accidental calls to a few JDK members and is not extended for bypass reports. See [SECURITY.md](SECURITY.md).
  - How to use the latest SNAPSHOT version?
    - Define OSS Sonatype repository in `~/.m2/settings.xml` as follows:
      ```xml
