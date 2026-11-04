@@ -23,6 +23,7 @@ import ognl.enhance.UnsupportedCompilationException;
 
 import java.beans.IntrospectionException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -94,7 +95,8 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
     }
 
     private Object writeFirstUsable(C context, Object target, String name, Object value,
-                                    List<PropertyCandidate> candidates, int from) throws Exception {
+                                    List<PropertyCandidate> candidates, int from)
+            throws OgnlException, IllegalAccessException, InvocationTargetException {
         for (int i = from, size = candidates.size(); i < size; i++) {
             PropertyCandidate candidate = candidates.get(i);
             if (PropertyResolution.isUsable(context, target, name, candidate, PropertyAccessKind.WRITE)) {
