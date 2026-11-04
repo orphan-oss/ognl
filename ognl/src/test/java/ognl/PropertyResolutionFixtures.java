@@ -18,7 +18,10 @@
  */
 package ognl;
 
+import ognl.enhance.ExpressionAccessor;
+
 import java.lang.reflect.Member;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -131,6 +134,20 @@ public final class PropertyResolutionFixtures {
         }
     }
 
+    public static class ObjectIndexedBean {
+        Map<String, Object> attrs = new HashMap<>();
+        public int getAttrCalls;
+
+        public Object getAttr(String key) {
+            getAttrCalls++;
+            return attrs.get(key);
+        }
+
+        public void setAttr(String key, Object value) {
+            attrs.put(key, value);
+        }
+    }
+
     public record Point(int x, int y) {
     }
 
@@ -153,5 +170,35 @@ public final class PropertyResolutionFixtures {
 
     public static <C extends OgnlContext<C>> C context(Object root, String... deniedMemberNames) {
         return Ognl.createDefaultContext(root, new DenyingMemberAccess<C>(deniedMemberNames));
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static boolean getterDelegatesToInterpreted(Node node, OgnlContext context, Object root) {
+        return delegatesToInterpreted(node, () -> node.getAccessor().get(context, root));
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static boolean setterDelegatesToInterpreted(Node node, OgnlContext context, Object root, Object value) {
+        return delegatesToInterpreted(node, () -> node.getAccessor().set(context, root, value));
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static boolean delegatesToInterpreted(Node node, Runnable call) {
+        ExpressionAccessor accessor = node.getAccessor();
+        boolean hasNodeField = Arrays.stream(accessor.getClass().getDeclaredFields())
+                .anyMatch(field -> field.getName().equals("_node"));
+        if (!hasNodeField) {
+            call.run();
+            return false;
+        }
+        accessor.setExpression(null);
+        try {
+            call.run();
+            return false;
+        } catch (NullPointerException e) {
+            return true;
+        } finally {
+            accessor.setExpression(node);
+        }
     }
 }
