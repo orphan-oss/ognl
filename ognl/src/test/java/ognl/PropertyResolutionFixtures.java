@@ -189,6 +189,20 @@ public final class PropertyResolutionFixtures {
     public record Point(int x, int y) {
     }
 
+    public record RecordWithGetter(String foo) {
+        public String getFoo() {
+            return "get:" + foo;
+        }
+    }
+
+    public static class NoArgSettersBean {
+        public void setFoo() {
+        }
+
+        public void setfoo() {
+        }
+    }
+
     public static class DenyingMemberAccess<C extends OgnlContext<C>> extends DefaultMemberAccess<C> {
         private final Set<String> denied;
 

@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 class PropertyResolutionCharacterizationTest {
@@ -171,6 +172,12 @@ class PropertyResolutionCharacterizationTest {
         assertHas(new FieldBean(), "shared", false, false);
         assertHas(new FieldBean(), "fixed", true, false);
         assertHas(new Point(1, 2), "x", true, false);
+    }
+
+    @Test
+    void recordAccessorCountsWhenGetterIsDenied() throws Exception {
+        RecordWithGetter record = new RecordWithGetter("v");
+        assertTrue(OgnlRuntime.hasGetProperty(ctx(record, "getFoo"), record, "foo"));
     }
 
     @Test

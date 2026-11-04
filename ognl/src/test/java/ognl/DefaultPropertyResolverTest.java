@@ -22,12 +22,14 @@ import ognl.PropertyResolutionFixtures.BothBean;
 import ognl.PropertyResolutionFixtures.IndexedBean;
 import ognl.PropertyResolutionFixtures.LenientBean;
 import ognl.PropertyResolutionFixtures.LombokBean;
+import ognl.PropertyResolutionFixtures.NoArgSettersBean;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Member;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -56,6 +58,15 @@ class DefaultPropertyResolverTest {
                         PropertyCandidate.field(BothBean.class.getField("value")),
                         PropertyCandidate.lenient(OgnlRuntime.getWriteMethod(BothBean.class, "value"))),
                 resolver.candidates(BothBean.class, "value", PropertyAccessKind.WRITE));
+    }
+
+    @Test
+    void failingLenientWriteLookupIsOmitted() throws Exception {
+        assertThrows(RuntimeException.class, () -> OgnlRuntime.getWriteMethod(NoArgSettersBean.class, "foo"));
+        assertEquals(List.of(), resolver.candidates(NoArgSettersBean.class, "foo", PropertyAccessKind.WRITE));
+        NoArgSettersBean bean = new NoArgSettersBean();
+        OgnlContext<?> ctx = PropertyResolutionFixtures.context(bean);
+        assertFalse(OgnlRuntime.hasSetProperty(ctx, bean, "foo"));
     }
 
     @Test
