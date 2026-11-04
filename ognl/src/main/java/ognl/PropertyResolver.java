@@ -25,7 +25,9 @@ import java.util.List;
  * {@link OgnlRuntime#setPropertyResolver(PropertyResolver)}.
  * <p>
  * A resolver narrows candidates and never grants access: every candidate is still checked by {@link MemberAccess}.
- * Results are cached per (class, name, kind), so a resolver must be a pure function of its arguments.
+ * Results are cached per (class, name, kind), so a resolver must be a pure function of its arguments. It may be called
+ * concurrently and more than once for the same key, and must not re-enter OGNL property resolution for that key.
+ * Property names may contain {@code "}.
  *
  * @see DefaultPropertyResolver
  * @since 3.5.0

@@ -434,8 +434,9 @@ public class OgnlRuntime {
      * Installs the resolver that decides which members OGNL may use for a property name.
      * <p>
      * The resolver is global per OGNL classloader: applications sharing one OGNL jar share it. Install it before the
-     * first evaluation. A late install leaks: expressions compiled earlier keep the members they captured, and a
-     * lookup in flight during the install can write an old result back after the cache is cleared.
+     * first evaluation. A late install leaks: expressions compiled earlier keep the members they captured, and an
+     * evaluation already holding a candidate list from the old resolver finishes with it. The static field keeps the
+     * resolver and its class loader reachable; call {@code setPropertyResolver(null)} on undeploy.
      * <p>
      * Compiled-mode guards apply only to a custom resolver; with the default resolver compiled output is unchanged. A
      * resolver that merely delegates to {@link DefaultPropertyResolver} may therefore compile fewer expressions: they
