@@ -246,12 +246,12 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                 if (parent == null) {
                     // the above pd will be the wrong result sometimes, such as methods like getValue(int) vs String[] getValue()
                     m = OgnlRuntime.getReadMethod(context.getCurrentObject().getClass(), name);
-                    requireOffered(context, name, PropertyAccessKind.READ, m);
+                    requireCompilable(context, name, PropertyAccessKind.READ, m);
 
                     result = m.getName() + "()";
                     getterClass = m.getReturnType();
                 } else {
-                    requireOffered(context, name, PropertyAccessKind.INDEXED_READ, m);
+                    requireCompilable(context, name, PropertyAccessKind.INDEXED_READ, m);
                     context.put("_indexedMethod", m);
                 }
             } else {
@@ -267,7 +267,7 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                         pd = OgnlRuntime.getProperty(context.getCurrentObject().getClass(), name);
 
                         if (pd != null && pd.getReadMethod() != null) {
-                            m = requireOffered(context, name, PropertyAccessKind.READ, pd.getReadMethod());
+                            m = requireCompilable(context, name, PropertyAccessKind.READ, pd.getReadMethod());
                             result = pd.getName();
                         } else {
                             getterClass = int.class;
@@ -278,7 +278,7 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                     }
                 } else {
                     if (pd != null && pd.getReadMethod() != null) {
-                        m = requireOffered(context, name, PropertyAccessKind.READ, pd.getReadMethod());
+                        m = requireCompilable(context, name, PropertyAccessKind.READ, pd.getReadMethod());
                         result = "." + m.getName() + "()";
                     } else if (pa != null) {
                         Object currObj = context.getCurrentObject();
@@ -324,16 +324,8 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
         return result;
     }
 
-    private static boolean isOffered(OgnlContext<?> context, String name, PropertyAccessKind kind, Method method) {
-        return PropertyResolution.isOffered(context.getCurrentObject().getClass(), name, kind, method);
-    }
-
-    private static Method requireOffered(OgnlContext<?> context, String name, PropertyAccessKind kind, Method method) {
-        if (method != null && !isOffered(context, name, kind, method)) {
-            throw new UnsupportedCompilationException("Property " + name + " is not offered by the PropertyResolver on "
-                    + context.getCurrentObject().getClass().getName());
-        }
-        return method;
+    private static Method requireCompilable(OgnlContext<?> context, String name, PropertyAccessKind kind, Method method) {
+        return PropertyResolution.requireCompilable(context, context.getCurrentObject().getClass(), name, kind, method);
     }
 
     Method getIndexedWriteMethod(PropertyDescriptor pd) {
@@ -478,7 +470,7 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                 if (parent == null) {
                     // the above pd will be the wrong result sometimes, such as methods like getValue(int) vs String[] getValue()
 
-                    m = requireOffered(context, name, PropertyAccessKind.WRITE,
+                    m = requireCompilable(context, name, PropertyAccessKind.WRITE,
                             OgnlRuntime.getWriteMethod(context.getCurrentObject().getClass(), name));
                     Class<?> parm = m.getParameterTypes()[0];
                     String cast = parm.isArray() ? ExpressionCompiler.getCastString(parm) : parm.getName();
@@ -486,10 +478,11 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                     result = m.getName() + "((" + cast + ")$3)";
                     setterClass = parm;
                 } else {
-                    requireOffered(context, name, lastChild(context) ? PropertyAccessKind.INDEXED_WRITE : PropertyAccessKind.INDEXED_READ, m);
+                    requireCompilable(context, name, lastChild(context) ? PropertyAccessKind.INDEXED_WRITE : PropertyAccessKind.INDEXED_READ, m);
                     context.put("_indexedMethod", m);
                     Method indexedWrite = getIndexedWriteMethod(pd);
-                    if (indexedWrite == null || isOffered(context, name, PropertyAccessKind.INDEXED_WRITE, indexedWrite)) {
+                    if (indexedWrite == null || PropertyResolution.isCompilable(context, context.getCurrentObject().getClass(),
+                            name, PropertyAccessKind.INDEXED_WRITE, indexedWrite)) {
                         context.put("_indexedDescriptor", pd);
                     }
                 }
@@ -501,7 +494,7 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                     setterClass = target.getClass();
 
                 if (parent != null && pd != null && pa == null) {
-                    m = requireOffered(context, name, PropertyAccessKind.READ, pd.getReadMethod());
+                    m = requireCompilable(context, name, PropertyAccessKind.READ, pd.getReadMethod());
                     result = m.getName() + "()";
                 } else {
                     if (context.getCurrentObject().getClass().isArray()) {
