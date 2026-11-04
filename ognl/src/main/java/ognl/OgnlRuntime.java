@@ -48,6 +48,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -2554,13 +2555,16 @@ public class OgnlRuntime {
                                                                    PropertyAccessKind kind, Object[] args) throws Exception {
         List<Method> resolved = new ArrayList<>();
         for (PropertyCandidate candidate : PropertyResolution.candidates(source.getClass(), name, kind)) {
-            resolved.add((Method) candidate.member());
+            if (!(candidate.member() instanceof Method method)) {
+                throw new OgnlException("indexed candidate for '" + name + "' is not a method: " + candidate.member());
+            }
+            resolved.add(method);
         }
         if (resolved.isEmpty()) {
             throw new OgnlException("property '" + name + "' is not an indexed property");
         }
         List<Method> overloads = getMethods(source.getClass(), descriptorMethod.getName(), false);
-        if (overloads != null && overloads.size() == resolved.size() && overloads.containsAll(resolved)) {
+        if (overloads != null && new HashSet<>(overloads).equals(new HashSet<>(resolved))) {
             return callMethod(context, source, descriptorMethod.getName(), args);
         }
         return callAppropriateMethod(context, source, source, descriptorMethod.getName(), null, resolved, args);

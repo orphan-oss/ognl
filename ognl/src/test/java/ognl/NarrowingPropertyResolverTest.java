@@ -57,6 +57,11 @@ class NarrowingPropertyResolverTest {
         keep((k, c) -> c.step() != step);
     }
 
+    private static boolean isStringKeyed(PropertyCandidate candidate) {
+        Class<?>[] types = ((java.lang.reflect.Method) candidate.member()).getParameterTypes();
+        return types.length == 1 && types[0] == String.class;
+    }
+
     private static OgnlContext ctx(Object root, String... denied) {
         return PropertyResolutionFixtures.context(root, denied);
     }
@@ -177,24 +182,33 @@ class NarrowingPropertyResolverTest {
         keep((k, c) -> k != PropertyAccessKind.INDEXED_READ && k != PropertyAccessKind.INDEXED_WRITE);
         IndexedBean bean = new IndexedBean();
         assertEquals(OgnlRuntime.INDEXED_PROPERTY_NONE, OgnlRuntime.getIndexedPropertyType(IndexedBean.class, "items"));
-        try {
-            Ognl.getValue("items[1]", ctx(bean), bean);
-        } catch (OgnlException expected) {
-            // fallback may legitimately fail
-        }
+        assertEquals("b", Ognl.getValue("items[1]", ctx(bean), bean));
         assertEquals(0, bean.getItemsIntCalls);
     }
 
     @Test
-    void narrowedOverloadIsUnreachable() {
+    void narrowedOverloadIsUnreachable() throws Exception {
         keep((k, c) -> k != PropertyAccessKind.INDEXED_READ
-                || ((java.lang.reflect.Method) c.member()).getParameterTypes()[0] == String.class);
+                || isStringKeyed(c));
         IndexedBean bean = new IndexedBean();
-        try {
-            Ognl.getValue("items[1]", ctx(bean), bean);
-        } catch (OgnlException expected) {
-            // narrowed overload set may legitimately fail
-        }
+        OgnlContext ctx = ctx(bean);
+        assertEquals("key:1", Ognl.getValue("items[1]", ctx, bean));
+        assertEquals(0, bean.getItemsIntCalls);
+    }
+
+    @Test
+    void duplicatedNarrowedListStaysNarrowed() throws Exception {
+        OgnlRuntime.setPropertyResolver((c, n, k) -> {
+            List<PropertyCandidate> kept = DefaultPropertyResolver.INSTANCE.candidates(c, n, k).stream()
+                    .filter(candidate -> k != PropertyAccessKind.INDEXED_READ
+                            || isStringKeyed(candidate))
+                    .toList();
+            return k == PropertyAccessKind.INDEXED_READ
+                    ? java.util.Collections.nCopies(3, kept.get(0)) : kept;
+        });
+        IndexedBean bean = new IndexedBean();
+        OgnlContext ctx = ctx(bean);
+        assertEquals("key:1", Ognl.getValue("items[1]", ctx, bean));
         assertEquals(0, bean.getItemsIntCalls);
     }
 
