@@ -2468,10 +2468,14 @@ public class OgnlRuntime {
      * @throws OgnlException for lots of different reasons.
      */
     public static int getIndexedPropertyType(Class<?> sourceClass, String name) throws OgnlException {
+        return getIndexedPropertyType(sourceClass, sourceClass, name);
+    }
+
+    static int getIndexedPropertyType(Class<?> descriptorClass, Class<?> targetClass, String name) throws OgnlException {
         int result = INDEXED_PROPERTY_NONE;
 
         try {
-            PropertyDescriptor pd = getPropertyDescriptor(sourceClass, name);
+            PropertyDescriptor pd = getPropertyDescriptor(descriptorClass, name);
             if (pd != null) {
                 if (pd instanceof IndexedPropertyDescriptor) {
                     result = INDEXED_PROPERTY_INT;
@@ -2480,6 +2484,11 @@ public class OgnlRuntime {
                         result = INDEXED_PROPERTY_OBJECT;
                     }
                 }
+            }
+            if (result != INDEXED_PROPERTY_NONE && targetClass != null
+                    && PropertyResolution.candidates(targetClass, name, PropertyAccessKind.INDEXED_READ).isEmpty()
+                    && PropertyResolution.candidates(targetClass, name, PropertyAccessKind.INDEXED_WRITE).isEmpty()) {
+                result = INDEXED_PROPERTY_NONE;
             }
         } catch (Exception ex) {
             throw new OgnlException("problem determining if '" + name + "' is an indexed property", ex);
@@ -2505,7 +2514,7 @@ public class OgnlRuntime {
                 }
             }
 
-            return callMethod(context, source, m.getName(), args);
+            return invokeIndexed(context, source, name, m, PropertyAccessKind.INDEXED_READ, args);
 
         } catch (OgnlException ex) {
             throw ex;
@@ -2532,13 +2541,29 @@ public class OgnlRuntime {
                 }
             }
 
-            callMethod(context, source, m.getName(), args);
+            invokeIndexed(context, source, name, m, PropertyAccessKind.INDEXED_WRITE, args);
 
         } catch (OgnlException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new OgnlException("getting indexed property descriptor for '" + name + "'", ex);
         }
+    }
+
+    private static <C extends OgnlContext<C>> Object invokeIndexed(C context, Object source, String name, Method descriptorMethod,
+                                                                   PropertyAccessKind kind, Object[] args) throws Exception {
+        List<Method> resolved = new ArrayList<>();
+        for (PropertyCandidate candidate : PropertyResolution.candidates(source.getClass(), name, kind)) {
+            resolved.add((Method) candidate.member());
+        }
+        if (resolved.isEmpty()) {
+            throw new OgnlException("property '" + name + "' is not an indexed property");
+        }
+        List<Method> overloads = getMethods(source.getClass(), descriptorMethod.getName(), false);
+        if (overloads != null && overloads.size() == resolved.size() && overloads.containsAll(resolved)) {
+            return callMethod(context, source, descriptorMethod.getName(), args);
+        }
+        return callAppropriateMethod(context, source, source, descriptorMethod.getName(), null, resolved, args);
     }
 
     public static <C extends OgnlContext<C>> EvaluationPool<C> getEvaluationPool() {
