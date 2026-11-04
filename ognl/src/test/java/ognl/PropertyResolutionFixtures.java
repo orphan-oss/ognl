@@ -148,6 +148,34 @@ public final class PropertyResolutionFixtures {
         }
     }
 
+    public static class OverloadedIndexedBean {
+        public int intReads;
+        public int stringReads;
+        public int intWrites;
+        public int stringWrites;
+        public Object lastWrite;
+
+        public Object getItems(int index) {
+            intReads++;
+            return "int:" + index;
+        }
+
+        public Object getItems(String key) {
+            stringReads++;
+            return "str:" + key;
+        }
+
+        public void setItems(int index, Object value) {
+            intWrites++;
+            lastWrite = value;
+        }
+
+        public void setItems(String key, Object value) {
+            stringWrites++;
+            lastWrite = value;
+        }
+    }
+
     public record Point(int x, int y) {
     }
 

@@ -18,6 +18,8 @@
  */
 package ognl;
 
+import ognl.enhance.UnsupportedCompilationException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -62,9 +64,36 @@ final class PropertyResolution {
         return OgnlRuntime.isMethodAccessible(context, target, (Method) candidate.member(), propertyName);
     }
 
-    static boolean isOffered(Class<?> targetClass, String propertyName, PropertyAccessKind kind, Member member) {
-        for (PropertyCandidate candidate : candidates(targetClass, propertyName, kind)) {
-            if (sameMember(candidate, member)) {
+    static <M extends Member> M requireCompilable(OgnlContext<?> context, Class<?> targetClass, String propertyName,
+                                                  PropertyAccessKind kind, M member) {
+        if (member != null && !isCompilable(context, targetClass, propertyName, kind, member)) {
+            throw new UnsupportedCompilationException("Property " + propertyName
+                    + " is not offered by the PropertyResolver on " + targetClass.getName());
+        }
+        return member;
+    }
+
+    static boolean isCompilable(OgnlContext<?> context, Class<?> targetClass, String propertyName,
+                                PropertyAccessKind kind, Member member) {
+        List<PropertyCandidate> candidates = candidates(targetClass, propertyName, kind);
+        if (kind == PropertyAccessKind.INDEXED_READ || kind == PropertyAccessKind.INDEXED_WRITE) {
+            List<Method> overloads = OgnlRuntime.getMethods(targetClass, member.getName(), false);
+            return overloads != null && overloads.stream().allMatch(overload -> isListed(candidates, overload));
+        }
+        if (candidates.isEmpty()) {
+            return false;
+        }
+        PropertyCandidate first = candidates.get(0);
+        if (kind == PropertyAccessKind.READ && first.step() == PropertyCandidate.Step.LENIENT
+                && context.isIgnoreReadMethods()) {
+            return false;
+        }
+        return sameMember(first, member);
+    }
+
+    private static boolean isListed(List<PropertyCandidate> candidates, Method method) {
+        for (PropertyCandidate candidate : candidates) {
+            if (sameMember(candidate, method)) {
                 return true;
             }
         }

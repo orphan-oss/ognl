@@ -32,7 +32,6 @@ import static ognl.PropertyAccessKind.READ;
 import static ognl.PropertyAccessKind.WRITE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -247,15 +246,60 @@ class NarrowingPropertyResolverTest {
         assertTrue(PropertyResolutionFixtures.setterDelegatesToInterpreted(compiled, ctx, bean, "y"));
     }
 
+    private static boolean isIntKeyed(PropertyCandidate candidate) {
+        return ((java.lang.reflect.Method) candidate.member()).getParameterTypes()[0] == int.class;
+    }
+
     @Test
-    void compiledIndexedFollowsNarrowing() throws Exception {
-        keep((k, c) -> k != PropertyAccessKind.INDEXED_READ || isStringKeyed(c));
-        IndexedBean bean = new IndexedBean();
+    void compiledIndexedReadSkipsUnofferedOverload() throws Exception {
+        keep((k, c) -> k != PropertyAccessKind.INDEXED_READ || isIntKeyed(c));
+        OverloadedIndexedBean bean = new OverloadedIndexedBean();
         OgnlContext ctx = ctx(bean);
-        Node compiled = Ognl.compileExpression(ctx, bean, "items[1]");
-        assertEquals("key:1", compiled.getAccessor().get(ctx, bean));
-        assertEquals(0, bean.getItemsIntCalls);
+        assertThrows(OgnlException.class, () -> Ognl.getValue("items['key']", ctx, bean));
+        Node compiled = Ognl.compileExpression(ctx, bean, "items['key']");
+        assertEquals(0, bean.stringReads);
+        assertThrows(OgnlException.class, () -> compiled.getAccessor().get(ctx, bean));
+        assertEquals(0, bean.stringReads);
         assertTrue(PropertyResolutionFixtures.getterDelegatesToInterpreted(compiled, ctx, bean));
+    }
+
+    @Test
+    void compiledIndexedWriteSkipsUnofferedOverload() throws Exception {
+        keep((k, c) -> k != PropertyAccessKind.INDEXED_WRITE || isIntKeyed(c));
+        OverloadedIndexedBean bean = new OverloadedIndexedBean();
+        OgnlContext ctx = ctx(bean);
+        assertThrows(OgnlException.class, () -> Ognl.setValue("items['key']", ctx, bean, "v"));
+        Node compiled = Ognl.compileExpression(ctx, bean, "items['key']");
+        assertThrows(OgnlException.class, () -> compiled.getAccessor().set(ctx, bean, "v"));
+        assertEquals(0, bean.stringWrites);
+        assertNull(bean.lastWrite);
+        assertTrue(PropertyResolutionFixtures.setterDelegatesToInterpreted(compiled, ctx, bean, "v"));
+    }
+
+    @Test
+    void compiledReadFollowsReordering() throws Exception {
+        List<Step> order = List.of(Step.FIELD, Step.ACCESSOR, Step.LENIENT);
+        OgnlRuntime.setPropertyResolver((c, n, k) -> DefaultPropertyResolver.INSTANCE.candidates(c, n, k).stream()
+                .sorted(Comparator.comparingInt(candidate -> order.indexOf(candidate.step()))).toList());
+        BothBean bean = new BothBean();
+        bean.value = "v";
+        OgnlContext ctx = ctx(bean);
+        Node compiled = Ognl.compileExpression(ctx, bean, "value");
+        assertEquals(Ognl.getValue("value", ctx, bean), compiled.getAccessor().get(ctx, bean));
+        assertEquals("v", compiled.getAccessor().get(ctx, bean));
+        compiled.getAccessor().set(ctx, bean, "x");
+        assertEquals("x", bean.value);
+        assertEquals(0, bean.setValueCalls);
+    }
+
+    @Test
+    void compiledLenientReadHonoursIgnoreReadMethods() throws Exception {
+        LenientBean bean = new LenientBean();
+        OgnlContext ctx = ctx(bean);
+        ctx.setIgnoreReadMethods(true);
+        assertThrows(NoSuchPropertyException.class, () -> Ognl.getValue("label", ctx, bean));
+        Node compiled = Ognl.compileExpression(ctx, bean, "label");
+        assertThrows(NoSuchPropertyException.class, () -> compiled.getAccessor().get(ctx, bean));
     }
 
     @Test
@@ -287,8 +331,9 @@ class NarrowingPropertyResolverTest {
         FieldBean bean = new FieldBean();
         bean.name = "n";
         OgnlContext ctx = ctx(bean);
+        assertThrows(NoSuchPropertyException.class, () -> Ognl.getValue("name", ctx, bean));
         Node compiled = Ognl.compileExpression(ctx, bean, "name");
-        assertNotEquals("n", compiled.getAccessor().get(ctx, bean));
+        assertThrows(NoSuchPropertyException.class, () -> compiled.getAccessor().get(ctx, bean));
     }
 
     @Test
