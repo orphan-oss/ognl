@@ -22,6 +22,7 @@ import ognl.PropertyResolutionFixtures.BothBean;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -78,6 +79,16 @@ class PropertyResolverInstallTest {
     }
 
     @Test
+    void clearDropsPerClassEntries() {
+        OgnlRuntime.clearCache();
+        PropertyResolution.candidates(BothBean.class, "value", PropertyAccessKind.READ);
+        PropertyResolution.candidates(String.class, "bytes", PropertyAccessKind.READ);
+        assertEquals(2, PropertyResolution.cachedClassCount());
+        OgnlRuntime.clearCache();
+        assertEquals(0, PropertyResolution.cachedClassCount());
+    }
+
+    @Test
     void nullClassIsCached() {
         AtomicInteger calls = new AtomicInteger();
         OgnlRuntime.setPropertyResolver((c, n, k) -> {
@@ -107,7 +118,7 @@ class PropertyResolverInstallTest {
 
     @Test
     void nullElementIsRejected() {
-        OgnlRuntime.setPropertyResolver((c, n, k) -> java.util.Arrays.asList((PropertyCandidate) null));
+        OgnlRuntime.setPropertyResolver((c, n, k) -> Arrays.asList((PropertyCandidate) null));
         NullPointerException e = assertThrows(NullPointerException.class,
                 () -> PropertyResolution.candidates(BothBean.class, "value", PropertyAccessKind.WRITE));
         assertTrue(e.getMessage().contains("value"), e.getMessage());
