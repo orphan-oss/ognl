@@ -146,7 +146,7 @@ class PropertyResolutionCharacterizationTest {
     @Test
     void indexedOverloadByIndexType() throws Exception {
         IndexedBean bean = new IndexedBean();
-        assertEquals("key:k", Ognl.getValue("items['k']", ctx(bean), bean));
+        assertEquals("key:key", Ognl.getValue("items['key']", ctx(bean), bean));
     }
 
     @Test
