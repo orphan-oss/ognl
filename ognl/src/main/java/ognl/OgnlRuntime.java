@@ -441,6 +441,11 @@ public class OgnlRuntime {
      * Compiled-mode guards apply only to a custom resolver; with the default resolver compiled output is unchanged. A
      * resolver that merely delegates to {@link DefaultPropertyResolver} may therefore compile fewer expressions: they
      * run interpreted with the same result, bar the documented compiled/interpreted divergences.
+     * <p>
+     * Under a custom resolver, indexed access compiles only when the target class uses {@link ObjectMethodAccessor}.
+     * Interpreted indexed access checks the overload the full overload set selects, then the {@link MethodAccessor}
+     * selects again: the {@link TypeConverter} must convert deterministically, and a custom {@code MethodAccessor} is
+     * trusted to invoke the overload it is asked for.
      *
      * @param resolver the resolver to install, or {@code null} to restore {@link DefaultPropertyResolver#INSTANCE}
      * @since 3.5.0

@@ -101,7 +101,8 @@ final class PropertyResolution {
                 && context.isIgnoreReadMethods()) {
             return false;
         }
-        return OgnlRuntime.isMethodAccessible(context, target, (Method) candidate.member(), propertyName);
+        return OgnlRuntime.isMethodAccessible(context, target, (Method) candidate.member(),
+                candidate.step() == PropertyCandidate.Step.INDEXED ? null : propertyName);
     }
 
     static <M extends Member> M requireCompilable(OgnlContext<?> context, Class<?> targetClass, String propertyName,
@@ -120,18 +121,26 @@ final class PropertyResolution {
         }
         List<PropertyCandidate> candidates = candidates(targetClass, propertyName, kind);
         if (kind == PropertyAccessKind.INDEXED_READ || kind == PropertyAccessKind.INDEXED_WRITE) {
-            return allListed(candidates, OgnlRuntime.getMethods(targetClass, member.getName(), false))
+            return hasDefaultMethodAccessor(targetClass)
+                    && allListed(candidates, OgnlRuntime.getMethods(targetClass, member.getName(), false))
                     && allListed(candidates, OgnlRuntime.getMethods(targetClass, member.getName(), true));
         }
         if (candidates.isEmpty()) {
             return false;
         }
         PropertyCandidate first = candidates.get(0);
-        if (kind == PropertyAccessKind.READ && first.step() == PropertyCandidate.Step.LENIENT
-                && context.isIgnoreReadMethods()) {
+        if (kind == PropertyAccessKind.READ && first.step() == PropertyCandidate.Step.LENIENT) {
             return false;
         }
         return sameMember(first, member);
+    }
+
+    private static boolean hasDefaultMethodAccessor(Class<?> targetClass) {
+        try {
+            return OgnlRuntime.getMethodAccessor(targetClass).getClass() == ObjectMethodAccessor.class;
+        } catch (OgnlException e) {
+            return false;
+        }
     }
 
     private static boolean allListed(List<PropertyCandidate> candidates, List<Method> overloads) {
@@ -150,11 +159,23 @@ final class PropertyResolution {
     private static boolean sameMember(PropertyCandidate candidate, Member member) {
         Member offered = candidate.member();
         if (member instanceof Method method) {
-            return offered instanceof Method offeredMethod && offeredMethod.getName().equals(method.getName())
-                    && Arrays.equals(offeredMethod.getParameterTypes(), method.getParameterTypes());
+            return offered instanceof Method offeredMethod
+                    && (offeredMethod.equals(method) || sameVirtualMethod(offeredMethod, method));
         }
-        return member instanceof Field && candidate.step() == PropertyCandidate.Step.FIELD
-                && offered.getName().equals(member.getName());
+        return member instanceof Field && candidate.step() == PropertyCandidate.Step.FIELD && offered.equals(member);
+    }
+
+    private static boolean sameVirtualMethod(Method a, Method b) {
+        return isVirtual(a) && isVirtual(b)
+                && (a.getDeclaringClass().isAssignableFrom(b.getDeclaringClass())
+                || b.getDeclaringClass().isAssignableFrom(a.getDeclaringClass()))
+                && a.getName().equals(b.getName())
+                && Arrays.equals(a.getParameterTypes(), b.getParameterTypes());
+    }
+
+    private static boolean isVirtual(Method method) {
+        int modifiers = method.getModifiers();
+        return !Modifier.isPrivate(modifiers) && !Modifier.isStatic(modifiers);
     }
 
     static boolean isAssignable(Field field) {

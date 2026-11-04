@@ -40,12 +40,77 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class NarrowingPropertyResolverTest {
 
     private MethodAccessor previousIndexedBeanAccessor;
+    private MethodAccessor previousObjectIndexedBeanAccessor;
 
     @AfterEach
     void reset() {
         OgnlRuntime.setPropertyResolver(null);
         if (previousIndexedBeanAccessor != null) {
             OgnlRuntime.setMethodAccessor(IndexedBean.class, previousIndexedBeanAccessor);
+        }
+        if (previousObjectIndexedBeanAccessor != null) {
+            OgnlRuntime.setMethodAccessor(ObjectIndexedBean.class, previousObjectIndexedBeanAccessor);
+        }
+    }
+
+    public static class PrivateParentIndexed {
+        public int parentCalls;
+
+        private Object getItems(int i) {
+            parentCalls++;
+            return "parent:" + i;
+        }
+    }
+
+    public static class PublicChildIndexed extends PrivateParentIndexed {
+        public int childCalls;
+
+        public Object getItems(int i) {
+            childCalls++;
+            return "child:" + i;
+        }
+
+        public Object[] getItems() {
+            return new Object[]{"a", "b"};
+        }
+    }
+
+    public static class PublicParentIndexed {
+        public Object getItems(int i) {
+            return "parent:" + i;
+        }
+
+        public Object[] getItems() {
+            return new Object[]{"a", "b"};
+        }
+    }
+
+    public static class OverridingChildIndexed extends PublicParentIndexed {
+        @Override
+        public Object getItems(int i) {
+            return "child:" + i;
+        }
+    }
+
+    public static class HiddenFieldBase {
+        public String name = "base";
+    }
+
+    public static class HiddenFieldSub extends HiddenFieldBase {
+        public String name = "sub";
+    }
+
+    private static class NamedIndexedAccessDenied<C extends OgnlContext<C>> extends DefaultMemberAccess<C> {
+        NamedIndexedAccessDenied() {
+            super(false);
+        }
+
+        @Override
+        public boolean isAccessible(C context, Object target, java.lang.reflect.Member member, String propertyName) {
+            if (member.getName().equals("getItems") && propertyName != null) {
+                return false;
+            }
+            return super.isAccessible(context, target, member, propertyName);
         }
     }
 
@@ -339,7 +404,7 @@ class NarrowingPropertyResolverTest {
         OgnlContext ctx = ctx(list);
         keep((k, c) -> true);
         Node offered = Ognl.compileExpression(ctx, list, "label");
-        assertFalse(PropertyResolutionFixtures.getterDelegatesToInterpreted(offered, ctx, list));
+        assertTrue(PropertyResolutionFixtures.getterDelegatesToInterpreted(offered, ctx, list));
         assertEquals("lbl", offered.getAccessor().get(ctx, list));
 
         drop(Step.LENIENT);
@@ -373,6 +438,70 @@ class NarrowingPropertyResolverTest {
         assertThrows(NoSuchPropertyException.class, () -> Ognl.getValue("label", ctx, bean));
         Node compiled = Ognl.compileExpression(ctx, bean, "label");
         assertThrows(NoSuchPropertyException.class, () -> compiled.getAccessor().get(ctx, bean));
+    }
+
+    @Test
+    void compiledLenientReadFollowsLaterIgnoreReadMethods() throws Exception {
+        keep((k, c) -> true);
+        LenientBean bean = new LenientBean();
+        OgnlContext ctx = ctx(bean);
+        Node compiled = Ognl.compileExpression(ctx, bean, "label");
+        assertEquals("lbl", compiled.getAccessor().get(ctx, bean));
+        ctx.setIgnoreReadMethods(true);
+        assertThrows(NoSuchPropertyException.class, () -> compiled.getAccessor().get(ctx, bean));
+    }
+
+    @Test
+    void compiledIndexedAccessKeepsRegisteredMethodAccessor() throws Exception {
+        previousObjectIndexedBeanAccessor = OgnlRuntime.getMethodAccessor(ObjectIndexedBean.class);
+        OgnlRuntime.setMethodAccessor(ObjectIndexedBean.class, new DenyingMethodAccessor());
+        keep((k, c) -> true);
+        ObjectIndexedBean bean = new ObjectIndexedBean();
+        OgnlContext ctx = ctx(bean);
+        Node compiled = Ognl.compileExpression(ctx, bean, "attr['key']");
+        assertEquals("DENIED", compiled.getAccessor().get(ctx, bean));
+        assertEquals(0, bean.getAttrCalls);
+    }
+
+    @Test
+    void privateParentOverloadDoesNotStandInForChild() {
+        keep((k, c) -> k != PropertyAccessKind.INDEXED_READ
+                || c.member().getDeclaringClass() == PrivateParentIndexed.class);
+        PublicChildIndexed bean = new PublicChildIndexed();
+        OgnlContext ctx = ctx(bean);
+        assertThrows(OgnlException.class, () -> Ognl.getValue("items[1]", ctx, bean));
+        assertEquals(0, bean.childCalls);
+        assertEquals(0, bean.parentCalls);
+    }
+
+    @Test
+    void overriddenParentOverloadCoversChild() throws Exception {
+        keep((k, c) -> k != PropertyAccessKind.INDEXED_READ
+                || c.member().getDeclaringClass() == PublicParentIndexed.class);
+        OverridingChildIndexed bean = new OverridingChildIndexed();
+        assertEquals("child:1", Ognl.getValue("items[1]", ctx(bean), bean));
+    }
+
+    @Test
+    void compiledFieldReadSkipsHidingSubclassField() throws Exception {
+        java.lang.reflect.Field baseName = HiddenFieldBase.class.getField("name");
+        OgnlRuntime.setPropertyResolver((c, n, k) -> c == HiddenFieldSub.class && n.equals("name") && k == READ
+                ? List.of(PropertyCandidate.field(baseName))
+                : DefaultPropertyResolver.INSTANCE.candidates(c, n, k));
+        HiddenFieldSub bean = new HiddenFieldSub();
+        OgnlContext ctx = ctx(bean);
+        assertEquals("base", Ognl.getValue("name", ctx, bean));
+        Node compiled = Ognl.compileExpression(ctx, bean, "name");
+        assertEquals("base", compiled.getAccessor().get(ctx, bean));
+    }
+
+    @Test
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    void firstUsableIndexedCandidateChecksAccessLikeDispatch() throws Exception {
+        IndexedBean bean = new IndexedBean();
+        OgnlContext ctx = (OgnlContext) Ognl.createDefaultContext(bean, new NamedIndexedAccessDenied());
+        assertEquals("b", Ognl.getValue("items[1]", ctx, bean));
+        assertTrue(OgnlRuntime.firstUsableCandidate(ctx, bean, "items", PropertyAccessKind.INDEXED_READ).isPresent());
     }
 
     @Test
