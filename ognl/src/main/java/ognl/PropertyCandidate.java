@@ -33,6 +33,7 @@ public record PropertyCandidate(Member member, Step step) {
     public enum Step {
         /** A JavaBeans getter or setter. */
         ACCESSOR,
+        /** A field, found by exact name on the class or a superclass. */
         FIELD,
         /** A method matched by name without the JavaBeans prefix rules. */
         LENIENT,

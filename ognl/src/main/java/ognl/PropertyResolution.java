@@ -67,17 +67,28 @@ final class PropertyResolution {
                 + " of property '" + propertyName + "' on " + (targetClass == null ? "null" : targetClass.getName()));
     }
 
+    static int cachedClassCount() {
+        return generation.byClass.size();
+    }
+
     private static final class Generation {
-        private final ClassValue<Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>>> byClass = new ClassValue<>() {
-            @Override
-            protected Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>> computeValue(Class<?> type) {
-                return newKindMap();
-            }
-        };
+        private final Map<Class<?>, Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>>> byClass =
+                new ConcurrentHashMap<>();
         private final Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>> nullClass = newKindMap();
 
         Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>> forClass(Class<?> targetClass) {
-            return targetClass == null ? nullClass : byClass.get(targetClass);
+            if (targetClass == null) {
+                return nullClass;
+            }
+            Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>> byKind = byClass.get(targetClass);
+            if (byKind == null) {
+                byKind = newKindMap();
+                Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>> raced = byClass.putIfAbsent(targetClass, byKind);
+                if (raced != null) {
+                    byKind = raced;
+                }
+            }
+            return byKind;
         }
 
         private static Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>> newKindMap() {
