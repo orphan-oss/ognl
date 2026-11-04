@@ -153,7 +153,7 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
 
     public Class<?> getPropertyClass(C context, Object target, Object index) {
         try {
-            Method m = PropertyResolution.requireCompilable(context, target.getClass(), index.toString(), PropertyAccessKind.READ,
+            Method m = PropertyResolution.requireCompilable(target.getClass(), index.toString(), PropertyAccessKind.READ,
                     OgnlRuntime.getReadMethod(target.getClass(), index.toString()));
             if (m == null) {
                 if (String.class.isAssignableFrom(index.getClass()) && !target.getClass().isArray()) {
@@ -161,7 +161,7 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
                     String key = (indexStr.indexOf('"') >= 0) ? indexStr.replaceAll("\"", "") : indexStr;
                     try {
                         Field f = target.getClass().getField(key);
-                        return PropertyResolution.requireCompilable(context, target.getClass(), key, PropertyAccessKind.READ, f).getType();
+                        return PropertyResolution.requireCompilable(target.getClass(), key, PropertyAccessKind.READ, f).getType();
                     } catch (NoSuchFieldException e) {
                         return null;
                     }
@@ -179,21 +179,21 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
 
             String indexStr = index.toString();
             String methodName = (indexStr.indexOf('"') >= 0 ? indexStr.replaceAll("\"", "") : indexStr);
-            Method m = PropertyResolution.requireCompilable(context, target.getClass(), methodName, PropertyAccessKind.READ,
+            Method m = PropertyResolution.requireCompilable(target.getClass(), methodName, PropertyAccessKind.READ,
                     OgnlRuntime.getReadMethod(target.getClass(), methodName));
 
             // try last ditch effort of checking if they were trying to do reflection via a return method value
             if (m == null && context.getCurrentObject() != null) {
                 String currentObjectStr = context.getCurrentObject().toString();
                 String currentName = currentObjectStr.indexOf('"') >= 0 ? currentObjectStr.replace("\"", "") : currentObjectStr;
-                m = PropertyResolution.requireCompilable(context, target.getClass(), currentName, PropertyAccessKind.READ,
+                m = PropertyResolution.requireCompilable(target.getClass(), currentName, PropertyAccessKind.READ,
                         OgnlRuntime.getReadMethod(target.getClass(), currentName));
             }
 
             if (m == null) {
                 try {
                     if (String.class.isAssignableFrom(index.getClass()) && !target.getClass().isArray()) {
-                        Field f = PropertyResolution.requireCompilable(context, target.getClass(), methodName,
+                        Field f = PropertyResolution.requireCompilable(target.getClass(), methodName,
                                 PropertyAccessKind.READ, target.getClass().getField(methodName));
 
                         if (!context.getMemberAccess().isAccessible(context, target, f, methodName)) {
@@ -228,14 +228,14 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
 
             String indexStr = index.toString();
             String methodName = (indexStr.indexOf('"') >= 0 ? indexStr.replaceAll("\"", "") : indexStr);
-            Method m = PropertyResolution.requireCompilable(context, target.getClass(), methodName, PropertyAccessKind.WRITE,
+            Method m = PropertyResolution.requireCompilable(target.getClass(), methodName, PropertyAccessKind.WRITE,
                     OgnlRuntime.getWriteMethod(target.getClass(), methodName));
 
             if (m == null && context.getCurrentObject() != null
                     && context.getCurrentObject().toString() != null) {
                 String currentObjectStr = context.getCurrentObject().toString();
                 String currentName = currentObjectStr.indexOf('"') >= 0 ? currentObjectStr.replace("\"", "") : currentObjectStr;
-                m = PropertyResolution.requireCompilable(context, target.getClass(), currentName, PropertyAccessKind.WRITE,
+                m = PropertyResolution.requireCompilable(target.getClass(), currentName, PropertyAccessKind.WRITE,
                         OgnlRuntime.getWriteMethod(target.getClass(), currentName));
             }
 

@@ -56,6 +56,7 @@ class NarrowingPropertyResolverTest {
     public static class PrivateParentIndexed {
         public int parentCalls;
 
+        @SuppressWarnings("unused")
         private Object getItems(int i) {
             parentCalls++;
             return "parent:" + i;
