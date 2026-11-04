@@ -186,6 +186,7 @@ public final class PropertyResolutionFixtures {
         public int intWrites;
         public int stringWrites;
         public Object lastWrite;
+        public Object lastWriteKey;
 
         public Object getItems(int index) {
             intReads++;
@@ -199,11 +200,13 @@ public final class PropertyResolutionFixtures {
 
         public void setItems(int index, Object value) {
             intWrites++;
+            lastWriteKey = index;
             lastWrite = value;
         }
 
         public void setItems(String key, Object value) {
             stringWrites++;
+            lastWriteKey = key;
             lastWrite = value;
         }
     }
@@ -218,10 +221,14 @@ public final class PropertyResolutionFixtures {
     }
 
     public static class NoArgSettersBean {
+        public int calls;
+
         public void setFoo() {
+            calls++;
         }
 
         public void setfoo() {
+            calls++;
         }
     }
 

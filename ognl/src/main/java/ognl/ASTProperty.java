@@ -71,11 +71,11 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
             if (!isIndexedAccess()) {
                 Object property = getProperty(context, source);
 
-                if (property instanceof String) {
+                if (property instanceof String propertyName) {
                     return source == null
-                            ? OgnlRuntime.getIndexedPropertyType(null, (String) property)
+                            ? OgnlRuntime.getIndexedPropertyType(null, propertyName)
                             : OgnlRuntime.getIndexedPropertyType(OgnlRuntime.getInterfaceClass(source.getClass()),
-                            source.getClass(), (String) property);
+                            source.getClass(), propertyName);
                 }
             }
 

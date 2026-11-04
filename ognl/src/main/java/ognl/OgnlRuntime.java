@@ -55,6 +55,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
 /**
@@ -284,7 +285,8 @@ public class OgnlRuntime {
     static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheReadMethod = new ClassPropertyMethodCache();
 
-    private static volatile PropertyResolver propertyResolver = DefaultPropertyResolver.INSTANCE;
+    private static final AtomicReference<PropertyResolver> propertyResolver =
+            new AtomicReference<>(DefaultPropertyResolver.INSTANCE);
 
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
@@ -444,7 +446,7 @@ public class OgnlRuntime {
      * @since 3.5.0
      */
     public static void setPropertyResolver(PropertyResolver resolver) {
-        propertyResolver = resolver == null ? DefaultPropertyResolver.INSTANCE : resolver;
+        propertyResolver.set(resolver == null ? DefaultPropertyResolver.INSTANCE : resolver);
         PropertyResolution.clear();
     }
 
@@ -453,7 +455,7 @@ public class OgnlRuntime {
      * @since 3.5.0
      */
     public static PropertyResolver getPropertyResolver() {
-        return propertyResolver;
+        return propertyResolver.get();
     }
 
     /**
@@ -1971,7 +1973,7 @@ public class OgnlRuntime {
             if (component.getName().equals(propertyName)) {
                 Method accessor = component.getAccessor();
                 return isMethodAccessible(context, target, accessor, propertyName)
-                        && (propertyResolver == DefaultPropertyResolver.INSTANCE
+                        && (propertyResolver.get() == DefaultPropertyResolver.INSTANCE
                         || hasUsableCandidate(context, target, targetClass, propertyName, PropertyAccessKind.READ,
                         candidate -> candidate.step() != PropertyCandidate.Step.FIELD && candidate.member().equals(accessor)));
             }
@@ -2574,7 +2576,7 @@ public class OgnlRuntime {
     private static <C extends OgnlContext<C>> Object invokeIndexed(C context, Object source, String name, Method descriptorMethod,
                                                                    PropertyAccessKind kind, Object[] args) throws OgnlException {
         String methodName = descriptorMethod.getName();
-        if (propertyResolver != DefaultPropertyResolver.INSTANCE) {
+        if (propertyResolver.get() != DefaultPropertyResolver.INSTANCE) {
             requireOfferedOverload(context, source, name, methodName, kind, args);
         }
         return callMethod(context, source, methodName, args);

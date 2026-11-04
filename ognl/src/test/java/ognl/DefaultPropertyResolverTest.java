@@ -25,7 +25,10 @@ import ognl.PropertyResolutionFixtures.LombokBean;
 import ognl.PropertyResolutionFixtures.NoArgSettersBean;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -99,13 +102,14 @@ class DefaultPropertyResolverTest {
 
     @Test
     void candidateRejectsMismatchedStep() throws Exception {
+        Field field = BothBean.class.getField("value");
+        Method getter = BothBean.class.getMethod("getValue");
+        Constructor<BothBean> constructor = BothBean.class.getConstructor();
+        assertThrows(IllegalArgumentException.class, () -> new PropertyCandidate(field, PropertyCandidate.Step.ACCESSOR));
+        assertThrows(IllegalArgumentException.class, () -> new PropertyCandidate(getter, PropertyCandidate.Step.FIELD));
         assertThrows(IllegalArgumentException.class,
-                () -> new PropertyCandidate(BothBean.class.getField("value"), PropertyCandidate.Step.ACCESSOR));
-        assertThrows(IllegalArgumentException.class,
-                () -> new PropertyCandidate(BothBean.class.getMethod("getValue"), PropertyCandidate.Step.FIELD));
-        assertThrows(IllegalArgumentException.class,
-                () -> new PropertyCandidate(BothBean.class.getConstructor(), PropertyCandidate.Step.ACCESSOR));
+                () -> new PropertyCandidate(constructor, PropertyCandidate.Step.ACCESSOR));
         assertThrows(NullPointerException.class, () -> new PropertyCandidate(null, PropertyCandidate.Step.ACCESSOR));
-        assertThrows(NullPointerException.class, () -> new PropertyCandidate(BothBean.class.getMethod("getValue"), null));
+        assertThrows(NullPointerException.class, () -> new PropertyCandidate(getter, null));
     }
 }

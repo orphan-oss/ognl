@@ -85,29 +85,32 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
                 OgnlRuntime.callSetter(context, target, accessor, name, value);
                 return null;
             }
-            List<PropertyCandidate> candidates = resolved.candidates;
-            for (int i = accessor == null ? 0 : 1, size = candidates.size(); i < size; i++) {
-                PropertyCandidate candidate = candidates.get(i);
-                if (PropertyResolution.isUsable(context, target, name, candidate, PropertyAccessKind.WRITE)) {
-                    Member member = candidate.member();
-                    if (candidate.step() == PropertyCandidate.Step.LENIENT) {
-                        return ((Method) member).invoke(target, value);
-                    }
-                    if (member instanceof Method setter) {
-                        OgnlRuntime.callSetter(context, target, setter, name, value);
-                        return null;
-                    }
-                    if (OgnlRuntime.writeField(context, target, (Field) member, name, value)) {
-                        return null;
-                    }
-                }
-            }
+            return writeFirstUsable(context, target, name, value, resolved.candidates, accessor == null ? 0 : 1);
         } catch (OgnlException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new OgnlException(name, ex);
         }
+    }
 
+    private Object writeFirstUsable(C context, Object target, String name, Object value,
+                                    List<PropertyCandidate> candidates, int from) throws Exception {
+        for (int i = from, size = candidates.size(); i < size; i++) {
+            PropertyCandidate candidate = candidates.get(i);
+            if (PropertyResolution.isUsable(context, target, name, candidate, PropertyAccessKind.WRITE)) {
+                Member member = candidate.member();
+                if (candidate.step() == PropertyCandidate.Step.LENIENT) {
+                    return ((Method) member).invoke(target, value);
+                }
+                if (member instanceof Method setter) {
+                    OgnlRuntime.callSetter(context, target, setter, name, value);
+                    return null;
+                }
+                if (OgnlRuntime.writeField(context, target, (Field) member, name, value)) {
+                    return null;
+                }
+            }
+        }
         return OgnlRuntime.NotFound;
     }
 
@@ -180,7 +183,7 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
             // try last ditch effort of checking if they were trying to do reflection via a return method value
             if (m == null && context.getCurrentObject() != null) {
                 String currentObjectStr = context.getCurrentObject().toString();
-                String currentName = currentObjectStr.indexOf('"') >= 0 ? currentObjectStr.replaceAll("\"", "") : currentObjectStr;
+                String currentName = currentObjectStr.indexOf('"') >= 0 ? currentObjectStr.replace("\"", "") : currentObjectStr;
                 m = PropertyResolution.requireCompilable(context, target.getClass(), currentName, PropertyAccessKind.READ,
                         OgnlRuntime.getReadMethod(target.getClass(), currentName));
             }
@@ -229,7 +232,7 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
             if (m == null && context.getCurrentObject() != null
                     && context.getCurrentObject().toString() != null) {
                 String currentObjectStr = context.getCurrentObject().toString();
-                String currentName = currentObjectStr.indexOf('"') >= 0 ? currentObjectStr.replaceAll("\"", "") : currentObjectStr;
+                String currentName = currentObjectStr.indexOf('"') >= 0 ? currentObjectStr.replace("\"", "") : currentObjectStr;
                 m = PropertyResolution.requireCompilable(context, target.getClass(), currentName, PropertyAccessKind.WRITE,
                         OgnlRuntime.getWriteMethod(target.getClass(), currentName));
             }
