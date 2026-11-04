@@ -25,7 +25,6 @@ import java.beans.IntrospectionException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.util.Optional;
 
 /**
  * Implementation of PropertyAccessor that uses reflection on the target object's class to find a
@@ -44,11 +43,11 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
      */
     public Object getPossibleProperty(C context, Object target, String name) throws OgnlException {
         try {
-            Optional<PropertyCandidate> candidate = OgnlRuntime.firstUsableCandidate(context, target, name, PropertyAccessKind.READ);
-            if (candidate.isEmpty()) {
+            PropertyCandidate candidate = OgnlRuntime.firstUsable(context, target, name, PropertyAccessKind.READ);
+            if (candidate == null) {
                 return OgnlRuntime.NotFound;
             }
-            Member member = candidate.get().member();
+            Member member = candidate.member();
             return member instanceof Field field
                     ? OgnlRuntime.readField(context, target, field, name)
                     : OgnlRuntime.invokeGetter(target, (Method) member, name);

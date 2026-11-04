@@ -80,8 +80,8 @@ final class PropertyResolution {
         }
         List<PropertyCandidate> candidates = candidates(targetClass, propertyName, kind);
         if (kind == PropertyAccessKind.INDEXED_READ || kind == PropertyAccessKind.INDEXED_WRITE) {
-            List<Method> overloads = OgnlRuntime.getMethods(targetClass, member.getName(), false);
-            return overloads != null && overloads.stream().allMatch(overload -> isListed(candidates, overload));
+            return allListed(candidates, OgnlRuntime.getMethods(targetClass, member.getName(), false))
+                    && allListed(candidates, OgnlRuntime.getMethods(targetClass, member.getName(), true));
         }
         if (candidates.isEmpty()) {
             return false;
@@ -94,7 +94,11 @@ final class PropertyResolution {
         return sameMember(first, member);
     }
 
-    private static boolean isListed(List<PropertyCandidate> candidates, Method method) {
+    private static boolean allListed(List<PropertyCandidate> candidates, List<Method> overloads) {
+        return overloads == null || overloads.stream().allMatch(overload -> isListed(candidates, overload));
+    }
+
+    static boolean isListed(List<PropertyCandidate> candidates, Method method) {
         for (PropertyCandidate candidate : candidates) {
             if (sameMember(candidate, method)) {
                 return true;
@@ -132,14 +136,28 @@ final class PropertyResolution {
             if (candidate == null) {
                 throw nullResult(resolver, "a null candidate", targetClass, propertyName, kind);
             }
+            if (!fits(candidate.step(), kind)) {
+                throw new IllegalStateException(describe(resolver, "a " + candidate.step() + " candidate", targetClass,
+                        propertyName, kind));
+            }
         }
         return List.copyOf(candidates);
     }
 
+    private static boolean fits(PropertyCandidate.Step step, PropertyAccessKind kind) {
+        boolean indexedKind = kind == PropertyAccessKind.INDEXED_READ || kind == PropertyAccessKind.INDEXED_WRITE;
+        return indexedKind == (step == PropertyCandidate.Step.INDEXED);
+    }
+
     private static NullPointerException nullResult(PropertyResolver resolver, String what, Class<?> targetClass,
                                                    String propertyName, PropertyAccessKind kind) {
-        return new NullPointerException(resolver.getClass().getName() + " returned " + what + " for " + kind
-                + " of property '" + propertyName + "' on " + (targetClass == null ? "null" : targetClass.getName()));
+        return new NullPointerException(describe(resolver, what, targetClass, propertyName, kind));
+    }
+
+    private static String describe(PropertyResolver resolver, String what, Class<?> targetClass, String propertyName,
+                                   PropertyAccessKind kind) {
+        return resolver.getClass().getName() + " returned " + what + " for " + kind
+                + " of property '" + propertyName + "' on " + (targetClass == null ? "null" : targetClass.getName());
     }
 
     static int cachedClassCount() {
