@@ -27,6 +27,7 @@ import java.util.List;
 
 /**
  * OGNL's built-in property resolution. A custom resolver can extend or delegate to it and filter its output.
+ * A lenient lookup that throws is left out of the list.
  *
  * @since 3.5.0
  */
@@ -50,7 +51,7 @@ public class DefaultPropertyResolver implements PropertyResolver {
         if (getter != null) {
             candidates.add(PropertyCandidate.accessor(getter));
         } else {
-            Method lenient = OgnlRuntime.getReadMethod(targetClass, propertyName);
+            Method lenient = lenientRead(targetClass, propertyName);
             if (lenient != null) {
                 candidates.add(PropertyCandidate.lenient(lenient));
             }
@@ -66,11 +67,27 @@ public class DefaultPropertyResolver implements PropertyResolver {
             candidates.add(PropertyCandidate.accessor(setter));
         }
         addField(candidates, targetClass, propertyName);
-        Method lenient = OgnlRuntime.getWriteMethod(targetClass, propertyName);
+        Method lenient = lenientWrite(targetClass, propertyName);
         if (lenient != null) {
             candidates.add(PropertyCandidate.lenient(lenient));
         }
         return candidates;
+    }
+
+    private static Method lenientRead(Class<?> targetClass, String propertyName) {
+        try {
+            return OgnlRuntime.getReadMethod(targetClass, propertyName);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    private static Method lenientWrite(Class<?> targetClass, String propertyName) {
+        try {
+            return OgnlRuntime.getWriteMethod(targetClass, propertyName);
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 
     private static void addField(List<PropertyCandidate> candidates, Class<?> targetClass, String propertyName) {

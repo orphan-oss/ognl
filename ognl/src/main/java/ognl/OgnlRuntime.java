@@ -1971,8 +1971,9 @@ public class OgnlRuntime {
             if (component.getName().equals(propertyName)) {
                 Method accessor = component.getAccessor();
                 return isMethodAccessible(context, target, accessor, propertyName)
-                        && hasUsableCandidate(context, target, targetClass, propertyName, PropertyAccessKind.READ,
-                        candidate -> candidate.step() != PropertyCandidate.Step.FIELD && candidate.member().equals(accessor));
+                        && (propertyResolver == DefaultPropertyResolver.INSTANCE
+                        || hasUsableCandidate(context, target, targetClass, propertyName, PropertyAccessKind.READ,
+                        candidate -> candidate.step() != PropertyCandidate.Step.FIELD && candidate.member().equals(accessor)));
             }
         }
         return false;
