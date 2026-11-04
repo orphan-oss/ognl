@@ -286,8 +286,6 @@ public class OgnlRuntime {
 
     private static volatile PropertyResolver propertyResolver = DefaultPropertyResolver.INSTANCE;
 
-    private static final Predicate<PropertyCandidate> ANY_CANDIDATE = candidate -> true;
-
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
      */
@@ -2230,7 +2228,8 @@ public class OgnlRuntime {
 
     static <C extends OgnlContext<C>> PropertyCandidate firstUsable(C context, Object target, String propertyName,
                                                                     PropertyAccessKind kind) {
-        return firstUsable(context, target, (target == null) ? null : target.getClass(), propertyName, kind, ANY_CANDIDATE);
+        return PropertyResolution.firstUsable(context, target, propertyName,
+                PropertyResolution.resolved((target == null) ? null : target.getClass(), propertyName, kind), kind, 0);
     }
 
     private static <C extends OgnlContext<C>> boolean hasUsableCandidate(C context, Object target, Class<?> targetClass,
