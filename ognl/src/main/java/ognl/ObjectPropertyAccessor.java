@@ -25,6 +25,7 @@ import java.beans.IntrospectionException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * Implementation of PropertyAccessor that uses reflection on the target object's class to find a
@@ -43,7 +44,14 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
      */
     public Object getPossibleProperty(C context, Object target, String name) throws OgnlException {
         try {
-            PropertyCandidate candidate = OgnlRuntime.firstUsable(context, target, name, PropertyAccessKind.READ);
+            PropertyResolution.Resolved resolved = PropertyResolution.resolved((target == null) ? null : target.getClass(), name,
+                    PropertyAccessKind.READ);
+            Method getter = resolved.accessor;
+            if (getter != null && OgnlRuntime.isMethodAccessible(context, target, getter, name)) {
+                return OgnlRuntime.invokeGetter(target, getter, name);
+            }
+            PropertyCandidate candidate = PropertyResolution.firstUsable(context, target, name, resolved,
+                    PropertyAccessKind.READ, getter == null ? 0 : 1);
             if (candidate == null) {
                 return OgnlRuntime.NotFound;
             }
@@ -71,7 +79,15 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
     public Object setPossibleProperty(C context, Object target, String name, Object value)
             throws OgnlException {
         try {
-            for (PropertyCandidate candidate : PropertyResolution.candidates(target.getClass(), name, PropertyAccessKind.WRITE)) {
+            PropertyResolution.Resolved resolved = PropertyResolution.resolved(target.getClass(), name, PropertyAccessKind.WRITE);
+            Method accessor = resolved.accessor;
+            if (accessor != null && OgnlRuntime.isMethodAccessible(context, target, accessor, name)) {
+                OgnlRuntime.callSetter(context, target, accessor, name, value);
+                return null;
+            }
+            List<PropertyCandidate> candidates = resolved.candidates;
+            for (int i = accessor == null ? 0 : 1, size = candidates.size(); i < size; i++) {
+                PropertyCandidate candidate = candidates.get(i);
                 if (PropertyResolution.isUsable(context, target, name, candidate, PropertyAccessKind.WRITE)) {
                     Member member = candidate.member();
                     if (candidate.step() == PropertyCandidate.Step.LENIENT) {

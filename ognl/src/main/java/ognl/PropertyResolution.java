@@ -25,29 +25,68 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 final class PropertyResolution {
 
-    private static volatile Generation generation = new Generation();
+    private static final Class<?> NULL_TARGET = NullTarget.class;
+    private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, Resolved>> READ = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, Resolved>> WRITE = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, Resolved>> INDEXED_READ = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, Resolved>> INDEXED_WRITE = new ConcurrentHashMap<>();
 
     private PropertyResolution() {
     }
 
     static List<PropertyCandidate> candidates(Class<?> targetClass, String propertyName, PropertyAccessKind kind) {
-        Map<String, List<PropertyCandidate>> byName = generation.forClass(targetClass).get(kind);
-        List<PropertyCandidate> candidates = byName.get(propertyName);
-        if (candidates == null) {
-            candidates = resolve(targetClass, propertyName, kind);
-            List<PropertyCandidate> raced = byName.putIfAbsent(propertyName, candidates);
+        return resolved(targetClass, propertyName, kind).candidates;
+    }
+
+    static Resolved resolved(Class<?> targetClass, String propertyName, PropertyAccessKind kind) {
+        ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, Resolved>> byClass = byClass(kind);
+        Class<?> key = targetClass == null ? NULL_TARGET : targetClass;
+        ConcurrentHashMap<String, Resolved> byName = byClass.get(key);
+        if (byName == null) {
+            byName = new ConcurrentHashMap<>();
+            ConcurrentHashMap<String, Resolved> raced = byClass.putIfAbsent(key, byName);
             if (raced != null) {
-                candidates = raced;
+                byName = raced;
             }
         }
-        return candidates;
+        Resolved resolved = byName.get(propertyName);
+        if (resolved == null) {
+            resolved = new Resolved(resolve(targetClass, propertyName, kind));
+            Resolved raced = byName.putIfAbsent(propertyName, resolved);
+            if (raced != null) {
+                resolved = raced;
+            }
+        }
+        return resolved;
+    }
+
+    private static ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, Resolved>> byClass(PropertyAccessKind kind) {
+        if (kind == PropertyAccessKind.READ) {
+            return READ;
+        }
+        if (kind == PropertyAccessKind.WRITE) {
+            return WRITE;
+        }
+        return kind == PropertyAccessKind.INDEXED_READ ? INDEXED_READ : INDEXED_WRITE;
+    }
+
+    static <C extends OgnlContext<C>> PropertyCandidate firstUsable(C context, Object target, String propertyName,
+                                                                    Resolved resolved, PropertyAccessKind kind, int from) {
+        List<PropertyCandidate> candidates = resolved.candidates;
+        for (int i = from, size = candidates.size(); i < size; i++) {
+            PropertyCandidate candidate = candidates.get(i);
+            if (isUsable(context, target, propertyName, candidate, kind)) {
+                return candidate;
+            }
+        }
+        return null;
     }
 
     static <C extends OgnlContext<C>> boolean isUsable(C context, Object target, String propertyName,
@@ -123,7 +162,10 @@ final class PropertyResolution {
     }
 
     static void clear() {
-        generation = new Generation();
+        READ.clear();
+        WRITE.clear();
+        INDEXED_READ.clear();
+        INDEXED_WRITE.clear();
     }
 
     private static List<PropertyCandidate> resolve(Class<?> targetClass, String propertyName, PropertyAccessKind kind) {
@@ -161,35 +203,26 @@ final class PropertyResolution {
     }
 
     static int cachedClassCount() {
-        return generation.byClass.size();
+        Set<Class<?>> classes = new HashSet<>();
+        for (PropertyAccessKind kind : PropertyAccessKind.values()) {
+            classes.addAll(byClass(kind).keySet());
+        }
+        classes.remove(NULL_TARGET);
+        return classes.size();
     }
 
-    private static final class Generation {
-        private final Map<Class<?>, Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>>> byClass =
-                new ConcurrentHashMap<>();
-        private final Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>> nullClass = newKindMap();
+    static final class Resolved {
+        final List<PropertyCandidate> candidates;
+        final Method accessor;
 
-        Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>> forClass(Class<?> targetClass) {
-            if (targetClass == null) {
-                return nullClass;
-            }
-            Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>> byKind = byClass.get(targetClass);
-            if (byKind == null) {
-                byKind = newKindMap();
-                Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>> raced = byClass.putIfAbsent(targetClass, byKind);
-                if (raced != null) {
-                    byKind = raced;
-                }
-            }
-            return byKind;
+        private Resolved(List<PropertyCandidate> candidates) {
+            this.candidates = candidates;
+            this.accessor = !candidates.isEmpty() && candidates.get(0).step() == PropertyCandidate.Step.ACCESSOR
+                    ? (Method) candidates.get(0).member()
+                    : null;
         }
+    }
 
-        private static Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>> newKindMap() {
-            Map<PropertyAccessKind, Map<String, List<PropertyCandidate>>> byKind = new EnumMap<>(PropertyAccessKind.class);
-            for (PropertyAccessKind kind : PropertyAccessKind.values()) {
-                byKind.put(kind, new ConcurrentHashMap<>());
-            }
-            return byKind;
-        }
+    private static final class NullTarget {
     }
 }
