@@ -27,6 +27,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -170,14 +171,11 @@ final class PropertyResolution {
 
     private static List<PropertyCandidate> resolve(Class<?> targetClass, String propertyName, PropertyAccessKind kind) {
         PropertyResolver resolver = OgnlRuntime.getPropertyResolver();
-        List<PropertyCandidate> candidates = resolver.candidates(targetClass, propertyName, kind);
-        if (candidates == null) {
-            throw nullResult(resolver, "null", targetClass, propertyName, kind);
-        }
+        List<PropertyCandidate> candidates = Objects.requireNonNull(
+                resolver.candidates(targetClass, propertyName, kind),
+                () -> describe(resolver, "null", targetClass, propertyName, kind));
         for (PropertyCandidate candidate : candidates) {
-            if (candidate == null) {
-                throw nullResult(resolver, "a null candidate", targetClass, propertyName, kind);
-            }
+            Objects.requireNonNull(candidate, () -> describe(resolver, "a null candidate", targetClass, propertyName, kind));
             if (!fits(candidate.step(), kind)) {
                 throw new IllegalStateException(describe(resolver, "a " + candidate.step() + " candidate", targetClass,
                         propertyName, kind));
@@ -189,11 +187,6 @@ final class PropertyResolution {
     private static boolean fits(PropertyCandidate.Step step, PropertyAccessKind kind) {
         boolean indexedKind = kind == PropertyAccessKind.INDEXED_READ || kind == PropertyAccessKind.INDEXED_WRITE;
         return indexedKind == (step == PropertyCandidate.Step.INDEXED);
-    }
-
-    private static NullPointerException nullResult(PropertyResolver resolver, String what, Class<?> targetClass,
-                                                   String propertyName, PropertyAccessKind kind) {
-        return new NullPointerException(describe(resolver, what, targetClass, propertyName, kind));
     }
 
     private static String describe(PropertyResolver resolver, String what, Class<?> targetClass, String propertyName,
@@ -223,6 +216,6 @@ final class PropertyResolution {
         }
     }
 
-    private static final class NullTarget {
+    private interface NullTarget {
     }
 }

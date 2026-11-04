@@ -125,7 +125,7 @@ class PropertyResolutionCharacterizationTest {
     }
 
     @Test
-    void fieldConversionFailureDoesNotFallBackToLenient() throws Exception {
+    void fieldConversionFailureDoesNotFallBackToLenient() {
         ConvBean bean = new ConvBean();
         OgnlContext ctx = ctx(bean);
         OgnlException ex = assertThrows(OgnlException.class, () -> Ognl.setValue("count", ctx, bean, new Object()));
@@ -176,8 +176,8 @@ class PropertyResolutionCharacterizationTest {
 
     @Test
     void recordAccessorCountsWhenGetterIsDenied() throws Exception {
-        RecordWithGetter record = new RecordWithGetter("v");
-        assertTrue(OgnlRuntime.hasGetProperty(ctx(record, "getFoo"), record, "foo"));
+        RecordWithGetter bean = new RecordWithGetter("v");
+        assertTrue(OgnlRuntime.hasGetProperty(ctx(bean, "getFoo"), bean, "foo"));
     }
 
     @Test
@@ -221,8 +221,7 @@ class PropertyResolutionCharacterizationTest {
     }
 
     private static OgnlContext ctx(Object root, String... deniedMemberNames) {
-        OgnlContext context = PropertyResolutionFixtures.context(root, deniedMemberNames);
-        return context;
+        return PropertyResolutionFixtures.context(root, deniedMemberNames);
     }
 
     private static void assertHas(Object target, String name, boolean get, boolean set) throws Exception {
