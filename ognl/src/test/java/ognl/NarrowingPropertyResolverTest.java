@@ -294,6 +294,7 @@ class NarrowingPropertyResolverTest {
 
     @Test
     void compiledLenientReadHonoursIgnoreReadMethods() throws Exception {
+        keep((k, c) -> true);
         LenientBean bean = new LenientBean();
         OgnlContext ctx = ctx(bean);
         ctx.setIgnoreReadMethods(true);

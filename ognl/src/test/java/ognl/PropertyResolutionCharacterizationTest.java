@@ -193,6 +193,26 @@ class PropertyResolutionCharacterizationTest {
         assertEquals(Ognl.getValue("items[1]", ctx, indexed), compiled.getAccessor().get(ctx, indexed));
     }
 
+    @Test
+    void defaultCompiledKeepsPre755LenientChoice() throws Exception {
+        PlainAndIsBean plainAndIs = new PlainAndIsBean();
+        OgnlContext ctx = ctx(plainAndIs);
+        assertEquals("is", Ognl.getValue("foo", ctx, plainAndIs));
+        Node compiled = Ognl.compileExpression(ctx, plainAndIs, "foo");
+        assertFalse(PropertyResolutionFixtures.getterDelegatesToInterpreted(compiled, ctx, plainAndIs));
+        assertEquals("plain", compiled.getAccessor().get(ctx, plainAndIs));
+    }
+
+    @Test
+    void defaultCompiledKeepsPre755IgnoreReadMethodsBypass() throws Exception {
+        LenientBean lenient = new LenientBean();
+        OgnlContext ctx = ctx(lenient);
+        ctx.setIgnoreReadMethods(true);
+        Node compiled = Ognl.compileExpression(ctx, lenient, "label");
+        assertFalse(PropertyResolutionFixtures.getterDelegatesToInterpreted(compiled, ctx, lenient));
+        assertEquals("lbl", compiled.getAccessor().get(ctx, lenient));
+    }
+
     private static OgnlContext ctx(Object root, String... deniedMemberNames) {
         OgnlContext context = PropertyResolutionFixtures.context(root, deniedMemberNames);
         return context;
