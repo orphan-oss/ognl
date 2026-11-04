@@ -19,8 +19,10 @@
 package ognl;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +60,25 @@ final class PropertyResolution {
             return false;
         }
         return OgnlRuntime.isMethodAccessible(context, target, (Method) candidate.member(), propertyName);
+    }
+
+    static boolean isOffered(Class<?> targetClass, String propertyName, PropertyAccessKind kind, Member member) {
+        for (PropertyCandidate candidate : candidates(targetClass, propertyName, kind)) {
+            if (sameMember(candidate, member)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean sameMember(PropertyCandidate candidate, Member member) {
+        Member offered = candidate.member();
+        if (member instanceof Method method) {
+            return offered instanceof Method offeredMethod && offeredMethod.getName().equals(method.getName())
+                    && Arrays.equals(offeredMethod.getParameterTypes(), method.getParameterTypes());
+        }
+        return member instanceof Field && candidate.step() == PropertyCandidate.Step.FIELD
+                && offered.getName().equals(member.getName());
     }
 
     static boolean isAssignable(Field field) {

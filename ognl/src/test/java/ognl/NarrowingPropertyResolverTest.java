@@ -32,6 +32,7 @@ import static ognl.PropertyAccessKind.READ;
 import static ognl.PropertyAccessKind.WRITE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -220,5 +221,86 @@ class NarrowingPropertyResolverTest {
         OgnlContext ctx = ctx(bean);
         assertThrows(OgnlException.class, () -> Ognl.setValue("attr['k']", ctx, bean, "v"));
         assertTrue(bean.attrs.isEmpty());
+    }
+
+    @Test
+    void compiledReadFollowsNarrowing() throws Exception {
+        drop(READ, Step.ACCESSOR);
+        BothBean bean = new BothBean();
+        bean.value = "v";
+        OgnlContext ctx = ctx(bean);
+        Node compiled = Ognl.compileExpression(ctx, bean, "value");
+        assertEquals("v", compiled.getAccessor().get(ctx, bean));
+        assertEquals(Ognl.getValue("value", ctx, bean), compiled.getAccessor().get(ctx, bean));
+        assertTrue(PropertyResolutionFixtures.getterDelegatesToInterpreted(compiled, ctx, bean));
+    }
+
+    @Test
+    void compiledWriteFollowsNarrowing() throws Exception {
+        keep((k, c) -> k != WRITE || c.step() == Step.FIELD);
+        BothBean bean = new BothBean();
+        OgnlContext ctx = ctx(bean);
+        Node compiled = Ognl.compileExpression(ctx, bean, "value");
+        compiled.getAccessor().set(ctx, bean, "x");
+        assertEquals("x", bean.value);
+        assertEquals(0, bean.setValueCalls);
+        assertTrue(PropertyResolutionFixtures.setterDelegatesToInterpreted(compiled, ctx, bean, "y"));
+    }
+
+    @Test
+    void compiledIndexedFollowsNarrowing() throws Exception {
+        keep((k, c) -> k != PropertyAccessKind.INDEXED_READ || isStringKeyed(c));
+        IndexedBean bean = new IndexedBean();
+        OgnlContext ctx = ctx(bean);
+        Node compiled = Ognl.compileExpression(ctx, bean, "items[1]");
+        assertEquals("key:1", compiled.getAccessor().get(ctx, bean));
+        assertEquals(0, bean.getItemsIntCalls);
+        assertTrue(PropertyResolutionFixtures.getterDelegatesToInterpreted(compiled, ctx, bean));
+    }
+
+    @Test
+    void compiledObjectIndexedReadFollowsNarrowing() throws Exception {
+        keep((k, c) -> k != PropertyAccessKind.INDEXED_READ);
+        ObjectIndexedBean bean = new ObjectIndexedBean();
+        bean.attrs.put("key", "v");
+        OgnlContext ctx = ctx(bean);
+        Node compiled = Ognl.compileExpression(ctx, bean, "attr['key']");
+        assertThrows(OgnlException.class, () -> compiled.getAccessor().get(ctx, bean));
+        assertEquals(0, bean.getAttrCalls);
+        assertTrue(PropertyResolutionFixtures.getterDelegatesToInterpreted(compiled, ctx, bean));
+    }
+
+    @Test
+    void compiledObjectIndexedWriteFollowsNarrowing() throws Exception {
+        keep((k, c) -> k != PropertyAccessKind.INDEXED_WRITE);
+        ObjectIndexedBean bean = new ObjectIndexedBean();
+        OgnlContext ctx = ctx(bean);
+        Node compiled = Ognl.compileExpression(ctx, bean, "attr['key']");
+        assertThrows(OgnlException.class, () -> compiled.getAccessor().set(ctx, bean, "v"));
+        assertTrue(bean.attrs.isEmpty());
+        assertTrue(PropertyResolutionFixtures.setterDelegatesToInterpreted(compiled, ctx, bean, "v"));
+    }
+
+    @Test
+    void compiledFieldReadFollowsNarrowing() throws Exception {
+        drop(Step.FIELD);
+        FieldBean bean = new FieldBean();
+        bean.name = "n";
+        OgnlContext ctx = ctx(bean);
+        Node compiled = Ognl.compileExpression(ctx, bean, "name");
+        assertNotEquals("n", compiled.getAccessor().get(ctx, bean));
+    }
+
+    @Test
+    void defaultCompiledUnchanged() throws Exception {
+        BothBean bean = new BothBean();
+        bean.value = "v";
+        OgnlContext ctx = ctx(bean);
+        Node compiled = Ognl.compileExpression(ctx, bean, "value");
+        assertFalse(PropertyResolutionFixtures.getterDelegatesToInterpreted(compiled, ctx, bean));
+        assertEquals("g:v", compiled.getAccessor().get(ctx, bean));
+        assertFalse(PropertyResolutionFixtures.setterDelegatesToInterpreted(compiled, ctx, bean, "x"));
+        assertEquals("m:x", bean.value);
+        assertEquals(1, bean.setValueCalls);
     }
 }

@@ -22,6 +22,7 @@ import ognl.PropertyResolutionFixtures.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -182,7 +183,14 @@ class PropertyResolutionCharacterizationTest {
         field.name = "n";
         assertCompiledMatches(field, "name");
 
-        assertCompiledMatches(new IndexedBean(), "items[1]");
+        ObjectIndexedBean objectIndexed = new ObjectIndexedBean();
+        objectIndexed.attrs.put("key", "v");
+        assertCompiledMatches(objectIndexed, "attr['key']");
+
+        IndexedBean indexed = new IndexedBean();
+        OgnlContext ctx = ctx(indexed);
+        Node compiled = Ognl.compileExpression(ctx, indexed, "items[1]");
+        assertEquals(Ognl.getValue("items[1]", ctx, indexed), compiled.getAccessor().get(ctx, indexed));
     }
 
     private static OgnlContext ctx(Object root, String... deniedMemberNames) {
@@ -200,6 +208,7 @@ class PropertyResolutionCharacterizationTest {
         OgnlContext ctx = ctx(bean);
         Object interpreted = Ognl.getValue(expression, ctx, bean);
         Node compiled = Ognl.compileExpression(ctx, bean, expression);
-        assertEquals(interpreted, compiled.getValue(ctx, bean));
+        assertFalse(PropertyResolutionFixtures.getterDelegatesToInterpreted(compiled, ctx, bean), expression + " fell back to interpreted");
+        assertEquals(interpreted, compiled.getAccessor().get(ctx, bean));
     }
 }

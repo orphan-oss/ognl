@@ -131,15 +131,30 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
         }
     }
 
+    static Method offeredRead(Class<?> targetClass, String name, Method method) {
+        return offered(targetClass, name, PropertyAccessKind.READ, method);
+    }
+
+    static Method offeredWrite(Class<?> targetClass, String name, Method method) {
+        return offered(targetClass, name, PropertyAccessKind.WRITE, method);
+    }
+
+    private static Method offered(Class<?> targetClass, String name, PropertyAccessKind kind, Method method) {
+        return method != null && PropertyResolution.isOffered(targetClass, name, kind, method) ? method : null;
+    }
+
     public Class<?> getPropertyClass(C context, Object target, Object index) {
         try {
-            Method m = OgnlRuntime.getReadMethod(target.getClass(), index.toString());
+            Method m = offeredRead(target.getClass(), index.toString(), OgnlRuntime.getReadMethod(target.getClass(), index.toString()));
             if (m == null) {
                 if (String.class.isAssignableFrom(index.getClass()) && !target.getClass().isArray()) {
                     String indexStr = (String) index;
                     String key = (indexStr.indexOf('"') >= 0) ? indexStr.replaceAll("\"", "") : indexStr;
                     try {
                         Field f = target.getClass().getField(key);
+                        if (!PropertyResolution.isOffered(target.getClass(), key, PropertyAccessKind.READ, f)) {
+                            return null;
+                        }
                         return f.getType();
                     } catch (NoSuchFieldException e) {
                         return null;
@@ -158,18 +173,23 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
 
             String indexStr = index.toString();
             String methodName = (indexStr.indexOf('"') >= 0 ? indexStr.replaceAll("\"", "") : indexStr);
-            Method m = OgnlRuntime.getReadMethod(target.getClass(), methodName);
+            Method m = offeredRead(target.getClass(), methodName, OgnlRuntime.getReadMethod(target.getClass(), methodName));
 
             // try last ditch effort of checking if they were trying to do reflection via a return method value
             if (m == null && context.getCurrentObject() != null) {
                 String currentObjectStr = context.getCurrentObject().toString();
-                m = OgnlRuntime.getReadMethod(target.getClass(), (currentObjectStr.indexOf('"') >= 0 ? currentObjectStr.replaceAll("\"", "") : currentObjectStr));
+                String currentName = currentObjectStr.indexOf('"') >= 0 ? currentObjectStr.replaceAll("\"", "") : currentObjectStr;
+                m = offeredRead(target.getClass(), currentName, OgnlRuntime.getReadMethod(target.getClass(), currentName));
             }
 
             if (m == null) {
                 try {
                     if (String.class.isAssignableFrom(index.getClass()) && !target.getClass().isArray()) {
                         Field f = target.getClass().getField(methodName);
+
+                        if (!PropertyResolution.isOffered(target.getClass(), methodName, PropertyAccessKind.READ, f)) {
+                            return "";
+                        }
 
                         if (!context.getMemberAccess().isAccessible(context, target, f, methodName)) {
                             throw new UnsupportedCompilationException("Member access forbidden for field " + methodName
@@ -203,12 +223,13 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
 
             String indexStr = index.toString();
             String methodName = (indexStr.indexOf('"') >= 0 ? indexStr.replaceAll("\"", "") : indexStr);
-            Method m = OgnlRuntime.getWriteMethod(target.getClass(), methodName);
+            Method m = offeredWrite(target.getClass(), methodName, OgnlRuntime.getWriteMethod(target.getClass(), methodName));
 
             if (m == null && context.getCurrentObject() != null
                     && context.getCurrentObject().toString() != null) {
                 String currentObjectStr = context.getCurrentObject().toString();
-                m = OgnlRuntime.getWriteMethod(target.getClass(), (currentObjectStr.indexOf('"') >= 0 ? currentObjectStr.replaceAll("\"", "") : currentObjectStr));
+                String currentName = currentObjectStr.indexOf('"') >= 0 ? currentObjectStr.replaceAll("\"", "") : currentObjectStr;
+                m = offeredWrite(target.getClass(), currentName, OgnlRuntime.getWriteMethod(target.getClass(), currentName));
             }
 
             if (m == null || m.getParameterTypes().length <= 0) {
