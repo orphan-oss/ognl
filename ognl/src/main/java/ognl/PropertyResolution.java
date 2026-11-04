@@ -105,16 +105,16 @@ final class PropertyResolution {
                 candidate.step() == PropertyCandidate.Step.INDEXED ? null : propertyName);
     }
 
-    static <M extends Member> M requireCompilable(OgnlContext<?> context, Class<?> targetClass, String propertyName,
+    static <M extends Member> M requireCompilable(Class<?> targetClass, String propertyName,
                                                   PropertyAccessKind kind, M member) {
-        if (member != null && !isCompilable(context, targetClass, propertyName, kind, member)) {
+        if (member != null && !isCompilable(targetClass, propertyName, kind, member)) {
             throw new UnsupportedCompilationException("Property " + propertyName
                     + " is not offered by the PropertyResolver on " + targetClass.getName());
         }
         return member;
     }
 
-    static boolean isCompilable(OgnlContext<?> context, Class<?> targetClass, String propertyName,
+    static boolean isCompilable(Class<?> targetClass, String propertyName,
                                 PropertyAccessKind kind, Member member) {
         if (OgnlRuntime.getPropertyResolver() == DefaultPropertyResolver.INSTANCE) {
             return true;

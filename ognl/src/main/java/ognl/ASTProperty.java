@@ -325,7 +325,7 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
     }
 
     private static Method requireCompilable(OgnlContext<?> context, String name, PropertyAccessKind kind, Method method) {
-        return PropertyResolution.requireCompilable(context, context.getCurrentObject().getClass(), name, kind, method);
+        return PropertyResolution.requireCompilable(context.getCurrentObject().getClass(), name, kind, method);
     }
 
     Method getIndexedWriteMethod(PropertyDescriptor pd) {
@@ -481,7 +481,7 @@ public class ASTProperty<C extends OgnlContext<C>> extends SimpleNode<C> impleme
                     requireCompilable(context, name, lastChild(context) ? PropertyAccessKind.INDEXED_WRITE : PropertyAccessKind.INDEXED_READ, m);
                     context.put("_indexedMethod", m);
                     Method indexedWrite = getIndexedWriteMethod(pd);
-                    if (indexedWrite == null || PropertyResolution.isCompilable(context, context.getCurrentObject().getClass(),
+                    if (indexedWrite == null || PropertyResolution.isCompilable(context.getCurrentObject().getClass(),
                             name, PropertyAccessKind.INDEXED_WRITE, indexedWrite)) {
                         context.put("_indexedDescriptor", pd);
                     }

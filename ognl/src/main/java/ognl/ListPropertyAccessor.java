@@ -165,7 +165,7 @@ public class ListPropertyAccessor<C extends OgnlContext<C>> extends ObjectProper
         // check if the index string represents a method on a custom class implementing java.util.List instead..
         if (context.getCurrentObject() != null && !(context.getCurrentObject() instanceof Number)) {
             try {
-                Method m = PropertyResolution.requireCompilable(context, target.getClass(), indexStr, PropertyAccessKind.READ,
+                Method m = PropertyResolution.requireCompilable(target.getClass(), indexStr, PropertyAccessKind.READ,
                         OgnlRuntime.getReadMethod(target.getClass(), indexStr));
                 if (m != null) {
                     return super.getSourceAccessor(context, target, index);
@@ -208,7 +208,7 @@ public class ListPropertyAccessor<C extends OgnlContext<C>> extends ObjectProper
 
         if (context.getCurrentObject() != null && !(context.getCurrentObject() instanceof Number)) {
             try {
-                Method m = PropertyResolution.requireCompilable(context, target.getClass(), indexStr, PropertyAccessKind.WRITE,
+                Method m = PropertyResolution.requireCompilable(target.getClass(), indexStr, PropertyAccessKind.WRITE,
                         OgnlRuntime.getWriteMethod(target.getClass(), indexStr));
 
                 if (m != null || !context.getCurrentType().isPrimitive()) {
