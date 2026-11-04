@@ -148,6 +148,8 @@ class NarrowingPropertyResolverTest {
         OgnlContext ctx = ctx(bothBean);
         assertFalse(OgnlRuntime.hasSetMethod(ctx, bothBean, BothBean.class, "value"));
         assertTrue(OgnlRuntime.hasSetProperty(ctx, bothBean, "value"));
+        Ognl.setValue("value", ctx, bothBean, "x");
+        assertEquals("x", bothBean.value);
     }
 
     @Test
@@ -348,5 +350,70 @@ class NarrowingPropertyResolverTest {
         assertFalse(PropertyResolutionFixtures.setterDelegatesToInterpreted(compiled, ctx, bean, "x"));
         assertEquals("m:x", bean.value);
         assertEquals(1, bean.setValueCalls);
+    }
+
+    @Test
+    void getMethodValueSkipsNarrowedOutGetter() {
+        drop(READ, Step.ACCESSOR);
+        BothBean bean = new BothBean();
+        bean.value = "v";
+        OgnlContext ctx = ctx(bean);
+        assertEquals(OgnlRuntime.NotFound, assertDoesNotThrowValue(() -> OgnlRuntime.getMethodValue(ctx, bean, "value", true)));
+        assertThrows(NoSuchMethodException.class, () -> OgnlRuntime.getMethodValue(ctx, bean, "value", false));
+    }
+
+    @Test
+    void setMethodValueSkipsNarrowedOutSetter() throws Exception {
+        drop(WRITE, Step.ACCESSOR);
+        BothBean bean = new BothBean();
+        OgnlContext ctx = ctx(bean);
+        assertFalse(OgnlRuntime.setMethodValue(ctx, bean, "value", "x", true));
+        assertFalse(OgnlRuntime.setMethodValue(ctx, bean, "value", "x", false));
+        assertEquals(0, bean.setValueCalls);
+        assertNull(bean.value);
+    }
+
+    @Test
+    void getFieldValueSkipsNarrowedOutField() {
+        drop(READ, Step.FIELD);
+        BothBean bean = new BothBean();
+        bean.value = "v";
+        OgnlContext ctx = ctx(bean);
+        assertEquals(OgnlRuntime.NotFound, assertDoesNotThrowValue(() -> OgnlRuntime.getFieldValue(ctx, bean, "value", true)));
+        assertThrows(NoSuchFieldException.class, () -> OgnlRuntime.getFieldValue(ctx, bean, "value", false));
+    }
+
+    @Test
+    void setFieldValueSkipsNarrowedOutField() throws Exception {
+        drop(WRITE, Step.FIELD);
+        BothBean bean = new BothBean();
+        OgnlContext ctx = ctx(bean);
+        assertFalse(OgnlRuntime.setFieldValue(ctx, bean, "value", "x", true));
+        assertFalse(OgnlRuntime.setFieldValue(ctx, bean, "value", "x", false));
+        assertNull(bean.value);
+    }
+
+    @Test
+    void nonMethodIndexedCandidateIsRejectedClearly() throws Exception {
+        PropertyCandidate notAMethod = PropertyCandidate.field(BothBean.class.getField("value"));
+        OgnlRuntime.setPropertyResolver((c, n, k) -> k == PropertyAccessKind.INDEXED_READ
+                ? List.of(notAMethod)
+                : DefaultPropertyResolver.INSTANCE.candidates(c, n, k));
+        IndexedBean bean = new IndexedBean();
+        OgnlContext ctx = ctx(bean);
+        OgnlException ex = assertThrows(OgnlException.class, () -> OgnlRuntime.getIndexedProperty(ctx, bean, "items", 0));
+        assertTrue(ex.getMessage().contains("is not a method"), ex.getMessage());
+    }
+
+    private interface ThrowingSupplier {
+        Object get() throws Exception;
+    }
+
+    private static Object assertDoesNotThrowValue(ThrowingSupplier supplier) {
+        try {
+            return supplier.get();
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
     }
 }

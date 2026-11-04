@@ -435,6 +435,10 @@ public class OgnlRuntime {
      * The resolver is global per OGNL classloader: applications sharing one OGNL jar share it. Install it before the
      * first evaluation. A late install leaks: expressions compiled earlier keep the members they captured, and a
      * lookup in flight during the install can write an old result back after the cache is cleared.
+     * <p>
+     * Compiled-mode guards apply only to a custom resolver; with the default resolver compiled output is unchanged. A
+     * resolver that merely delegates to {@link DefaultPropertyResolver} may therefore compile fewer expressions: they
+     * run interpreted with the same result, bar the documented compiled/interpreted divergences.
      *
      * @param resolver the resolver to install, or {@code null} to restore {@link DefaultPropertyResolver#INSTANCE}
      * @since 3.5.0
@@ -2204,7 +2208,8 @@ public class OgnlRuntime {
     /**
      * The first candidate for {@code target}'s class that the context may use. This is what evaluation uses, except
      * that a FIELD write whose value fails conversion moves on to the next candidate, and an indexed overload is
-     * chosen by the runtime argument types.
+     * chosen by the runtime argument types. An accessible static field counts as usable on READ (evaluation then
+     * throws, as reading a static property does today), so this may return it while {@link #hasGetProperty} is false.
      */
     public static <C extends OgnlContext<C>> Optional<PropertyCandidate> firstUsableCandidate(C context, Object target,
                                                                                           String propertyName,
