@@ -23,7 +23,9 @@ import ognl.enhance.UnsupportedCompilationException;
 
 import java.beans.IntrospectionException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 /**
  * Implementation of PropertyAccessor that uses reflection on the target object's class to find a
@@ -41,19 +43,20 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
      * @throws OgnlException if there is an error locating the property in the given object.
      */
     public Object getPossibleProperty(C context, Object target, String name) throws OgnlException {
-        Object result;
-
         try {
-            if ((result = OgnlRuntime.getMethodValue(context, target, name, true)) == OgnlRuntime.NotFound) {
-                result = OgnlRuntime.getFieldValue(context, target, name, true);
+            Optional<PropertyCandidate> candidate = OgnlRuntime.firstUsableCandidate(context, target, name, PropertyAccessKind.READ);
+            if (candidate.isEmpty()) {
+                return OgnlRuntime.NotFound;
             }
+            Member member = candidate.get().member();
+            return member instanceof Field field
+                    ? OgnlRuntime.readField(context, target, field, name)
+                    : OgnlRuntime.invokeGetter(target, (Method) member, name);
         } catch (OgnlException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new OgnlException(name, ex);
         }
-
-        return result;
     }
 
     /**
@@ -68,16 +71,20 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
      */
     public Object setPossibleProperty(C context, Object target, String name, Object value)
             throws OgnlException {
-        Object result = null;
         try {
-            if (!OgnlRuntime.setMethodValue(context, target, name, value, true)) {
-                result = OgnlRuntime.setFieldValue(context, target, name, value, true) ? null : OgnlRuntime.NotFound;
-            }
-
-            if (result == OgnlRuntime.NotFound) {
-                Method m = OgnlRuntime.getWriteMethod(target.getClass(), name);
-                if (m != null && context.getMemberAccess().isAccessible(context, target, m, name)) {
-                    result = m.invoke(target, value);
+            for (PropertyCandidate candidate : PropertyResolution.candidates(target.getClass(), name, PropertyAccessKind.WRITE)) {
+                if (PropertyResolution.isUsable(context, target, name, candidate, PropertyAccessKind.WRITE)) {
+                    Member member = candidate.member();
+                    if (candidate.step() == PropertyCandidate.Step.LENIENT) {
+                        return ((Method) member).invoke(target, value);
+                    }
+                    if (member instanceof Method setter) {
+                        OgnlRuntime.callSetter(context, target, setter, name, value);
+                        return null;
+                    }
+                    if (OgnlRuntime.writeField(context, target, (Field) member, name, value)) {
+                        return null;
+                    }
                 }
             }
         } catch (OgnlException ex) {
@@ -86,7 +93,7 @@ public class ObjectPropertyAccessor<C extends OgnlContext<C>> implements Propert
             throw new OgnlException(name, ex);
         }
 
-        return result;
+        return OgnlRuntime.NotFound;
     }
 
     public boolean hasGetProperty(C context, Object target, Object oname) throws OgnlException {

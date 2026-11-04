@@ -71,6 +71,12 @@ public final class PropertyResolutionFixtures {
     public static class SubFieldBean extends FieldBean {
     }
 
+    public static class GetterOnlyBean {
+        public String getTitle() {
+            return "t";
+        }
+    }
+
     public static class BothBean {
         public String value;
         public int setValueCalls;
