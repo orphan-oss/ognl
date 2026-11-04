@@ -171,4 +171,40 @@ class NarrowingPropertyResolverTest {
         FieldBean bean = new FieldBean();
         assertEquals(Optional.empty(), OgnlRuntime.firstUsableCandidate(ctx(bean), bean, "fixed", WRITE));
     }
+
+    @Test
+    void droppingIndexedMakesPropertyNotIndexed() throws Exception {
+        keep((k, c) -> k != PropertyAccessKind.INDEXED_READ && k != PropertyAccessKind.INDEXED_WRITE);
+        IndexedBean bean = new IndexedBean();
+        assertEquals(OgnlRuntime.INDEXED_PROPERTY_NONE, OgnlRuntime.getIndexedPropertyType(IndexedBean.class, "items"));
+        try {
+            Ognl.getValue("items[1]", ctx(bean), bean);
+        } catch (OgnlException expected) {
+            // fallback may legitimately fail
+        }
+        assertEquals(0, bean.getItemsIntCalls);
+    }
+
+    @Test
+    void narrowedOverloadIsUnreachable() {
+        keep((k, c) -> k != PropertyAccessKind.INDEXED_READ
+                || ((java.lang.reflect.Method) c.member()).getParameterTypes()[0] == String.class);
+        IndexedBean bean = new IndexedBean();
+        try {
+            Ognl.getValue("items[1]", ctx(bean), bean);
+        } catch (OgnlException expected) {
+            // narrowed overload set may legitimately fail
+        }
+        assertEquals(0, bean.getItemsIntCalls);
+    }
+
+    @Test
+    void narrowedIndexedWrite() {
+        keep((k, c) -> k != PropertyAccessKind.INDEXED_WRITE
+                || !((java.lang.reflect.Method) c.member()).getName().equals("setAttr"));
+        IndexedBean bean = new IndexedBean();
+        OgnlContext ctx = ctx(bean);
+        assertThrows(OgnlException.class, () -> Ognl.setValue("attr['k']", ctx, bean, "v"));
+        assertTrue(bean.attrs.isEmpty());
+    }
 }
