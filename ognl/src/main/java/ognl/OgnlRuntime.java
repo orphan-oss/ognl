@@ -48,7 +48,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -286,6 +285,8 @@ public class OgnlRuntime {
     static final ClassPropertyMethodCache cacheReadMethod = new ClassPropertyMethodCache();
 
     private static volatile PropertyResolver propertyResolver = DefaultPropertyResolver.INSTANCE;
+
+    private static final Predicate<PropertyCandidate> ANY_CANDIDATE = candidate -> true;
 
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
@@ -2207,32 +2208,45 @@ public class OgnlRuntime {
     }
 
     /**
-     * The first candidate for {@code target}'s class that the context may use. This is what evaluation uses, except
-     * that a FIELD write whose value fails conversion moves on to the next candidate, and an indexed overload is
-     * chosen by the runtime argument types. An accessible static field counts as usable on READ (evaluation then
-     * throws, as reading a static property does today), so this may return it while {@link #hasGetProperty} is false.
+     * The first candidate the context may use, as evaluation picks it, except that a FIELD write whose value fails
+     * conversion moves on to the next candidate, and for an INDEXED kind the overload called is chosen by the runtime
+     * argument types, so it need not be the one returned. An accessible static field counts as usable on READ
+     * (evaluation then throws), so this may return it while {@link #hasGetProperty} is false.
+     *
+     * @param context      reads only {@link OgnlContext#getMemberAccess()} and {@link OgnlContext#isIgnoreReadMethods()},
+     *                     so {@code Ognl.createDefaultContext(target, memberAccess)} is enough
+     * @param target       the runtime object; candidates resolve on {@code target.getClass()}, for a proxy the proxy class
+     * @param propertyName the property name
+     * @param kind         the access kind
+     * @return the first usable candidate, or empty when there is none
+     * @since 3.5.0
      */
     public static <C extends OgnlContext<C>> Optional<PropertyCandidate> firstUsableCandidate(C context, Object target,
                                                                                           String propertyName,
                                                                                           PropertyAccessKind kind) {
-        Class<?> targetClass = (target == null) ? null : target.getClass();
-        for (PropertyCandidate candidate : PropertyResolution.candidates(targetClass, propertyName, kind)) {
-            if (PropertyResolution.isUsable(context, target, propertyName, candidate, kind)) {
-                return Optional.of(candidate);
-            }
-        }
-        return Optional.empty();
+        return Optional.ofNullable(firstUsable(context, target, propertyName, kind));
+    }
+
+    static <C extends OgnlContext<C>> PropertyCandidate firstUsable(C context, Object target, String propertyName,
+                                                                    PropertyAccessKind kind) {
+        return firstUsable(context, target, (target == null) ? null : target.getClass(), propertyName, kind, ANY_CANDIDATE);
     }
 
     private static <C extends OgnlContext<C>> boolean hasUsableCandidate(C context, Object target, Class<?> targetClass,
                                                                          String propertyName, PropertyAccessKind kind,
                                                                          Predicate<PropertyCandidate> filter) {
+        return firstUsable(context, target, targetClass, propertyName, kind, filter) != null;
+    }
+
+    private static <C extends OgnlContext<C>> PropertyCandidate firstUsable(C context, Object target, Class<?> targetClass,
+                                                                            String propertyName, PropertyAccessKind kind,
+                                                                            Predicate<PropertyCandidate> filter) {
         for (PropertyCandidate candidate : PropertyResolution.candidates(targetClass, propertyName, kind)) {
             if (filter.test(candidate) && PropertyResolution.isUsable(context, target, propertyName, candidate, kind)) {
-                return true;
+                return candidate;
             }
         }
-        return false;
+        return null;
     }
 
     private static Member firstMember(Class<?> targetClass, String propertyName, PropertyAccessKind kind,
@@ -2558,22 +2572,26 @@ public class OgnlRuntime {
     }
 
     private static <C extends OgnlContext<C>> Object invokeIndexed(C context, Object source, String name, Method descriptorMethod,
-                                                                   PropertyAccessKind kind, Object[] args) throws Exception {
-        List<Method> resolved = new ArrayList<>();
-        for (PropertyCandidate candidate : PropertyResolution.candidates(source.getClass(), name, kind)) {
-            if (!(candidate.member() instanceof Method method)) {
-                throw new OgnlException("indexed candidate for '" + name + "' is not a method: " + candidate.member());
-            }
-            resolved.add(method);
+                                                                   PropertyAccessKind kind, Object[] args) throws OgnlException {
+        String methodName = descriptorMethod.getName();
+        if (propertyResolver != DefaultPropertyResolver.INSTANCE) {
+            requireOfferedOverload(context, source, name, methodName, kind, args);
         }
-        if (resolved.isEmpty()) {
-            throw new OgnlException("property '" + name + "' is not an indexed property");
+        return callMethod(context, source, methodName, args);
+    }
+
+    private static <C extends OgnlContext<C>> void requireOfferedOverload(C context, Object source, String name, String methodName,
+                                                                          PropertyAccessKind kind, Object[] args) throws OgnlException {
+        Class<?> sourceClass = source.getClass();
+        List<Method> overloads = getMethods(sourceClass, methodName, false);
+        if (overloads == null || overloads.isEmpty()) {
+            overloads = getMethods(sourceClass, methodName, true);
         }
-        List<Method> overloads = getMethods(source.getClass(), descriptorMethod.getName(), false);
-        if (overloads != null && new HashSet<>(overloads).equals(new HashSet<>(resolved))) {
-            return callMethod(context, source, descriptorMethod.getName(), args);
+        Method selected = getAppropriateMethod(context, source, source, null, methodName, overloads, args, new Object[args.length]);
+        if (selected == null || !PropertyResolution.isListed(PropertyResolution.candidates(sourceClass, name, kind), selected)) {
+            throw new OgnlException("indexed property '" + name + "' on " + sourceClass.getName() + " resolves to "
+                    + (selected == null ? "no method" : selected.toString()) + ", which the PropertyResolver does not offer for " + kind);
         }
-        return callAppropriateMethod(context, source, source, descriptorMethod.getName(), null, resolved, args);
     }
 
     public static <C extends OgnlContext<C>> EvaluationPool<C> getEvaluationPool() {

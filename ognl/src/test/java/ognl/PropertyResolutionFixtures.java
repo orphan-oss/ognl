@@ -144,6 +144,28 @@ public final class PropertyResolutionFixtures {
         }
     }
 
+    public static class StaticOverloadObjectIndexedBean {
+        Map<String, Object> attrs = new HashMap<>();
+
+        public Object getAttr(String key) {
+            return attrs.get(key);
+        }
+
+        public void setAttr(String key, Object value) {
+            attrs.put(key, value);
+        }
+
+        public static Object getAttr(Integer key) {
+            return "static:" + key;
+        }
+    }
+
+    public static class LabelledList extends java.util.ArrayList<String> {
+        public String label() {
+            return "lbl";
+        }
+    }
+
     public static class ObjectIndexedBean {
         Map<String, Object> attrs = new HashMap<>();
         public int getAttrCalls;
