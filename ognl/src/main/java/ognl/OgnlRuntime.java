@@ -52,8 +52,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 /**
  * Utility class used by internal OGNL API to do various things like:
@@ -1705,9 +1707,10 @@ public class OgnlRuntime {
     public static <C extends OgnlContext<C>> Object getMethodValue(C context, Object target, String propertyName, boolean checkAccessAndExistence)
             throws OgnlException, IllegalAccessException, NoSuchMethodException {
         Object result = null;
-        Method m = getGetMethod((target == null) ? null : target.getClass(), propertyName);
+        Class<?> targetClass = (target == null) ? null : target.getClass();
+        Method m = (Method) firstMember(targetClass, propertyName, PropertyAccessKind.READ, PropertyCandidate.Step.ACCESSOR);
         if (m == null && !context.isIgnoreReadMethods())
-            m = getReadMethod((target == null) ? null : target.getClass(), propertyName);
+            m = (Method) firstMember(targetClass, propertyName, PropertyAccessKind.READ, PropertyCandidate.Step.LENIENT);
 
         if (checkAccessAndExistence) {
             if ((m == null) || !isAccessible(context, target, m, propertyName)) {
@@ -1716,16 +1719,20 @@ public class OgnlRuntime {
         }
         if (result == null) {
             if (m != null) {
-                try {
-                    result = invokeMethod(target, m, NoArguments);
-                } catch (InvocationTargetException ex) {
-                    throw new OgnlException(propertyName, ex.getTargetException());
-                }
+                result = invokeGetter(target, m, propertyName);
             } else {
                 throw new NoSuchMethodException(propertyName);
             }
         }
         return result;
+    }
+
+    static Object invokeGetter(Object target, Method getter, String propertyName) throws OgnlException, IllegalAccessException {
+        try {
+            return invokeMethod(target, getter, NoArguments);
+        } catch (InvocationTargetException ex) {
+            throw new OgnlException(propertyName, ex.getTargetException());
+        }
     }
 
     /**
@@ -1740,7 +1747,8 @@ public class OgnlRuntime {
      */
     public static <C extends OgnlContext<C>> boolean setMethodValue(C context, Object target, String propertyName, Object value, boolean checkAccessAndExistence) throws OgnlException {
         boolean result = true;
-        Method m = getSetMethod(context, (target == null) ? null : target.getClass(), propertyName);
+        Method m = (Method) firstMember((target == null) ? null : target.getClass(), propertyName,
+                PropertyAccessKind.WRITE, PropertyCandidate.Step.ACCESSOR);
 
         if (checkAccessAndExistence) {
             if ((m == null) || !isAccessible(context, target, m, propertyName)) {
@@ -1750,14 +1758,18 @@ public class OgnlRuntime {
 
         if (result) {
             if (m != null) {
-                Object[] args = new Object[]{value};
-                callAppropriateMethod(context, target, target, m.getName(), propertyName, Collections.nCopies(1, m), args);
+                callSetter(context, target, m, propertyName, value);
             } else {
                 result = false;
             }
         }
 
         return result;
+    }
+
+    static <C extends OgnlContext<C>> void callSetter(C context, Object target, Method setter, String propertyName, Object value)
+            throws OgnlException {
+        callAppropriateMethod(context, target, target, setter.getName(), propertyName, Collections.nCopies(1, setter), new Object[]{value});
     }
 
     public static List<Constructor<?>> getConstructors(Class<?> targetClass) {
@@ -1844,7 +1856,8 @@ public class OgnlRuntime {
                                        boolean checkAccessAndExistence)
             throws NoSuchFieldException {
         Object result = null;
-        final Field f = getField((target == null) ? null : target.getClass(), propertyName);
+        final Field f = (Field) firstMember((target == null) ? null : target.getClass(), propertyName,
+                PropertyAccessKind.READ, PropertyCandidate.Step.FIELD);
 
         if (checkAccessAndExistence) {
             if ((f == null) || !isAccessible(context, target, f, propertyName)) {
@@ -1855,25 +1868,25 @@ public class OgnlRuntime {
             if (f == null) {
                 throw new NoSuchFieldException(propertyName);
             } else {
-                try {
-
-                    if (!Modifier.isStatic(f.getModifiers())) {
-                        final Object state = context.getMemberAccess().setup(context, target, f, propertyName);
-                        try {
-                            result = f.get(target);
-                        } finally {
-                            context.getMemberAccess().restore(context, target, f, propertyName, state);
-                        }
-                    } else {
-                        throw new NoSuchFieldException(propertyName);
-                    }
-
-                } catch (IllegalAccessException ex) {
-                    throw new NoSuchFieldException(propertyName);
-                }
+                result = readField(context, target, f, propertyName);
             }
         }
         return result;
+    }
+
+    static <C extends OgnlContext<C>> Object readField(C context, Object target, Field field, String propertyName)
+            throws NoSuchFieldException {
+        if (Modifier.isStatic(field.getModifiers())) {
+            throw new NoSuchFieldException(propertyName);
+        }
+        final Object state = context.getMemberAccess().setup(context, target, field, propertyName);
+        try {
+            return field.get(target);
+        } catch (IllegalAccessException ex) {
+            throw new NoSuchFieldException(propertyName);
+        } finally {
+            context.getMemberAccess().restore(context, target, field, propertyName, state);
+        }
     }
 
 
@@ -1883,30 +1896,30 @@ public class OgnlRuntime {
     public static <C extends OgnlContext<C>> boolean setFieldValue(C context, Object target, String propertyName, Object value,
                                         boolean checkAccessAndExistence)
             throws OgnlException {
-        boolean result = false;
+        final Field f = (Field) firstMember((target == null) ? null : target.getClass(), propertyName,
+                PropertyAccessKind.WRITE, PropertyCandidate.Step.FIELD);
 
+        return f != null && PropertyResolution.isAssignable(f)
+                && (!checkAccessAndExistence || isAccessible(context, target, f, propertyName))
+                && writeField(context, target, f, propertyName, value);
+    }
+
+    static <C extends OgnlContext<C>> boolean writeField(C context, Object target, Field field, String propertyName, Object value)
+            throws OgnlException {
+        final Object state = context.getMemberAccess().setup(context, target, field, propertyName);
         try {
-            final Field f = getField((target == null) ? null : target.getClass(), propertyName);
-
-            if (f != null) {
-                final int fModifiers = f.getModifiers();
-                if (!Modifier.isStatic(fModifiers) && !Modifier.isFinal(fModifiers) && (!checkAccessAndExistence || isAccessible(context, target, f, propertyName))) {
-                    final Object state = context.getMemberAccess().setup(context, target, f, propertyName);
-                    try {
-                        if (isTypeCompatible(value, f.getType())
-                                || ((value = getConvertedType(context, target, f, propertyName, value, f.getType())) != null)) {
-                            f.set(target, value);
-                            result = true;
-                        }
-                    } finally {
-                        context.getMemberAccess().restore(context, target, f, propertyName, state);
-                    }
-                }
+            boolean compatible = isTypeCompatible(value, field.getType());
+            Object assigned = compatible ? value : getConvertedType(context, target, field, propertyName, value, field.getType());
+            if (!compatible && assigned == null) {
+                return false;
             }
+            field.set(target, assigned);
+            return true;
         } catch (IllegalAccessException ex) {
             throw new NoSuchPropertyException(target, propertyName, ex);
+        } finally {
+            context.getMemberAccess().restore(context, target, field, propertyName, state);
         }
-        return result;
     }
 
     /**
@@ -1921,9 +1934,8 @@ public class OgnlRuntime {
     }
 
     public static <C extends OgnlContext<C>> boolean hasField(C context, Object target, Class<?> inClass, String propertyName) {
-        Field f = getField(inClass, propertyName);
-
-        return (f != null) && isFieldAccessible(context, target, f, propertyName);
+        return hasUsableCandidate(context, target, inClass, propertyName, PropertyAccessKind.READ,
+                candidate -> candidate.step() == PropertyCandidate.Step.FIELD);
     }
 
     /**
@@ -1932,14 +1944,8 @@ public class OgnlRuntime {
      * those modifiers.
      */
     private static <C extends OgnlContext<C>> boolean hasSettableField(C context, Object target, Class<?> inClass, String propertyName) {
-        Field f = getField(inClass, propertyName);
-        if (f == null) {
-            return false;
-        }
-        final int fModifiers = f.getModifiers();
-
-        return !Modifier.isStatic(fModifiers) && !Modifier.isFinal(fModifiers)
-                && isFieldAccessible(context, target, f, propertyName);
+        return hasUsableCandidate(context, target, inClass, propertyName, PropertyAccessKind.WRITE,
+                candidate -> candidate.step() == PropertyCandidate.Step.FIELD);
     }
 
     /**
@@ -1947,10 +1953,9 @@ public class OgnlRuntime {
      * refuses a static field. A final field is readable.
      */
     private static <C extends OgnlContext<C>> boolean hasReadableField(C context, Object target, Class<?> inClass, String propertyName) {
-        Field f = getField(inClass, propertyName);
-
-        return f != null && !Modifier.isStatic(f.getModifiers())
-                && isFieldAccessible(context, target, f, propertyName);
+        return hasUsableCandidate(context, target, inClass, propertyName, PropertyAccessKind.READ,
+                candidate -> candidate.step() == PropertyCandidate.Step.FIELD
+                        && !Modifier.isStatic(candidate.member().getModifiers()));
     }
 
     private static <C extends OgnlContext<C>> boolean hasRecordComponentAccessor(C context, Object target, Class<?> targetClass, String propertyName) {
@@ -1959,7 +1964,10 @@ public class OgnlRuntime {
         }
         for (RecordComponent component : targetClass.getRecordComponents()) {
             if (component.getName().equals(propertyName)) {
-                return isMethodAccessible(context, target, component.getAccessor(), propertyName);
+                Method accessor = component.getAccessor();
+                return isMethodAccessible(context, target, accessor, propertyName)
+                        && hasUsableCandidate(context, target, targetClass, propertyName, PropertyAccessKind.READ,
+                        candidate -> candidate.step() != PropertyCandidate.Step.FIELD && candidate.member().equals(accessor));
             }
         }
         return false;
@@ -2188,7 +2196,46 @@ public class OgnlRuntime {
     }
 
     public static <C extends OgnlContext<C>> boolean hasGetMethod(C context, Object target, Class<?> targetClass, String propertyName) {
-        return isMethodAccessible(context, target, getGetMethod(targetClass, propertyName), propertyName);
+        return hasUsableCandidate(context, target, targetClass, propertyName, PropertyAccessKind.READ,
+                candidate -> candidate.step() == PropertyCandidate.Step.ACCESSOR);
+    }
+
+    /**
+     * The first candidate for {@code target}'s class that the context may use. This is what evaluation uses, except
+     * that a FIELD write whose value fails conversion moves on to the next candidate, and an indexed overload is
+     * chosen by the runtime argument types.
+     */
+    public static <C extends OgnlContext<C>> Optional<PropertyCandidate> firstUsableCandidate(C context, Object target,
+                                                                                          String propertyName,
+                                                                                          PropertyAccessKind kind) {
+        Class<?> targetClass = (target == null) ? null : target.getClass();
+        for (PropertyCandidate candidate : PropertyResolution.candidates(targetClass, propertyName, kind)) {
+            if (PropertyResolution.isUsable(context, target, propertyName, candidate, kind)) {
+                return Optional.of(candidate);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static <C extends OgnlContext<C>> boolean hasUsableCandidate(C context, Object target, Class<?> targetClass,
+                                                                         String propertyName, PropertyAccessKind kind,
+                                                                         Predicate<PropertyCandidate> filter) {
+        for (PropertyCandidate candidate : PropertyResolution.candidates(targetClass, propertyName, kind)) {
+            if (filter.test(candidate) && PropertyResolution.isUsable(context, target, propertyName, candidate, kind)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Member firstMember(Class<?> targetClass, String propertyName, PropertyAccessKind kind,
+                                      PropertyCandidate.Step step) {
+        for (PropertyCandidate candidate : PropertyResolution.candidates(targetClass, propertyName, kind)) {
+            if (candidate.step() == step) {
+                return candidate.member();
+            }
+        }
+        return null;
     }
 
     /**
@@ -2270,7 +2317,8 @@ public class OgnlRuntime {
     }
 
     public static boolean hasSetMethod(OgnlContext context, Object target, Class<?> targetClass, String propertyName) {
-        return isMethodAccessible(context, target, getSetMethod(context, targetClass, propertyName), propertyName);
+        return hasUsableCandidate(context, target, targetClass, propertyName, PropertyAccessKind.WRITE,
+                candidate -> candidate.step() == PropertyCandidate.Step.ACCESSOR);
     }
 
     public static boolean hasGetProperty(OgnlContext context, Object target, Object oname) throws IntrospectionException {

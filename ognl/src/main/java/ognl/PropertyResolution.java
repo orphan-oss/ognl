@@ -18,6 +18,9 @@
  */
 package ognl;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +44,25 @@ final class PropertyResolution {
             }
         }
         return candidates;
+    }
+
+    static <C extends OgnlContext<C>> boolean isUsable(C context, Object target, String propertyName,
+                                                       PropertyCandidate candidate, PropertyAccessKind kind) {
+        if (candidate.step() == PropertyCandidate.Step.FIELD) {
+            Field field = (Field) candidate.member();
+            return (kind != PropertyAccessKind.WRITE || isAssignable(field))
+                    && OgnlRuntime.isFieldAccessible(context, target, field, propertyName);
+        }
+        if (candidate.step() == PropertyCandidate.Step.LENIENT && kind == PropertyAccessKind.READ
+                && context.isIgnoreReadMethods()) {
+            return false;
+        }
+        return OgnlRuntime.isMethodAccessible(context, target, (Method) candidate.member(), propertyName);
+    }
+
+    static boolean isAssignable(Field field) {
+        int modifiers = field.getModifiers();
+        return !Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers);
     }
 
     static void clear() {
