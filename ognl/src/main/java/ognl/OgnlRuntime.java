@@ -282,6 +282,8 @@ public class OgnlRuntime {
     static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheReadMethod = new ClassPropertyMethodCache();
 
+    private static volatile PropertyResolver propertyResolver = DefaultPropertyResolver.INSTANCE;
+
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
      */
@@ -398,6 +400,7 @@ public class OgnlRuntime {
      */
     public static void clearCache() {
         cache.clear();
+        PropertyResolution.clear();
     }
 
     /**
@@ -420,6 +423,30 @@ public class OgnlRuntime {
         cacheGetMethod.clear();
         cacheReadMethod.clear();
         cache.clear();
+        PropertyResolution.clear();
+    }
+
+    /**
+     * Installs the resolver that decides which members OGNL may use for a property name.
+     * <p>
+     * The resolver is global per OGNL classloader: applications sharing one OGNL jar share it. Install it before the
+     * first evaluation. A late install leaks: expressions compiled earlier keep the members they captured, and a
+     * lookup in flight during the install can write an old result back after the cache is cleared.
+     *
+     * @param resolver the resolver to install, or {@code null} to restore {@link DefaultPropertyResolver#INSTANCE}
+     * @since 3.5.0
+     */
+    public static void setPropertyResolver(PropertyResolver resolver) {
+        propertyResolver = resolver == null ? DefaultPropertyResolver.INSTANCE : resolver;
+        PropertyResolution.clear();
+    }
+
+    /**
+     * @return the installed resolver, {@link DefaultPropertyResolver#INSTANCE} unless another one was installed
+     * @since 3.5.0
+     */
+    public static PropertyResolver getPropertyResolver() {
+        return propertyResolver;
     }
 
     /**
@@ -1784,6 +1811,9 @@ public class OgnlRuntime {
         return cache.getField(targetClass);
     }
 
+    /**
+     * Ignores the installed {@link PropertyResolver}.
+     */
     public static Field getField(Class<?> inClass, String name) {
         Field field = getFields(inClass).get(name);
 
@@ -1879,6 +1909,9 @@ public class OgnlRuntime {
         return result;
     }
 
+    /**
+     * Ignores the installed {@link PropertyResolver}.
+     */
     public static <C extends OgnlContext<C>> boolean isFieldAccessible(C context, Object target, Class<?> inClass, String propertyName) {
         return isFieldAccessible(context, target, getField(inClass, propertyName), propertyName);
     }
@@ -1994,6 +2027,9 @@ public class OgnlRuntime {
         throw new OgnlException("Could not get static field " + fieldName + " from class " + className, reason);
     }
 
+    /**
+     * Ignores the installed {@link PropertyResolver}.
+     */
     public static List<Method> getDeclaredMethods(Class<?> targetClass, String propertyName, boolean findSets) {
         List<Method> methods = new ArrayList<>();
         List<String> methodNames = new ArrayList<>(4);
@@ -2075,7 +2111,7 @@ public class OgnlRuntime {
     }
 
     /**
-     * cache get methods
+     * cache get methods. Ignores the installed {@link PropertyResolver}.
      *
      * @param targetClass  the Class to invoke the property name "getter" retrieval on.
      * @param propertyName the name of the property for which a "getter" is sought.
@@ -2156,7 +2192,7 @@ public class OgnlRuntime {
     }
 
     /**
-     * cache set methods method
+     * cache set methods method. Ignores the installed {@link PropertyResolver}.
      *
      * @param context      the current execution context.
      * @param targetClass  the Class to invoke the property name "setter" retrieval on.
@@ -2254,7 +2290,7 @@ public class OgnlRuntime {
     }
 
     /**
-     * This method returns the property descriptors for the given class as a Map.
+     * This method returns the property descriptors for the given class as a Map. Ignores the installed {@link PropertyResolver}.
      *
      * @param targetClass The class to get the descriptors for.
      * @return Map of property descriptors for class.
@@ -2265,7 +2301,7 @@ public class OgnlRuntime {
 
     /**
      * This method returns a PropertyDescriptor for the given class and property name using a Map
-     * lookup (using getPropertyDescriptorsMap()).
+     * lookup (using getPropertyDescriptorsMap()). Ignores the installed {@link PropertyResolver}.
      *
      * @param targetClass  the class to get the descriptors for.
      * @param propertyName the property name of targetClass for which a Descriptor is requested.
@@ -2554,7 +2590,7 @@ public class OgnlRuntime {
 
     /**
      * Finds the best possible match for a method on the specified target class with a matching
-     * name.
+     * name. Ignores the installed {@link PropertyResolver}.
      *
      * <p>
      * The name matched will also try different combinations like <code>is + name, has + name, get + name, etc..</code>
@@ -2579,6 +2615,9 @@ public class OgnlRuntime {
         return method;
     }
 
+    /**
+     * Ignores the installed {@link PropertyResolver}.
+     */
     public static Method getReadMethod(Class<?> target, String name, Class<?>[] argClasses) {
         try {
             if (name.indexOf('"') >= 0)
@@ -2659,10 +2698,16 @@ public class OgnlRuntime {
         return null;
     }
 
+    /**
+     * Ignores the installed {@link PropertyResolver}.
+     */
     public static Method getWriteMethod(Class<?> target, String name) {
         return getWriteMethod(target, name, null);
     }
 
+    /**
+     * Ignores the installed {@link PropertyResolver}.
+     */
     public static Method getWriteMethod(Class<?> target, String name, Class<?>[] argClasses) {
         try {
             if (name.indexOf('"') >= 0) {
