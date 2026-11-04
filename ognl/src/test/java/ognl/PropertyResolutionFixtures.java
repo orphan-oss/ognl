@@ -65,6 +65,16 @@ public final class PropertyResolutionFixtures {
         }
     }
 
+    public static class PlainAndIsBean {
+        public String foo() {
+            return "plain";
+        }
+
+        public String isFoo() {
+            return "is";
+        }
+    }
+
     public static class FieldBean {
         public String name;
         public final String fixed = "f";

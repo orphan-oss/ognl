@@ -75,6 +75,9 @@ final class PropertyResolution {
 
     static boolean isCompilable(OgnlContext<?> context, Class<?> targetClass, String propertyName,
                                 PropertyAccessKind kind, Member member) {
+        if (OgnlRuntime.getPropertyResolver() == DefaultPropertyResolver.INSTANCE) {
+            return true;
+        }
         List<PropertyCandidate> candidates = candidates(targetClass, propertyName, kind);
         if (kind == PropertyAccessKind.INDEXED_READ || kind == PropertyAccessKind.INDEXED_WRITE) {
             List<Method> overloads = OgnlRuntime.getMethods(targetClass, member.getName(), false);
