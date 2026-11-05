@@ -23,7 +23,10 @@ import ognl.enhance.UnsupportedCompilationException;
 
 import java.beans.IntrospectionException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * Implementation of PropertyAccessor that uses reflection on the target object's class to find a
@@ -41,19 +44,27 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
      * @throws OgnlException if there is an error locating the property in the given object.
      */
     public Object getPossibleProperty(OgnlContext context, Object target, String name) throws OgnlException {
-        Object result;
-
         try {
-            if ((result = OgnlRuntime.getMethodValue(context, target, name, true)) == OgnlRuntime.NotFound) {
-                result = OgnlRuntime.getFieldValue(context, target, name, true);
+            PropertyResolution.Resolved resolved = PropertyResolution.resolved((target == null) ? null : target.getClass(), name,
+                    PropertyAccessKind.READ);
+            Method getter = resolved.accessor;
+            if (getter != null && OgnlRuntime.isMethodAccessible(context, target, getter, name)) {
+                return OgnlRuntime.invokeGetter(target, getter, name);
             }
+            PropertyCandidate candidate = PropertyResolution.firstUsable(context, target, name, resolved,
+                    PropertyAccessKind.READ, getter == null ? 0 : 1);
+            if (candidate == null) {
+                return OgnlRuntime.NotFound;
+            }
+            Member member = candidate.member();
+            return member instanceof Field
+                    ? OgnlRuntime.readField(context, target, (Field) member, name)
+                    : OgnlRuntime.invokeGetter(target, (Method) member, name);
         } catch (OgnlException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new OgnlException(name, ex);
         }
-
-        return result;
     }
 
     /**
@@ -68,25 +79,41 @@ public class ObjectPropertyAccessor implements PropertyAccessor {
      */
     public Object setPossibleProperty(OgnlContext context, Object target, String name, Object value)
             throws OgnlException {
-        Object result = null;
         try {
-            if (!OgnlRuntime.setMethodValue(context, target, name, value, true)) {
-                result = OgnlRuntime.setFieldValue(context, target, name, value, true) ? null : OgnlRuntime.NotFound;
+            PropertyResolution.Resolved resolved = PropertyResolution.resolved(target.getClass(), name, PropertyAccessKind.WRITE);
+            Method accessor = resolved.accessor;
+            if (accessor != null && OgnlRuntime.isMethodAccessible(context, target, accessor, name)) {
+                OgnlRuntime.callSetter(context, target, accessor, name, value);
+                return null;
             }
-
-            if (result == OgnlRuntime.NotFound) {
-                Method m = OgnlRuntime.getWriteMethod(target.getClass(), name);
-                if (m != null && context.getMemberAccess().isAccessible(context, target, m, name)) {
-                    result = m.invoke(target, value);
-                }
-            }
+            return writeFirstUsable(context, target, name, value, resolved.candidates, accessor == null ? 0 : 1);
         } catch (OgnlException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new OgnlException(name, ex);
         }
+    }
 
-        return result;
+    private Object writeFirstUsable(OgnlContext context, Object target, String name, Object value,
+                                    List<PropertyCandidate> candidates, int from)
+            throws OgnlException, IllegalAccessException, InvocationTargetException {
+        for (int i = from, size = candidates.size(); i < size; i++) {
+            PropertyCandidate candidate = candidates.get(i);
+            if (PropertyResolution.isUsable(context, target, name, candidate, PropertyAccessKind.WRITE)) {
+                Member member = candidate.member();
+                if (candidate.step() == PropertyCandidate.Step.LENIENT) {
+                    return ((Method) member).invoke(target, value);
+                }
+                if (member instanceof Method) {
+                    OgnlRuntime.callSetter(context, target, (Method) member, name, value);
+                    return null;
+                }
+                if (OgnlRuntime.writeField(context, target, (Field) member, name, value)) {
+                    return null;
+                }
+            }
+        }
+        return OgnlRuntime.NotFound;
     }
 
     public boolean hasGetProperty(OgnlContext context, Object target, Object oname) throws OgnlException {

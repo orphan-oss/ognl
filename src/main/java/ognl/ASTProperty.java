@@ -70,9 +70,11 @@ public class ASTProperty extends SimpleNode implements NodeType {
                 Object property = getProperty(context, source);
 
                 if (property instanceof String) {
-                    return OgnlRuntime.getIndexedPropertyType((source == null)
-                            ? null
-                            : OgnlRuntime.getInterfaceClass(source.getClass()), (String) property);
+                    String propertyName = (String) property;
+                    return source == null
+                            ? OgnlRuntime.getIndexedPropertyType(null, propertyName)
+                            : OgnlRuntime.getIndexedPropertyType(OgnlRuntime.getInterfaceClass(source.getClass()),
+                            source.getClass(), propertyName);
                 }
             }
 
