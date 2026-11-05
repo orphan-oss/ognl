@@ -60,8 +60,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 /**
  * Utility class used by internal OGNL API to do various things like:
@@ -379,6 +382,9 @@ public class OgnlRuntime {
     static final ClassPropertyMethodCache cacheGetMethod = new ClassPropertyMethodCache();
     static final ClassPropertyMethodCache cacheReadMethod = new ClassPropertyMethodCache();
 
+    private static final AtomicReference<PropertyResolver> propertyResolver =
+            new AtomicReference<>(DefaultPropertyResolver.INSTANCE);
+
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
      */
@@ -495,6 +501,7 @@ public class OgnlRuntime {
      */
     public static void clearCache() {
         cache.clear();
+        PropertyResolution.clear();
     }
 
     /**
@@ -517,6 +524,39 @@ public class OgnlRuntime {
         cacheGetMethod.clear();
         cacheReadMethod.clear();
         cache.clear();
+        PropertyResolution.clear();
+    }
+
+    /**
+     * Installs the resolver that decides which members OGNL may use for a property name.
+     * <p>
+     * The resolver is global per OGNL classloader: applications sharing one OGNL jar share it. Install it before the
+     * first evaluation. A late install leaks: expressions compiled earlier keep the members they captured, and an
+     * evaluation already holding a candidate list from the old resolver finishes with it. The static field keeps the
+     * resolver and its class loader reachable; call {@code setPropertyResolver(null)} on undeploy.
+     * <p>
+     * Compiled expressions ({@link Ognl#compileExpression}) do not consult the resolver: compiled mode is frozen on
+     * the 3.4.x line, so a compiled expression may use a member the resolver does not offer. Only interpreted
+     * evaluation and {@link #firstUsableCandidate} follow it.
+     * <p>
+     * Under a custom resolver, interpreted indexed access checks the overload the full overload set selects, then the
+     * {@link MethodAccessor} selects again: the {@link TypeConverter} must convert deterministically, and a custom
+     * {@code MethodAccessor} is trusted to invoke the overload it is asked for.
+     *
+     * @param resolver the resolver to install, or {@code null} to restore {@link DefaultPropertyResolver#INSTANCE}
+     * @since 3.4.18
+     */
+    public static void setPropertyResolver(PropertyResolver resolver) {
+        propertyResolver.set(resolver == null ? DefaultPropertyResolver.INSTANCE : resolver);
+        PropertyResolution.clear();
+    }
+
+    /**
+     * @return the installed resolver, {@link DefaultPropertyResolver#INSTANCE} unless another one was installed
+     * @since 3.4.18
+     */
+    public static PropertyResolver getPropertyResolver() {
+        return propertyResolver.get();
     }
 
     /**
@@ -1933,9 +1973,10 @@ public class OgnlRuntime {
     public static Object getMethodValue(OgnlContext context, Object target, String propertyName, boolean checkAccessAndExistence)
             throws OgnlException, IllegalAccessException, NoSuchMethodException {
         Object result = null;
-        Method m = getGetMethod((target == null) ? null : target.getClass(), propertyName);
+        Class<?> targetClass = (target == null) ? null : target.getClass();
+        Method m = (Method) firstMember(targetClass, propertyName, PropertyAccessKind.READ, PropertyCandidate.Step.ACCESSOR);
         if (m == null && !context.isIgnoreReadMethods())
-            m = getReadMethod((target == null) ? null : target.getClass(), propertyName);
+            m = (Method) firstMember(targetClass, propertyName, PropertyAccessKind.READ, PropertyCandidate.Step.LENIENT);
 
         if (checkAccessAndExistence) {
             if ((m == null) || !isAccessible(context, target, m, propertyName)) {
@@ -1944,16 +1985,20 @@ public class OgnlRuntime {
         }
         if (result == null) {
             if (m != null) {
-                try {
-                    result = invokeMethod(target, m, NoArguments);
-                } catch (InvocationTargetException ex) {
-                    throw new OgnlException(propertyName, ex.getTargetException());
-                }
+                result = invokeGetter(target, m, propertyName);
             } else {
                 throw new NoSuchMethodException(propertyName);
             }
         }
         return result;
+    }
+
+    static Object invokeGetter(Object target, Method getter, String propertyName) throws OgnlException, IllegalAccessException {
+        try {
+            return invokeMethod(target, getter, NoArguments);
+        } catch (InvocationTargetException ex) {
+            throw new OgnlException(propertyName, ex.getTargetException());
+        }
     }
 
     /**
@@ -1973,7 +2018,8 @@ public class OgnlRuntime {
 
     public static boolean setMethodValue(OgnlContext context, Object target, String propertyName, Object value, boolean checkAccessAndExistence) throws OgnlException {
         boolean result = true;
-        Method m = getSetMethod(context, (target == null) ? null : target.getClass(), propertyName);
+        Method m = (Method) firstMember((target == null) ? null : target.getClass(), propertyName,
+                PropertyAccessKind.WRITE, PropertyCandidate.Step.ACCESSOR);
 
         if (checkAccessAndExistence) {
             if ((m == null) || !isAccessible(context, target, m, propertyName)) {
@@ -1983,14 +2029,18 @@ public class OgnlRuntime {
 
         if (result) {
             if (m != null) {
-                Object[] args = new Object[]{value};
-                callAppropriateMethod(context, target, target, m.getName(), propertyName, Collections.nCopies(1, m), args);
+                callSetter(context, target, m, propertyName, value);
             } else {
                 result = false;
             }
         }
 
         return result;
+    }
+
+    static void callSetter(OgnlContext context, Object target, Method setter, String propertyName, Object value)
+            throws OgnlException {
+        callAppropriateMethod(context, target, target, setter.getName(), propertyName, Collections.nCopies(1, setter), new Object[]{value});
     }
 
     public static List<Constructor<?>> getConstructors(Class<?> targetClass) {
@@ -2060,6 +2110,9 @@ public class OgnlRuntime {
         return cache.getField(targetClass);
     }
 
+    /**
+     * Ignores the installed {@link PropertyResolver}.
+     */
     public static Field getField(Class<?> inClass, String name) {
         Field field = getFields(inClass).get(name);
 
@@ -2096,7 +2149,8 @@ public class OgnlRuntime {
                                        boolean checkAccessAndExistence)
             throws NoSuchFieldException {
         Object result = null;
-        final Field f = getField((target == null) ? null : target.getClass(), propertyName);
+        final Field f = (Field) firstMember((target == null) ? null : target.getClass(), propertyName,
+                PropertyAccessKind.READ, PropertyCandidate.Step.FIELD);
 
         if (checkAccessAndExistence) {
             if ((f == null) || !isAccessible(context, target, f, propertyName)) {
@@ -2107,25 +2161,25 @@ public class OgnlRuntime {
             if (f == null) {
                 throw new NoSuchFieldException(propertyName);
             } else {
-                try {
-
-                    if (!Modifier.isStatic(f.getModifiers())) {
-                        final Object state = context.getMemberAccess().setup(context, target, f, propertyName);
-                        try {
-                            result = f.get(target);
-                        } finally {
-                            context.getMemberAccess().restore(context, target, f, propertyName, state);
-                        }
-                    } else {
-                        throw new NoSuchFieldException(propertyName);
-                    }
-
-                } catch (IllegalAccessException ex) {
-                    throw new NoSuchFieldException(propertyName);
-                }
+                result = readField(context, target, f, propertyName);
             }
         }
         return result;
+    }
+
+    static Object readField(OgnlContext context, Object target, Field field, String propertyName)
+            throws NoSuchFieldException {
+        if (Modifier.isStatic(field.getModifiers())) {
+            throw new NoSuchFieldException(propertyName);
+        }
+        final Object state = context.getMemberAccess().setup(context, target, field, propertyName);
+        try {
+            return field.get(target);
+        } catch (IllegalAccessException ex) {
+            throw new NoSuchFieldException(propertyName);
+        } finally {
+            context.getMemberAccess().restore(context, target, field, propertyName, state);
+        }
     }
 
 
@@ -2140,32 +2194,35 @@ public class OgnlRuntime {
     public static boolean setFieldValue(OgnlContext context, Object target, String propertyName, Object value,
                                         boolean checkAccessAndExistence)
             throws OgnlException {
-        boolean result = false;
+        final Field f = (Field) firstMember((target == null) ? null : target.getClass(), propertyName,
+                PropertyAccessKind.WRITE, PropertyCandidate.Step.FIELD);
 
-        try {
-            final Field f = getField((target == null) ? null : target.getClass(), propertyName);
-
-            if (f != null) {
-                final int fModifiers = f.getModifiers();
-                if (!Modifier.isStatic(fModifiers) && !Modifier.isFinal(fModifiers) && (!checkAccessAndExistence || isAccessible(context, target, f, propertyName))) {
-                    final Object state = context.getMemberAccess().setup(context, target, f, propertyName);
-                    try {
-                        if (isTypeCompatible(value, f.getType())
-                                || ((value = getConvertedType(context, target, f, propertyName, value, f.getType())) != null)) {
-                            f.set(target, value);
-                            result = true;
-                        }
-                    } finally {
-                        context.getMemberAccess().restore(context, target, f, propertyName, state);
-                    }
-                }
-            }
-        } catch (IllegalAccessException ex) {
-            throw new NoSuchPropertyException(target, propertyName, ex);
-        }
-        return result;
+        return f != null && PropertyResolution.isAssignable(f)
+                && (!checkAccessAndExistence || isAccessible(context, target, f, propertyName))
+                && writeField(context, target, f, propertyName, value);
     }
 
+    static boolean writeField(OgnlContext context, Object target, Field field, String propertyName, Object value)
+            throws OgnlException {
+        final Object state = context.getMemberAccess().setup(context, target, field, propertyName);
+        try {
+            boolean compatible = isTypeCompatible(value, field.getType());
+            Object assigned = compatible ? value : getConvertedType(context, target, field, propertyName, value, field.getType());
+            if (!compatible && assigned == null) {
+                return false;
+            }
+            field.set(target, assigned);
+            return true;
+        } catch (IllegalAccessException ex) {
+            throw new NoSuchPropertyException(target, propertyName, ex);
+        } finally {
+            context.getMemberAccess().restore(context, target, field, propertyName, state);
+        }
+    }
+
+    /**
+     * Ignores the installed {@link PropertyResolver}.
+     */
     public static boolean isFieldAccessible(OgnlContext context, Object target, Class<?> inClass, String propertyName) {
         return isFieldAccessible(context, target, getField(inClass, propertyName), propertyName);
     }
@@ -2175,9 +2232,8 @@ public class OgnlRuntime {
     }
 
     public static boolean hasField(OgnlContext context, Object target, Class<?> inClass, String propertyName) {
-        Field f = getField(inClass, propertyName);
-
-        return (f != null) && isFieldAccessible(context, target, f, propertyName);
+        return hasUsableCandidate(context, target, inClass, propertyName, PropertyAccessKind.READ,
+                candidate -> candidate.step() == PropertyCandidate.Step.FIELD);
     }
 
     /**
@@ -2186,14 +2242,8 @@ public class OgnlRuntime {
      * those modifiers.
      */
     private static boolean hasSettableField(OgnlContext context, Object target, Class<?> inClass, String propertyName) {
-        Field f = getField(inClass, propertyName);
-        if (f == null) {
-            return false;
-        }
-        final int fModifiers = f.getModifiers();
-
-        return !Modifier.isStatic(fModifiers) && !Modifier.isFinal(fModifiers)
-                && isFieldAccessible(context, target, f, propertyName);
+        return hasUsableCandidate(context, target, inClass, propertyName, PropertyAccessKind.WRITE,
+                candidate -> candidate.step() == PropertyCandidate.Step.FIELD);
     }
 
     /**
@@ -2201,10 +2251,9 @@ public class OgnlRuntime {
      * refuses a static field. A final field is readable.
      */
     private static boolean hasReadableField(OgnlContext context, Object target, Class<?> inClass, String propertyName) {
-        Field f = getField(inClass, propertyName);
-
-        return f != null && !Modifier.isStatic(f.getModifiers())
-                && isFieldAccessible(context, target, f, propertyName);
+        return hasUsableCandidate(context, target, inClass, propertyName, PropertyAccessKind.READ,
+                candidate -> candidate.step() == PropertyCandidate.Step.FIELD
+                        && !Modifier.isStatic(candidate.member().getModifiers()));
     }
 
     /**
@@ -2269,6 +2318,9 @@ public class OgnlRuntime {
         throw new OgnlException("Could not get static field " + fieldName + " from class " + className, reason);
     }
 
+    /**
+     * Ignores the installed {@link PropertyResolver}.
+     */
     public static List<Method> getDeclaredMethods(Class<?> targetClass, String propertyName, boolean findSets) {
         List<Method> methods = new ArrayList<>();
         List<String> methodNames = new ArrayList<>(4);
@@ -2350,7 +2402,7 @@ public class OgnlRuntime {
     }
 
     /**
-     * cache get methods
+     * cache get methods. Ignores the installed {@link PropertyResolver}.
      *
      * @param targetClass  the Class to invoke the property name "getter" retrieval on.
      * @param propertyName the name of the property for which a "getter" is sought.
@@ -2427,11 +2479,64 @@ public class OgnlRuntime {
     }
 
     public static boolean hasGetMethod(OgnlContext context, Object target, Class<?> targetClass, String propertyName) {
-        return isMethodAccessible(context, target, getGetMethod(targetClass, propertyName), propertyName);
+        return hasUsableCandidate(context, target, targetClass, propertyName, PropertyAccessKind.READ,
+                candidate -> candidate.step() == PropertyCandidate.Step.ACCESSOR);
     }
 
     /**
-     * cache set methods method
+     * The first candidate the context may use, as evaluation picks it, except that a FIELD write whose value fails
+     * conversion moves on to the next candidate, and for an INDEXED kind the overload called is chosen by the runtime
+     * argument types, so it need not be the one returned. An accessible static field counts as usable on READ
+     * (evaluation then throws), so this may return it while {@link #hasGetProperty} is false.
+     *
+     * @param context      reads only {@link OgnlContext#getMemberAccess()} and {@link OgnlContext#isIgnoreReadMethods()},
+     *                     so {@code Ognl.createDefaultContext(target, memberAccess)} is enough
+     * @param target       the runtime object; candidates resolve on {@code target.getClass()}, for a proxy the proxy class
+     * @param propertyName the property name
+     * @param kind         the access kind
+     * @return the first usable candidate, or empty when there is none
+     * @since 3.4.18
+     */
+    public static Optional<PropertyCandidate> firstUsableCandidate(OgnlContext context, Object target,
+                                                                   String propertyName, PropertyAccessKind kind) {
+        return Optional.ofNullable(firstUsable(context, target, propertyName, kind));
+    }
+
+    static PropertyCandidate firstUsable(OgnlContext context, Object target, String propertyName,
+                                         PropertyAccessKind kind) {
+        return PropertyResolution.firstUsable(context, target, propertyName,
+                PropertyResolution.resolved((target == null) ? null : target.getClass(), propertyName, kind), kind, 0);
+    }
+
+    private static boolean hasUsableCandidate(OgnlContext context, Object target, Class<?> targetClass,
+                                              String propertyName, PropertyAccessKind kind,
+                                              Predicate<PropertyCandidate> filter) {
+        return firstUsable(context, target, targetClass, propertyName, kind, filter) != null;
+    }
+
+    private static PropertyCandidate firstUsable(OgnlContext context, Object target, Class<?> targetClass,
+                                                 String propertyName, PropertyAccessKind kind,
+                                                 Predicate<PropertyCandidate> filter) {
+        for (PropertyCandidate candidate : PropertyResolution.candidates(targetClass, propertyName, kind)) {
+            if (filter.test(candidate) && PropertyResolution.isUsable(context, target, propertyName, candidate, kind)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    private static Member firstMember(Class<?> targetClass, String propertyName, PropertyAccessKind kind,
+                                      PropertyCandidate.Step step) {
+        for (PropertyCandidate candidate : PropertyResolution.candidates(targetClass, propertyName, kind)) {
+            if (candidate.step() == step) {
+                return candidate.member();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * cache set methods method. Ignores the installed {@link PropertyResolver}.
      *
      * @param context      the current execution context.
      * @param targetClass  the Class to invoke the property name "setter" retrieval on.
@@ -2509,7 +2614,8 @@ public class OgnlRuntime {
     }
 
     public static boolean hasSetMethod(OgnlContext context, Object target, Class<?> targetClass, String propertyName) {
-        return isMethodAccessible(context, target, getSetMethod(context, targetClass, propertyName), propertyName);
+        return hasUsableCandidate(context, target, targetClass, propertyName, PropertyAccessKind.WRITE,
+                candidate -> candidate.step() == PropertyCandidate.Step.ACCESSOR);
     }
 
     public static boolean hasGetProperty(OgnlContext context, Object target, Object oname) throws IntrospectionException {
@@ -2527,7 +2633,7 @@ public class OgnlRuntime {
     }
 
     /**
-     * This method returns the property descriptors for the given class as a Map.
+     * This method returns the property descriptors for the given class as a Map. Ignores the installed {@link PropertyResolver}.
      *
      * @param targetClass The class to get the descriptors for.
      * @return Map of property descriptors for class.
@@ -2538,7 +2644,7 @@ public class OgnlRuntime {
 
     /**
      * This method returns a PropertyDescriptor for the given class and property name using a Map
-     * lookup (using getPropertyDescriptorsMap()).
+     * lookup (using getPropertyDescriptorsMap()). Ignores the installed {@link PropertyResolver}.
      *
      * @param targetClass  the class to get the descriptors for.
      * @param propertyName the property name of targetClass for which a Descriptor is requested.
@@ -2657,10 +2763,14 @@ public class OgnlRuntime {
      * @throws OgnlException for lots of different reasons.
      */
     public static int getIndexedPropertyType(Class<?> sourceClass, String name) throws OgnlException {
+        return getIndexedPropertyType(sourceClass, sourceClass, name);
+    }
+
+    static int getIndexedPropertyType(Class<?> descriptorClass, Class<?> targetClass, String name) throws OgnlException {
         int result = INDEXED_PROPERTY_NONE;
 
         try {
-            PropertyDescriptor pd = getPropertyDescriptor(sourceClass, name);
+            PropertyDescriptor pd = getPropertyDescriptor(descriptorClass, name);
             if (pd != null) {
                 if (pd instanceof IndexedPropertyDescriptor) {
                     result = INDEXED_PROPERTY_INT;
@@ -2669,6 +2779,11 @@ public class OgnlRuntime {
                         result = INDEXED_PROPERTY_OBJECT;
                     }
                 }
+            }
+            if (result != INDEXED_PROPERTY_NONE && targetClass != null
+                    && PropertyResolution.candidates(targetClass, name, PropertyAccessKind.INDEXED_READ).isEmpty()
+                    && PropertyResolution.candidates(targetClass, name, PropertyAccessKind.INDEXED_WRITE).isEmpty()) {
+                result = INDEXED_PROPERTY_NONE;
             }
         } catch (Exception ex) {
             throw new OgnlException("problem determining if '" + name + "' is an indexed property", ex);
@@ -2694,7 +2809,7 @@ public class OgnlRuntime {
                 }
             }
 
-            return callMethod(context, source, m.getName(), args);
+            return invokeIndexed(context, source, name, m, PropertyAccessKind.INDEXED_READ, args);
 
         } catch (OgnlException ex) {
             throw ex;
@@ -2721,12 +2836,35 @@ public class OgnlRuntime {
                 }
             }
 
-            callMethod(context, source, m.getName(), args);
+            invokeIndexed(context, source, name, m, PropertyAccessKind.INDEXED_WRITE, args);
 
         } catch (OgnlException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new OgnlException("getting indexed property descriptor for '" + name + "'", ex);
+        }
+    }
+
+    private static Object invokeIndexed(OgnlContext context, Object source, String name, Method descriptorMethod,
+                                        PropertyAccessKind kind, Object[] args) throws OgnlException {
+        String methodName = descriptorMethod.getName();
+        if (propertyResolver.get() != DefaultPropertyResolver.INSTANCE) {
+            requireOfferedOverload(context, source, name, methodName, kind, args);
+        }
+        return callMethod(context, source, methodName, args);
+    }
+
+    private static void requireOfferedOverload(OgnlContext context, Object source, String name, String methodName,
+                                               PropertyAccessKind kind, Object[] args) throws OgnlException {
+        Class<?> sourceClass = source.getClass();
+        List<Method> overloads = getMethods(sourceClass, methodName, false);
+        if (overloads == null || overloads.isEmpty()) {
+            overloads = getMethods(sourceClass, methodName, true);
+        }
+        Method selected = getAppropriateMethod(context, source, source, null, methodName, overloads, args, new Object[args.length]);
+        if (selected == null || !PropertyResolution.isListed(PropertyResolution.candidates(sourceClass, name, kind), selected)) {
+            throw new OgnlException("indexed property '" + name + "' on " + sourceClass.getName() + " resolves to "
+                    + (selected == null ? "no method" : selected.toString()) + ", which the PropertyResolver does not offer for " + kind);
         }
     }
 
@@ -2827,7 +2965,7 @@ public class OgnlRuntime {
 
     /**
      * Finds the best possible match for a method on the specified target class with a matching
-     * name.
+     * name. Ignores the installed {@link PropertyResolver}.
      *
      * <p>
      * The name matched will also try different combinations like <code>is + name, has + name, get + name, etc..</code>
@@ -2852,6 +2990,9 @@ public class OgnlRuntime {
         return method;
     }
 
+    /**
+     * Ignores the installed {@link PropertyResolver}.
+     */
     public static Method getReadMethod(Class<?> target, String name, Class<?>[] argClasses) {
         try {
             if (name.indexOf('"') >= 0)
@@ -2932,10 +3073,16 @@ public class OgnlRuntime {
         return null;
     }
 
+    /**
+     * Ignores the installed {@link PropertyResolver}.
+     */
     public static Method getWriteMethod(Class<?> target, String name) {
         return getWriteMethod(target, name, null);
     }
 
+    /**
+     * Ignores the installed {@link PropertyResolver}.
+     */
     public static Method getWriteMethod(Class<?> target, String name, Class<?>[] argClasses) {
         try {
             if (name.indexOf('"') >= 0) {

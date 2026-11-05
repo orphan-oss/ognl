@@ -1,0 +1,118 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package ognl;
+
+import ognl.PropertyResolutionFixtures.BothBean;
+import ognl.PropertyResolutionFixtures.IndexedBean;
+import ognl.PropertyResolutionFixtures.LenientBean;
+import ognl.PropertyResolutionFixtures.LombokBean;
+import ognl.PropertyResolutionFixtures.NoArgSettersBean;
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class DefaultPropertyResolverTest {
+
+    private final PropertyResolver resolver = DefaultPropertyResolver.INSTANCE;
+
+    @Test
+    void readPrefersAccessorAndOmitsLenient() throws Exception {
+        assertEquals(Arrays.asList(
+                        PropertyCandidate.accessor(BothBean.class.getMethod("getValue")),
+                        PropertyCandidate.field(BothBean.class.getField("value"))),
+                resolver.candidates(BothBean.class, "value", PropertyAccessKind.READ));
+    }
+
+    @Test
+    void readFallsBackToLenientWithoutGetter() throws Exception {
+        assertEquals(Collections.singletonList(PropertyCandidate.lenient(LenientBean.class.getMethod("label"))),
+                resolver.candidates(LenientBean.class, "label", PropertyAccessKind.READ));
+    }
+
+    @Test
+    void writeListsAccessorFieldLenient() throws Exception {
+        assertEquals(Arrays.asList(
+                        PropertyCandidate.accessor(BothBean.class.getMethod("setValue", String.class)),
+                        PropertyCandidate.field(BothBean.class.getField("value")),
+                        PropertyCandidate.lenient(OgnlRuntime.getWriteMethod(BothBean.class, "value"))),
+                resolver.candidates(BothBean.class, "value", PropertyAccessKind.WRITE));
+    }
+
+    @Test
+    void failingLenientWriteLookupIsOmitted() throws Exception {
+        assertThrows(RuntimeException.class, () -> OgnlRuntime.getWriteMethod(NoArgSettersBean.class, "foo"));
+        assertEquals(Collections.emptyList(), resolver.candidates(NoArgSettersBean.class, "foo", PropertyAccessKind.WRITE));
+        NoArgSettersBean bean = new NoArgSettersBean();
+        OgnlContext ctx = PropertyResolutionFixtures.context(bean);
+        assertFalse(OgnlRuntime.hasSetProperty(ctx, bean, "foo"));
+    }
+
+    @Test
+    void lombokBaseNames() throws Exception {
+        assertEquals(LombokBean.class.getMethod("getURange"),
+                resolver.candidates(LombokBean.class, "uRange", PropertyAccessKind.READ).get(0).member());
+    }
+
+    @Test
+    void indexedReadListsAllOverloads() {
+        List<Member> members = resolver.candidates(IndexedBean.class, "items", PropertyAccessKind.INDEXED_READ)
+                .stream().map(PropertyCandidate::member).collect(Collectors.toList());
+        assertEquals(OgnlRuntime.getMethods(IndexedBean.class, "getItems", false), members);
+        assertEquals(3, members.size());
+    }
+
+    @Test
+    void objectIndexedWrite() throws Exception {
+        List<PropertyCandidate> candidates = resolver.candidates(IndexedBean.class, "attr", PropertyAccessKind.INDEXED_WRITE);
+        assertEquals(Collections.singletonList(PropertyCandidate.indexed(IndexedBean.class.getMethod("setAttr", String.class, String.class))),
+                candidates);
+    }
+
+    @Test
+    void unknownPropertyIsEmpty() {
+        for (PropertyAccessKind kind : PropertyAccessKind.values()) {
+            assertTrue(resolver.candidates(BothBean.class, "nope", kind).isEmpty(), kind.name());
+        }
+    }
+
+    @Test
+    void candidateRejectsMismatchedStep() throws Exception {
+        Field field = BothBean.class.getField("value");
+        Method getter = BothBean.class.getMethod("getValue");
+        Constructor<BothBean> constructor = BothBean.class.getConstructor();
+        assertThrows(IllegalArgumentException.class, () -> new PropertyCandidate(field, PropertyCandidate.Step.ACCESSOR));
+        assertThrows(IllegalArgumentException.class, () -> new PropertyCandidate(getter, PropertyCandidate.Step.FIELD));
+        assertThrows(IllegalArgumentException.class,
+                () -> new PropertyCandidate(constructor, PropertyCandidate.Step.ACCESSOR));
+        assertThrows(NullPointerException.class, () -> new PropertyCandidate(null, PropertyCandidate.Step.ACCESSOR));
+        assertThrows(NullPointerException.class, () -> new PropertyCandidate(getter, null));
+    }
+}
