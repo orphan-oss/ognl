@@ -89,6 +89,17 @@ class PropertyResolverInstallTest {
     }
 
     @Test
+    void ognlCacheOwnsTheCandidates() {
+        PropertyResolution.candidates(BothBean.class, "value", PropertyAccessKind.READ);
+        PropertyResolution.candidates(BothBean.class, "value", PropertyAccessKind.WRITE);
+        assertEquals(1, PropertyResolution.cachedClassCount());
+
+        OgnlRuntime.cache.clear();
+
+        assertEquals(0, PropertyResolution.cachedClassCount());
+    }
+
+    @Test
     void nullClassIsCached() {
         AtomicInteger calls = new AtomicInteger();
         OgnlRuntime.setPropertyResolver((c, n, k) -> {

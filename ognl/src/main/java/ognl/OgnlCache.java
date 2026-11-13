@@ -81,8 +81,8 @@ public class OgnlCache {
         return cache;
     }
 
-    private <K, V> Map<K, V> newMap() {
-        Map<K, V> map = new ConcurrentHashMap<>();
+    private <K, V> ConcurrentHashMap<K, V> newMap() {
+        ConcurrentHashMap<K, V> map = new ConcurrentHashMap<>();
         clearActions.add(map::clear);
         return map;
     }
@@ -185,6 +185,15 @@ public class OgnlCache {
 
     private final Map<Method, Boolean> methodNeedsAccessCache = newMap();
 
+    private final ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, PropertyResolution.Resolved>> readResolutions =
+            newMap();
+    private final ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, PropertyResolution.Resolved>> writeResolutions =
+            newMap();
+    private final ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, PropertyResolution.Resolved>> indexedReadResolutions =
+            newMap();
+    private final ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, PropertyResolution.Resolved>> indexedWriteResolutions =
+            newMap();
+
     public Class<?>[] getMethodParameterTypes(Method method) throws CacheException {
         return methodParameterTypesCache.get(method);
     }
@@ -268,6 +277,27 @@ public class OgnlCache {
 
     void putMethodNeedsAccess(Method method, Boolean needsAccess) {
         methodNeedsAccessCache.put(method, needsAccess);
+    }
+
+    /**
+     * The members the installed {@link PropertyResolver} offered, by class and then by property name.
+     */
+    ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, PropertyResolution.Resolved>> getPropertyResolutions(
+            PropertyAccessKind kind) {
+        if (kind == PropertyAccessKind.READ) {
+            return readResolutions;
+        }
+        if (kind == PropertyAccessKind.WRITE) {
+            return writeResolutions;
+        }
+        return kind == PropertyAccessKind.INDEXED_READ ? indexedReadResolutions : indexedWriteResolutions;
+    }
+
+    void clearPropertyResolutions() {
+        readResolutions.clear();
+        writeResolutions.clear();
+        indexedReadResolutions.clear();
+        indexedWriteResolutions.clear();
     }
 
     /**
