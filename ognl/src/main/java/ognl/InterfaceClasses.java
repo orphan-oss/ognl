@@ -31,9 +31,6 @@ public final class InterfaceClasses {
     }
 
     public static Class<?> of(Class<?> clazz) {
-        if (clazz.getName().equals("java.util.AbstractList$Itr"))
-            return Iterator.class;
-
         if (Modifier.isPublic(clazz.getModifiers()) && clazz.isInterface() || clazz.isPrimitive()) {
             return clazz;
         }

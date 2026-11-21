@@ -294,7 +294,7 @@ public class OgnlRuntime {
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
      */
-    private static volatile OgnlExpressionCompiler _compiler;
+    private static final AtomicReference<OgnlExpressionCompiler> _compiler = new AtomicReference<>();
 
     private static final Object COMPILER_LOCK = new Object();
 
@@ -480,14 +480,14 @@ public class OgnlRuntime {
 
     public static void setCompiler(OgnlExpressionCompiler compiler) {
         synchronized (COMPILER_LOCK) {
-            _compiler = compiler;
+            _compiler.set(compiler);
         }
         // The cached interface classes are answers of the previous compiler
         cache.clearInterfaceClassCache();
     }
 
     static boolean hasCompiler() {
-        return _compiler != null;
+        return _compiler.get() != null;
     }
 
     /**
@@ -495,13 +495,13 @@ public class OgnlRuntime {
      * @throws IllegalStateException if no compiler is installed and javassist cannot be loaded.
      */
     public static OgnlExpressionCompiler getCompiler() {
-        OgnlExpressionCompiler compiler = _compiler;
+        OgnlExpressionCompiler compiler = _compiler.get();
         if (compiler == null) {
             synchronized (COMPILER_LOCK) {
-                compiler = _compiler;
+                compiler = _compiler.get();
                 if (compiler == null) {
                     compiler = createDefaultCompiler();
-                    _compiler = compiler;
+                    _compiler.set(compiler);
                 }
             }
         }

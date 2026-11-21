@@ -21,11 +21,13 @@ package ognl;
 import ognl.enhance.ExpressionCompiler;
 import org.junit.jupiter.api.Test;
 
+import java.util.AbstractList;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +45,25 @@ class InterfaceClassesTest {
         for (Class<?> clazz : classes) {
             assertEquals(compiler.getInterfaceClass(clazz), InterfaceClasses.of(clazz), clazz.getName());
         }
+    }
+
+    @Test
+    void abstractListIteratorIsAnIterator() {
+        List<String> list = new AbstractList<>() {
+            @Override
+            public String get(int index) {
+                return "a";
+            }
+
+            @Override
+            public int size() {
+                return 1;
+            }
+        };
+        Class<?> itr = list.iterator().getClass();
+
+        assertEquals("java.util.AbstractList$Itr", itr.getName());
+        assertEquals(Iterator.class, InterfaceClasses.of(itr));
     }
 
     @Test
