@@ -179,7 +179,9 @@ public class OgnlCache {
             newCache(Constructor::getParameterTypes);
 
     private final ClassCache<Class<?>> interfaceClassCache =
-            newClassCache(key -> OgnlRuntime.getCompiler().getInterfaceClass(key));
+            newClassCache(key -> OgnlRuntime.hasCompiler()
+                    ? OgnlRuntime.getCompiler().getInterfaceClass(key)
+                    : InterfaceClasses.of(key));
 
     private final Map<Method, Boolean> methodNeedsAccessCache = newMap();
 
