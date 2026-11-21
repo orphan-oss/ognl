@@ -68,9 +68,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <includes>
-                                <include>**/WithoutJavassistTest.java</include>
-                            </includes>
+                            <test>WithoutJavassistTest</test>
                             <excludes combine.self="override"/>
                             <classpathDependencyExcludes>
                                 <classpathDependencyExclude>org.javassist:javassist</classpathDependencyExclude>
