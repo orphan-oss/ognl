@@ -494,6 +494,10 @@ public class OgnlRuntime {
         cache.clearInterfaceClassCache();
     }
 
+    static synchronized boolean hasCompiler() {
+        return _compiler != null;
+    }
+
     public static OgnlExpressionCompiler getCompiler() {
         return _compiler;
     }

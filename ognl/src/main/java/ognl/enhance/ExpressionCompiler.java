@@ -41,18 +41,16 @@ import ognl.ASTStaticMethod;
 import ognl.ASTVarRef;
 import ognl.ClassResolver;
 import ognl.ExpressionNode;
+import ognl.InterfaceClasses;
 import ognl.Node;
 import ognl.OgnlContext;
 import ognl.OgnlRuntime;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Responsible for managing/providing functionality related to compiling generated java source
@@ -342,38 +340,7 @@ public class ExpressionCompiler<C extends OgnlContext<C>> implements OgnlExpress
     }
 
     public Class<?> getInterfaceClass(Class<?> clazz) {
-        if (clazz.getName().equals("java.util.AbstractList$Itr"))
-            return Iterator.class;
-
-        if (Modifier.isPublic(clazz.getModifiers()) && clazz.isInterface() || clazz.isPrimitive()) {
-            return clazz;
-        }
-
-        return getInterfaceClass(clazz, clazz.getInterfaces());
-    }
-
-    private Class<?> getInterfaceClass(Class<?> clazz, Class<?>[] interfaces) {
-        for (Class<?> anInterface : interfaces) {
-            if (List.class.isAssignableFrom(anInterface))
-                return List.class;
-            else if (Iterator.class.isAssignableFrom(anInterface))
-                return Iterator.class;
-            else if (Map.class.isAssignableFrom(anInterface))
-                return Map.class;
-            else if (Set.class.isAssignableFrom(anInterface))
-                return Set.class;
-            else if (Collection.class.isAssignableFrom(anInterface))
-                return Collection.class;
-        }
-
-        final Class<?> superClazz = clazz.getSuperclass();
-        if (superClazz != null) {
-            final Class<?>[] superClazzInterfaces = superClazz.getInterfaces();
-            if (superClazzInterfaces.length > 0)
-                return getInterfaceClass(superClazz, superClazzInterfaces);
-        }
-
-        return clazz;
+        return InterfaceClasses.of(clazz);
     }
 
     public Class<?> getRootExpressionClass(Node<C> rootNode, C context) {
