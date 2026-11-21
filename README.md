@@ -45,6 +45,10 @@ divergences from interpreted mode in arithmetic, mostly result types and operato
 those are fixed on 3.5.x only. A project that evaluates through `Ognl.getValue` or `Ognl.parseExpression` is not
 affected. A project that compiles expressions on 3.4.x should treat the result as best effort, or move to 3.5.x.
 
+Compiled mode is opt-in and experimental on both lines. From 3.5.0 and 3.4.18 javassist is an optional dependency:
+a project that calls `Ognl.compileExpression` must declare `org.javassist:javassist` itself. Without it,
+`compileExpression` throws an `OgnlException`, and everything else works as before.
+
 ## Apache Commons OGNL project
 
 Sometimes ago this project has been migrated to [Apache Commons](http://commons.apache.org/ognl/) 
