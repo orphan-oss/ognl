@@ -27,9 +27,11 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -79,6 +81,50 @@ class LazyCompilerTest {
             }
         } finally {
             pool.shutdownNow();
+        }
+    }
+
+    @Test
+    void customCompilerSetDuringFirstCallIsNotOverwritten() throws Exception {
+        int workers = 4;
+        CyclicBarrier go = new CyclicBarrier(workers + 1);
+        CyclicBarrier done = new CyclicBarrier(workers + 1);
+        AtomicBoolean running = new AtomicBoolean(true);
+        ExecutorService pool = Executors.newFixedThreadPool(workers);
+        try {
+            for (int w = 0; w < workers; w++) {
+                pool.submit(() -> {
+                    while (running.get()) {
+                        go.await();
+                        if (running.get()) {
+                            OgnlRuntime.getCompiler();
+                        }
+                        done.await();
+                    }
+                    return null;
+                });
+            }
+            for (int i = 0; i < 20_000; i++) {
+                OgnlRuntime.setCompiler(null);
+                CustomCompiler<?> custom = new CustomCompiler<>();
+                go.await();
+                spin(i % 64);
+                OgnlRuntime.setCompiler(custom);
+                done.await();
+
+                assertSame(custom, OgnlRuntime.getCompiler(), "iteration " + i);
+            }
+        } finally {
+            running.set(false);
+            go.reset();
+            done.reset();
+            pool.shutdownNow();
+        }
+    }
+
+    private static void spin(int rounds) {
+        for (int i = 0; i < rounds; i++) {
+            Thread.onSpinWait();
         }
     }
 

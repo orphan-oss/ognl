@@ -479,7 +479,9 @@ public class OgnlRuntime {
     }
 
     public static void setCompiler(OgnlExpressionCompiler compiler) {
-        _compiler = compiler;
+        synchronized (COMPILER_LOCK) {
+            _compiler = compiler;
+        }
         // The cached interface classes are answers of the previous compiler
         cache.clearInterfaceClassCache();
     }
