@@ -65,6 +65,7 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.33.0-GA</version>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -133,6 +134,9 @@
                             <include>**/TestOgnlException.java</include>
                             <include>**/TestExpressionCompiler.java</include>
                         </includes>
+                        <excludes>
+                            <exclude>**/WithoutJavassistTest.java</exclude>
+                        </excludes>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -257,6 +261,21 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>without-javassist</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <test>WithoutJavassistTest</test>
+                            <excludes combine.self="override"/>
+                            <classpathDependencyExcludes>
+                                <classpathDependencyExclude>org.javassist:javassist</classpathDependencyExclude>
+                            </classpathDependencyExcludes>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

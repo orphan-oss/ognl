@@ -391,7 +391,11 @@ public class OgnlRuntime {
     /**
      * Expression compiler used by {@link Ognl#compileExpression(OgnlContext, Object, String)} calls.
      */
-    private static OgnlExpressionCompiler _compiler;
+    private static final AtomicReference<OgnlExpressionCompiler> _compiler = new AtomicReference<>();
+
+    private static final Object COMPILER_LOCK = new Object();
+
+    private static final String JAVASSIST_MISSING = "Compiled mode needs org.javassist:javassist on the classpath";
 
     /**
      * Used to provide primitive type equivalent conversions into and out of native / object types.
@@ -415,20 +419,6 @@ public class OgnlRuntime {
     private static final NumericLiterals numericLiterals = new NumericLiterals();
 
     private static final NumericDefaults numericDefaults = new NumericDefaults();
-
-    /*
-     * Lazy loading of Javassist library
-     */
-    static {
-        try {
-            Class.forName("javassist.ClassPool");
-            _compiler = new ExpressionCompiler();
-        } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Javassist library is missing in classpath! Please add missed dependency!", e);
-        } catch (RuntimeException rt) {
-            throw new IllegalStateException("Javassist library cannot be loaded, is it restricted by runtime environment?");
-        }
-    }
 
     private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class[0];
 
@@ -591,13 +581,52 @@ public class OgnlRuntime {
     }
 
     public static void setCompiler(OgnlExpressionCompiler compiler) {
-        _compiler = compiler;
+        synchronized (COMPILER_LOCK) {
+            _compiler.set(compiler);
+        }
         // The cached interface classes are answers of the previous compiler
         cache.clearInterfaceClassCache();
     }
 
+    static boolean hasCompiler() {
+        return _compiler.get() != null;
+    }
+
+    /**
+     * @return the installed compiler, creating the default {@link ExpressionCompiler} on first use.
+     * @throws IllegalStateException if no compiler is installed and javassist cannot be loaded.
+     */
     public static OgnlExpressionCompiler getCompiler() {
-        return _compiler;
+        OgnlExpressionCompiler compiler = _compiler.get();
+        if (compiler == null) {
+            synchronized (COMPILER_LOCK) {
+                compiler = _compiler.get();
+                if (compiler == null) {
+                    compiler = createDefaultCompiler();
+                    _compiler.set(compiler);
+                }
+            }
+        }
+        return compiler;
+    }
+
+    private static OgnlExpressionCompiler createDefaultCompiler() {
+        try {
+            Class.forName("javassist.ClassPool", false, OgnlRuntime.class.getClassLoader());
+        } catch (ClassNotFoundException | LinkageError e) {
+            throw new CompilerUnavailableException(JAVASSIST_MISSING, e);
+        }
+        try {
+            return new ExpressionCompiler();
+        } catch (RuntimeException | LinkageError e) {
+            throw new CompilerUnavailableException("Javassist library cannot be loaded, is it restricted by runtime environment?", e);
+        }
+    }
+
+    private static final class CompilerUnavailableException extends IllegalStateException {
+        CompilerUnavailableException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 
     /**
@@ -606,7 +635,8 @@ public class OgnlRuntime {
      * on the compiler, and interpreted evaluation asks for it on every link of a property chain.
      *
      * @param clazz The class to find a compatible interface for.
-     * @return what the current compiler's {@code getInterfaceClass(clazz)} returns.
+     * @return what the installed compiler's {@code getInterfaceClass(clazz)} returns, or
+     * {@link InterfaceClasses#of(Class)} while none is installed.
      */
     static Class<?> getInterfaceClass(Class<?> clazz) {
         return cache.getInterfaceClass(clazz);
@@ -614,7 +644,13 @@ public class OgnlRuntime {
 
     public static void compileExpression(OgnlContext context, Node expression, Object root)
             throws Exception {
-        _compiler.compileExpression(context, expression, root);
+        OgnlExpressionCompiler compiler;
+        try {
+            compiler = getCompiler();
+        } catch (CompilerUnavailableException e) {
+            throw new OgnlException(e.getMessage(), e.getCause());
+        }
+        compiler.compileExpression(context, expression, root);
     }
 
     /**
