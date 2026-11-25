@@ -50,9 +50,10 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * This class takes care of all the internal caching for OGNL.
  * <p>
- * Every cache is created through {@link #newCache(CacheEntryFactory)}, {@link #newClassCache(ClassCacheEntryFactory)}
- * or {@link #newMap()}, which also records it. {@link #clear()} and {@link #setClassCacheInspector(ClassCacheInspector)}
- * then go through what was recorded, so a cache cannot be left out of either.
+ * Every cache is created through {@link #newCache(CacheEntryFactory)}, {@link #newClassCache(ClassCacheEntryFactory)},
+ * {@link #newClassCache()} or {@link #newMap()}, which also records it, so {@link #clear()} cannot leave one out.
+ * {@link #setClassCacheInspector(ClassCacheInspector)} reaches only the caches from
+ * {@link #newClassCache(ClassCacheEntryFactory)}.
  */
 public class OgnlCache {
 
