@@ -34,10 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 final class PropertyResolution {
 
     private static final Class<?> NULL_TARGET = NullTarget.class;
-    private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, Resolved>> READ = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, Resolved>> WRITE = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, Resolved>> INDEXED_READ = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, Resolved>> INDEXED_WRITE = new ConcurrentHashMap<>();
 
     private PropertyResolution() {
     }
@@ -69,13 +65,7 @@ final class PropertyResolution {
     }
 
     private static ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, Resolved>> byClass(PropertyAccessKind kind) {
-        if (kind == PropertyAccessKind.READ) {
-            return READ;
-        }
-        if (kind == PropertyAccessKind.WRITE) {
-            return WRITE;
-        }
-        return kind == PropertyAccessKind.INDEXED_READ ? INDEXED_READ : INDEXED_WRITE;
+        return OgnlRuntime.cache.getPropertyResolutions(kind);
     }
 
     static <C extends OgnlContext<C>> PropertyCandidate firstUsable(C context, Object target, String propertyName,
@@ -181,13 +171,6 @@ final class PropertyResolution {
     static boolean isAssignable(Field field) {
         int modifiers = field.getModifiers();
         return !Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers);
-    }
-
-    static void clear() {
-        READ.clear();
-        WRITE.clear();
-        INDEXED_READ.clear();
-        INDEXED_WRITE.clear();
     }
 
     private static List<PropertyCandidate> resolve(Class<?> targetClass, String propertyName, PropertyAccessKind kind) {

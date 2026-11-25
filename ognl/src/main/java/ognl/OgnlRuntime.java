@@ -395,7 +395,6 @@ public class OgnlRuntime {
      */
     public static void clearCache() {
         cache.clear();
-        PropertyResolution.clear();
     }
 
     /**
@@ -435,7 +434,7 @@ public class OgnlRuntime {
      */
     public static void setPropertyResolver(PropertyResolver resolver) {
         propertyResolver.set(resolver == null ? DefaultPropertyResolver.INSTANCE : resolver);
-        PropertyResolution.clear();
+        cache.clearPropertyResolutions();
     }
 
     /**
